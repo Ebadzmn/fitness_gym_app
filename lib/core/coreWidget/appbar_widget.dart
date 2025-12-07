@@ -1,0 +1,88 @@
+import 'package:flutter/material.dart';
+
+// ডাটা মডেল ক্লাস (আইকন এবং লেবেলের জন্য)
+class NavItem {
+  final IconData icon;
+  final String label;
+
+  NavItem({required this.icon, required this.label});
+}
+
+class CustomFloatingNavBar extends StatelessWidget {
+  final int selectedIndex;
+  final List<NavItem> items;
+  final Function(int) onItemSelected;
+
+  const CustomFloatingNavBar({
+    super.key,
+    required this.selectedIndex,
+    required this.items,
+    required this.onItemSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      // ফ্লোটিং ইফেক্ট দেওয়ার জন্য মার্জিন
+      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 20), 
+      padding: const EdgeInsets.all(5),
+      height: 70, // বার-এর উচ্চতা
+      decoration: BoxDecoration(
+        color: Colors.grey.withOpacity(0.5), // পুরো বার-এর ব্যাকগ্রাউন্ড (ট্রান্সপারেন্ট গ্রে)
+        borderRadius: BorderRadius.circular(50), // ক্যাপসুল শেইপ
+      ),
+      child: Row(
+        children: List.generate(items.length, (index) {
+          final bool isSelected = selectedIndex == index;
+
+          return Expanded(
+            flex: isSelected ? 2 : 1,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: GestureDetector(
+                onTap: () => onItemSelected(index),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                  height: 55,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? const Color(0xFF050505)
+                        : const Color(0xFFC0C0C0).withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        items[index].icon,
+                        color: Colors.white,
+                        size: 26,
+                      ),
+                      if (isSelected)
+                        Flexible(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: Text(
+                              items[index].label,
+                              maxLines: 1,
+                              overflow: TextOverflow.visible,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
