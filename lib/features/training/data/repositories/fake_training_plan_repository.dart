@@ -1,5 +1,5 @@
 import 'package:fitness_app/domain/entities/training_entities/training_plan_entity.dart';
-import 'package:fitness_app/domain/repositories/training_plan_repository.dart';
+import 'package:fitness_app/domain/repositories/training_history/training_plan_repository.dart';
 
 class FakeTrainingPlanRepository implements TrainingPlanRepository {
   @override

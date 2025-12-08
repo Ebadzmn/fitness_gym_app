@@ -49,9 +49,7 @@ class TrainingPlanDetailPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    plan.title.contains('PLACEHOLDER')
-                        ? 'Arms'
-                        : "Arms", // Using mockup title as per screenshot flow, or derived
+                    plan.title,
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 18.sp,
@@ -60,7 +58,7 @@ class TrainingPlanDetailPage extends StatelessWidget {
                   ),
                   SizedBox(height: 8.h),
                   Text(
-                    'Last performed 12 days ago', // Hardcoded as per screenshot
+                    plan.subtitle,
                     style: GoogleFonts.poppins(
                       color: Colors.white70,
                       fontSize: 14.sp,
@@ -88,7 +86,7 @@ class TrainingPlanDetailPage extends StatelessWidget {
               height: 50.h,
               child: ElevatedButton(
                 onPressed: () {
-                  context.push(AppRoutes.workoutSessionPage);
+                  context.push(AppRoutes.WorkoutSessionPage);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0F123B), // Dark blue button

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../../../../domain/entities/training_entities/training_dashboard_entity.dart';
+import '../../../../../../domain/entities/training_entities/training_dashboard_entity.dart';
 
 enum TrainingStatus { initial, loading, ready, error }
 

@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'exercise_event.dart';
 import 'exercise_state.dart';
-import '../../../domain/usecases/get_exercises_usecase.dart';
-import '../../../../../domain/entities/training_entities/exercise_entity.dart';
+import '../../../../domain/usecases/get_exercises_usecase.dart';
+import '../../../../../../domain/entities/training_entities/exercise_entity.dart';
 
 class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
   final GetExercisesUseCase getExercises;

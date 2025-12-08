@@ -7,9 +7,9 @@ import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/features/training/data/repositories/fake_training_repository.dart';
 import 'package:fitness_app/features/training/domain/usecases/get_training_split_usecase.dart';
-import 'package:fitness_app/features/training/presentation/pages/bloc/training_split_bloc.dart';
-import 'package:fitness_app/features/training/presentation/pages/bloc/training_split_event.dart';
-import 'package:fitness_app/features/training/presentation/pages/bloc/training_split_state.dart';
+import 'package:fitness_app/features/training/presentation/pages/bloc/training_spilt2/training_split_bloc.dart';
+import 'package:fitness_app/features/training/presentation/pages/bloc/training_spilt2/training_split_event.dart';
+import 'package:fitness_app/features/training/presentation/pages/bloc/training_spilt2/training_split_state.dart';
 
 class TrainingSplitPage extends StatelessWidget {
   const TrainingSplitPage({super.key});

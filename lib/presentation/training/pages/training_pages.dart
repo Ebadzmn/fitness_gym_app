@@ -8,9 +8,9 @@ import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/features/training/data/repositories/fake_training_repository.dart';
 import 'package:fitness_app/features/training/domain/usecases/get_training_initial_usecase.dart';
-import 'package:fitness_app/features/training/presentation/pages/bloc/training_bloc.dart';
-import 'package:fitness_app/features/training/presentation/pages/bloc/training_event.dart';
-import 'package:fitness_app/features/training/presentation/pages/bloc/training_state.dart';
+import 'package:fitness_app/features/training/presentation/pages/bloc/training_bloc/training_bloc.dart';
+import 'package:fitness_app/features/training/presentation/pages/bloc/training_bloc/training_event.dart';
+import 'package:fitness_app/features/training/presentation/pages/bloc/training_bloc/training_state.dart';
 
 class TrainingPages extends StatelessWidget {
   const TrainingPages({super.key});

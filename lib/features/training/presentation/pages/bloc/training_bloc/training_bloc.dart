@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'training_event.dart';
 import 'training_state.dart';
-import '../../../domain/usecases/get_training_initial_usecase.dart';
+import '../../../../domain/usecases/get_training_initial_usecase.dart';
 
 class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
   final GetTrainingInitialUseCase getInitial;

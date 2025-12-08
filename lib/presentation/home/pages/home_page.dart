@@ -4,6 +4,7 @@ import 'package:fitness_app/presentation/checkIn/pages/checkIn_pages.dart';
 import 'package:fitness_app/presentation/daily/daily_tracking/presentation/pages/daily_page.dart';
 import 'package:fitness_app/presentation/daily/pages/daily_pages.dart';
 import 'package:fitness_app/presentation/training/pages/training_pages.dart';
+import 'package:fitness_app/presentation/nutrition/pages/nutrition_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_app/core/bloc/nav_bloc.dart';
@@ -36,7 +37,7 @@ class _HomePageState extends State<HomePage> {
             DailyPage(),
             CheckinPages(),
             TrainingPages(),
-            Center(child: Text('Diet')),
+            NutritionPage(),
             Center(child: Text('Profile')),
           ];
 

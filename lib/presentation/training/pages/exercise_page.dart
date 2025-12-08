@@ -9,9 +9,9 @@ import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/features/training/data/repositories/fake_exercise_repository.dart';
 import 'package:fitness_app/features/training/domain/usecases/get_exercises_usecase.dart';
-import 'package:fitness_app/features/training/presentation/pages/bloc/exercise_bloc.dart';
-import 'package:fitness_app/features/training/presentation/pages/bloc/exercise_event.dart';
-import 'package:fitness_app/features/training/presentation/pages/bloc/exercise_state.dart';
+import 'package:fitness_app/features/training/presentation/pages/bloc/exercise_bloc/exercise_bloc.dart';
+import 'package:fitness_app/features/training/presentation/pages/bloc/exercise_bloc/exercise_event.dart';
+import 'package:fitness_app/features/training/presentation/pages/bloc/exercise_bloc/exercise_state.dart';
 
 class ExercisePage extends StatelessWidget {
   const ExercisePage({super.key});

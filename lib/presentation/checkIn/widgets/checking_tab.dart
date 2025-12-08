@@ -1,10 +1,11 @@
+import 'package:fitness_app/presentation/checkIn/bloc/checkin_bloc.dart';
+import 'package:fitness_app/presentation/checkIn/bloc/checkin_event.dart';
+import 'package:fitness_app/presentation/checkIn/bloc/checkin_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_app/core/coreWidget/full_width_slider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fitness_app/presentation/checkIn/bloc/checkin_bloc.dart';
-import 'package:fitness_app/presentation/checkIn/bloc/checkin_state.dart';
-import 'package:fitness_app/presentation/checkIn/bloc/checkin_event.dart';
+
 
 class CheckingTab extends StatelessWidget {
   const CheckingTab({super.key});
