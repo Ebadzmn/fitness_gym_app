@@ -14,6 +14,11 @@ import 'package:fitness_app/presentation/training/pages/training_plan_page.dart'
 import 'package:fitness_app/presentation/training/pages/training_split_page.dart';
 import 'package:fitness_app/presentation/training/pages/workout_session_page.dart';
 import 'package:fitness_app/presentation/nutrition/pages/nutrition_page.dart';
+import 'package:fitness_app/presentation/nutrition/pages/nutrition_plan_page.dart';
+import 'package:fitness_app/presentation/nutrition/pages/nutrition_food_items_page.dart';
+import 'package:fitness_app/presentation/nutrition/pages/nutrition_track_meals_page.dart';
+import 'package:fitness_app/presentation/nutrition/pages/nutrition_statistics_page.dart';
+import 'package:fitness_app/presentation/nutrition/pages/nutrition_peds_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fitness_app/presentation/auth/pages/login_page.dart';
 import 'package:fitness_app/presentation/auth/pages/splash_page.dart';
@@ -32,6 +37,11 @@ class AppRoutes {
   static const String exercisesPage = '/exercises';
   static const String exerciseDetailPage = '/exercise_detail';
   static const String nutritionPage = '/nutrition';
+  static const String nutritionPlanPage = '/nutrition_plan';
+  static const String nutritionFoodItemsPage = '/nutrition_food_items';
+  static const String nutritionTrackMealsPage = '/nutrition_track_meals';
+  static const String nutritionStatisticsPage = '/nutrition_statistics';
+  static const String nutritionPEDsPage = '/nutrition_peds';
   static const String trainingSplitPage = '/training_split';
   static const String trainingSplitDetailPage = '/training_split_detail';
   static const String WorkoutSessionPage = '/workout_session';
@@ -128,6 +138,46 @@ final GoRouter AppRouter = GoRouter(
         context: context,
         state: state,
         child: const NutritionPage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.nutritionPlanPage,
+      pageBuilder: (context, state) => AppRoutes.fadeTransitionPage(
+        context: context,
+        state: state,
+        child: const NutritionPlanPage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.nutritionFoodItemsPage,
+      pageBuilder: (context, state) => AppRoutes.fadeTransitionPage(
+        context: context,
+        state: state,
+        child: const NutritionFoodItemsPage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.nutritionTrackMealsPage,
+      pageBuilder: (context, state) => AppRoutes.fadeTransitionPage(
+        context: context,
+        state: state,
+        child: const NutritionTrackMealsPage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.nutritionStatisticsPage,
+      pageBuilder: (context, state) => AppRoutes.fadeTransitionPage(
+        context: context,
+        state: state,
+        child: const NutritionStatisticsPage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.nutritionPEDsPage,
+      pageBuilder: (context, state) => AppRoutes.fadeTransitionPage(
+        context: context,
+        state: state,
+        child: const NutritionPEDsPage(),
       ),
     ),
     GoRoute(

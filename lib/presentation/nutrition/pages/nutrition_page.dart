@@ -1,3 +1,4 @@
+import 'package:fitness_app/core/appRoutes/app_routes.dart';
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:flutter/material.dart';
@@ -85,7 +86,7 @@ class _NutritionView extends StatelessWidget {
                         iconColor: const Color(0xFF82C941),
                         title: 'Food Items',
                         subtitle: 'Database',
-                        onTap: () {},
+                        onTap: () => context.push(AppRoutes.nutritionFoodItemsPage),
                       ),
                     ),
                     SizedBox(width: 12.w),
@@ -95,7 +96,7 @@ class _NutritionView extends StatelessWidget {
                         iconColor: const Color(0xFF4A6CF7),
                         title: 'NUTRITION PLAN',
                         subtitle: 'Wekly Overview',
-                        onTap: () {},
+                        onTap: () => context.push(AppRoutes.nutritionPlanPage),
                       ),
                     ),
                   ],
@@ -109,7 +110,7 @@ class _NutritionView extends StatelessWidget {
                         iconColor: const Color(0xFFFF6D00),
                         title: 'TRACK MEALS',
                         subtitle: 'To Record',
-                        onTap: () {},
+                        onTap: () => context.push(AppRoutes.nutritionTrackMealsPage),
                       ),
                     ),
                     SizedBox(width: 12.w),
@@ -119,7 +120,7 @@ class _NutritionView extends StatelessWidget {
                         iconColor: const Color(0xFFFF6D00),
                         title: 'STATISTICS',
                         subtitle: 'View History',
-                        onTap: () {},
+                        onTap: () => context.push(AppRoutes.nutritionStatisticsPage),
                       ),
                     ),
                   ],
@@ -143,7 +144,7 @@ class _NutritionView extends StatelessWidget {
                         iconColor: const Color(0xFFFF6D00),
                         title: "PED's",
                         subtitle: 'Plan',
-                        onTap: () {},
+                        onTap: () => context.push(AppRoutes.nutritionPEDsPage),
                       ),
                     ),
                   ],
