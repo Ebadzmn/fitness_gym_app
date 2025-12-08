@@ -82,7 +82,9 @@ class LoginPage extends StatelessWidget {
 
             CustomButton(
               text: 'Login',
-              onPressed: () {},
+              onPressed: () {
+                context.push(AppRoutes.dailyPage);
+              },
             ),
           ],
         ),

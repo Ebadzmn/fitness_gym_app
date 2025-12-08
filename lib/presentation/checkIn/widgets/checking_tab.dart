@@ -1,30 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_app/core/coreWidget/full_width_slider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fitness_app/presentation/checkIn/bloc/checkin_bloc.dart';
+import 'package:fitness_app/presentation/checkIn/bloc/checkin_state.dart';
+import 'package:fitness_app/presentation/checkIn/bloc/checkin_event.dart';
 
-class CheckingTab extends StatefulWidget {
+class CheckingTab extends StatelessWidget {
   const CheckingTab({super.key});
-
-  @override
-  State<CheckingTab> createState() => _CheckingTabState();
-}
-
-class _CheckingTabState extends State<CheckingTab> {
-  bool _picturesUploaded = true;
-  bool _videoUploaded = true;
-  double _wbEnergy = 6;
-  double _wbStress = 6;
-  double _wbMood = 6;
-  double _wbSleep = 6;
-  double _nutDiet = 6;
-  double _nutDigestion = 6;
-  final TextEditingController _challengeDietCtrl = TextEditingController();
-  double _feelStrength = 6;
-  double _pumps = 6;
-  bool _trainingCompleted = true;
-  bool _cardioCompleted = true;
-  final TextEditingController _feedbackCtrl = TextEditingController();
-  final TextEditingController _dailyNotesCtrl = TextEditingController();
 
   Widget _summaryCard({required IconData icon, required String title, required String value}) {
     return Container(
@@ -103,7 +86,7 @@ class _CheckingTabState extends State<CheckingTab> {
     ]);
   }
 
-  Widget _filledField(TextEditingController ctrl, {required String hint}) {
+  Widget _filledField(TextEditingController ctrl, {required String hint, required ValueChanged<String> onChanged}) {
     return TextFormField(
       controller: ctrl,
       style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w400),
@@ -117,10 +100,11 @@ class _CheckingTabState extends State<CheckingTab> {
         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       ),
+      onChanged: onChanged,
     );
   }
 
-  Widget _textArea(TextEditingController ctrl, {String hint = 'Type...'}) {
+  Widget _textArea(TextEditingController ctrl, {String hint = 'Type...', ValueChanged<String>? onChanged}) {
     return TextFormField(
       controller: ctrl,
       maxLines: 4,
@@ -135,22 +119,20 @@ class _CheckingTabState extends State<CheckingTab> {
         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       ),
+      onChanged: onChanged,
     );
   }
-
-  @override
-  void dispose() {
-    _challengeDietCtrl.dispose();
-    _feedbackCtrl.dispose();
-    _dailyNotesCtrl.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _summaryCard(icon: Icons.emoji_events_outlined, title: 'Weight Class', value: '80.2 (kg)'),
-      _summaryCard(icon: Icons.percent, title: 'Average Weight in %', value: '80.2 (%)'),
+    return BlocBuilder<CheckInBloc, CheckInState>(builder: (context, state) {
+      final data = state.data;
+      if (data == null) return const SizedBox.shrink();
+      final challengeCtrl = TextEditingController(text: data.nutrition.challenge);
+      final feedbackCtrl = TextEditingController(text: data.training.feedback);
+      final dailyNotesCtrl = TextEditingController(text: data.dailyNotes);
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        _summaryCard(icon: Icons.emoji_events_outlined, title: 'Weight Class', value: '80.2 (kg)'),
+        _summaryCard(icon: Icons.percent, title: 'Average Weight in %', value: '80.2 (%)'),
 
       Container(
         margin: EdgeInsets.only(top: 8.h),
@@ -161,7 +143,7 @@ class _CheckingTabState extends State<CheckingTab> {
             Text('Basic Data', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
           ]),
           SizedBox(height: 12.h),
-          _ynRow('Pictures uploaded?', _picturesUploaded, (v) => setState(() => _picturesUploaded = v)),
+          _ynRow('Pictures uploaded?', data.uploads.picturesUploaded, (v) => context.read<CheckInBloc>().add(UploadsToggled('picturesUploaded', v))),
           SizedBox(height: 12.h),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -176,7 +158,7 @@ class _CheckingTabState extends State<CheckingTab> {
             ]),
           ),
           SizedBox(height: 12.h),
-          _ynRow('Video uploaded?', _videoUploaded, (v) => setState(() => _videoUploaded = v)),
+          _ynRow('Video uploaded?', data.uploads.videoUploaded, (v) => context.read<CheckInBloc>().add(UploadsToggled('videoUploaded', v))),
           SizedBox(height: 12.h),
           Container(
             height: 140.h,
@@ -238,14 +220,14 @@ class _CheckingTabState extends State<CheckingTab> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Well-Being', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
           SizedBox(height: 12.h),
-          _labelWithValue('Energy Level (1-10)', _wbEnergy.round()),
-          FullWidthSlider(value: _wbEnergy, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _wbEnergy = v), overlayColor: Colors.green.withOpacity(0.2)),
-          _labelWithValue('Stress level (1-10)', _wbStress.round()),
-          FullWidthSlider(value: _wbStress, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _wbStress = v), overlayColor: Colors.green.withOpacity(0.2)),
-          _labelWithValue('Mood level (1-10)', _wbMood.round()),
-          FullWidthSlider(value: _wbMood, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _wbMood = v), overlayColor: Colors.green.withOpacity(0.2)),
-          _labelWithValue('Sleep quality (1-10)', _wbSleep.round()),
-          FullWidthSlider(value: _wbSleep, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _wbSleep = v), overlayColor: Colors.green.withOpacity(0.2)),
+          _labelWithValue('Energy Level (1-10)', data.wellBeing.energy.round()),
+          FullWidthSlider(value: data.wellBeing.energy, min: 1, max: 10, divisions: 9, onChanged: (v) => context.read<CheckInBloc>().add(WellBeingChanged('energy', v)), overlayColor: Colors.green.withOpacity(0.2)),
+          _labelWithValue('Stress level (1-10)', data.wellBeing.stress.round()),
+          FullWidthSlider(value: data.wellBeing.stress, min: 1, max: 10, divisions: 9, onChanged: (v) => context.read<CheckInBloc>().add(WellBeingChanged('stress', v)), overlayColor: Colors.green.withOpacity(0.2)),
+          _labelWithValue('Mood level (1-10)', data.wellBeing.mood.round()),
+          FullWidthSlider(value: data.wellBeing.mood, min: 1, max: 10, divisions: 9, onChanged: (v) => context.read<CheckInBloc>().add(WellBeingChanged('mood', v)), overlayColor: Colors.green.withOpacity(0.2)),
+          _labelWithValue('Sleep quality (1-10)', data.wellBeing.sleep.round()),
+          FullWidthSlider(value: data.wellBeing.sleep, min: 1, max: 10, divisions: 9, onChanged: (v) => context.read<CheckInBloc>().add(WellBeingChanged('sleep', v)), overlayColor: Colors.green.withOpacity(0.2)),
         ]),
       ),
 
@@ -256,14 +238,14 @@ class _CheckingTabState extends State<CheckingTab> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Nutrition', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
           SizedBox(height: 12.h),
-          _labelWithValue('Diet Level  (1-10)', _nutDiet.round()),
-          FullWidthSlider(value: _nutDiet, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _nutDiet = v), overlayColor: Colors.green.withOpacity(0.2)),
-          _labelWithValue('Digestion  (1-10)', _nutDigestion.round()),
-          FullWidthSlider(value: _nutDigestion, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _nutDigestion = v), overlayColor: Colors.green.withOpacity(0.2)),
+          _labelWithValue('Diet Level  (1-10)', data.nutrition.dietLevel.round()),
+          FullWidthSlider(value: data.nutrition.dietLevel, min: 1, max: 10, divisions: 9, onChanged: (v) => context.read<CheckInBloc>().add(NutritionNumberChanged('dietLevel', v)), overlayColor: Colors.green.withOpacity(0.2)),
+          _labelWithValue('Digestion  (1-10)', data.nutrition.digestion.round()),
+          FullWidthSlider(value: data.nutrition.digestion, min: 1, max: 10, divisions: 9, onChanged: (v) => context.read<CheckInBloc>().add(NutritionNumberChanged('digestion', v)), overlayColor: Colors.green.withOpacity(0.2)),
           SizedBox(height: 12.h),
           Text('Challenge Diet', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500)),
           SizedBox(height: 8.h),
-          _filledField(_challengeDietCtrl, hint: 'Type..'),
+          _filledField(challengeCtrl, hint: 'Type..', onChanged: (v) => context.read<CheckInBloc>().add(NutritionTextChanged('challenge', v))),
         ]),
       ),
 
@@ -274,18 +256,18 @@ class _CheckingTabState extends State<CheckingTab> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Training', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
           SizedBox(height: 12.h),
-          _labelWithValue('Feel Strength (1-10)', _feelStrength.round()),
-          FullWidthSlider(value: _feelStrength, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _feelStrength = v), overlayColor: Colors.green.withOpacity(0.2)),
-          _labelWithValue('Pumps  (1-10)', _pumps.round()),
-          FullWidthSlider(value: _pumps, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _pumps = v), overlayColor: Colors.green.withOpacity(0.2)),
+          _labelWithValue('Feel Strength (1-10)', data.training.feelStrength.round()),
+          FullWidthSlider(value: data.training.feelStrength, min: 1, max: 10, divisions: 9, onChanged: (v) => context.read<CheckInBloc>().add(TrainingNumberChanged('feelStrength', v)), overlayColor: Colors.green.withOpacity(0.2)),
+          _labelWithValue('Pumps  (1-10)', data.training.pumps.round()),
+          FullWidthSlider(value: data.training.pumps, min: 1, max: 10, divisions: 9, onChanged: (v) => context.read<CheckInBloc>().add(TrainingNumberChanged('pumps', v)), overlayColor: Colors.green.withOpacity(0.2)),
           SizedBox(height: 12.h),
-          _ynRow('Training Completed?', _trainingCompleted, (v) => setState(() => _trainingCompleted = v)),
+          _ynRow('Training Completed?', data.training.trainingCompleted, (v) => context.read<CheckInBloc>().add(TrainingToggleChanged('trainingCompleted', v))),
           SizedBox(height: 12.h),
-          _ynRow('Cardio Completed?', _cardioCompleted, (v) => setState(() => _cardioCompleted = v)),
+          _ynRow('Cardio Completed?', data.training.cardioCompleted, (v) => context.read<CheckInBloc>().add(TrainingToggleChanged('cardioCompleted', v))),
           SizedBox(height: 12.h),
           Text('Feedback Training', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500)),
           SizedBox(height: 8.h),
-          _filledField(_feedbackCtrl, hint: 'Type..'),
+          _filledField(feedbackCtrl, hint: 'Type..', onChanged: (v) => context.read<CheckInBloc>().add(TrainingTextChanged('feedback', v))),
         ]),
       ),
 
@@ -296,10 +278,10 @@ class _CheckingTabState extends State<CheckingTab> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Daily Notes', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
           SizedBox(height: 8.h),
-          _textArea(_dailyNotesCtrl, hint: 'Type...'),
+          _textArea(dailyNotesCtrl, hint: 'Type...', onChanged: (v) => context.read<CheckInBloc>().add(DailyNotesChanged(v))),
         ]),
       ),
     ]);
+    });
   }
 }
-

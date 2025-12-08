@@ -1,42 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_app/core/coreWidget/full_width_slider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fitness_app/presentation/checkIn/bloc/checkin_bloc.dart';
+import 'package:fitness_app/presentation/checkIn/bloc/checkin_state.dart';
+import 'package:fitness_app/presentation/checkIn/bloc/checkin_event.dart';
 
-class QuestionsTab extends StatefulWidget {
+class QuestionsTab extends StatelessWidget {
   const QuestionsTab({super.key});
-
-  @override
-  State<QuestionsTab> createState() => _QuestionsTabState();
-}
-
-class _QuestionsTabState extends State<QuestionsTab> {
-  final _answerCtrl = TextEditingController();
-  final _answer2Ctrl = TextEditingController();
-  final _challengeCtrl = TextEditingController();
-  final _feedbackCtrl = TextEditingController();
-  final _dailyNotesCtrl = TextEditingController();
-
-  double _energy = 6;
-  double _stress = 6;
-  double _mood = 6;
-  double _sleep = 6;
-
-  double _dietLevel = 6;
-  double _digestion = 6;
-  double _feelStrength = 6;
-  double _pumps = 6;
-  bool _trainingCompleted = true;
-  bool _cardioCompleted = true;
-
-  @override
-  void dispose() {
-    _answerCtrl.dispose();
-    _answer2Ctrl.dispose();
-    _challengeCtrl.dispose();
-    _feedbackCtrl.dispose();
-    _dailyNotesCtrl.dispose();
-    super.dispose();
-  }
 
   Widget _boxedLabel(String title) {
     return Container(
@@ -48,7 +19,7 @@ class _QuestionsTabState extends State<QuestionsTab> {
     );
   }
 
-  Widget _filledField(TextEditingController ctrl, {required String hint}) {
+  Widget _filledField(TextEditingController ctrl, {required String hint, required ValueChanged<String> onChanged}) {
     return TextFormField(
       controller: ctrl,
       style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w400),
@@ -62,10 +33,11 @@ class _QuestionsTabState extends State<QuestionsTab> {
         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       ),
+      onChanged: onChanged,
     );
   }
 
-  Widget _answerInput(TextEditingController ctrl, {String hint = 'Answer'}) {
+  Widget _answerInput(TextEditingController ctrl, {String hint = 'Answer', required ValueChanged<String> onChanged}) {
     return TextFormField(
       controller: ctrl,
       style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w400),
@@ -79,6 +51,7 @@ class _QuestionsTabState extends State<QuestionsTab> {
         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       ),
+      onChanged: onChanged,
     );
   }
 
@@ -94,7 +67,7 @@ class _QuestionsTabState extends State<QuestionsTab> {
     ]);
   }
 
-  Widget _textArea(TextEditingController ctrl, {String hint = 'Type...'}) {
+  Widget _textArea(TextEditingController ctrl, {String hint = 'Type...', ValueChanged<String>? onChanged}) {
     return TextFormField(
       controller: ctrl,
       maxLines: 4,
@@ -109,6 +82,7 @@ class _QuestionsTabState extends State<QuestionsTab> {
         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       ),
+      onChanged: onChanged,
     );
   }
 
@@ -139,87 +113,94 @@ class _QuestionsTabState extends State<QuestionsTab> {
     ]);
   }
 
-  @override
   Widget build(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text('Q1 . What are you proud of? *', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
-      SizedBox(height: 12.h),
-      _answerInput(_answerCtrl, hint: 'Answer'),
-      SizedBox(height: 12.h),
-      SizedBox(height: 12.h),
-      Text('Q2 . Calories per default quantity *', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
-      SizedBox(height: 12.h),
-      _answerInput(_answer2Ctrl, hint: 'Type..'),
-      SizedBox(height: 12.h),
+    return BlocBuilder<CheckInBloc, CheckInState>(builder: (context, state) {
+      final data = state.data;
+      if (data == null) return const SizedBox.shrink();
+      final answerCtrl = TextEditingController(text: data.answer1);
+      final answer2Ctrl = TextEditingController(text: data.answer2);
+      final challengeCtrl = TextEditingController(text: data.nutrition.challenge);
+      final feedbackCtrl = TextEditingController(text: data.training.feedback);
+      final dailyNotesCtrl = TextEditingController(text: data.dailyNotes);
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('Q1 . What are you proud of? *', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
+        SizedBox(height: 12.h),
+        _answerInput(answerCtrl, hint: 'Answer', onChanged: (v) => context.read<CheckInBloc>().add(AnswerChanged(1, v))),
+        SizedBox(height: 12.h),
+        SizedBox(height: 12.h),
+        Text('Q2 . Calories per default quantity *', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
+        SizedBox(height: 12.h),
+        _answerInput(answer2Ctrl, hint: 'Type..', onChanged: (v) => context.read<CheckInBloc>().add(AnswerChanged(2, v))),
+        SizedBox(height: 12.h),
 
-      Container(
-        decoration: BoxDecoration(color: const Color(0XFF1C1C2E), borderRadius: BorderRadius.circular(12.r)),
-        padding: EdgeInsets.all(12.sp),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Well-Being', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
-          SizedBox(height: 12.h),
-          _labelWithValue('Energy Level (1-10)', _energy.round()),
-          FullWidthSlider(value: _energy, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _energy = v), overlayColor: Colors.green.withOpacity(0.2)),
-          _labelWithValue('Stress level (1-10)', _stress.round()),
-          FullWidthSlider(value: _stress, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _stress = v), overlayColor: Colors.green.withOpacity(0.2)),
-          _labelWithValue('Mood level (1-10)', _mood.round()),
-          FullWidthSlider(value: _mood, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _mood = v), overlayColor: Colors.green.withOpacity(0.2)),
-          _labelWithValue('Sleep quality (1-10)', _sleep.round()),
-          FullWidthSlider(value: _sleep, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _sleep = v), overlayColor: Colors.green.withOpacity(0.2)),
-        ]),
-      ),
+        Container(
+          decoration: BoxDecoration(color: const Color(0XFF1C1C2E), borderRadius: BorderRadius.circular(12.r)),
+          padding: EdgeInsets.all(12.sp),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Well-Being', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
+            SizedBox(height: 12.h),
+            _labelWithValue('Energy Level (1-10)', data.wellBeing.energy.round()),
+            FullWidthSlider(value: data.wellBeing.energy, min: 1, max: 10, divisions: 9, onChanged: (v) => context.read<CheckInBloc>().add(WellBeingChanged('energy', v)), overlayColor: Colors.green.withOpacity(0.2)),
+            _labelWithValue('Stress level (1-10)', data.wellBeing.stress.round()),
+            FullWidthSlider(value: data.wellBeing.stress, min: 1, max: 10, divisions: 9, onChanged: (v) => context.read<CheckInBloc>().add(WellBeingChanged('stress', v)), overlayColor: Colors.green.withOpacity(0.2)),
+            _labelWithValue('Mood level (1-10)', data.wellBeing.mood.round()),
+            FullWidthSlider(value: data.wellBeing.mood, min: 1, max: 10, divisions: 9, onChanged: (v) => context.read<CheckInBloc>().add(WellBeingChanged('mood', v)), overlayColor: Colors.green.withOpacity(0.2)),
+            _labelWithValue('Sleep quality (1-10)', data.wellBeing.sleep.round()),
+            FullWidthSlider(value: data.wellBeing.sleep, min: 1, max: 10, divisions: 9, onChanged: (v) => context.read<CheckInBloc>().add(WellBeingChanged('sleep', v)), overlayColor: Colors.green.withOpacity(0.2)),
+          ]),
+        ),
 
-      SizedBox(height: 12.h),
-      Container(
-        decoration: BoxDecoration(color: const Color(0XFF1C1C2E), borderRadius: BorderRadius.circular(12.r)),
-        padding: EdgeInsets.all(12.sp),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Nutrition', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
-          SizedBox(height: 12.h),
-          _labelWithValue('Diet Level  (1-10)', _dietLevel.round()),
-          FullWidthSlider(value: _dietLevel, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _dietLevel = v), overlayColor: Colors.green.withOpacity(0.2)),
-          _labelWithValue('Digestion  (1-10)', _digestion.round()),
-          FullWidthSlider(value: _digestion, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _digestion = v), overlayColor: Colors.green.withOpacity(0.2)),
-          SizedBox(height: 12.h),
-          Text('Challenge Diet', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500)),
-          SizedBox(height: 8.h),
-          _filledField(_challengeCtrl, hint: 'Type..'),
-        ]),
-      ),
+        SizedBox(height: 12.h),
+        Container(
+          decoration: BoxDecoration(color: const Color(0XFF1C1C2E), borderRadius: BorderRadius.circular(12.r)),
+          padding: EdgeInsets.all(12.sp),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Nutrition', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
+            SizedBox(height: 12.h),
+            _labelWithValue('Diet Level  (1-10)', data.nutrition.dietLevel.round()),
+            FullWidthSlider(value: data.nutrition.dietLevel, min: 1, max: 10, divisions: 9, onChanged: (v) => context.read<CheckInBloc>().add(NutritionNumberChanged('dietLevel', v)), overlayColor: Colors.green.withOpacity(0.2)),
+            _labelWithValue('Digestion  (1-10)', data.nutrition.digestion.round()),
+            FullWidthSlider(value: data.nutrition.digestion, min: 1, max: 10, divisions: 9, onChanged: (v) => context.read<CheckInBloc>().add(NutritionNumberChanged('digestion', v)), overlayColor: Colors.green.withOpacity(0.2)),
+            SizedBox(height: 12.h),
+            Text('Challenge Diet', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500)),
+            SizedBox(height: 8.h),
+            _filledField(challengeCtrl, hint: 'Type..', onChanged: (v) => context.read<CheckInBloc>().add(NutritionTextChanged('challenge', v))),
+          ]),
+        ),
 
-      SizedBox(height: 12.h),
-      Container(
-        decoration: BoxDecoration(color: const Color(0XFF1C1C2E), borderRadius: BorderRadius.circular(12.r)),
-        padding: EdgeInsets.all(12.sp),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Training', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
-          SizedBox(height: 12.h),
-          _labelWithValue('Feel Strength (1-10)', _feelStrength.round()),
-          FullWidthSlider(value: _feelStrength, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _feelStrength = v), overlayColor: Colors.green.withOpacity(0.2)),
-          _labelWithValue('Pumps  (1-10)', _pumps.round()),
-          FullWidthSlider(value: _pumps, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _pumps = v), overlayColor: Colors.green.withOpacity(0.2)),
-          SizedBox(height: 12.h),
-          _ynRow('Training Completed?', _trainingCompleted, (v) => setState(() => _trainingCompleted = v)),
-          SizedBox(height: 12.h),
-          _ynRow('Cardio Completed?', _cardioCompleted, (v) => setState(() => _cardioCompleted = v)),
-          SizedBox(height: 12.h),
-          Text('Feedback Training', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500)),
-          SizedBox(height: 8.h),
-          _filledField(_feedbackCtrl, hint: 'Type..'),
-        ]),
-      ),
+        SizedBox(height: 12.h),
+        Container(
+          decoration: BoxDecoration(color: const Color(0XFF1C1C2E), borderRadius: BorderRadius.circular(12.r)),
+          padding: EdgeInsets.all(12.sp),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Training', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
+            SizedBox(height: 12.h),
+            _labelWithValue('Feel Strength (1-10)', data.training.feelStrength.round()),
+            FullWidthSlider(value: data.training.feelStrength, min: 1, max: 10, divisions: 9, onChanged: (v) => context.read<CheckInBloc>().add(TrainingNumberChanged('feelStrength', v)), overlayColor: Colors.green.withOpacity(0.2)),
+            _labelWithValue('Pumps  (1-10)', data.training.pumps.round()),
+            FullWidthSlider(value: data.training.pumps, min: 1, max: 10, divisions: 9, onChanged: (v) => context.read<CheckInBloc>().add(TrainingNumberChanged('pumps', v)), overlayColor: Colors.green.withOpacity(0.2)),
+            SizedBox(height: 12.h),
+            _ynRow('Training Completed?', data.training.trainingCompleted, (v) => context.read<CheckInBloc>().add(TrainingToggleChanged('trainingCompleted', v))),
+            SizedBox(height: 12.h),
+            _ynRow('Cardio Completed?', data.training.cardioCompleted, (v) => context.read<CheckInBloc>().add(TrainingToggleChanged('cardioCompleted', v))),
+            SizedBox(height: 12.h),
+            Text('Feedback Training', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500)),
+            SizedBox(height: 8.h),
+            _filledField(feedbackCtrl, hint: 'Type..', onChanged: (v) => context.read<CheckInBloc>().add(TrainingTextChanged('feedback', v))),
+          ]),
+        ),
 
-      SizedBox(height: 12.h),
-      Container(
-        decoration: BoxDecoration(color: const Color(0XFF1C1C2E), borderRadius: BorderRadius.circular(12.r)),
-        padding: EdgeInsets.all(12.sp),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Daily Notes', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
-          SizedBox(height: 8.h),
-          _textArea(_dailyNotesCtrl, hint: 'Type...'),
-        ]),
-      ),
-    ]);
+        SizedBox(height: 12.h),
+        Container(
+          decoration: BoxDecoration(color: const Color(0XFF1C1C2E), borderRadius: BorderRadius.circular(12.r)),
+          padding: EdgeInsets.all(12.sp),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Daily Notes', style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
+            SizedBox(height: 8.h),
+            _textArea(dailyNotesCtrl, hint: 'Type...', onChanged: (v) => context.read<CheckInBloc>().add(DailyNotesChanged(v))),
+          ]),
+        ),
+      ]);
+    });
   }
 }
-
