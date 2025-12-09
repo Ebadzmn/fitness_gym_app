@@ -19,6 +19,7 @@ import 'package:fitness_app/presentation/nutrition/pages/nutrition_food_items_pa
 import 'package:fitness_app/presentation/nutrition/pages/nutrition_track_meals_page.dart';
 import 'package:fitness_app/presentation/nutrition/pages/nutrition_statistics_page.dart';
 import 'package:fitness_app/presentation/nutrition/pages/nutrition_peds_page.dart';
+import 'package:fitness_app/presentation/nutrition/pages/nutrition_supplement_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fitness_app/presentation/auth/pages/login_page.dart';
 import 'package:fitness_app/presentation/auth/pages/splash_page.dart';
@@ -42,6 +43,7 @@ class AppRoutes {
   static const String nutritionTrackMealsPage = '/nutrition_track_meals';
   static const String nutritionStatisticsPage = '/nutrition_statistics';
   static const String nutritionPEDsPage = '/nutrition_peds';
+  static const String nutritionSupplementPage = '/nutrition_supplement';
   static const String trainingSplitPage = '/training_split';
   static const String trainingSplitDetailPage = '/training_split_detail';
   static const String WorkoutSessionPage = '/workout_session';
@@ -178,6 +180,14 @@ final GoRouter AppRouter = GoRouter(
         context: context,
         state: state,
         child: const NutritionPEDsPage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.nutritionSupplementPage,
+      pageBuilder: (context, state) => AppRoutes.fadeTransitionPage(
+        context: context,
+        state: state,
+        child: const NutritionSupplementPage(),
       ),
     ),
     GoRoute(

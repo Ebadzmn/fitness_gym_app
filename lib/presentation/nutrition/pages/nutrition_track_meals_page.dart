@@ -78,7 +78,12 @@ class _TrackMealsView extends StatelessWidget {
                 Align(
                   alignment: Alignment.centerRight,
                   child: GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const _AddMealDialog(),
+                      );
+                    },
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.transparent,
@@ -382,6 +387,113 @@ class _MealTileState extends State<_MealTile> {
       ),
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       child: Text(text, style: GoogleFonts.poppins(color: Colors.white, fontSize: 12.sp)),
+    );
+  }
+}
+
+class _AddMealDialog extends StatelessWidget {
+  const _AddMealDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: const Color(0xFF0F0F15),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+      insetPadding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Container(
+        padding: EdgeInsets.all(20.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Icon(Icons.close, color: Colors.white, size: 20.sp),
+              ),
+            ),
+            SizedBox(height: 10.h),
+            Row(
+              children: [
+                Expanded(child: _inputField('Meal Name', 'Type...')),
+                SizedBox(width: 16.w),
+                Expanded(child: _inputField('Food Name', 'Type...')),
+              ],
+            ),
+            SizedBox(height: 16.h),
+            Row(
+              children: [
+                Expanded(child: _inputField('Amount', 'Type...')),
+                SizedBox(width: 16.w),
+                const Expanded(child: SizedBox()),
+              ],
+            ),
+            SizedBox(height: 24.h),
+            Row(
+              children: [
+                Expanded(
+                  child: _button('Cancel', const Color(0xFF1C222E), Colors.white, () => Navigator.pop(context)),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: _button('Add Meal', const Color(0xFF1A1A50), Colors.white, () {
+                    Navigator.pop(context);
+                  }, borderColor: const Color(0xFF3F3F9F)),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _inputField(String label, String hint, {double width = 1.0}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: GoogleFonts.poppins(color: Colors.white, fontSize: 13.sp)),
+        SizedBox(height: 8.h),
+        TextField(
+          style: GoogleFonts.poppins(color: Colors.white, fontSize: 13.sp),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: GoogleFonts.poppins(color: Colors.white38, fontSize: 13.sp),
+            filled: true,
+            fillColor: const Color(0xFF13131F),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.r),
+              borderSide: BorderSide(color: Colors.white10),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.r),
+              borderSide: BorderSide(color: Colors.white10),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.r),
+              borderSide: BorderSide(color: const Color(0xFF82C941)),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _button(String text, Color bgColor, Color textColor, VoidCallback onTap, {Color? borderColor}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 12.h),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(12.r),
+          border: borderColor != null ? Border.all(color: borderColor) : Border.all(color: Colors.transparent),
+        ),
+        alignment: Alignment.center,
+        child: Text(text, style: GoogleFonts.poppins(color: textColor, fontSize: 14.sp, fontWeight: FontWeight.w600)),
+      ),
     );
   }
 }

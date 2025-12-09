@@ -86,6 +86,7 @@ class _NutritionView extends StatelessWidget {
                         iconColor: const Color(0xFF82C941),
                         title: 'Food Items',
                         subtitle: 'Database',
+                        borderColor: const Color(0xFF294328),
                         onTap: () => context.push(AppRoutes.nutritionFoodItemsPage),
                       ),
                     ),
@@ -96,6 +97,7 @@ class _NutritionView extends StatelessWidget {
                         iconColor: const Color(0xFF4A6CF7),
                         title: 'NUTRITION PLAN',
                         subtitle: 'Wekly Overview',
+                        borderColor: const Color(0xFF1D89E47A).withOpacity(0.4),
                         onTap: () => context.push(AppRoutes.nutritionPlanPage),
                       ),
                     ),
@@ -110,6 +112,7 @@ class _NutritionView extends StatelessWidget {
                         iconColor: const Color(0xFFFF6D00),
                         title: 'TRACK MEALS',
                         subtitle: 'To Record',
+                        borderColor: const Color(0xFFFF6D00).withOpacity(0.4),
                         onTap: () => context.push(AppRoutes.nutritionTrackMealsPage),
                       ),
                     ),
@@ -120,6 +123,7 @@ class _NutritionView extends StatelessWidget {
                         iconColor: const Color(0xFFFF6D00),
                         title: 'STATISTICS',
                         subtitle: 'View History',
+                        borderColor: const Color(0xFFFC9502).withOpacity(0.4),
                         onTap: () => context.push(AppRoutes.nutritionStatisticsPage),
                       ),
                     ),
@@ -134,7 +138,8 @@ class _NutritionView extends StatelessWidget {
                         iconColor: const Color(0xFF4A6CF7),
                         title: 'SUPPLEMENTS Plan',
                         subtitle: '',
-                        onTap: () {},
+                        borderColor: const Color(0xFFFC9502).withOpacity(0.4),
+                        onTap: () => context.push(AppRoutes.nutritionSupplementPage),
                       ),
                     ),
                     SizedBox(width: 12.w),
@@ -144,6 +149,7 @@ class _NutritionView extends StatelessWidget {
                         iconColor: const Color(0xFFFF6D00),
                         title: "PED's",
                         subtitle: 'Plan',
+                        borderColor: const Color(0xFFFC9502).withOpacity(0.4),
                         onTap: () => context.push(AppRoutes.nutritionPEDsPage),
                       ),
                     ),
@@ -172,9 +178,9 @@ class _NutritionView extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(12.sp),
       decoration: BoxDecoration(
-        color: const Color(0xFF1C1C2E),
+        color: const Color(0xFF212021),
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFF2E2E5D)),
+        border: Border.all(color: const Color(0xFF838383)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,6 +254,7 @@ class _NutritionView extends StatelessWidget {
     required String title,
     required String subtitle,
     VoidCallback? onTap,
+    required Color borderColor,
   }) {
     return InkWell(
       onTap: onTap,
@@ -256,11 +263,11 @@ class _NutritionView extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFF1C1C2E),
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: const Color(0xFF2E2E5D)),
+          border: Border.all(color: borderColor),
         ),
         padding: EdgeInsets.all(12.sp),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: iconColor, size: 28.sp),
