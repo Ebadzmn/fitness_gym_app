@@ -13,7 +13,8 @@ class FullWidthSliderTrackShape extends RoundedRectSliderTrackShape {
   }) {
     final double trackHeight = sliderTheme.trackHeight ?? 2.0;
     final double trackLeft = offset.dx;
-    final double trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2;
+    final double trackTop =
+        offset.dy + (parentBox.size.height - trackHeight) / 2;
     final double trackWidth = parentBox.size.width;
     return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
   }
@@ -40,9 +41,9 @@ class FullWidthSlider extends StatelessWidget {
     this.divisions,
     required this.onChanged,
     this.trackHeight = 5.0,
-    this.activeTrackColor = Colors.green,
+    this.activeTrackColor = const Color(0xFF69B427),
     this.inactiveTrackColor = const Color(0xFF2C2C3E),
-    this.thumbColor = Colors.green,
+    this.thumbColor = const Color(0xFF69B427),
     this.enabledThumbRadius = 10.0,
     this.overlayColor,
   });
@@ -56,7 +57,9 @@ class FullWidthSlider extends StatelessWidget {
         activeTrackColor: activeTrackColor,
         inactiveTrackColor: inactiveTrackColor,
         thumbColor: thumbColor,
-        thumbShape: RoundSliderThumbShape(enabledThumbRadius: enabledThumbRadius),
+        thumbShape: RoundSliderThumbShape(
+          enabledThumbRadius: enabledThumbRadius,
+        ),
         overlayColor: overlayColor,
       ),
       child: Slider(

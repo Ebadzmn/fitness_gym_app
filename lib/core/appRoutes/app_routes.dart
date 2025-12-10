@@ -3,6 +3,7 @@ import 'package:fitness_app/presentation/auth/pages/forgetPass_page.dart';
 import 'package:fitness_app/presentation/auth/pages/otp_pages.dart';
 import 'package:fitness_app/presentation/checkIn/pages/checkIn_pages.dart';
 import 'package:fitness_app/presentation/home/pages/home_page.dart';
+import 'package:fitness_app/presentation/rusui.dart';
 import 'package:fitness_app/presentation/training/pages/exercise_page.dart';
 import 'package:fitness_app/presentation/training/pages/exercise_detail_page.dart';
 import 'package:fitness_app/domain/entities/training_entities/exercise_entity.dart';
@@ -51,10 +52,7 @@ class AppRoutes {
   static const String trainingHistoryPage = '/training_history';
   static const String trainingHistoryDetailPage = '/training_history_detail';
   static const String trainingPlanDetailPage = '/training_plan_detail';
-
-
-
-
+  static const String rusuiPage = '/rusui';
 
   static Page<dynamic> fadeTransitionPage({
     required BuildContext context,
@@ -72,7 +70,7 @@ class AppRoutes {
 }
 
 final GoRouter AppRouter = GoRouter(
-  initialLocation: AppRoutes.splashPage,
+  initialLocation: AppRoutes.rusuiPage,
   routes: [
     GoRoute(
       path: AppRoutes.splashPage,
@@ -96,6 +94,15 @@ final GoRouter AppRouter = GoRouter(
         context: context,
         state: state,
         child: const ForgetpassPage(),
+      ),
+    ),
+
+    GoRoute(
+      path: AppRoutes.rusuiPage,
+      pageBuilder: (context, state) => AppRoutes.fadeTransitionPage(
+        context: context,
+        state: state,
+        child: const RusUI(),
       ),
     ),
 
@@ -126,7 +133,7 @@ final GoRouter AppRouter = GoRouter(
       ),
     ),
 
-  GoRoute(
+    GoRoute(
       path: AppRoutes.dailyPage,
       pageBuilder: (context, state) => AppRoutes.fadeTransitionPage(
         context: context,
@@ -208,8 +215,9 @@ final GoRouter AppRouter = GoRouter(
       ),
     ),
 
-    GoRoute(path: AppRoutes.WorkoutSessionPage,
-    pageBuilder: (context, state) => AppRoutes.fadeTransitionPage(
+    GoRoute(
+      path: AppRoutes.WorkoutSessionPage,
+      pageBuilder: (context, state) => AppRoutes.fadeTransitionPage(
         context: context,
         state: state,
         child: const WorkoutSessionPage(),
@@ -257,7 +265,14 @@ final GoRouter AppRouter = GoRouter(
         final extra = state.extra;
         final plan = extra is TrainingPlanEntity
             ? extra
-            : const TrainingPlanEntity(id: '0', title: 'Error', subtitle: '', date: '', type: '', exercises: []);
+            : const TrainingPlanEntity(
+                id: '0',
+                title: 'Error',
+                subtitle: '',
+                date: '',
+                type: '',
+                exercises: [],
+              );
         return AppRoutes.fadeTransitionPage(
           context: context,
           state: state,
@@ -282,7 +297,19 @@ final GoRouter AppRouter = GoRouter(
         return AppRoutes.fadeTransitionPage(
           context: context,
           state: state,
-          child: ExerciseDetailPage(exercise: ex ?? const ExerciseEntity(id: 'unknown', title: 'Exercise', category: 'All', equipment: '', tags: [], description: '', imageUrl: '')),
+          child: ExerciseDetailPage(
+            exercise:
+                ex ??
+                const ExerciseEntity(
+                  id: 'unknown',
+                  title: 'Exercise',
+                  category: 'All',
+                  equipment: '',
+                  tags: [],
+                  description: '',
+                  imageUrl: '',
+                ),
+          ),
         );
       },
     ),

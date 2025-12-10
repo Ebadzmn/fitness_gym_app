@@ -20,6 +20,9 @@ class FakeTrainingRepository {
       TrainingSplitItem(dayLabel: 'Day 7', work: 'Push'),
       TrainingSplitItem(dayLabel: 'Day 8', work: 'Pull'),
       TrainingSplitItem(dayLabel: 'Day 9', work: 'Rest'),
+      TrainingSplitItem(dayLabel: 'Day 7', work: 'Push'),
+      TrainingSplitItem(dayLabel: 'Day 8', work: 'Pull'),
+      TrainingSplitItem(dayLabel: 'Day 9', work: 'Rest'),
     ];
   }
 }

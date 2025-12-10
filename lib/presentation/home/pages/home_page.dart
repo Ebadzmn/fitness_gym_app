@@ -1,3 +1,4 @@
+import 'package:fitness_app/core/config/assets_path.dart';
 import 'package:fitness_app/core/coreWidget/appbar_widget.dart'; // আপনার উইজেট লোকেশন
 import 'package:fitness_app/presentation/auth/pages/login_page.dart';
 import 'package:fitness_app/presentation/checkIn/pages/checkIn_pages.dart';
@@ -5,6 +6,7 @@ import 'package:fitness_app/presentation/daily/daily_tracking/presentation/pages
 import 'package:fitness_app/presentation/daily/pages/daily_pages.dart';
 import 'package:fitness_app/presentation/training/pages/training_pages.dart';
 import 'package:fitness_app/presentation/nutrition/pages/nutrition_page.dart';
+import 'package:fitness_app/presentation/profile/pages/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_app/core/bloc/nav_bloc.dart';
@@ -20,11 +22,11 @@ class _HomePageState extends State<HomePage> {
   int _selectedRadioValue = 1;
 
   final List<NavItem> _navItems = [
-    NavItem(icon: Icons.assignment_outlined, label: "Daily"),
-    NavItem(icon: Icons.checklist_rtl_rounded, label: "Check-in"),
-    NavItem(icon: Icons.fitness_center_outlined, label: "Training"),
-    NavItem(icon: Icons.restaurant_outlined, label: "Diet"),
-    NavItem(icon: Icons.person_outline, label: "Profile"),
+    NavItem(svgPath: AssetsPath.apb1, label: "Daily"),
+    NavItem(svgPath: AssetsPath.apb2, label: "Check-in"),
+    NavItem(svgPath: AssetsPath.apb3, label: "Training"),
+    NavItem(svgPath: AssetsPath.apb4, label: "Diet"),
+    NavItem(svgPath: AssetsPath.apb5, label: "Profile"),
   ];
 
   @override
@@ -38,16 +40,17 @@ class _HomePageState extends State<HomePage> {
             CheckinPages(),
             TrainingPages(),
             NutritionPage(),
-            Center(child: Text('Profile')),
+            ProfilePage(),
           ];
 
           return Scaffold(
             body: IndexedStack(index: state.index, children: pages),
-           
+
             bottomNavigationBar: CustomFloatingNavBar(
               selectedIndex: state.index,
               items: _navItems,
-              onItemSelected: (index) => context.read<NavBloc>().add(NavEvent(index)),
+              onItemSelected: (index) =>
+                  context.read<NavBloc>().add(NavEvent(index)),
             ),
           );
         },
@@ -75,7 +78,9 @@ class _HomePageState extends State<HomePage> {
               width: 22,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isSelected ? const Color.fromARGB(255, 7, 130, 11) : Colors.transparent, 
+                color: isSelected
+                    ? const Color.fromARGB(255, 7, 130, 11)
+                    : Colors.transparent,
                 border: Border.all(
                   color: isSelected ? Colors.green : Colors.grey,
                   width: 1,
@@ -90,10 +95,7 @@ class _HomePageState extends State<HomePage> {
                   : null,
             ),
             const SizedBox(width: 10),
-            Text(
-              text,
-              style: const TextStyle(fontSize: 18),
-            ),
+            Text(text, style: const TextStyle(fontSize: 18)),
           ],
         ),
       ),

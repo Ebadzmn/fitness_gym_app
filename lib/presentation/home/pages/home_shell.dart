@@ -3,15 +3,17 @@ import 'package:fitness_app/core/coreWidget/appbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:fitness_app/core/config/assets_path.dart';
+
 class HomeShell extends StatelessWidget {
   const HomeShell({super.key});
 
   @override
   Widget build(BuildContext context) {
     final items = [
-      NavItem(icon: Icons.home_outlined, label: 'Home'),
-      NavItem(icon: Icons.explore_outlined, label: 'Discover'),
-      NavItem(icon: Icons.person_outline, label: 'Profile'),
+      NavItem(svgPath: AssetsPath.apb1, label: 'Home'),
+      NavItem(svgPath: AssetsPath.apb2, label: 'Discover'),
+      NavItem(svgPath: AssetsPath.apb5, label: 'Profile'),
     ];
 
     final pages = const [

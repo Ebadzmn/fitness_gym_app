@@ -34,7 +34,7 @@ class LoginPage extends StatelessWidget {
             ),
 
             SizedBox(height: 11.h),
-            
+
             Text(
               'Log in to continue your journey together.',
               style: AppTextStyle.authHeading2,
@@ -44,23 +44,23 @@ class LoginPage extends StatelessWidget {
             SizedBox(height: 52.h),
 
             const CustomTextField(
-              hintText: 'Enter your email', 
-              label: 'Email', 
+              hintText: 'Enter your email',
+              label: 'Email',
               prefixIcon: Icons.email,
             ),
-            
+
             SizedBox(height: 24.h),
-            
+
             const CustomTextField(
-              hintText: 'Enter your password', 
-              label: 'Password', 
-              prefixIcon: Icons.lock, 
-              isPassword: true, 
+              hintText: 'Enter your password',
+              label: 'Password',
+              prefixIcon: Icons.lock,
+              isPassword: true,
               suffixIcon: Icon(Icons.visibility),
             ),
 
             SizedBox(height: 24.h),
-          
+
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -72,7 +72,6 @@ class LoginPage extends StatelessWidget {
                     'Forgot password?',
                     style: AppTextStyle.authHeading3,
                     textAlign: TextAlign.right,
-                  
                   ),
                 ),
               ],
@@ -83,7 +82,7 @@ class LoginPage extends StatelessWidget {
             CustomButton(
               text: 'Login',
               onPressed: () {
-                context.push(AppRoutes.dailyPage);
+                context.push(AppRoutes.homePage);
               },
             ),
           ],

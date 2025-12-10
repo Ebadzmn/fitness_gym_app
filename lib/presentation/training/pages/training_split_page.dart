@@ -72,21 +72,24 @@ class _TrainingSplitView extends StatelessWidget {
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(color: const Color(0xFF2E2E5D)),
         ),
-        child: Column(children: [
+        child: Column(
+          children: [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-            child: Row(children: [
-              Expanded(child: Text('Day', style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600))),
-              Expanded(child: Align(alignment: Alignment.centerLeft, child: Text('Work', style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600))))
+            child: Row(
+              children: [
+              Expanded(child: Text('Day', textAlign: TextAlign.center, style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600))),
+              Expanded(child: Text('Work', textAlign: TextAlign.center, style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)))
             ]),
           ),
           const Divider(color: Color(0xFF2E2E5D), height: 1),
           for (final row in items) ...[
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 18.h),
-              child: Row(children: [
-                Expanded(child: Text(row.dayLabel, style: GoogleFonts.poppins(color: Colors.white70, fontSize: 14.sp))),
-                Expanded(child: Align(alignment: Alignment.centerLeft, child: Text(row.work, style: GoogleFonts.poppins(color: Colors.white70, fontSize: 14.sp))))
+              child: Row(
+                children: [
+                Expanded(child: Text(row.dayLabel, textAlign: TextAlign.center, style: GoogleFonts.poppins(color: Colors.white70, fontSize: 14.sp))),
+                Expanded(child: Text(row.work, textAlign: TextAlign.center, style: GoogleFonts.poppins(color: Colors.white70, fontSize: 14.sp)))
               ]),
             ),
             const Divider(color: Color(0xFF2E2E5D), height: 1),

@@ -15,6 +15,8 @@ class FakeTrainingSplitRepository implements TrainingSplitRepository {
       TrainingSplitItem(dayLabel: 'Day 7', work: 'Push'),
       TrainingSplitItem(dayLabel: 'Day 8', work: 'Pull'),
       TrainingSplitItem(dayLabel: 'Day 9', work: 'Rest'),
+      TrainingSplitItem(dayLabel: 'Day 10', work: 'Pull'),
+      TrainingSplitItem(dayLabel: 'Day 11', work: 'Rest'),
     ];
   }
 }
