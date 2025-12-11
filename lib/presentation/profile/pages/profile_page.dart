@@ -172,7 +172,7 @@ class ProfilePage extends StatelessWidget {
               child: Column(
                 children: [
                   // Header
-                  Container(
+                  Container(  
                     decoration: BoxDecoration(
                       color: Colors.grey.withOpacity(0.3),
                       borderRadius: BorderRadius.only(

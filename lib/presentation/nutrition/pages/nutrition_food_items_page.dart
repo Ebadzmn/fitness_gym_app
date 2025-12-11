@@ -87,7 +87,7 @@ class _FoodItemsView extends StatelessWidget {
   Widget _searchField(BuildContext context, String query) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1C1C2E),
+        color: const Color(0XFF101021),
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: const Color(0xFF2E2E5D)),
       ),
@@ -115,7 +115,7 @@ class _FoodItemsView extends StatelessWidget {
             decoration: BoxDecoration(
               color: isSelected
                   ? const Color(0xFF2F6D2F)
-                  : const Color(0xFF1C1C2E),
+                  : const Color(0XFF101021),
               borderRadius: BorderRadius.circular(8.r),
               border: Border.all(color: isSelected ? const Color(0xFF82C941) : const Color(0xFF2E2E5D)),
             ),

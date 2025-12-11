@@ -32,7 +32,7 @@ class NutritionPEDsPage extends StatelessWidget {
         padding: EdgeInsets.only(top: 20.h, left: 16.w, right: 16.w, bottom: 20.h),
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF1C1C2E),
+            color: const Color(0XFF101021),
             borderRadius: BorderRadius.circular(8.r),
           ),
           clipBehavior: Clip.antiAlias,
@@ -76,10 +76,10 @@ class NutritionPEDsPage extends StatelessWidget {
         TableRow(
           decoration: const BoxDecoration(color: Colors.white),
           children: [
-            Container(height: 30.h, color: const Color(0xFF1C1C2E)), // Empty above Category
+            Container(height: 30.h, color: const Color(0XFF101021)), // Empty above Category
             Container(
               height: 30.h,
-              color: const Color(0xFF1C1C2E),
+              color: const Color(0XFF101021),
               alignment: Alignment.centerLeft,
               padding: EdgeInsets.only(left: 8.w),
               child: Text('WEEK 1', style: GoogleFonts.poppins(color: Colors.white, fontSize: 12.sp, fontWeight: FontWeight.bold)),

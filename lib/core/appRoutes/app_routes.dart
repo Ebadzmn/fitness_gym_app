@@ -70,7 +70,7 @@ class AppRoutes {
 }
 
 final GoRouter AppRouter = GoRouter(
-  initialLocation: AppRoutes.rusuiPage,
+  initialLocation: AppRoutes.splashPage,
   routes: [
     GoRoute(
       path: AppRoutes.splashPage,

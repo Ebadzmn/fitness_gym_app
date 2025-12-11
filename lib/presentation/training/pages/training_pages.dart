@@ -215,7 +215,7 @@ class _TrainingView extends StatelessWidget {
       child: Container(
         height: 140.h,
         decoration: BoxDecoration(
-          color: const Color(0xFF1C1C2E),
+          color: const Color(0XFF101021),
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(color: const Color(0xFF2E2E5D)),
         ),

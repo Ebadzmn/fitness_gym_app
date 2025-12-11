@@ -27,22 +27,7 @@ class CustomAppBar extends StatelessWidget {
         ),
 
         /// Back button (left aligned)
-        if (showBackButton)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: IconButton(
-              // যদি onBackTap না দেওয়া হয়, তবে অটোমেটিক আগের পেজে ব্যাক করবে
-              onPressed: onBackTap ?? () => Navigator.pop(context),
-              icon: Icon(
-                Icons.arrow_back_ios_new,
-                color: Colors.white,
-                size: 22.sp,
-              ),
-              // আইকনের ডিফল্ট প্যাডিং কমানোর জন্য (অপশনাল)
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            ),
-          ),
+      
       ],
     );
   }

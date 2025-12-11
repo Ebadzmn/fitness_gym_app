@@ -24,7 +24,7 @@ class CheckInStep extends StatelessWidget {
         : Colors.white12;
     final circleColor = isActive || isCompleted
         ? const Color(0xFF82C941)
-        : const Color(0xFF1C1C2E); // Green if active, Dark Grey if not
+        : const Color(0XFF101021); // Green if active, Dark Grey if not
     final iconColor = Colors.white; // Always white as requested
 
     return Column(
@@ -88,7 +88,7 @@ class CheckInCard extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 16.h),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: const Color(0xFF1C1C2E), // Dark card background
+        color: const Color(0xFF101021), // Dark card background
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: Colors.white10),
       ),
@@ -110,7 +110,7 @@ class CheckInCard extends StatelessWidget {
                     value!,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 16.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

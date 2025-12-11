@@ -29,9 +29,7 @@ class CustomFloatingNavBar extends StatelessWidget {
       padding: const EdgeInsets.all(5),
       height: 70, // বার-এর উচ্চতা
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(
-          0.5,
-        ), // পুরো বার-এর ব্যাকগ্রাউন্ড (ট্রান্সপারেন্ট গ্রে)
+        color: Color(0xFF8e8e8e),// পুরো বার-এর ব্যাকগ্রাউন্ড (ট্রান্সপারেন্ট গ্রে)
         borderRadius: BorderRadius.circular(50), // ক্যাপসুল শেইপ
       ),
       child: Row(
@@ -51,7 +49,7 @@ class CustomFloatingNavBar extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: isSelected
                         ? const Color(0xFF050505)
-                        : const Color(0xFFC0C0C0).withOpacity(0.4),
+                        : const Color(0xFFb6b0b1),
                     borderRadius: BorderRadius.circular(50),
                   ),
                   child: Row(

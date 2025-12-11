@@ -107,7 +107,7 @@ class _TrainingPlanCard extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
-          color: const Color(0xFF1C1C2E),
+          color: const Color(0XFF101021),
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
             color: _getBorderColor(plan.title).withOpacity(0.5),

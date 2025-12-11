@@ -95,7 +95,7 @@ class _ExerciseView extends StatelessWidget {
         hintText: 'Search Exercise',
         hintStyle: GoogleFonts.poppins(color: Colors.white70, fontSize: 14.sp),
         filled: true,
-        fillColor: const Color(0xFF1C1C2E),
+        fillColor: const Color(0XFF101021),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
           borderSide: BorderSide(color: const Color(0xFF2E2E5D), width: 1.w),
@@ -168,7 +168,7 @@ class _ExerciseView extends StatelessWidget {
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          color: const Color(0xFF1C1C2E),
+          color: const Color(0XFF101021),
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(color: const Color(0xFF2E2E5D)),
         ),

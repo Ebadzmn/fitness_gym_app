@@ -18,7 +18,7 @@ class CheckingTab extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 12.h),
       padding: EdgeInsets.all(12.sp),
       decoration: BoxDecoration(
-        color: const Color(0xFF1C1C2E),
+        color: const Color(0XFF101021),
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: Colors.white10),
       ),
@@ -291,7 +291,7 @@ class CheckingTab extends StatelessWidget {
               margin: EdgeInsets.only(top: 8.h),
               padding: EdgeInsets.all(12.sp),
               decoration: BoxDecoration(
-                color: const Color(0xFF1C1C2E),
+                color: const Color(0XFF101021),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Column(
@@ -400,7 +400,7 @@ class CheckingTab extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(12.sp),
               decoration: BoxDecoration(
-                color: const Color(0xFF1C1C2E),
+                color: const Color(0XFF101021),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Column(
@@ -463,7 +463,7 @@ class CheckingTab extends StatelessWidget {
             SizedBox(height: 12.h),
             Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF1C1C2E),
+                color: const Color(0XFF101021),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               padding: EdgeInsets.all(12.sp),
@@ -542,7 +542,7 @@ class CheckingTab extends StatelessWidget {
             SizedBox(height: 12.h),
             Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF1C1C2E),
+                color: const Color(0XFF101021),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               padding: EdgeInsets.all(12.sp),
@@ -610,7 +610,7 @@ class CheckingTab extends StatelessWidget {
             SizedBox(height: 12.h),
             Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF1C1C2E),
+                color: const Color(0XFF101021),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               padding: EdgeInsets.all(12.sp),
@@ -691,7 +691,7 @@ class CheckingTab extends StatelessWidget {
             SizedBox(height: 12.h),
             Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF1C1C2E),
+                color: const Color(0XFF101021),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               padding: EdgeInsets.all(12.sp),

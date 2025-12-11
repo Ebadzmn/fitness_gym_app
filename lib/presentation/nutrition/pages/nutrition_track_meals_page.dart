@@ -125,7 +125,7 @@ class _TrackMealsView extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1C1C2E),
+        color: const Color(0XFF101021),
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(width: 0.5.w, color: const Color(0xFF82C941)),
       ),

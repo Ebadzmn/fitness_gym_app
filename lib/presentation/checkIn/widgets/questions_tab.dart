@@ -19,7 +19,7 @@ class QuestionsTab extends StatelessWidget {
     return Container(
       height: 40.h,
       decoration: BoxDecoration(
-        color: const Color(0XFF1C1C2E),
+        color: const Color(0XFF101021),
         borderRadius: BorderRadius.circular(10.r),
       ),
       padding: EdgeInsets.symmetric(horizontal: 12.w),
@@ -94,7 +94,7 @@ class QuestionsTab extends StatelessWidget {
           fontWeight: FontWeight.w400,
         ),
         filled: true,
-        fillColor: const Color(0XFF1C1C2E),
+        fillColor: const Color(0XFF101021),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),
           borderSide: BorderSide(color: Colors.grey, width: 1.w),
@@ -292,7 +292,7 @@ class QuestionsTab extends StatelessWidget {
 
             Container(
               decoration: BoxDecoration(
-                color: const Color(0XFF1C1C2E),
+                color: const Color(0XFF101021),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               padding: EdgeInsets.all(12.sp),
@@ -371,7 +371,7 @@ class QuestionsTab extends StatelessWidget {
             SizedBox(height: 12.h),
             Container(
               decoration: BoxDecoration(
-                color: const Color(0XFF1C1C2E),
+                color: const Color(0XFF101021),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               padding: EdgeInsets.all(12.sp),
@@ -439,7 +439,7 @@ class QuestionsTab extends StatelessWidget {
             SizedBox(height: 12.h),
             Container(
               decoration: BoxDecoration(
-                color: const Color(0XFF1C1C2E),
+                color: const Color(0XFF101021),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               padding: EdgeInsets.all(12.sp),
@@ -520,7 +520,7 @@ class QuestionsTab extends StatelessWidget {
             SizedBox(height: 12.h),
             Container(
               decoration: BoxDecoration(
-                color: const Color(0XFF1C1C2E),
+                color: const Color(0XFF101021),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               padding: EdgeInsets.all(12.sp),
