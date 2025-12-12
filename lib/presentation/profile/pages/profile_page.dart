@@ -156,6 +156,8 @@ class ProfilePage extends StatelessWidget {
                   _infoRow('Location', 'Olympia Hall, Germany'),
                   SizedBox(height: 12.h),
                   _infoRow('Division', 'WBFF'),
+                                    SizedBox(height: 12.h),
+                  _infoRow('Countdown', '12 Days'),
                 ],
               ),
             ),

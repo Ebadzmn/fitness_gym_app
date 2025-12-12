@@ -144,10 +144,10 @@ class _ExerciseView extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF2E5B24) : const Color(0xFF3A3A55),
-          borderRadius: BorderRadius.circular(24.r),
+          color: selected ? const Color(0xFF43A047) : const Color(0xFF3A3A55),
+          borderRadius: BorderRadius.circular(12.r),
         ),
         child: Text(
           label,
@@ -206,7 +206,7 @@ class _ExerciseView extends StatelessWidget {
 
                   Row(
                     children: [
-                      _smallChip(e.category, color: const Color(0xFF2E5B24)),
+                      _smallChip(e.category, color: const Color(0xFF223522)),
                       SizedBox(width: 8.w),
                       const Icon(
                         Icons.fitness_center,
@@ -255,7 +255,7 @@ class _ExerciseView extends StatelessWidget {
         style: GoogleFonts.poppins(
           color: Colors.white,
           fontSize: 10.sp,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
