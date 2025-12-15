@@ -11,7 +11,8 @@ class DailyInitRequested extends DailyEvent {
 }
 
 class WellBeingChanged extends DailyEvent {
-  final String field; // 'energy', 'stress', 'muscleSoreness', 'mood', 'motivation'
+  final String
+  field; // 'energy', 'stress', 'muscleSoreness', 'mood', 'motivation'
   final double value;
   const WellBeingChanged(this.field, this.value);
   @override
@@ -41,7 +42,8 @@ class DailyNotesChanged extends DailyEvent {
 }
 
 class NutritionChanged extends DailyEvent {
-  final String field; // 'dietLevel' | 'digestion' | 'hunger' | 'salt' | 'challenge'
+  final String
+  field; // 'dietLevel' | 'digestion' | 'hunger' | 'salt' | 'challenge'
   final double? numberValue;
   final String? textValue;
   const NutritionChanged(this.field, {this.numberValue, this.textValue});
@@ -54,7 +56,8 @@ class SavePressed extends DailyEvent {
 }
 
 class VitalTextChanged extends DailyEvent {
-  final String field; // 'weightText' | 'waterText' | 'bodyTempText' | 'activityTimeText'
+  final String
+  field; // 'weightText' | 'waterText' | 'bodyTempText' | 'activityTimeText'
   final String value;
   const VitalTextChanged(this.field, this.value);
   @override
@@ -104,8 +107,16 @@ class TrainingDurationChanged extends DailyEvent {
   List<Object?> get props => [duration];
 }
 
+class TrainingIntensityChanged extends DailyEvent {
+  final double intensity;
+  const TrainingIntensityChanged(this.intensity);
+  @override
+  List<Object?> get props => [intensity];
+}
+
 class NutritionTextChanged extends DailyEvent {
-  final String field; // 'caloriesText'|'carbsText'|'proteinText'|'fatsText'|'saltText'
+  final String
+  field; // 'caloriesText'|'carbsText'|'proteinText'|'fatsText'|'saltText'
   final String value;
   const NutritionTextChanged(this.field, this.value);
   @override
@@ -155,7 +166,8 @@ class PedSideEffectsChanged extends DailyEvent {
 }
 
 class PedBpChanged extends DailyEvent {
-  final String field; // 'systolicText'|'diastolicText'|'restingHrText'|'glucoseText'
+  final String
+  field; // 'systolicText'|'diastolicText'|'restingHrText'|'glucoseText'
   final String value;
   const PedBpChanged(this.field, this.value);
   @override

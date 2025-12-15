@@ -3,16 +3,19 @@ import 'checkin_event.dart';
 import 'checkin_state.dart';
 import '../../../domain/usecases/checkin/get_checkin_initial_usecase.dart';
 import '../../../domain/usecases/checkin/save_checkin_usecase.dart';
+import '../../../domain/usecases/checkin/get_checkin_history_usecase.dart';
 import '../../../domain/entities/checkin_entities/check_in_entity.dart';
 
 class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
   final GetCheckInInitialUseCase getInitial;
   final SaveCheckInUseCase saveCheckIn;
+  final GetCheckInHistoryUseCase getHistory;
 
-  CheckInBloc({required this.getInitial, required this.saveCheckIn}) : super(const CheckInState()) {
+  CheckInBloc({required this.getInitial, required this.saveCheckIn, required this.getHistory}) : super(const CheckInState()) {
     on<CheckInInitRequested>(_onInit);
     on<CheckInStepSet>(_onStepSet);
     on<CheckInNextPressed>(_onNextPressed);
+    on<CheckInTabSet>(_onTabSet);
     on<AnswerChanged>(_onAnswerChanged);
     on<WellBeingChanged>(_onWellBeingChanged);
     on<NutritionNumberChanged>(_onNutritionNumberChanged);
@@ -29,7 +32,7 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     emit(state.copyWith(status: CheckInStatus.loading));
     try {
       final data = await getInitial();
-      emit(state.copyWith(status: CheckInStatus.ready, data: data));
+      emit(state.copyWith(status: CheckInStatus.ready, data: data, tab: CheckInViewTab.weekly));
     } catch (e) {
       emit(state.copyWith(status: CheckInStatus.error, errorMessage: e.toString()));
     }
@@ -46,6 +49,20 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     if (d == null) return;
     final next = (d.step < 3) ? d.step + 1 : d.step;
     emit(state.copyWith(data: d.copyWith(step: next)));
+  }
+
+  Future<void> _onTabSet(CheckInTabSet event, Emitter<CheckInState> emit) async {
+    if (event.tab == 'weekly') {
+      emit(state.copyWith(tab: CheckInViewTab.weekly));
+      return;
+    }
+    emit(state.copyWith(status: CheckInStatus.loading));
+    try {
+      final items = await getHistory();
+      emit(state.copyWith(status: CheckInStatus.ready, tab: CheckInViewTab.old, history: items));
+    } catch (e) {
+      emit(state.copyWith(status: CheckInStatus.error, errorMessage: e.toString()));
+    }
   }
 
   void _onAnswerChanged(AnswerChanged event, Emitter<CheckInState> emit) {

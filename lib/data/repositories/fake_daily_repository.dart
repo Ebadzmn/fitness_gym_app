@@ -7,11 +7,21 @@ import 'package:fitness_app/domain/entities/daily_entities/vital_entity.dart';
 import 'package:fitness_app/domain/entities/daily_entities/sleep_entity.dart';
 import 'package:fitness_app/domain/entities/daily_entities/women_entity.dart';
 import 'package:fitness_app/domain/repositories/daily/daily_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class FakeDailyRepository implements DailyRepository {
   @override
   Future<DailyTrackingEntity> loadInitial() async {
     await Future<void>.delayed(const Duration(milliseconds: 200));
+    final prefs = await SharedPreferences.getInstance();
+    final trainingJson = prefs.getString('daily_training_last');
+    TrainingEntity? persistedTraining;
+    if (trainingJson != null) {
+      try {
+        persistedTraining = TrainingEntity.fromMap(jsonDecode(trainingJson));
+      } catch (_) {}
+    }
     return DailyTrackingEntity(
       vital: const VitalEntity(
         dateLabel: '2023.08.15',
@@ -28,18 +38,17 @@ class FakeDailyRepository implements DailyRepository {
         mood: 6,
         motivation: 6,
       ),
-      sleep: const SleepEntity(
-        durationText: '08 : 45 (Minutes)',
-        quality: 8,
-      ),
-      training: const TrainingEntity(
-        trainingCompleted: true,
-        cardioCompleted: true,
-        feedback: '',
-        plans: <String>{},
-        cardioType: 'Walking',
-        duration: '30 min',
-      ),
+      sleep: const SleepEntity(durationText: '08 : 45 (Minutes)', quality: 8),
+      training: persistedTraining ??
+          const TrainingEntity(
+            trainingCompleted: true,
+            cardioCompleted: true,
+            feedback: '',
+            plans: <String>{},
+            cardioType: 'Walking',
+            duration: '30',
+            intensity: 6,
+          ),
       nutrition: const NutritionEntity(
         dietLevel: 6,
         digestion: 6,
@@ -73,5 +82,7 @@ class FakeDailyRepository implements DailyRepository {
   @override
   Future<void> save(DailyTrackingEntity entity) async {
     await Future<void>.delayed(const Duration(milliseconds: 200));
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('daily_training_last', jsonEncode(entity.training.toMap()));
   }
 }

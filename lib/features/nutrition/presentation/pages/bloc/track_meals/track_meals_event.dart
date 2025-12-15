@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_plan_entity.dart';
 
 abstract class TrackMealsEvent extends Equatable {
   const TrackMealsEvent();
@@ -18,4 +19,12 @@ class TrackMealsDateChanged extends TrackMealsEvent {
   const TrackMealsDateChanged(this.date);
   @override
   List<Object?> get props => [date];
+}
+
+class TrackMealsAddMeal extends TrackMealsEvent {
+  final DateTime date;
+  final NutritionMealEntity meal;
+  const TrackMealsAddMeal(this.date, this.meal);
+  @override
+  List<Object?> get props => [date, meal];
 }

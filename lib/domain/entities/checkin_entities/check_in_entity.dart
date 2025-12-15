@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'dart:convert';
 
 class CheckInEntity extends Equatable {
   final int step;
@@ -9,6 +10,7 @@ class CheckInEntity extends Equatable {
   final CheckInTraining training;
   final CheckInUploads uploads;
   final String dailyNotes;
+  final String? weekId;
 
   const CheckInEntity({
     this.step = 0,
@@ -19,6 +21,7 @@ class CheckInEntity extends Equatable {
     this.training = const CheckInTraining(),
     this.uploads = const CheckInUploads(),
     this.dailyNotes = '',
+    this.weekId,
   });
 
   CheckInEntity copyWith({
@@ -30,6 +33,7 @@ class CheckInEntity extends Equatable {
     CheckInTraining? training,
     CheckInUploads? uploads,
     String? dailyNotes,
+    String? weekId,
   }) {
     return CheckInEntity(
       step: step ?? this.step,
@@ -40,11 +44,37 @@ class CheckInEntity extends Equatable {
       training: training ?? this.training,
       uploads: uploads ?? this.uploads,
       dailyNotes: dailyNotes ?? this.dailyNotes,
+      weekId: weekId ?? this.weekId,
     );
   }
 
+  Map<String, dynamic> toMap() => {
+        'step': step,
+        'answer1': answer1,
+        'answer2': answer2,
+        'wellBeing': wellBeing.toMap(),
+        'nutrition': nutrition.toMap(),
+        'training': training.toMap(),
+        'uploads': uploads.toMap(),
+        'dailyNotes': dailyNotes,
+        'weekId': weekId,
+      };
+  factory CheckInEntity.fromMap(Map<String, dynamic> map) => CheckInEntity(
+        step: map['step'] ?? 0,
+        answer1: map['answer1'] ?? '',
+        answer2: map['answer2'] ?? '',
+        wellBeing: CheckInWellBeing.fromMap(Map<String, dynamic>.from(map['wellBeing'] ?? {})),
+        nutrition: CheckInNutrition.fromMap(Map<String, dynamic>.from(map['nutrition'] ?? {})),
+        training: CheckInTraining.fromMap(Map<String, dynamic>.from(map['training'] ?? {})),
+        uploads: CheckInUploads.fromMap(Map<String, dynamic>.from(map['uploads'] ?? {})),
+        dailyNotes: map['dailyNotes'] ?? '',
+        weekId: map['weekId'],
+      );
+  String toJson() => jsonEncode(toMap());
+  factory CheckInEntity.fromJson(String source) => CheckInEntity.fromMap(jsonDecode(source));
+
   @override
-  List<Object?> get props => [step, answer1, answer2, wellBeing, nutrition, training, uploads, dailyNotes];
+  List<Object?> get props => [step, answer1, answer2, wellBeing, nutrition, training, uploads, dailyNotes, weekId];
 }
 
 class CheckInWellBeing extends Equatable {
@@ -57,6 +87,14 @@ class CheckInWellBeing extends Equatable {
 
   CheckInWellBeing copyWith({double? energy, double? stress, double? mood, double? sleep}) =>
       CheckInWellBeing(energy: energy ?? this.energy, stress: stress ?? this.stress, mood: mood ?? this.mood, sleep: sleep ?? this.sleep);
+
+  Map<String, dynamic> toMap() => {'energy': energy, 'stress': stress, 'mood': mood, 'sleep': sleep};
+  factory CheckInWellBeing.fromMap(Map<String, dynamic> map) => CheckInWellBeing(
+        energy: (map['energy'] ?? 6).toDouble(),
+        stress: (map['stress'] ?? 6).toDouble(),
+        mood: (map['mood'] ?? 6).toDouble(),
+        sleep: (map['sleep'] ?? 6).toDouble(),
+      );
 
   @override
   List<Object?> get props => [energy, stress, mood, sleep];
@@ -71,6 +109,13 @@ class CheckInNutrition extends Equatable {
 
   CheckInNutrition copyWith({double? dietLevel, double? digestion, String? challenge}) =>
       CheckInNutrition(dietLevel: dietLevel ?? this.dietLevel, digestion: digestion ?? this.digestion, challenge: challenge ?? this.challenge);
+
+  Map<String, dynamic> toMap() => {'dietLevel': dietLevel, 'digestion': digestion, 'challenge': challenge};
+  factory CheckInNutrition.fromMap(Map<String, dynamic> map) => CheckInNutrition(
+        dietLevel: (map['dietLevel'] ?? 6).toDouble(),
+        digestion: (map['digestion'] ?? 6).toDouble(),
+        challenge: map['challenge'] ?? '',
+      );
 
   @override
   List<Object?> get props => [dietLevel, digestion, challenge];
@@ -93,6 +138,21 @@ class CheckInTraining extends Equatable {
         feedback: feedback ?? this.feedback,
       );
 
+  Map<String, dynamic> toMap() => {
+        'feelStrength': feelStrength,
+        'pumps': pumps,
+        'trainingCompleted': trainingCompleted,
+        'cardioCompleted': cardioCompleted,
+        'feedback': feedback,
+      };
+  factory CheckInTraining.fromMap(Map<String, dynamic> map) => CheckInTraining(
+        feelStrength: (map['feelStrength'] ?? 6).toDouble(),
+        pumps: (map['pumps'] ?? 6).toDouble(),
+        trainingCompleted: map['trainingCompleted'] ?? true,
+        cardioCompleted: map['cardioCompleted'] ?? true,
+        feedback: map['feedback'] ?? '',
+      );
+
   @override
   List<Object?> get props => [feelStrength, pumps, trainingCompleted, cardioCompleted, feedback];
 }
@@ -106,6 +166,12 @@ class CheckInUploads extends Equatable {
   CheckInUploads copyWith({bool? picturesUploaded, bool? videoUploaded}) => CheckInUploads(
         picturesUploaded: picturesUploaded ?? this.picturesUploaded,
         videoUploaded: videoUploaded ?? this.videoUploaded,
+      );
+
+  Map<String, dynamic> toMap() => {'picturesUploaded': picturesUploaded, 'videoUploaded': videoUploaded};
+  factory CheckInUploads.fromMap(Map<String, dynamic> map) => CheckInUploads(
+        picturesUploaded: map['picturesUploaded'] ?? true,
+        videoUploaded: map['videoUploaded'] ?? true,
       );
 
   @override

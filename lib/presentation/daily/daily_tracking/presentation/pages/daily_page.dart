@@ -113,6 +113,10 @@ class _DailyView extends StatelessWidget {
                   _womenCard(context, data),
                   SizedBox(height: 12.h),
                   _pedCard(context, data),
+                  SizedBox(height: 12.h),
+                  _dailyNotesCard(context, data.notes),
+                  SizedBox(height: 16.h),
+                  _submitButton(context),
                 ],
               ),
             ),
@@ -817,19 +821,35 @@ class _DailyView extends StatelessWidget {
             SizedBox(height: 12.h),
             _titledBox('Cardio Type ?'),
             SizedBox(height: 12.h),
-            _radioOption(
-              context,
-              'Walking',
-              selected: data.training.cardioType == 'Walking',
-            ),
-            SizedBox(height: 8.h),
-            _radioOption(
-              context,
-              'Cycling',
-              selected: data.training.cardioType == 'Cycling',
-            ),
+            _cardioOptionsRow(context, data.training.cardioType),
             SizedBox(height: 12.h),
             _durationField(context, data.training.duration),
+            SizedBox(height: 12.h),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Cardio Intensity (1-10)',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                _pillValue(data.training.intensity.round()),
+              ],
+            ),
+            FullWidthSlider(
+              value: data.training.intensity,
+              min: 1,
+              max: 10,
+              divisions: 9,
+              onChanged: (v) => context.read<DailyBloc>().add(TrainingIntensityChanged(v)),
+              activeTrackColor: const Color(0xFF69B427),
+              thumbColor: const Color(0xFF69B427),
+              overlayColor: const Color(0xFF69B427).withOpacity(0.2),
+            ),
           ],
         ),
       ),
@@ -894,6 +914,7 @@ class _DailyView extends StatelessWidget {
     BuildContext context,
     String label, {
     required bool selected,
+    IconData? icon,
   }) {
     return InkWell(
       onTap: () =>
@@ -912,6 +933,10 @@ class _DailyView extends StatelessWidget {
             ),
           ),
           SizedBox(width: 8.w),
+          if (icon != null) ...[
+            Icon(icon, color: Colors.white, size: 18.sp),
+            SizedBox(width: 6.w),
+          ],
           Text(
             label,
             style: GoogleFonts.poppins(
@@ -920,6 +945,33 @@ class _DailyView extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _cardioOptionsRow(BuildContext context, String selectedType) {
+    final opts = <Map<String, dynamic>>[
+      {'label': 'Walking', 'icon': Icons.directions_walk},
+      {'label': 'Running', 'icon': Icons.directions_run},
+      {'label': 'Cycling', 'icon': Icons.directions_bike},
+      {'label': 'Swimming', 'icon': Icons.pool},
+      {'label': 'Rowing', 'icon': Icons.rowing},
+      {'label': 'Elliptical', 'icon': Icons.fitness_center},
+    ];
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (final o in opts) ...[
+            _radioOption(
+              context,
+              o['label'] as String,
+              selected: selectedType == (o['label'] as String),
+              icon: o['icon'] as IconData,
+            ),
+            SizedBox(width: 16.w),
+          ],
         ],
       ),
     );
@@ -1449,7 +1501,6 @@ class _DailyView extends StatelessWidget {
       text: data.pedHealth.restingHrText,
     );
     final glucoseCtrl = TextEditingController(text: data.pedHealth.glucoseText);
-    final notesCtrl = TextEditingController(text: data.notes);
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -1552,46 +1603,69 @@ class _DailyView extends StatelessWidget {
               (v) =>
                   context.read<DailyBloc>().add(PedBpChanged('glucoseText', v)),
             ),
-            SizedBox(height: 12.h),
-            Text(
-              'Daily Notes',
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
-              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _dailyNotesCard(BuildContext context, String notes) {
+    final notesCtrl = TextEditingController(text: notes);
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0XFF101021),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(12.sp),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.note_alt_outlined, color: Colors.white),
+                SizedBox(width: 8.w),
+                Text(
+                  'Daily Notes',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 8.h),
             _textArea(
               notesCtrl,
               hint: 'Type...',
-              onChanged: (v) =>
-                  context.read<DailyBloc>().add(DailyNotesChanged(v)),
-            ),
-            SizedBox(height: 16.h),
-            SizedBox(
-              width: double.infinity,
-              height: 44.h,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromRGBO(20, 20, 255, 0.2),
-
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                ),
-                onPressed: () =>
-                    context.read<DailyBloc>().add(const SavePressed()),
-                child: Text(
-                  'Submit',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+              onChanged: (v) => context.read<DailyBloc>().add(DailyNotesChanged(v)),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _submitButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 44.h,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromRGBO(20, 20, 255, 0.2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+        ),
+        onPressed: () => context.read<DailyBloc>().add(const SavePressed()),
+        child: Text(
+          'Submit',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );

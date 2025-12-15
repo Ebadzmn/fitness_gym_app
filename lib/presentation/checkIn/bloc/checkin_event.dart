@@ -5,6 +5,13 @@ abstract class CheckInEvent extends Equatable {
   @override
   List<Object?> get props => [];
 }
+ 
+class CheckInTabSet extends CheckInEvent {
+  final String tab; // 'weekly' | 'old'
+  const CheckInTabSet(this.tab);
+  @override
+  List<Object?> get props => [tab];
+}
 
 class CheckInInitRequested extends CheckInEvent {
   const CheckInInitRequested();

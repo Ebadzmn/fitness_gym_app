@@ -15,7 +15,8 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
   final GetDailyInitialUseCase getInitial;
   final SaveDailyUseCase saveDaily;
 
-  DailyBloc({required this.getInitial, required this.saveDaily}) : super(const DailyState()) {
+  DailyBloc({required this.getInitial, required this.saveDaily})
+    : super(const DailyState()) {
     on<DailyInitRequested>(_onInit);
     on<WellBeingChanged>(_onWellBeingChanged);
     on<TrainingToggleChanged>(_onTrainingToggleChanged);
@@ -30,6 +31,7 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
     on<TrainingPlanToggled>(_onTrainingPlanToggled);
     on<TrainingCardioTypeChanged>(_onTrainingCardioTypeChanged);
     on<TrainingDurationChanged>(_onTrainingDurationChanged);
+    on<TrainingIntensityChanged>(_onTrainingIntensityChanged);
     on<NutritionTextChanged>(_onNutritionTextChanged);
     on<WomenCyclePhaseChanged>(_onWomenCyclePhaseChanged);
     on<WomenPmsChanged>(_onWomenPmsChanged);
@@ -40,13 +42,18 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
     on<PedBpChanged>(_onPedBpChanged);
   }
 
-  Future<void> _onInit(DailyInitRequested event, Emitter<DailyState> emit) async {
+  Future<void> _onInit(
+    DailyInitRequested event,
+    Emitter<DailyState> emit,
+  ) async {
     emit(state.copyWith(status: DailyStatus.loading));
     try {
-      final data = await getInitial( NoParams());
+      final data = await getInitial(NoParams());
       emit(state.copyWith(status: DailyStatus.success, data: data));
     } catch (e) {
-      emit(state.copyWith(status: DailyStatus.error, errorMessage: e.toString()));
+      emit(
+        state.copyWith(status: DailyStatus.error, errorMessage: e.toString()),
+      );
     }
   }
 
@@ -75,7 +82,10 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
     emit(state.copyWith(data: data.copyWith(wellBeing: updated)));
   }
 
-  void _onTrainingToggleChanged(TrainingToggleChanged event, Emitter<DailyState> emit) {
+  void _onTrainingToggleChanged(
+    TrainingToggleChanged event,
+    Emitter<DailyState> emit,
+  ) {
     final data = state.data;
     if (data == null) return;
     final t = data.training;
@@ -85,10 +95,19 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
     emit(state.copyWith(data: data.copyWith(training: updated)));
   }
 
-  void _onTrainingFeedbackChanged(TrainingFeedbackChanged event, Emitter<DailyState> emit) {
+  void _onTrainingFeedbackChanged(
+    TrainingFeedbackChanged event,
+    Emitter<DailyState> emit,
+  ) {
     final data = state.data;
     if (data == null) return;
-    emit(state.copyWith(data: data.copyWith(training: data.training.copyWith(feedback: event.feedback))));
+    emit(
+      state.copyWith(
+        data: data.copyWith(
+          training: data.training.copyWith(feedback: event.feedback),
+        ),
+      ),
+    );
   }
 
   void _onDailyNotesChanged(DailyNotesChanged event, Emitter<DailyState> emit) {
@@ -119,15 +138,36 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
     emit(state.copyWith(data: data.copyWith(nutrition: updated)));
   }
 
-  Future<void> _onSavePressed(SavePressed event, Emitter<DailyState> emit) async {
+  Future<void> _onSavePressed(
+    SavePressed event,
+    Emitter<DailyState> emit,
+  ) async {
     final data = state.data;
     if (data == null) return;
+    final t = data.training;
+    if (t.cardioCompleted) {
+      final durOk = RegExp(r'^[0-9]+$').hasMatch(t.duration.trim());
+      if (!durOk || t.duration.trim().isEmpty) {
+        emit(state.copyWith(status: DailyStatus.error, errorMessage: 'Please enter cardio duration (minutes) as a number'));
+        return;
+      }
+      if (t.cardioType.trim().isEmpty) {
+        emit(state.copyWith(status: DailyStatus.error, errorMessage: 'Please select a cardio type'));
+        return;
+      }
+      if (t.intensity < 1 || t.intensity > 10) {
+        emit(state.copyWith(status: DailyStatus.error, errorMessage: 'Cardio intensity must be between 1 and 10'));
+        return;
+      }
+    }
     emit(state.copyWith(status: DailyStatus.saving));
     try {
       await saveDaily(data);
       emit(state.copyWith(status: DailyStatus.saved));
     } catch (e) {
-      emit(state.copyWith(status: DailyStatus.error, errorMessage: e.toString()));
+      emit(
+        state.copyWith(status: DailyStatus.error, errorMessage: e.toString()),
+      );
     }
   }
 
@@ -159,19 +199,38 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
     emit(state.copyWith(data: data.copyWith(isSick: event.isSick)));
   }
 
-  void _onSleepDurationChanged(SleepDurationChanged event, Emitter<DailyState> emit) {
+  void _onSleepDurationChanged(
+    SleepDurationChanged event,
+    Emitter<DailyState> emit,
+  ) {
     final data = state.data;
     if (data == null) return;
-    emit(state.copyWith(data: data.copyWith(sleep: data.sleep.copyWith(durationText: event.durationText))));
+    emit(
+      state.copyWith(
+        data: data.copyWith(
+          sleep: data.sleep.copyWith(durationText: event.durationText),
+        ),
+      ),
+    );
   }
 
-  void _onSleepQualityChanged(SleepQualityChanged event, Emitter<DailyState> emit) {
+  void _onSleepQualityChanged(
+    SleepQualityChanged event,
+    Emitter<DailyState> emit,
+  ) {
     final data = state.data;
     if (data == null) return;
-    emit(state.copyWith(data: data.copyWith(sleep: data.sleep.copyWith(quality: event.quality))));
+    emit(
+      state.copyWith(
+        data: data.copyWith(sleep: data.sleep.copyWith(quality: event.quality)),
+      ),
+    );
   }
 
-  void _onTrainingPlanToggled(TrainingPlanToggled event, Emitter<DailyState> emit) {
+  void _onTrainingPlanToggled(
+    TrainingPlanToggled event,
+    Emitter<DailyState> emit,
+  ) {
     final data = state.data;
     if (data == null) return;
     final plans = Set<String>.from(data.training.plans);
@@ -180,22 +239,62 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
     } else {
       plans.remove(event.plan);
     }
-    emit(state.copyWith(data: data.copyWith(training: data.training.copyWith(plans: plans))));
+    emit(
+      state.copyWith(
+        data: data.copyWith(training: data.training.copyWith(plans: plans)),
+      ),
+    );
   }
 
-  void _onTrainingCardioTypeChanged(TrainingCardioTypeChanged event, Emitter<DailyState> emit) {
+  void _onTrainingCardioTypeChanged(
+    TrainingCardioTypeChanged event,
+    Emitter<DailyState> emit,
+  ) {
     final data = state.data;
     if (data == null) return;
-    emit(state.copyWith(data: data.copyWith(training: data.training.copyWith(cardioType: event.type))));
+    emit(
+      state.copyWith(
+        data: data.copyWith(
+          training: data.training.copyWith(cardioType: event.type),
+        ),
+      ),
+    );
   }
 
-  void _onTrainingDurationChanged(TrainingDurationChanged event, Emitter<DailyState> emit) {
+  void _onTrainingDurationChanged(
+    TrainingDurationChanged event,
+    Emitter<DailyState> emit,
+  ) {
     final data = state.data;
     if (data == null) return;
-    emit(state.copyWith(data: data.copyWith(training: data.training.copyWith(duration: event.duration))));
+    emit(
+      state.copyWith(
+        data: data.copyWith(
+          training: data.training.copyWith(duration: event.duration),
+        ),
+      ),
+    );
   }
 
-  void _onNutritionTextChanged(NutritionTextChanged event, Emitter<DailyState> emit) {
+  void _onTrainingIntensityChanged(
+    TrainingIntensityChanged event,
+    Emitter<DailyState> emit,
+  ) {
+    final data = state.data;
+    if (data == null) return;
+    emit(
+      state.copyWith(
+        data: data.copyWith(
+          training: data.training.copyWith(intensity: event.intensity),
+        ),
+      ),
+    );
+  }
+
+  void _onNutritionTextChanged(
+    NutritionTextChanged event,
+    Emitter<DailyState> emit,
+  ) {
     final data = state.data;
     if (data == null) return;
     final n = data.nutrition;
@@ -220,40 +319,84 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
     emit(state.copyWith(data: data.copyWith(nutrition: updated)));
   }
 
-  void _onWomenCyclePhaseChanged(WomenCyclePhaseChanged event, Emitter<DailyState> emit) {
+  void _onWomenCyclePhaseChanged(
+    WomenCyclePhaseChanged event,
+    Emitter<DailyState> emit,
+  ) {
     final data = state.data;
     if (data == null) return;
-    emit(state.copyWith(data: data.copyWith(women: data.women.copyWith(cyclePhase: event.phase))));
+    emit(
+      state.copyWith(
+        data: data.copyWith(
+          women: data.women.copyWith(cyclePhase: event.phase),
+        ),
+      ),
+    );
   }
 
   void _onWomenPmsChanged(WomenPmsChanged event, Emitter<DailyState> emit) {
     final data = state.data;
     if (data == null) return;
-    emit(state.copyWith(data: data.copyWith(women: data.women.copyWith(pms: event.value))));
+    emit(
+      state.copyWith(
+        data: data.copyWith(women: data.women.copyWith(pms: event.value)),
+      ),
+    );
   }
 
-  void _onWomenCrampsChanged(WomenCrampsChanged event, Emitter<DailyState> emit) {
+  void _onWomenCrampsChanged(
+    WomenCrampsChanged event,
+    Emitter<DailyState> emit,
+  ) {
     final data = state.data;
     if (data == null) return;
-    emit(state.copyWith(data: data.copyWith(women: data.women.copyWith(cramps: event.value))));
+    emit(
+      state.copyWith(
+        data: data.copyWith(women: data.women.copyWith(cramps: event.value)),
+      ),
+    );
   }
 
-  void _onWomenSymptomsChanged(WomenSymptomsChanged event, Emitter<DailyState> emit) {
+  void _onWomenSymptomsChanged(
+    WomenSymptomsChanged event,
+    Emitter<DailyState> emit,
+  ) {
     final data = state.data;
     if (data == null) return;
-    emit(state.copyWith(data: data.copyWith(women: data.women.copyWith(symptoms: event.symptoms))));
+    emit(
+      state.copyWith(
+        data: data.copyWith(
+          women: data.women.copyWith(symptoms: event.symptoms),
+        ),
+      ),
+    );
   }
 
   void _onPedDosageChanged(PedDosageChanged event, Emitter<DailyState> emit) {
     final data = state.data;
     if (data == null) return;
-    emit(state.copyWith(data: data.copyWith(pedHealth: data.pedHealth.copyWith(dosageTaken: event.taken))));
+    emit(
+      state.copyWith(
+        data: data.copyWith(
+          pedHealth: data.pedHealth.copyWith(dosageTaken: event.taken),
+        ),
+      ),
+    );
   }
 
-  void _onPedSideEffectsChanged(PedSideEffectsChanged event, Emitter<DailyState> emit) {
+  void _onPedSideEffectsChanged(
+    PedSideEffectsChanged event,
+    Emitter<DailyState> emit,
+  ) {
     final data = state.data;
     if (data == null) return;
-    emit(state.copyWith(data: data.copyWith(pedHealth: data.pedHealth.copyWith(sideEffects: event.text))));
+    emit(
+      state.copyWith(
+        data: data.copyWith(
+          pedHealth: data.pedHealth.copyWith(sideEffects: event.text),
+        ),
+      ),
+    );
   }
 
   void _onPedBpChanged(PedBpChanged event, Emitter<DailyState> emit) {

@@ -16,6 +16,26 @@ class NutritionMealEntity {
     required this.fatsG,
     required this.items,
   });
+
+  Map<String, dynamic> toMap() => {
+        'timeLabel': timeLabel,
+        'title': title,
+        'calories': calories,
+        'proteinG': proteinG,
+        'carbsG': carbsG,
+        'fatsG': fatsG,
+        'items': items,
+      };
+
+  factory NutritionMealEntity.fromMap(Map<String, dynamic> map) => NutritionMealEntity(
+        timeLabel: map['timeLabel'] as String? ?? '',
+        title: map['title'] as String? ?? '',
+        calories: (map['calories'] as num?)?.toInt() ?? 0,
+        proteinG: (map['proteinG'] as num?)?.toInt() ?? 0,
+        carbsG: (map['carbsG'] as num?)?.toInt() ?? 0,
+        fatsG: (map['fatsG'] as num?)?.toInt() ?? 0,
+        items: (map['items'] as List?)?.map((e) => e.toString()).toList() ?? const <String>[],
+      );
 }
 
 class NutritionPlanEntity {
