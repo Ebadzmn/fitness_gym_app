@@ -109,7 +109,7 @@ class ProfilePage extends StatelessWidget {
                   SizedBox(height: 12.h),
                   _infoRow('Rest day Steps', '10 Step'),
                   SizedBox(height: 12.h),
-                  _infoRow('Assigned Cardio per Week', '10 (min)'),
+                  
                 ],
               ),
             ),

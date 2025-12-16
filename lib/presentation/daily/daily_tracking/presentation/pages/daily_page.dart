@@ -854,12 +854,16 @@ class _DailyView extends StatelessWidget {
 
   Widget _cardioOptionsRow(BuildContext context, String selectedType) {
     final opts = <String>[
-      'Walking',
-      'Swimming',
-      'Jogging',
-      'Cycling',
-      'Rowing',
+      'Walking (outdoor)',
+      'Walking (treadmill)',
       'Stairmaster',
+      'Stepper',
+      'Cycling',
+      'Elliptical',
+      'Rowing',
+      'Swimming',
+      'Hiking',
+      'Other',
     ];
     return Wrap(
       spacing: 16.w,
@@ -897,7 +901,7 @@ class _DailyView extends StatelessWidget {
                 label,
                 style: GoogleFonts.poppins(
                   color: Colors.white,
-                  fontSize: 14.sp,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.w400,
                 ),
               ),

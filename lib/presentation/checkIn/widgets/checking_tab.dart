@@ -323,12 +323,16 @@ class CheckingTab extends StatelessWidget {
 
         // Cardio Options
         final cardioOptions = [
-          'Walking',
-          'Swimming',
-          'Jogging',
-          'Cycling',
-          'Rowing',
+          'Walking (outdoor)',
+          'Walking (treadmill)',
           'Stairmaster',
+          'Stepper',
+          'Cycling',
+          'Elliptical',
+          'Rowing',
+          'Swimming',
+          'Hiking',
+          'Other',
         ];
 
         return Column(

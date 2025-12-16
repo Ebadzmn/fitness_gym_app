@@ -25,21 +25,17 @@ class LoginPage extends StatelessWidget {
               // onBackTap: () {}, // এখানে কিছু না দিলে ডিফল্টভাবে ব্যাক কাজ করবে
             ),
 
-            SizedBox(height: 81.h),
+            SizedBox(height: 70.h),
 
             Text(
-              'Victory Belongs to the Lions',
+              'Wolf Wind',
               style: AppTextStyle.authHeading1,
               textAlign: TextAlign.center,
             ),
 
             SizedBox(height: 11.h),
 
-            Text(
-              'Log in to continue your journey together.',
-              style: AppTextStyle.authHeading2,
-              textAlign: TextAlign.center,
-            ),
+           
 
             SizedBox(height: 52.h),
 
