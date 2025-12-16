@@ -196,161 +196,10 @@ class _CheckInView extends StatelessWidget {
                 ),
                 SizedBox(height: 20.h),
 
-                // Old Check-In list view
+                // Old Check-In view uses history navigation, Weekly shows only date info (no step prev/next)
                 if (state.tab == CheckInViewTab.old) ...[
-                  _oldList(state.history),
-                ] else if (step == 3) ...[
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => context.read<CheckInBloc>().add(
-                            const CheckInStepSet(2),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1C222E),
-                            padding: EdgeInsets.symmetric(vertical: 8.h),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                          ),
-                          child: Text(
-                            'Previous',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 12.w),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => context.read<CheckInBloc>().add(
-                            const SubmitPressed(),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF446B36),
-                            padding: EdgeInsets.symmetric(vertical: 8.h),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                          ),  
-                          child: Text(
-                            'Next',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ] else if (step == 1) ...[
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => context.read<CheckInBloc>().add(
-                            const CheckInStepSet(0),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1C222E),
-                            padding: EdgeInsets.symmetric(vertical: 14.h),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                          ),
-                          child: Text(
-                            'Previous',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 12.w),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => context.read<CheckInBloc>().add(
-                            const CheckInStepSet(2),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF446B36),
-                            padding: EdgeInsets.symmetric(vertical: 14.h),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                          ),
-                          child: Text(
-                            'Next',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ] else if (step == 2) ...[
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => context.read<CheckInBloc>().add(
-                            const CheckInStepSet(1),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1C222E),
-                            padding: EdgeInsets.symmetric(vertical: 14.h),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                          ),
-                          child: Text(
-                            'Previous',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 12.w),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => context.read<CheckInBloc>().add(
-                            const CheckInStepSet(3),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF446B36),
-                            padding: EdgeInsets.symmetric(vertical: 14.h),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                          ),
-                          child: Text(
-                            'Next',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  _oldList(context, state.history, state.historyIndex),
                 ] else ...[
-                  // Date Info Card for other steps
                   Container(
                     padding: EdgeInsets.symmetric(
                       vertical: 16.h,
@@ -359,7 +208,7 @@ class _CheckInView extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: const Color(
                         0xFF1B2B1B,
-                      ), // Dark greenish background
+                      ),
                       borderRadius: BorderRadius.circular(12.r),
                       border: Border.all(color: const Color(0xFF2E4E2E)),
                     ),
@@ -400,7 +249,7 @@ class _CheckInView extends StatelessWidget {
 
                 if (state.tab == CheckInViewTab.weekly) _bodyForStep(step),
 
-                // Bottom Buttons: Only for Profile (step 0)
+                // Bottom Buttons
                 if (state.tab == CheckInViewTab.weekly && step == 0) ...[
                   SizedBox(height: 40.h),
                   Row(
@@ -431,6 +280,34 @@ class _CheckInView extends StatelessWidget {
                       ),
                     ],
                   ),
+                ] else if (state.tab == CheckInViewTab.weekly && step == 3) ...[
+                  SizedBox(height: 40.h),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => context.read<CheckInBloc>().add(
+                            const SubmitPressed(),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF446B36),
+                            padding: EdgeInsets.symmetric(vertical: 14.h),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                          ),
+                          child: Text(
+                            'Submit',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ], // Close Column children
             ),
@@ -440,7 +317,11 @@ class _CheckInView extends StatelessWidget {
     );
   }
 
-  Widget _oldList(List<CheckInEntity> items) {
+  Widget _oldList(
+    BuildContext context,
+    List<CheckInEntity> items,
+    int index,
+  ) {
     if (items.isEmpty) {
       return Container(
         padding: EdgeInsets.all(16.w),
@@ -460,19 +341,105 @@ class _CheckInView extends StatelessWidget {
         ),
       );
     }
-    final widgets = <Widget>[];
-    for (final e in items) {
-      final title = 'Week starting ${e.weekId ?? '-'}';
-      widgets.add(
+    final safeIndex = index.clamp(0, items.length - 1);
+    final current = items[safeIndex];
+    final weekLabel = current.weekId ?? '-';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
+          decoration: BoxDecoration(
+            color: const Color(0xFF101021),
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(color: Colors.white10),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  'Week starting $weekLabel',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Text(
+                '${safeIndex + 1} of ${items.length}',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 12.h),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: safeIndex < items.length - 1
+                    ? () => context.read<CheckInBloc>().add(const CheckInHistoryPrev())
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1C222E),
+                  padding: EdgeInsets.symmetric(vertical: 12.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                ),
+                child: Text(
+                  'Previous',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: safeIndex > 0
+                    ? () => context.read<CheckInBloc>().add(const CheckInHistoryNext())
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF446B36),
+                  padding: EdgeInsets.symmetric(vertical: 12.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                ),
+                child: Text(
+                  'Next',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 16.h),
         CheckInCard(
-          title: title,
-          value: 'Energy ${e.wellBeing.energy.round()} • Diet ${e.nutrition.dietLevel.round()}',
+          title: 'Energy ${current.wellBeing.energy.round()} • Diet ${current.nutrition.dietLevel.round()}',
+          value: 'Week starting $weekLabel',
           icon: Icons.history,
           showBadge: false,
         ),
-      );
-    }
-    return Column(children: widgets);
+      ],
+    );
   }
 
   Widget _bodyForStep(int step) {

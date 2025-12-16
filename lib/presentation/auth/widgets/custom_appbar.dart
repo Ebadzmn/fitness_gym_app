@@ -17,17 +17,32 @@ class CustomAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      alignment: Alignment.center,
       children: [
-        /// Center title
-        Text(
-          title,
-          style: AppTextStyle.appbarHeading,
-          textAlign: TextAlign.center,
+        if (showBackButton)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: GestureDetector(
+              onTap: onBackTap ?? () => Navigator.of(context).maybePop(),
+              child: Container(
+                width: 32.w,
+                height: 32.w,
+                
+                child: Icon(
+                  Icons.arrow_back,
+                  color: Colors.white,
+                  size: 18.sp,
+                ),
+              ),
+            ),
+          ),
+        Align(
+          alignment: Alignment.center,
+          child: Text(
+            title,
+            style: AppTextStyle.appbarHeading,
+            textAlign: TextAlign.center,
+          ),
         ),
-
-        /// Back button (left aligned)
-      
       ],
     );
   }

@@ -32,9 +32,9 @@ class _SplashPageState extends State<SplashPage> {
         children: [
           Center(
             child: Image.asset(
-              AssetsPath.splashLogo,
-              width: 200.w,
-              height: 200.h,
+              AssetsPath.logov2,
+              width: 300.w,
+              height: 300.h,
             ),
           ),
         ],

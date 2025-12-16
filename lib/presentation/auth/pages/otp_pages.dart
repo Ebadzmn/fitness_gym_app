@@ -42,9 +42,12 @@ class OtpPages extends StatelessWidget {
 
            Text('This code will expire in 01:56', style: AppTextStyle.authHeading2, textAlign: TextAlign.center,),
             SizedBox(height: 20.h),
-            CustomButton(text: 'Verify', onPressed: (){
-              context.push(AppRoutes.homePage);
-            },),
+            CustomButton(
+              text: 'Verify',
+              onPressed: () {
+                context.push(AppRoutes.createNewPasswordPage);
+              },
+            ),
           ],
         ),
       ),

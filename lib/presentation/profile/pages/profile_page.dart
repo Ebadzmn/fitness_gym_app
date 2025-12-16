@@ -127,7 +127,7 @@ class ProfilePage extends StatelessWidget {
                 children: [
                   _sectionHeader(Icons.person_outline, 'Account', iconColor: Colors.yellow),
                   SizedBox(height: 16.h),
-                  _infoRow('Role', 'Cilent', valueColor: const Color(0xFFFFCC00)),
+                  _infoRow('Role', 'Athlate', valueColor: const Color(0xFFFFCC00)),
                   SizedBox(height: 12.h),
                   _infoRow('Coach', 'Jhon Doe'),
                   SizedBox(height: 12.h),
@@ -247,19 +247,16 @@ class ProfilePage extends StatelessWidget {
               flex: 2,
               child: Container(
                 color: phaseColor,
+                alignment: Alignment.center,
                 padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        phase,
-                        style: GoogleFonts.poppins(color: Colors.white, fontSize: 12.sp, fontWeight: FontWeight.w500),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    Icon(Icons.arrow_drop_down, color: Colors.white, size: 18.sp),
-                  ],
+                child: Text(
+                  phase,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),

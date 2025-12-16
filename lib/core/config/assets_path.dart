@@ -11,4 +11,6 @@ class AssetsPath {
   static const String apb5 = 'assets/images/apb5.svg';
   static const String apb4 = 'assets/images/apb4.svg';
   static const String apb3 = 'assets/images/apb3.svg';
+  static const String logov2 = 'assets/images/Logov2.png';
+  static const String welcome = 'assets/images/welcome.png';
 }

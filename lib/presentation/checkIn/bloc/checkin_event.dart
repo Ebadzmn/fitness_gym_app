@@ -102,3 +102,11 @@ class DailyNotesChanged extends CheckInEvent {
 class SubmitPressed extends CheckInEvent {
   const SubmitPressed();
 }
+
+class CheckInHistoryPrev extends CheckInEvent {
+  const CheckInHistoryPrev();
+}
+
+class CheckInHistoryNext extends CheckInEvent {
+  const CheckInHistoryNext();
+}

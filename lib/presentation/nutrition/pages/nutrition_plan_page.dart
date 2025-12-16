@@ -32,15 +32,22 @@ class NutritionPlanPage extends StatelessWidget {
   }
 }
 
-class _NutritionPlanView extends StatelessWidget {
+class _NutritionPlanView extends StatefulWidget {
   const _NutritionPlanView();
+
+  @override
+  State<_NutritionPlanView> createState() => _NutritionPlanViewState();
+}
+
+class _NutritionPlanViewState extends State<_NutritionPlanView> {
+  int _selectedDayIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
-        title: Text('Nutrition  Plan', style: AppTextStyle.appbarHeading),
+        title: Text('Nutrition Plan', style: AppTextStyle.appbarHeading),
         centerTitle: true,
         backgroundColor: AppColor.primaryColor,
         elevation: 0,
@@ -54,38 +61,87 @@ class _NutritionPlanView extends StatelessWidget {
             ),
           ),
         ),
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 12.w),
-            child: CircleAvatar(
-              backgroundColor: Colors.white10,
-              child: IconButton(
-                icon: const Icon(Icons.edit, color: Colors.white),
-                onPressed: () {},
+        
+      ),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _daySegmentControl(),
+            SizedBox(height: 20.h),
+            Expanded(
+              child: BlocBuilder<NutritionPlanBloc, NutritionPlanState>(
+                builder: (context, state) {
+                  if (state.status == NutritionPlanStatus.loading ||
+                      state.data == null) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final plan = state.data!;
+                  return SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        _planHeader(plan),
+                        SizedBox(height: 12.h),
+                        _macroCircles(plan),
+                        SizedBox(height: 12.h),
+                        ...plan.meals.map((m) => _MealTile(meal: m)),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _daySegmentControl() {
+    Widget tab(String label, int index) {
+      final bool isSelected = _selectedDayIndex == index;
+      return Expanded(
+        child: GestureDetector(
+          onTap: () {
+            setState(() {
+              _selectedDayIndex = index;
+            });
+          },
+          child: Container(
+            height: 40.h,
+            decoration: BoxDecoration(
+              color: isSelected ? const Color(0xFF446B36) : Colors.transparent,
+              borderRadius: BorderRadius.circular(24.r),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              label,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 14.sp,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               ),
             ),
           ),
-        ],
+        ),
+      );
+    }
+
+    return Container(
+      height: 48.h,
+      decoration: BoxDecoration(
+        color: const Color(0xFF101021),
+        borderRadius: BorderRadius.circular(30.r),
+        border: Border.all(color: Colors.white12),
       ),
-      body: BlocBuilder<NutritionPlanBloc, NutritionPlanState>(
-        builder: (context, state) {
-          if (state.status == NutritionPlanStatus.loading || state.data == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final plan = state.data!;
-          return SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
-            child: Column(
-              children: [
-                _planHeader(plan),
-                SizedBox(height: 12.h),
-                _macroCircles(plan),
-                SizedBox(height: 12.h),
-                ...plan.meals.map((m) => _MealTile(meal: m)).toList(),
-              ],
-            ),
-          );
-        },
+      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+      child: Row(
+        children: [
+          tab('Training Day', 0),
+          tab('Rest Day', 1),
+          tab('Special Day', 2),
+        ],
       ),
     );
   }

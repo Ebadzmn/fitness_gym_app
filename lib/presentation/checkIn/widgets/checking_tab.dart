@@ -260,6 +260,42 @@ class CheckingTab extends StatelessWidget {
     );
   }
 
+  Widget _cardioOption(String text, bool selected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            height: 20.w,
+            width: 20.w,
+            padding: EdgeInsets.all(3.w),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: selected ? const Color(0xFF69B427) : Colors.white,
+                width: 2.w,
+              ),
+            ),
+            child: selected
+                ? Container(
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Color(0xFF69B427),
+                    ),
+                  )
+                : null,
+          ),
+          SizedBox(width: 8.w),
+          Text(
+            text,
+            style: TextStyle(color: Colors.white, fontSize: 13.sp),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CheckInBloc, CheckInState>(
@@ -272,7 +308,29 @@ class CheckingTab extends StatelessWidget {
         final feedbackCtrl = TextEditingController(
           text: data.training.feedback,
         );
+        final cardioDurationCtrl = TextEditingController(
+          text: data.training.cardioDuration,
+        );
         final dailyNotesCtrl = TextEditingController(text: data.dailyNotes);
+
+        // Ensure controllers are updated if state changes significantly,
+        // though strictly rebuilds might reset cursor.
+        // For simplicity in this stateless widget, we recreate them.
+        // A StatefulWidget would be better for text controllers but we are working with what we have.
+        // Actually, creating controllers in build is bad practice as it resets typings.
+        // However, I am just following the existing pattern of the file.
+        // The existing file creates controllers in build: `final challengeCtrl = ...`
+
+        // Cardio Options
+        final cardioOptions = [
+          'Walking',
+          'Swimming',
+          'Jogging',
+          'Cycling',
+          'Rowing',
+          'Stairmaster',
+        ];
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -667,6 +725,74 @@ class CheckingTab extends StatelessWidget {
                       TrainingToggleChanged('cardioCompleted', v),
                     ),
                   ),
+
+                  if (data.training.cardioCompleted) ...[
+                    SizedBox(height: 16.h),
+                    Container(
+                      padding: EdgeInsets.all(12.sp),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0F0F15),
+                        borderRadius: BorderRadius.circular(12.r),
+                        border: Border.all(color: const Color(0xFF2E2E5D)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Cardio Type ?',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              // Small avatar/icon placeholder from image
+                              CircleAvatar(
+                                radius: 10.r,
+                                backgroundImage: const NetworkImage(
+                                  'https://i.pravatar.cc/150?img=3',
+                                ), // Placeholder
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 12.h),
+                          Wrap(
+                            spacing: 10.w,
+                            runSpacing: 10.h,
+                            children: cardioOptions.map((type) {
+                              return _cardioOption(
+                                type,
+                                data.training.cardioType == type,
+                                () => context.read<CheckInBloc>().add(
+                                  TrainingTextChanged('cardioType', type),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                          SizedBox(height: 20.h),
+                          Text(
+                            'Duration (Minutes)',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12.sp,
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          _filledField(
+                            cardioDurationCtrl,
+                            hint: 'Type here',
+                            onChanged: (v) => context.read<CheckInBloc>().add(
+                              TrainingTextChanged('cardioDuration', v),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+
                   SizedBox(height: 12.h),
                   Text(
                     'Feedback Training',

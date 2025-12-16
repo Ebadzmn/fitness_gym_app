@@ -100,20 +100,28 @@ class CheckInCard extends StatelessWidget {
               children: [
                 Icon(icon, color: const Color(0xFF82C941), size: 20.sp),
                 SizedBox(width: 8.w),
-                Text(
-                  title,
-                  style: TextStyle(color: Colors.white70, fontSize: 14.sp),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(color: Colors.white70, fontSize: 14.sp),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                const Spacer(),
-                if (value != null)
-                  Text(
-                    value!,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
+                if (value != null) ...[
+                  SizedBox(width: 8.w),
+                  Flexible(
+                    child: Text(
+                      value!,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.right,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                ],
               ],
             ),
           ] else ...[

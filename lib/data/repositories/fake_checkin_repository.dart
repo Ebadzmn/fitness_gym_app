@@ -50,6 +50,46 @@ class FakeCheckInRepository {
         items.add(CheckInEntity.fromJson(s));
       } catch (_) {}
     }
+
+    // Seed some dummy history if nothing saved yet, so Old Check-In is testable
+    if (items.isEmpty) {
+      final now = DateTime.now();
+      for (int i = 0; i < 3; i++) {
+        final weekDate = now.subtract(Duration(days: 7 * i));
+        final weekId = _computeWeekId(weekDate);
+        items.add(
+          CheckInEntity(
+            weekId: weekId,
+            wellBeing: CheckInWellBeing(
+              energy: 6 + (i.toDouble()),
+              stress: 4 + (i.toDouble()),
+              mood: 5 + (i.toDouble()),
+              sleep: 6,
+            ),
+            nutrition: CheckInNutrition(
+              dietLevel: 6 + (i.toDouble()),
+              digestion: 5 + (i.toDouble()),
+              challenge: 'Sample challenge week ${i + 1}',
+            ),
+            training: CheckInTraining(
+              feelStrength: 6 + i.toDouble(),
+              pumps: 6,
+              trainingCompleted: true,
+              cardioCompleted: i % 2 == 0,
+              feedback: 'Sample feedback week ${i + 1}',
+              cardioType: i % 2 == 0 ? 'Walking' : 'Cycling',
+              cardioDuration: '${20 + i * 5} min',
+            ),
+            uploads: const CheckInUploads(
+              picturesUploaded: true,
+              videoUploaded: false,
+            ),
+            dailyNotes: 'Sample notes for week starting $weekId',
+          ),
+        );
+      }
+    }
+
     items.sort((a, b) {
       final aw = a.weekId ?? '';
       final bw = b.weekId ?? '';

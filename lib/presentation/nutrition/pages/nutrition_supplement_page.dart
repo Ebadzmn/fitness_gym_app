@@ -57,32 +57,40 @@ class NutritionSupplementPage extends StatelessWidget {
                 ),
               ),
               Divider(color: const Color(0xFF2E2E5D), height: 1),
-              Table(
-                columnWidths: const {
-                  0: FlexColumnWidth(1.2), // Name
-                  1: FlexColumnWidth(1.2), // Dosage
-                  2: FlexColumnWidth(0.8), // Time
-                  3: FlexColumnWidth(0.8), // Purpose
-                },
-                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                children: [
-                  // Header
-                  TableRow(
-                    decoration: const BoxDecoration(
-                      border: Border(bottom: BorderSide(color: Color(0xFF2E2E5D))),
-                    ),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: 800.w),
+                  child: Table(
+                    columnWidths: const {
+                      0: FlexColumnWidth(1.2), // Name
+                      1: FlexColumnWidth(1.2), // Dosage
+                      2: FlexColumnWidth(0.8), // Time
+                      3: FlexColumnWidth(0.8), // Purpose
+                      4: FlexColumnWidth(1.2), // Brand
+                      5: FlexColumnWidth(1.6), // Comment
+                    },
+                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                     children: [
-                      _headerCell('Name'),
-                      _headerCell('Dosage'),
-                      _headerCell('Time'),
-                      _headerCell('Purpose'),
+                      TableRow(
+                        decoration: const BoxDecoration(
+                          border: Border(bottom: BorderSide(color: Color(0xFF2E2E5D))),
+                        ),
+                        children: [
+                          _headerCell('Name'),
+                          _headerCell('Dosage'),
+                          _headerCell('Time'),
+                          _headerCell('Purpose'),
+                          _headerCell('Brand'),
+                          _headerCell('Comment'),
+                        ],
+                      ),
+                      _dataRow('Multivitamin', '5g per day', 'Morning', 'General health', 'Brand A', 'Daily multivitamin'),
+                      _dataRow('Vitamin C', '1 tab', 'Morning', 'Immune support', 'Brand B', 'With breakfast'),
+                      _dataRow('Zinc', '1 tab', 'Night', 'Recovery', 'Brand C', 'Take before sleep'),
                     ],
                   ),
-                  // Rows
-                  _dataRow('Multivitamin', '5g per day', 'morning', 'Text'),
-                  _dataRow('Vitamin', '5g per day', 'morning', 'Text'),
-                  _dataRow('Zink', '5g per day', 'morning', 'Text'),
-                ],
+                ),
               ),
             ],
           ),
@@ -106,7 +114,14 @@ class NutritionSupplementPage extends StatelessWidget {
     );
   }
 
-  TableRow _dataRow(String name, String dosage, String time, String purpose) {
+  TableRow _dataRow(
+    String name,
+    String dosage,
+    String time,
+    String purpose,
+    String brand,
+    String comment,
+  ) {
     return TableRow(
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: Color(0xFF2E2E5D))),
@@ -116,6 +131,8 @@ class NutritionSupplementPage extends StatelessWidget {
         _dataCell(dosage),
         _dataCell(time),
         _dataCell(purpose),
+        _dataCell(brand),
+        _dataCell(comment),
       ],
     );
   }

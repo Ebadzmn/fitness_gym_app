@@ -21,7 +21,7 @@ class FakeTrackMealsRepository {
     final defaults = const [
       NutritionMealEntity(
         timeLabel: '7:00',
-        title: 'BREAKFAST',
+        title: 'Meals 1',
         calories: 520,
         proteinG: 32,
         carbsG: 70,
@@ -34,7 +34,7 @@ class FakeTrackMealsRepository {
       ),
       NutritionMealEntity(
         timeLabel: '10:00',
-        title: 'SNACK 1',
+        title: 'Meals 2',
         calories: 300,
         proteinG: 20,
         carbsG: 30,
@@ -46,7 +46,7 @@ class FakeTrackMealsRepository {
       ),
       NutritionMealEntity(
         timeLabel: '13:00',
-        title: 'LUNCH',
+        title: 'Meals 3',
         calories: 650,
         proteinG: 40,
         carbsG: 80,

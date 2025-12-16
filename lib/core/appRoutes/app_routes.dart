@@ -1,6 +1,8 @@
 import 'package:fitness_app/presentation/daily/daily_tracking/presentation/pages/daily_page.dart';
 import 'package:fitness_app/presentation/auth/pages/forgetPass_page.dart';
 import 'package:fitness_app/presentation/auth/pages/otp_pages.dart';
+import 'package:fitness_app/presentation/auth/pages/create_new_password_page.dart';
+import 'package:fitness_app/presentation/auth/pages/password_changed_success_page.dart';
 import 'package:fitness_app/presentation/checkIn/pages/checkIn_pages.dart';
 import 'package:fitness_app/presentation/home/pages/home_page.dart';
 import 'package:fitness_app/presentation/rusui.dart';
@@ -33,6 +35,8 @@ class AppRoutes {
   static const String loginPage = '/login';
   static const String forgetPassPage = '/forgetPass';
   static const String otpPages = '/otpPages';
+  static const String createNewPasswordPage = '/create_new_password';
+  static const String passwordChangedSuccessPage = '/password_changed_success';
   static const String homePage = '/home';
   static const String checkinPages = '/checkinPages';
   static const String dailyPage = '/daily';
@@ -111,7 +115,25 @@ final GoRouter AppRouter = GoRouter(
       pageBuilder: (context, state) => AppRoutes.fadeTransitionPage(
         context: context,
         state: state,
-        child: OtpPages(),
+        child: const OtpPages(),
+      ),
+    ),
+
+    GoRoute(
+      path: AppRoutes.createNewPasswordPage,
+      pageBuilder: (context, state) => AppRoutes.fadeTransitionPage(
+        context: context,
+        state: state,
+        child: const CreateNewPasswordPage(),
+      ),
+    ),
+
+    GoRoute(
+      path: AppRoutes.passwordChangedSuccessPage,
+      pageBuilder: (context, state) => AppRoutes.fadeTransitionPage(
+        context: context,
+        state: state,
+        child: const PasswordChangedSuccessPage(),
       ),
     ),
 

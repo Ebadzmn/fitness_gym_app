@@ -8,7 +8,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fitness_app/core/config/assets_path.dart';
 import 'package:fitness_app/core/coreWidget/dropdown_yes_no_tile.dart';
 import 'package:fitness_app/core/coreWidget/dropdown_tile.dart';
-import 'package:fitness_app/domain/entities/daily_entities/daily_tracking_entity.dart';
 import '../../../../../data/repositories/fake_daily_repository.dart';
 import '../../../../../domain/usecases/daily/get_daily_initial_usecase.dart';
 import '../../../../../domain/usecases/daily/save_daily_usecase.dart';
@@ -101,6 +100,8 @@ class _DailyView extends StatelessWidget {
                   _sickCard(context, data.isSick),
                   SizedBox(height: 12.h),
                   _waterCard(context, data.vital.waterText),
+                  SizedBox(height: 12.h),
+                  _bloodPressureCard(context, data),
                   SizedBox(height: 12.h),
                   _energyWellBeingCard(context, data),
                   SizedBox(height: 12.h),
@@ -360,7 +361,7 @@ class _DailyView extends StatelessWidget {
                   context.read<DailyBloc>().add(SleepQualityChanged(v)),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
-              overlayColor: const Color(0xFF69B427).withOpacity(0.2),
+              overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
             ),
           ],
         ),
@@ -577,7 +578,7 @@ class _DailyView extends StatelessWidget {
                   context.read<DailyBloc>().add(WellBeingChanged('energy', v)),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
-              overlayColor: const Color(0xFF69B427).withOpacity(0.2),
+              overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
             ),
             Row(
               children: [
@@ -603,7 +604,7 @@ class _DailyView extends StatelessWidget {
                   context.read<DailyBloc>().add(WellBeingChanged('stress', v)),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
-              overlayColor: const Color(0xFF69B427).withOpacity(0.2),
+              overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
             ),
             Row(
               children: [
@@ -630,7 +631,7 @@ class _DailyView extends StatelessWidget {
               ),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
-              overlayColor: const Color(0xFF69B427).withOpacity(0.2),
+              overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
             ),
             Row(
               children: [
@@ -656,7 +657,7 @@ class _DailyView extends StatelessWidget {
                   context.read<DailyBloc>().add(WellBeingChanged('mood', v)),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
-              overlayColor: const Color(0xFF69B427).withOpacity(0.2),
+              overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
             ),
             Row(
               children: [
@@ -683,7 +684,7 @@ class _DailyView extends StatelessWidget {
               ),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
-              overlayColor: const Color(0xFF69B427).withOpacity(0.2),
+              overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
             ),
             SizedBox(height: 12.h),
             Text(
@@ -825,31 +826,6 @@ class _DailyView extends StatelessWidget {
             SizedBox(height: 12.h),
             _durationField(context, data.training.duration),
             SizedBox(height: 12.h),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Cardio Intensity (1-10)',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                _pillValue(data.training.intensity.round()),
-              ],
-            ),
-            FullWidthSlider(
-              value: data.training.intensity,
-              min: 1,
-              max: 10,
-              divisions: 9,
-              onChanged: (v) => context.read<DailyBloc>().add(TrainingIntensityChanged(v)),
-              activeTrackColor: const Color(0xFF69B427),
-              thumbColor: const Color(0xFF69B427),
-              overlayColor: const Color(0xFF69B427).withOpacity(0.2),
-            ),
           ],
         ),
       ),
@@ -858,121 +834,129 @@ class _DailyView extends StatelessWidget {
 
   Widget _titledBox(String title) {
     return Container(
-      height: 40.h,
+      width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0XFF152032),
-        borderRadius: BorderRadius.circular(10.r),
+        color: const Color(0XFF152133),
+        borderRadius: BorderRadius.circular(12.r),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 12.w),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       alignment: Alignment.centerLeft,
       child: Text(
         title,
         style: GoogleFonts.poppins(
           color: Colors.white,
-          fontSize: 13.sp,
+          fontSize: 14.sp,
           fontWeight: FontWeight.w500,
         ),
       ),
     );
   }
 
-  Widget _checkboxTile(BuildContext context, String title, bool checked) {
-    return Container(
-      height: 40.h,
-      decoration: BoxDecoration(
-        color: const Color(0XFF152032),
-        borderRadius: BorderRadius.circular(10.r),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: 8.w),
-      child: Row(
-        children: [
-          Checkbox(
-            value: checked,
-            onChanged: (v) => context.read<DailyBloc>().add(
-              TrainingPlanToggled(title, v ?? false),
-            ),
-            side: const BorderSide(color: Colors.white54),
-            checkColor: Colors.white,
-            activeColor: Colors.green,
-          ),
-          Expanded(
-            child: Text(
-              title,
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w500,
+  Widget _cardioOptionsRow(BuildContext context, String selectedType) {
+    final opts = <String>[
+      'Walking',
+      'Swimming',
+      'Jogging',
+      'Cycling',
+      'Rowing',
+      'Stairmaster',
+    ];
+    return Wrap(
+      spacing: 16.w,
+      runSpacing: 16.h,
+      children: opts.map((label) {
+        final isSelected = selectedType == label;
+        return InkWell(
+          onTap: () =>
+              context.read<DailyBloc>().add(TrainingCardioTypeChanged(label)),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                height: 20.w,
+                width: 20.w,
+                padding: EdgeInsets.all(3.w),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isSelected ? const Color(0xFF69B427) : Colors.white,
+                    width: 2.w,
+                  ),
+                ),
+                child: isSelected
+                    ? Container(
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFF69B427),
+                        ),
+                      )
+                    : null,
               ),
-            ),
+              SizedBox(width: 8.w),
+              Text(
+                label,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      }).toList(),
     );
   }
 
-  Widget _radioOption(
-    BuildContext context,
-    String label, {
-    required bool selected,
-    IconData? icon,
-  }) {
+  Widget _checkboxTile(BuildContext context, String label, bool value) {
     return InkWell(
       onTap: () =>
-          context.read<DailyBloc>().add(TrainingCardioTypeChanged(label)),
-      child: Row(
-        children: [
-          Container(
-            height: 16.h,
-            width: 16.h,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: selected ? Colors.green : Colors.transparent,
-              border: Border.all(
-                color: selected ? Colors.white : Colors.white54,
+          context.read<DailyBloc>().add(TrainingPlanToggled(label, !value)),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+        decoration: BoxDecoration(
+          color: const Color(0XFF101021),
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              height: 20.w,
+              width: 20.w,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4.r),
+                border: Border.all(
+                  color: value ? const Color(0xFF69B427) : Colors.white54,
+                  width: 1.5.w,
+                ),
+                color: value
+                    ? const Color(0xFF69B427).withValues(alpha: 0.15)
+                    : Colors.transparent,
+              ),
+              child: value
+                  ? Icon(
+                      Icons.check,
+                      size: 14.sp,
+                      color: Colors.white,
+                    )
+                  : null,
+            ),
+            SizedBox(width: 8.w),
+            Expanded(
+              child: Text(
+                label,
+                style: GoogleFonts.poppins(
+                  color: value ? const Color(0xFF69B427) : Colors.white,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w400,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-          ),
-          SizedBox(width: 8.w),
-          if (icon != null) ...[
-            Icon(icon, color: Colors.white, size: 18.sp),
-            SizedBox(width: 6.w),
           ],
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              color: Colors.white,
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _cardioOptionsRow(BuildContext context, String selectedType) {
-    final opts = <Map<String, dynamic>>[
-      {'label': 'Walking', 'icon': Icons.directions_walk},
-      {'label': 'Running', 'icon': Icons.directions_run},
-      {'label': 'Cycling', 'icon': Icons.directions_bike},
-      {'label': 'Swimming', 'icon': Icons.pool},
-      {'label': 'Rowing', 'icon': Icons.rowing},
-      {'label': 'Elliptical', 'icon': Icons.fitness_center},
-    ];
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          for (final o in opts) ...[
-            _radioOption(
-              context,
-              o['label'] as String,
-              selected: selectedType == (o['label'] as String),
-              icon: o['icon'] as IconData,
-            ),
-            SizedBox(width: 16.w),
-          ],
-        ],
+        ),
       ),
     );
   }
@@ -1041,7 +1025,7 @@ class _DailyView extends StatelessWidget {
                 SvgPicture.asset(AssetsPath.Clock),
                 SizedBox(width: 8.w),
                 Text(
-                  'Activity Time:',
+                  'Activity Steps:',
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14.sp,
@@ -1059,7 +1043,7 @@ class _DailyView extends StatelessWidget {
                 fontWeight: FontWeight.w400,
               ),
               decoration: InputDecoration(
-                hintText: '08:00',
+                hintText: '99',
                 hintStyle: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 14.sp,
@@ -1253,7 +1237,7 @@ class _DailyView extends StatelessWidget {
               ),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
-              overlayColor: const Color(0xFF69B427).withOpacity(0.2),
+              overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
             ),
             Row(
               children: [
@@ -1280,7 +1264,7 @@ class _DailyView extends StatelessWidget {
               ),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
-              overlayColor: const Color(0xFF69B427).withOpacity(0.2),
+              overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
             ),
             SizedBox(height: 12.h),
             Text(
@@ -1432,7 +1416,7 @@ class _DailyView extends StatelessWidget {
                   context.read<DailyBloc>().add(WomenPmsChanged(v)),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
-              overlayColor: const Color(0xFF69B427).withOpacity(0.2),
+              overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
             ),
             Row(
               children: [
@@ -1458,7 +1442,7 @@ class _DailyView extends StatelessWidget {
                   context.read<DailyBloc>().add(WomenCrampsChanged(v)),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
-              overlayColor: const Color(0xFF69B427).withOpacity(0.2),
+              overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
             ),
             SizedBox(height: 12.h),
             DropdownMultiSelectTile(
@@ -1491,16 +1475,6 @@ class _DailyView extends StatelessWidget {
     final sideEffectsCtrl = TextEditingController(
       text: data.pedHealth.sideEffects,
     );
-    final systolicCtrl = TextEditingController(
-      text: data.pedHealth.systolicText,
-    );
-    final diastolicCtrl = TextEditingController(
-      text: data.pedHealth.diastolicText,
-    );
-    final restingHrCtrl = TextEditingController(
-      text: data.pedHealth.restingHrText,
-    );
-    final glucoseCtrl = TextEditingController(text: data.pedHealth.glucoseText);
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -1549,7 +1523,34 @@ class _DailyView extends StatelessWidget {
               onChanged: (v) =>
                   context.read<DailyBloc>().add(PedSideEffectsChanged(v)),
             ),
-            SizedBox(height: 12.h),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _bloodPressureCard(BuildContext context, DailyTrackingEntity data) {
+    final systolicCtrl = TextEditingController(
+      text: data.pedHealth.systolicText,
+    );
+    final diastolicCtrl = TextEditingController(
+      text: data.pedHealth.diastolicText,
+    );
+    final restingHrCtrl = TextEditingController(
+      text: data.pedHealth.restingHrText,
+    );
+    final glucoseCtrl = TextEditingController(text: data.pedHealth.glucoseText);
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0XFF101021),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(12.sp),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Row(
               children: [
                 Icon(Icons.bloodtype_outlined, color: Colors.white),
@@ -1640,7 +1641,8 @@ class _DailyView extends StatelessWidget {
             _textArea(
               notesCtrl,
               hint: 'Type...',
-              onChanged: (v) => context.read<DailyBloc>().add(DailyNotesChanged(v)),
+              onChanged: (v) =>
+                  context.read<DailyBloc>().add(DailyNotesChanged(v)),
             ),
           ],
         ),

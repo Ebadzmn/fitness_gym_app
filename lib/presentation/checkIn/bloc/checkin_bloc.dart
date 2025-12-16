@@ -11,7 +11,11 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
   final SaveCheckInUseCase saveCheckIn;
   final GetCheckInHistoryUseCase getHistory;
 
-  CheckInBloc({required this.getInitial, required this.saveCheckIn, required this.getHistory}) : super(const CheckInState()) {
+  CheckInBloc({
+    required this.getInitial,
+    required this.saveCheckIn,
+    required this.getHistory,
+  }) : super(const CheckInState()) {
     on<CheckInInitRequested>(_onInit);
     on<CheckInStepSet>(_onStepSet);
     on<CheckInNextPressed>(_onNextPressed);
@@ -26,15 +30,28 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     on<TrainingTextChanged>(_onTrainingTextChanged);
     on<DailyNotesChanged>(_onDailyNotesChanged);
     on<SubmitPressed>(_onSubmitPressed);
+    on<CheckInHistoryPrev>(_onHistoryPrev);
+    on<CheckInHistoryNext>(_onHistoryNext);
   }
 
-  Future<void> _onInit(CheckInInitRequested event, Emitter<CheckInState> emit) async {
+  Future<void> _onInit(
+    CheckInInitRequested event,
+    Emitter<CheckInState> emit,
+  ) async {
     emit(state.copyWith(status: CheckInStatus.loading));
     try {
       final data = await getInitial();
-      emit(state.copyWith(status: CheckInStatus.ready, data: data, tab: CheckInViewTab.weekly));
+      emit(
+        state.copyWith(
+          status: CheckInStatus.ready,
+          data: data,
+          tab: CheckInViewTab.weekly,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(status: CheckInStatus.error, errorMessage: e.toString()));
+      emit(
+        state.copyWith(status: CheckInStatus.error, errorMessage: e.toString()),
+      );
     }
   }
 
@@ -51,7 +68,10 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     emit(state.copyWith(data: d.copyWith(step: next)));
   }
 
-  Future<void> _onTabSet(CheckInTabSet event, Emitter<CheckInState> emit) async {
+  Future<void> _onTabSet(
+    CheckInTabSet event,
+    Emitter<CheckInState> emit,
+  ) async {
     if (event.tab == 'weekly') {
       emit(state.copyWith(tab: CheckInViewTab.weekly));
       return;
@@ -59,9 +79,18 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     emit(state.copyWith(status: CheckInStatus.loading));
     try {
       final items = await getHistory();
-      emit(state.copyWith(status: CheckInStatus.ready, tab: CheckInViewTab.old, history: items));
+      emit(
+        state.copyWith(
+          status: CheckInStatus.ready,
+          tab: CheckInViewTab.old,
+          history: items,
+          historyIndex: 0,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(status: CheckInStatus.error, errorMessage: e.toString()));
+      emit(
+        state.copyWith(status: CheckInStatus.error, errorMessage: e.toString()),
+      );
     }
   }
 
@@ -97,7 +126,10 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     emit(state.copyWith(data: d.copyWith(wellBeing: updated)));
   }
 
-  void _onNutritionNumberChanged(NutritionNumberChanged event, Emitter<CheckInState> emit) {
+  void _onNutritionNumberChanged(
+    NutritionNumberChanged event,
+    Emitter<CheckInState> emit,
+  ) {
     final d = state.data;
     if (d == null) return;
     final n = d.nutrition;
@@ -113,7 +145,10 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     emit(state.copyWith(data: d.copyWith(nutrition: updated)));
   }
 
-  void _onNutritionTextChanged(NutritionTextChanged event, Emitter<CheckInState> emit) {
+  void _onNutritionTextChanged(
+    NutritionTextChanged event,
+    Emitter<CheckInState> emit,
+  ) {
     final d = state.data;
     if (d == null) return;
     final n = d.nutrition.copyWith(challenge: event.value);
@@ -136,7 +171,10 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     emit(state.copyWith(data: d.copyWith(uploads: updated)));
   }
 
-  void _onTrainingNumberChanged(TrainingNumberChanged event, Emitter<CheckInState> emit) {
+  void _onTrainingNumberChanged(
+    TrainingNumberChanged event,
+    Emitter<CheckInState> emit,
+  ) {
     final d = state.data;
     if (d == null) return;
     final t = d.training;
@@ -152,7 +190,10 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     emit(state.copyWith(data: d.copyWith(training: updated)));
   }
 
-  void _onTrainingToggleChanged(TrainingToggleChanged event, Emitter<CheckInState> emit) {
+  void _onTrainingToggleChanged(
+    TrainingToggleChanged event,
+    Emitter<CheckInState> emit,
+  ) {
     final d = state.data;
     if (d == null) return;
     final t = d.training;
@@ -168,19 +209,42 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     emit(state.copyWith(data: d.copyWith(training: updated)));
   }
 
-  void _onTrainingTextChanged(TrainingTextChanged event, Emitter<CheckInState> emit) {
+  void _onTrainingTextChanged(
+    TrainingTextChanged event,
+    Emitter<CheckInState> emit,
+  ) {
     final d = state.data;
     if (d == null) return;
-    emit(state.copyWith(data: d.copyWith(training: d.training.copyWith(feedback: event.value))));
+    final t = d.training;
+    CheckInTraining updated = t;
+    switch (event.field) {
+      case 'cardioType':
+        updated = t.copyWith(cardioType: event.value);
+        break;
+      case 'cardioDuration':
+        updated = t.copyWith(cardioDuration: event.value);
+        break;
+      case 'feedback':
+      default:
+        updated = t.copyWith(feedback: event.value);
+        break;
+    }
+    emit(state.copyWith(data: d.copyWith(training: updated)));
   }
 
-  void _onDailyNotesChanged(DailyNotesChanged event, Emitter<CheckInState> emit) {
+  void _onDailyNotesChanged(
+    DailyNotesChanged event,
+    Emitter<CheckInState> emit,
+  ) {
     final d = state.data;
     if (d == null) return;
     emit(state.copyWith(data: d.copyWith(dailyNotes: event.value)));
   }
 
-  Future<void> _onSubmitPressed(SubmitPressed event, Emitter<CheckInState> emit) async {
+  Future<void> _onSubmitPressed(
+    SubmitPressed event,
+    Emitter<CheckInState> emit,
+  ) async {
     final d = state.data;
     if (d == null) return;
     emit(state.copyWith(status: CheckInStatus.saving));
@@ -189,7 +253,33 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
       emit(state.copyWith(status: CheckInStatus.saved));
       emit(state.copyWith(status: CheckInStatus.ready));
     } catch (e) {
-      emit(state.copyWith(status: CheckInStatus.error, errorMessage: e.toString()));
+      emit(
+        state.copyWith(status: CheckInStatus.error, errorMessage: e.toString()),
+      );
+    }
+  }
+
+  void _onHistoryPrev(
+    CheckInHistoryPrev event,
+    Emitter<CheckInState> emit,
+  ) {
+    final list = state.history;
+    if (list.isEmpty) return;
+    final idx = state.historyIndex;
+    if (idx < list.length - 1) {
+      emit(state.copyWith(historyIndex: idx + 1));
+    }
+  }
+
+  void _onHistoryNext(
+    CheckInHistoryNext event,
+    Emitter<CheckInState> emit,
+  ) {
+    final list = state.history;
+    if (list.isEmpty) return;
+    final idx = state.historyIndex;
+    if (idx > 0) {
+      emit(state.copyWith(historyIndex: idx - 1));
     }
   }
 }

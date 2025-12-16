@@ -11,6 +11,7 @@ class CheckInState extends Equatable {
   final String? errorMessage;
   final CheckInViewTab tab;
   final List<CheckInEntity> history;
+  final int historyIndex;
 
   const CheckInState({
     this.status = CheckInStatus.initial,
@@ -18,6 +19,7 @@ class CheckInState extends Equatable {
     this.errorMessage,
     this.tab = CheckInViewTab.weekly,
     this.history = const <CheckInEntity>[],
+    this.historyIndex = 0,
   });
 
   CheckInState copyWith({
@@ -26,6 +28,7 @@ class CheckInState extends Equatable {
     String? errorMessage,
     CheckInViewTab? tab,
     List<CheckInEntity>? history,
+    int? historyIndex,
   }) =>
       CheckInState(
         status: status ?? this.status,
@@ -33,8 +36,9 @@ class CheckInState extends Equatable {
         errorMessage: errorMessage ?? this.errorMessage,
         tab: tab ?? this.tab,
         history: history ?? this.history,
+        historyIndex: historyIndex ?? this.historyIndex,
       );
 
   @override
-  List<Object?> get props => [status, data, errorMessage, tab, history];
+  List<Object?> get props => [status, data, errorMessage, tab, history, historyIndex];
 }
