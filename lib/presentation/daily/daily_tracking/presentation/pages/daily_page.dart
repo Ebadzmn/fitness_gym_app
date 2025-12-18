@@ -169,7 +169,7 @@ class _DailyView extends StatelessWidget {
                   'Date:',
                   style: GoogleFonts.poppins(
                     color: Colors.white,
-                    fontSize: 14.sp,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -1560,7 +1560,7 @@ class _DailyView extends StatelessWidget {
                 Icon(Icons.bloodtype_outlined, color: Colors.white),
                 SizedBox(width: 8.w),
                 Text(
-                  'Blood Pressure (Everybody)',
+                  'Blood Pressure',
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14.sp,

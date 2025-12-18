@@ -699,7 +699,7 @@ class _AddMealDialogState extends State<_AddMealDialog> {
               children: [
                 Expanded(child: _inputField('Meal Name', 'Type...', controller: _mealCtrl)),
                 SizedBox(width: 16.w),
-                Expanded(child: _inputField('Time (e.g. 13:00)', 'HH:mm', controller: _timeCtrl)),
+               
               ],
             ),
             SizedBox(height: 16.h),
