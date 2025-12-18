@@ -218,11 +218,11 @@ class _CheckInView extends StatelessWidget {
                         Expanded(
                           child: Text(
                             'Check-in Date: 12 March 2025',
-                            maxLines: 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 13.sp,
+                              fontSize: 12.sp,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
