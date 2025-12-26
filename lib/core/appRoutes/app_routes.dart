@@ -5,7 +5,6 @@ import 'package:fitness_app/presentation/auth/pages/create_new_password_page.dar
 import 'package:fitness_app/presentation/auth/pages/password_changed_success_page.dart';
 import 'package:fitness_app/presentation/checkIn/pages/checkIn_pages.dart';
 import 'package:fitness_app/presentation/home/pages/home_page.dart';
-import 'package:fitness_app/presentation/rusui.dart';
 import 'package:fitness_app/presentation/training/pages/exercise_page.dart';
 import 'package:fitness_app/presentation/training/pages/exercise_detail_page.dart';
 import 'package:fitness_app/domain/entities/training_entities/exercise_entity.dart';
@@ -89,7 +88,7 @@ final GoRouter AppRouter = GoRouter(
       pageBuilder: (context, state) => AppRoutes.fadeTransitionPage(
         context: context,
         state: state,
-        child: const LoginPage(),
+        child: LoginPage(),
       ),
     ),
     GoRoute(
@@ -101,14 +100,6 @@ final GoRouter AppRouter = GoRouter(
       ),
     ),
 
-    GoRoute(
-      path: AppRoutes.rusuiPage,
-      pageBuilder: (context, state) => AppRoutes.fadeTransitionPage(
-        context: context,
-        state: state,
-        child: const RusUI(),
-      ),
-    ),
 
     GoRoute(
       path: AppRoutes.otpPages,

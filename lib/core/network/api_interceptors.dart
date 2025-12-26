@@ -1,7 +1,18 @@
-import 'dart:developer';
 import 'package:dio/dio.dart';
+import 'package:logger/logger.dart';
 import '../storage/token_storage.dart';
 import 'api_exception.dart';
+
+final Logger _networkLogger = Logger(
+  printer: PrettyPrinter(
+    methodCount: 0,
+    errorMethodCount: 5,
+    lineLength: 90,
+    colors: true,
+    printEmojis: true,
+    printTime: true,
+  ),
+);
 
 class AuthInterceptor extends Interceptor {
   final TokenStorage _tokenStorage;
@@ -21,27 +32,30 @@ class AuthInterceptor extends Interceptor {
 class LoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    log('--> ${options.method} ${options.uri}');
-    log('Headers: ${options.headers}');
+    _networkLogger.i('➡️  ${options.method} ${options.uri}');
+    _networkLogger.d('Headers: ${options.headers}');
     if (options.data != null) {
-      log('Body: ${options.data}');
+      _networkLogger.d('Body: ${options.data}');
     }
     super.onRequest(options, handler);
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    log('<-- ${response.statusCode} ${response.requestOptions.uri}');
-    log('Response: ${response.data}');
+    _networkLogger.i('⬅️  ${response.statusCode} ${response.requestOptions.uri}');
+    _networkLogger.d('Response: ${response.data}');
     super.onResponse(response, handler);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    log('<-- ERROR ${err.response?.statusCode} ${err.requestOptions.uri}');
-    log('Message: ${err.message}');
+    _networkLogger.e(
+      '⛔ ERROR ${err.response?.statusCode} ${err.requestOptions.uri}',
+      error: err,
+      stackTrace: err.stackTrace,
+    );
     if (err.response?.data != null) {
-      log('Error Data: ${err.response?.data}');
+      _networkLogger.e('Error Data: ${err.response?.data}');
     }
     super.onError(err, handler);
   }

@@ -8,9 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fitness_app/core/config/assets_path.dart';
 import 'package:fitness_app/core/coreWidget/dropdown_yes_no_tile.dart';
 import 'package:fitness_app/core/coreWidget/dropdown_tile.dart';
-import '../../../../../data/repositories/fake_daily_repository.dart';
-import '../../../../../domain/usecases/daily/get_daily_initial_usecase.dart';
-import '../../../../../domain/usecases/daily/save_daily_usecase.dart';
+import 'package:fitness_app/injection_container.dart' as di;
 import 'bloc/daily_bloc.dart';
 import 'bloc/daily_event.dart';
 import 'bloc/daily_state.dart';
@@ -20,20 +18,9 @@ class DailyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (_) => FakeDailyRepository(),
-      child: Builder(
-        builder: (ctx) {
-          final repo = RepositoryProvider.of<FakeDailyRepository>(ctx);
-          return BlocProvider(
-            create: (_) => DailyBloc(
-              getInitial: GetDailyInitialUseCase(repo),
-              saveDaily: SaveDailyUseCase(repo),
-            )..add(const DailyInitRequested()),
-            child: const _DailyView(),
-          );
-        },
-      ),
+    return BlocProvider(
+      create: (_) => di.sl<DailyBloc>()..add(const DailyInitRequested()),
+      child: const _DailyView(),
     );
   }
 }

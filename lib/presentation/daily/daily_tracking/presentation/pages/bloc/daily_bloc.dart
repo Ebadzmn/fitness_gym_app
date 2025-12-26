@@ -166,7 +166,7 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
       emit(state.copyWith(status: DailyStatus.saved));
     } catch (e) {
       emit(
-        state.copyWith(status: DailyStatus.error, errorMessage: e.toString()),
+        state.copyWith(status: DailyStatus.error, errorMessage: 'Failed'),
       );
     }
   }
