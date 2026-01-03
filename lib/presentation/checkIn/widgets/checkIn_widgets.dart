@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:ui';
+import 'dart:io';
 
 class CheckInStep extends StatelessWidget {
   final IconData icon;
@@ -210,37 +211,111 @@ class InstructionText extends StatelessWidget {
 class FileUploadWidget extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
+  final List<String> selectedPaths;
+  final Function(String) onRemove;
 
-  const FileUploadWidget({super.key, required this.label, required this.onTap});
+  const FileUploadWidget({
+    super.key,
+    required this.label,
+    required this.onTap,
+    this.selectedPaths = const [],
+    required this.onRemove,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        height: 120.h,
-        decoration: BoxDecoration(
-          color: const Color(0xFF446B36), // Muted green background
-          borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(color: const Color(0xFF82C941), width: 1),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.image_outlined, color: Colors.white, size: 32.sp),
-            SizedBox(height: 8.h),
-            Text(
-              label,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w500,
-              ),
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            width: double.infinity,
+            height: 120.h,
+            decoration: BoxDecoration(
+              color: const Color(0xFF446B36), // Muted green background
+              borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(color: const Color(0xFF82C941), width: 1),
             ),
-          ],
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.image_outlined, color: Colors.white, size: 32.sp),
+                SizedBox(height: 8.h),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-      ),
+        if (selectedPaths.isNotEmpty) ...[
+          SizedBox(height: 16.h),
+          SizedBox(
+            height: 80.h,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: selectedPaths.length,
+              separatorBuilder: (context, index) => SizedBox(width: 12.w),
+              itemBuilder: (context, index) {
+                return FilePreviewWidget(
+                  path: selectedPaths[index],
+                  onRemove: () => onRemove(selectedPaths[index]),
+                );
+              },
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class FilePreviewWidget extends StatelessWidget {
+  final String path;
+  final VoidCallback onRemove;
+
+  const FilePreviewWidget({
+    super.key,
+    required this.path,
+    required this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Container(
+          width: 80.w,
+          height: 80.h,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12.r),
+            image: DecorationImage(
+              image: FileImage(File(path)),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        Positioned(
+          top: 4.h,
+          right: 4.w,
+          child: GestureDetector(
+            onTap: onRemove,
+            child: Container(
+              padding: EdgeInsets.all(4.w),
+              decoration: const BoxDecoration(
+                color: Colors.black54,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.close, color: Colors.white, size: 14.sp),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -248,60 +323,104 @@ class FileUploadWidget extends StatelessWidget {
 class VideoUploadWidget extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
+  final String? selectedPath;
+  final VoidCallback onRemove;
 
   const VideoUploadWidget({
     super.key,
     required this.label,
     required this.onTap,
+    this.selectedPath,
+    required this.onRemove,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: CustomPaint(
-        painter: DashedBorderPainter(
-          color: Colors.white70,
-          strokeWidth: 1,
-          dashWidth: 8,
-          dashSpace: 4,
-          radius: 20.r,
-        ),
-        child: Container(
-          width: double.infinity,
-          height: 120.h,
-          decoration: BoxDecoration(
-            color: const Color(0xFF446B36).withOpacity(0.8),
-            borderRadius: BorderRadius.circular(20.r),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: EdgeInsets.all(8.w),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.2),
-                ),
-                child: Icon(
-                  Icons.cloud_upload_outlined,
-                  color: Colors.white,
-                  size: 24.sp,
-                ),
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: onTap,
+          child: CustomPaint(
+            painter: DashedBorderPainter(
+              color: Colors.white70,
+              strokeWidth: 1,
+              dashWidth: 8,
+              dashSpace: 4,
+              radius: 20.r,
+            ),
+            child: Container(
+              width: double.infinity,
+              height: 120.h,
+              decoration: BoxDecoration(
+                color: const Color(0xFF446B36).withOpacity(0.8),
+                borderRadius: BorderRadius.circular(20.r),
               ),
-              SizedBox(height: 8.h),
-              Text(
-                label,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8.w),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.2),
+                    ),
+                    child: Icon(
+                      Icons.cloud_upload_outlined,
+                      color: Colors.white,
+                      size: 24.sp,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
-      ),
+        if (selectedPath != null) ...[
+          SizedBox(height: 16.h),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            decoration: BoxDecoration(
+              color: Colors.white10,
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.videocam_outlined,
+                  color: Colors.white70,
+                  size: 20.sp,
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Text(
+                    selectedPath!.split('/').last,
+                    style: TextStyle(color: Colors.white70, fontSize: 13.sp),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: onRemove,
+                  child: Icon(
+                    Icons.delete_outline,
+                    color: Colors.redAccent,
+                    size: 20.sp,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

@@ -11,6 +11,8 @@ class CheckInEntity extends Equatable {
   final CheckInUploads uploads;
   final String dailyNotes;
   final String? weekId;
+  final double currentWeight;
+  final double averageWeight;
 
   const CheckInEntity({
     this.step = 0,
@@ -22,6 +24,8 @@ class CheckInEntity extends Equatable {
     this.uploads = const CheckInUploads(),
     this.dailyNotes = '',
     this.weekId,
+    this.currentWeight = 0,
+    this.averageWeight = 0,
   });
 
   CheckInEntity copyWith({
@@ -34,6 +38,8 @@ class CheckInEntity extends Equatable {
     CheckInUploads? uploads,
     String? dailyNotes,
     String? weekId,
+    double? currentWeight,
+    double? averageWeight,
   }) {
     return CheckInEntity(
       step: step ?? this.step,
@@ -45,6 +51,8 @@ class CheckInEntity extends Equatable {
       uploads: uploads ?? this.uploads,
       dailyNotes: dailyNotes ?? this.dailyNotes,
       weekId: weekId ?? this.weekId,
+      currentWeight: currentWeight ?? this.currentWeight,
+      averageWeight: averageWeight ?? this.averageWeight,
     );
   }
 
@@ -58,6 +66,8 @@ class CheckInEntity extends Equatable {
     'uploads': uploads.toMap(),
     'dailyNotes': dailyNotes,
     'weekId': weekId,
+    'currentWeight': currentWeight,
+    'averageWeight': averageWeight,
   };
   factory CheckInEntity.fromMap(Map<String, dynamic> map) => CheckInEntity(
     step: map['step'] ?? 0,
@@ -77,6 +87,8 @@ class CheckInEntity extends Equatable {
     ),
     dailyNotes: map['dailyNotes'] ?? '',
     weekId: map['weekId'],
+    currentWeight: (map['currentWeight'] ?? 0).toDouble(),
+    averageWeight: (map['averageWeight'] ?? 0).toDouble(),
   );
   String toJson() => jsonEncode(toMap());
   factory CheckInEntity.fromJson(String source) =>
@@ -93,6 +105,8 @@ class CheckInEntity extends Equatable {
     uploads,
     dailyNotes,
     weekId,
+    currentWeight,
+    averageWeight,
   ];
 }
 
@@ -247,27 +261,46 @@ class CheckInTraining extends Equatable {
 class CheckInUploads extends Equatable {
   final bool picturesUploaded;
   final bool videoUploaded;
+  final List<String> picturePaths;
+  final String? videoPath;
 
   const CheckInUploads({
     this.picturesUploaded = true,
     this.videoUploaded = true,
+    this.picturePaths = const [],
+    this.videoPath,
   });
 
-  CheckInUploads copyWith({bool? picturesUploaded, bool? videoUploaded}) =>
-      CheckInUploads(
-        picturesUploaded: picturesUploaded ?? this.picturesUploaded,
-        videoUploaded: videoUploaded ?? this.videoUploaded,
-      );
+  CheckInUploads copyWith({
+    bool? picturesUploaded,
+    bool? videoUploaded,
+    List<String>? picturePaths,
+    String? videoPath,
+  }) => CheckInUploads(
+    picturesUploaded: picturesUploaded ?? this.picturesUploaded,
+    videoUploaded: videoUploaded ?? this.videoUploaded,
+    picturePaths: picturePaths ?? this.picturePaths,
+    videoPath: videoPath ?? this.videoPath,
+  );
 
   Map<String, dynamic> toMap() => {
     'picturesUploaded': picturesUploaded,
     'videoUploaded': videoUploaded,
+    'picturePaths': picturePaths,
+    'videoPath': videoPath,
   };
   factory CheckInUploads.fromMap(Map<String, dynamic> map) => CheckInUploads(
     picturesUploaded: map['picturesUploaded'] ?? true,
     videoUploaded: map['videoUploaded'] ?? true,
+    picturePaths: List<String>.from(map['picturePaths'] ?? []),
+    videoPath: map['videoPath'],
   );
 
   @override
-  List<Object?> get props => [picturesUploaded, videoUploaded];
+  List<Object?> get props => [
+    picturesUploaded,
+    videoUploaded,
+    picturePaths,
+    videoPath,
+  ];
 }

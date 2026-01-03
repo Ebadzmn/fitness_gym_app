@@ -30,8 +30,8 @@ class ApiClient {
     required NetworkConfig config,
     required TokenStorage tokenStorage,
     Future<String?> Function()? onRefreshToken,
-  })  : _config = config,
-        _tokenStorage = tokenStorage {
+  }) : _config = config,
+       _tokenStorage = tokenStorage {
     _dio = Dio(
       BaseOptions(
         baseUrl: _config.baseUrl,
@@ -57,7 +57,7 @@ class ApiClient {
   }
 
   /// Performs a GET request.
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final response = await apiClient.get('/users', queryParameters: {'id': 1});
@@ -81,7 +81,7 @@ class ApiClient {
   }
 
   /// Performs a POST request.
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final response = await apiClient.post('/users', data: {'name': 'John'});
@@ -170,11 +170,11 @@ class ApiClient {
   }
 
   /// Uploads a file using multipart form data.
-  /// 
+  ///
   /// [file] The file to upload.
   /// [fieldName] The key name for the file in the form data.
   /// [additionalData] Optional extra fields to include in the request.
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// await apiClient.uploadFile('/profile/avatar', file: File('path/to/img.png'), fieldName: 'avatar');
@@ -208,5 +208,8 @@ class ApiClient {
       throw ApiException.fromDioException(e);
     }
   }
-}
 
+  Future<MultipartFile> createMultipartFile(String path) async {
+    return await MultipartFile.fromFile(path, filename: path.split('/').last);
+  }
+}

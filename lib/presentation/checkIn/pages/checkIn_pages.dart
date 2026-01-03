@@ -7,23 +7,26 @@ import 'package:fitness_app/presentation/checkIn/widgets/checking_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:fitness_app/core/coreWidget/full_width_slider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_app/data/repositories/fake_checkin_repository.dart';
 import 'package:fitness_app/domain/usecases/checkin/get_checkin_initial_usecase.dart';
+import 'package:fitness_app/domain/usecases/checkin/get_checkin_date_usecase.dart';
 import 'package:fitness_app/domain/usecases/checkin/save_checkin_usecase.dart';
-import 'package:fitness_app/domain/usecases/checkin/get_checkin_history_usecase.dart';
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_bloc.dart';
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_event.dart';
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_state.dart';
 import 'package:fitness_app/domain/entities/checkin_entities/check_in_entity.dart';
+import 'package:image_picker/image_picker.dart';
+
+import 'package:fitness_app/injection_container.dart';
+import 'package:fitness_app/core/network/api_client.dart';
 
 class CheckinPages extends StatelessWidget {
   const CheckinPages({super.key});
   @override
   Widget build(BuildContext context) {
     return RepositoryProvider(
-      create: (_) => FakeCheckInRepository(),
+      create: (_) => FakeCheckInRepository(apiClient: sl<ApiClient>()),
       child: Builder(
         builder: (ctx) {
           final repo = RepositoryProvider.of<FakeCheckInRepository>(ctx);
@@ -32,6 +35,7 @@ class CheckinPages extends StatelessWidget {
               getInitial: GetCheckInInitialUseCase(repo),
               saveCheckIn: SaveCheckInUseCase(repo),
               getHistory: GetCheckInHistoryUseCase(repo),
+              getCheckInDate: GetCheckInDateUseCase(repo),
             )..add(const CheckInInitRequested()),
             child: const _CheckInView(),
           );
@@ -149,12 +153,16 @@ class _CheckInView extends StatelessWidget {
                     children: [
                       Expanded(
                         child: GestureDetector(
-                          onTap: () => context.read<CheckInBloc>().add(const CheckInTabSet('weekly')),
+                          onTap: () => context.read<CheckInBloc>().add(
+                            const CheckInTabSet('weekly'),
+                          ),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             padding: EdgeInsets.symmetric(vertical: 12.h),
                             decoration: BoxDecoration(
-                              color: state.tab == CheckInViewTab.weekly ? const Color(0xFF446B36) : Colors.transparent,
+                              color: state.tab == CheckInViewTab.weekly
+                                  ? const Color(0xFF446B36)
+                                  : Colors.transparent,
                               borderRadius: BorderRadius.circular(30.r),
                             ),
                             alignment: Alignment.center,
@@ -171,12 +179,16 @@ class _CheckInView extends StatelessWidget {
                       ),
                       Expanded(
                         child: GestureDetector(
-                          onTap: () => context.read<CheckInBloc>().add(const CheckInTabSet('old')),
+                          onTap: () => context.read<CheckInBloc>().add(
+                            const CheckInTabSet('old'),
+                          ),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             padding: EdgeInsets.symmetric(vertical: 12.h),
                             decoration: BoxDecoration(
-                              color: state.tab == CheckInViewTab.old ? const Color(0xFF446B36) : Colors.transparent,
+                              color: state.tab == CheckInViewTab.old
+                                  ? const Color(0xFF446B36)
+                                  : Colors.transparent,
                               borderRadius: BorderRadius.circular(30.r),
                             ),
                             alignment: Alignment.center,
@@ -206,9 +218,7 @@ class _CheckInView extends StatelessWidget {
                       horizontal: 20.w,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(
-                        0xFF1B2B1B,
-                      ),
+                      color: const Color(0xFF1B2B1B),
                       borderRadius: BorderRadius.circular(12.r),
                       border: Border.all(color: const Color(0xFF2E4E2E)),
                     ),
@@ -217,7 +227,7 @@ class _CheckInView extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            'Check-in Date: 12 March 2025',
+                            'Check-in Date: ${state.checkInDate?.nextCheckInDate ?? "Loading..."}',
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -230,7 +240,7 @@ class _CheckInView extends StatelessWidget {
                         SizedBox(width: 12.w),
                         Expanded(
                           child: Text(
-                            'Day: Wednesday',
+                            'Day: ${state.checkInDate?.checkInDay ?? "Loading..."}',
                             textAlign: TextAlign.right,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -247,7 +257,8 @@ class _CheckInView extends StatelessWidget {
                 ],
                 SizedBox(height: 30.h),
 
-                if (state.tab == CheckInViewTab.weekly) _bodyForStep(step),
+                if (state.tab == CheckInViewTab.weekly)
+                  _bodyForStep(context, step),
 
                 // Bottom Buttons
                 if (state.tab == CheckInViewTab.weekly && step == 0) ...[
@@ -317,11 +328,7 @@ class _CheckInView extends StatelessWidget {
     );
   }
 
-  Widget _oldList(
-    BuildContext context,
-    List<CheckInEntity> items,
-    int index,
-  ) {
+  Widget _oldList(BuildContext context, List<CheckInEntity> items, int index) {
     if (items.isEmpty) {
       return Container(
         padding: EdgeInsets.all(16.w),
@@ -335,7 +342,10 @@ class _CheckInView extends StatelessWidget {
             const Icon(Icons.history, color: Colors.white70),
             SizedBox(width: 12.w),
             const Expanded(
-              child: Text('No previous check-ins found', style: TextStyle(color: Colors.white70)),
+              child: Text(
+                'No previous check-ins found',
+                style: TextStyle(color: Colors.white70),
+              ),
             ),
           ],
         ),
@@ -387,7 +397,9 @@ class _CheckInView extends StatelessWidget {
             Expanded(
               child: ElevatedButton(
                 onPressed: safeIndex < items.length - 1
-                    ? () => context.read<CheckInBloc>().add(const CheckInHistoryPrev())
+                    ? () => context.read<CheckInBloc>().add(
+                        const CheckInHistoryPrev(),
+                      )
                     : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1C222E),
@@ -410,7 +422,9 @@ class _CheckInView extends StatelessWidget {
             Expanded(
               child: ElevatedButton(
                 onPressed: safeIndex > 0
-                    ? () => context.read<CheckInBloc>().add(const CheckInHistoryNext())
+                    ? () => context.read<CheckInBloc>().add(
+                        const CheckInHistoryNext(),
+                      )
                     : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF446B36),
@@ -433,7 +447,8 @@ class _CheckInView extends StatelessWidget {
         ),
         SizedBox(height: 16.h),
         CheckInCard(
-          title: 'Energy ${current.wellBeing.energy.round()} • Diet ${current.nutrition.dietLevel.round()}',
+          title:
+              'Energy ${current.wellBeing.energy.round()} • Diet ${current.nutrition.dietLevel.round()}',
           value: 'Week starting $weekLabel',
           icon: Icons.history,
           showBadge: false,
@@ -442,43 +457,35 @@ class _CheckInView extends StatelessWidget {
     );
   }
 
-  Widget _bodyForStep(int step) {
+  Widget _bodyForStep(BuildContext context, int step) {
     if (step == 0) {
-      return Column(
-        children: const [
-          Row(
+      return BlocBuilder<CheckInBloc, CheckInState>(
+        builder: (context, state) {
+          final checkInDate = state.checkInDate;
+          return Column(
             children: [
-              Icon(Icons.monitor_weight_outlined, color: Colors.white),
-              SizedBox(width: 8),
-              Text(
-                "Basic Data",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
+              CheckInCard(
+                title: "Current Weight (kg)",
+                value: checkInDate != null
+                    ? "${checkInDate.currentWeight} (kg)"
+                    : "0 (kg)",
+                showBadge: true,
+              ),
+              CheckInCard(
+                title: "Average Weight in %",
+                value: checkInDate != null
+                    ? "${checkInDate.averageWeight} (%)"
+                    : "0 (%)",
+                showBadge: true,
               ),
             ],
-          ),
-          SizedBox(height: 20),
-          CheckInCard(
-            title: "competition class",
-            value: "Classic Physique",
-            icon: Icons.emoji_events_outlined,
-          ),
-          CheckInCard(
-            title: "Current Weight (kg)",
-            value: "80.2 (kg)",
-            showBadge: true,
-          ),
-          CheckInCard(
-            title: "Average Weight in %",
-            value: "80.2 (%)",
-            showBadge: true,
-          ),
-        ],
+          );
+        },
       );
     } else if (step == 1) {
+      final uploads = context.read<CheckInBloc>().state.data?.uploads;
+      final picker = ImagePicker();
+
       return Column(
         children: [
           InstructionText(
@@ -487,7 +494,21 @@ class _CheckInView extends StatelessWidget {
                 "You Can Select Multiple Files, But At Least One File Must Be Chosen",
           ),
           SizedBox(height: 16.h),
-          FileUploadWidget(label: "Select File", onTap: () {}),
+          FileUploadWidget(
+            label: "Select File",
+            selectedPaths: uploads?.picturePaths ?? [],
+            onTap: () async {
+              final List<XFile> images = await picker.pickMultiImage();
+              if (images.isNotEmpty) {
+                context.read<CheckInBloc>().add(
+                  PhotoSelected(images.map((e) => e.path).toList()),
+                );
+              }
+            },
+            onRemove: (path) {
+              context.read<CheckInBloc>().add(PhotoRemoved(path));
+            },
+          ),
           SizedBox(height: 24.h),
           InstructionText(
             icon: Icons.play_circle_outline,
@@ -495,7 +516,98 @@ class _CheckInView extends StatelessWidget {
                 "Only One Video Can Be Uploaded, And The Maximum File Size Is 500 MB.",
           ),
           SizedBox(height: 16.h),
-          VideoUploadWidget(label: "Drag & drop video file", onTap: () {}),
+          VideoUploadWidget(
+            label: "Drag & drop video file",
+            selectedPath: uploads?.videoPath,
+            onTap: () async {
+              final XFile? video = await picker.pickVideo(
+                source: ImageSource.gallery,
+              );
+              if (video != null) {
+                context.read<CheckInBloc>().add(VideoSelected(video.path));
+              }
+            },
+            onRemove: () {
+              context.read<CheckInBloc>().add(const VideoSelected(''));
+            },
+          ),
+          SizedBox(height: 32.h),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                context.read<CheckInBloc>().add(const UploadButtonPressed());
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Files uploaded successfully')),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1C222E),
+                padding: EdgeInsets.symmetric(vertical: 16.h),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+              ),
+              child: Text(
+                "Upload",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 16.h),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    context.read<CheckInBloc>().add(const CheckInStepSet(0));
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1C222E),
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                  ),
+                  child: Text(
+                    "Back",
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    context.read<CheckInBloc>().add(const CheckInStepSet(2));
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1E1E45),
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                  ),
+                  child: Text(
+                    "Next",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       );
     } else if (step == 2) {

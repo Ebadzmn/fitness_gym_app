@@ -1,10 +1,26 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart';
 import '../../domain/entities/checkin_entities/check_in_entity.dart';
+import '../../domain/entities/checkin_entities/check_in_date_entity.dart';
+import '../../core/network/api_client.dart';
+import '../../core/apiUrls/api_urls.dart';
 
 class FakeCheckInRepository {
+  final ApiClient apiClient;
   static const String _entriesKey = 'weekly_checkin_entries';
+
+  FakeCheckInRepository({required this.apiClient});
+
+  Future<CheckInDateEntity> getCheckInDate() async {
+    final response = await apiClient.get(ApiUrls.checkInDate);
+    if (response.statusCode == 200 && response.data != null) {
+      final data = response.data['data'];
+      return CheckInDateEntity.fromMap(data);
+    }
+    // Fallback or throw error
+    throw Exception('Failed to load check-in date');
+  }
 
   Future<CheckInEntity> loadInitial() async {
     await Future<void>.delayed(const Duration(milliseconds: 200));
@@ -21,24 +37,73 @@ class FakeCheckInRepository {
   }
 
   Future<void> save(CheckInEntity data) async {
-    await Future<void>.delayed(const Duration(milliseconds: 200));
-    final prefs = await SharedPreferences.getInstance();
-    final weekId = _computeWeekId(DateTime.now());
-    final list = prefs.getStringList(_entriesKey) ?? <String>[];
-    final hasDuplicate = list.any((s) {
-      try {
-        final m = CheckInEntity.fromJson(s);
-        return m.weekId == weekId;
-      } catch (_) {
-        return false;
-      }
-    });
-    if (hasDuplicate) {
-      throw StateError('Already checked in for this week');
+    final formData = Map<String, dynamic>();
+
+    formData['currentWeight'] = data.currentWeight;
+    formData['averageWeight'] = data.averageWeight;
+
+    // questionAndAnswer
+    formData['questionAndAnswer[0][question]'] =
+        'Q1 . What are you proud of? *';
+    formData['questionAndAnswer[0][answer]'] = data.answer1;
+    formData['questionAndAnswer[1][question]'] =
+        'Q2 . Calories per default quantity *';
+    formData['questionAndAnswer[1][answer]'] = data.answer2;
+
+    // wellBeing
+    formData['wellBeing[energyLevel]'] = data.wellBeing.energy.round();
+    formData['wellBeing[stressLevel]'] = data.wellBeing.stress.round();
+    formData['wellBeing[moodLevel]'] = data.wellBeing.mood.round();
+    formData['wellBeing[sleepQuality]'] = data.wellBeing.sleep.round();
+
+    // nutrition
+    formData['nutrition[dietLevel]'] = data.nutrition.dietLevel.round();
+    formData['nutrition[digestionLevel]'] = data.nutrition.digestion.round();
+    formData['nutrition[challengeDiet]'] = data.nutrition.challenge;
+
+    // training
+    formData['training[feelStrength]'] = data.training.feelStrength.round();
+    formData['training[pumps]'] = data.training.pumps.round();
+    formData['training[cardioCompleted]'] = data.training.cardioCompleted;
+    formData['training[trainingCompleted]'] = data.training.trainingCompleted;
+    formData['trainingFeedback'] = data.training.feedback;
+
+    formData['dailyNote'] = data.dailyNotes;
+
+    // Files
+    if (data.uploads.videoPath != null && data.uploads.videoPath!.isNotEmpty) {
+      formData['video'] = await apiClient.createMultipartFile(
+        data.uploads.videoPath!,
+      );
     }
-    final toSave = data.copyWith(weekId: weekId).toJson();
-    list.add(toSave);
-    await prefs.setStringList(_entriesKey, list);
+
+    if (data.uploads.picturePaths.isNotEmpty) {
+      final List<dynamic> images = [];
+      for (final path in data.uploads.picturePaths) {
+        images.add(await apiClient.createMultipartFile(path));
+      }
+      formData['image'] = images;
+    }
+
+    final response = await apiClient.post(
+      ApiUrls.checkInPost,
+      data: FormData.fromMap(formData),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      // Successfully saved to server.
+      // We could also save locally if needed for history, but user asked for post.
+      final prefs = await SharedPreferences.getInstance();
+      final weekId = _computeWeekId(DateTime.now());
+      final list = prefs.getStringList(_entriesKey) ?? <String>[];
+      final toSave = data.copyWith(weekId: weekId).toJson();
+      list.add(toSave);
+      await prefs.setStringList(_entriesKey, list);
+    } else {
+      throw Exception(
+        'Failed to submit check-in: ${response.data['message'] ?? 'Unknown error'}',
+      );
+    }
   }
 
   Future<List<CheckInEntity>> loadHistory() async {

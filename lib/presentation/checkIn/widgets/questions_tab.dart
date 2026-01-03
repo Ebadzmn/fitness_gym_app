@@ -253,6 +253,7 @@ class QuestionsTab extends StatelessWidget {
           text: data.training.feedback,
         );
         final dailyNotesCtrl = TextEditingController(text: data.dailyNotes);
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -545,6 +546,60 @@ class QuestionsTab extends StatelessWidget {
                 ],
               ),
             ),
+
+            SizedBox(height: 32.h),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => context.read<CheckInBloc>().add(
+                      const CheckInStepSet(1),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0XFF101021),
+                      padding: EdgeInsets.symmetric(vertical: 16.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        side: const BorderSide(color: Color(0xFF2E2E5D)),
+                      ),
+                    ),
+                    child: Text(
+                      "Back",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => context.read<CheckInBloc>().add(
+                      const CheckInStepSet(3),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0D1448),
+                      padding: EdgeInsets.symmetric(vertical: 16.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        side: const BorderSide(color: Color(0xFF2E2E5D)),
+                      ),
+                    ),
+                    child: Text(
+                      "Next",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 40.h),
           ],
         );
       },

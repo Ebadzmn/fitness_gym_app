@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_bloc.dart';
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_event.dart';
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_state.dart';
@@ -260,42 +261,6 @@ class CheckingTab extends StatelessWidget {
     );
   }
 
-  Widget _cardioOption(String text, bool selected, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            height: 20.w,
-            width: 20.w,
-            padding: EdgeInsets.all(3.w),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: selected ? const Color(0xFF69B427) : Colors.white,
-                width: 2.w,
-              ),
-            ),
-            child: selected
-                ? Container(
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color(0xFF69B427),
-                    ),
-                  )
-                : null,
-          ),
-          SizedBox(width: 8.w),
-          Text(
-            text,
-            style: TextStyle(color: Colors.white, fontSize: 13.sp),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CheckInBloc, CheckInState>(
@@ -308,45 +273,20 @@ class CheckingTab extends StatelessWidget {
         final feedbackCtrl = TextEditingController(
           text: data.training.feedback,
         );
-        final cardioDurationCtrl = TextEditingController(
-          text: data.training.cardioDuration,
-        );
         final dailyNotesCtrl = TextEditingController(text: data.dailyNotes);
-
-        // Ensure controllers are updated if state changes significantly,
-        // though strictly rebuilds might reset cursor.
-        // For simplicity in this stateless widget, we recreate them.
-        // A StatefulWidget would be better for text controllers but we are working with what we have.
-        // Actually, creating controllers in build is bad practice as it resets typings.
-        // However, I am just following the existing pattern of the file.
-        // The existing file creates controllers in build: `final challengeCtrl = ...`
-
-        // Cardio Options
-        final cardioOptions = [
-          'Walking (outdoor)',
-          'Walking (treadmill)',
-          'Stairmaster',
-          'Stepper',
-          'Cycling',
-          'Elliptical',
-          'Rowing',
-          'Swimming',
-          'Hiking',
-          'Other',
-        ];
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _summaryCard(
               icon: Icons.emoji_events_outlined,
-              title: 'Weight Class',
-              value: '80.2 (kg)',
+              title: 'Current Weight',
+              value: '${data.currentWeight} (kg)',
             ),
             _summaryCard(
               icon: Icons.percent,
-              title: 'Average Weight in %',
-              value: '80.2 (%)',
+              title: 'Average Weight',
+              value: '${data.averageWeight} (kg)',
             ),
 
             Container(
@@ -370,7 +310,6 @@ class CheckingTab extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 12.h),
                   _ynRow(
                     'Pictures uploaded?',
                     data.uploads.picturesUploaded,
@@ -379,20 +318,35 @@ class CheckingTab extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 12.h),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _imageThumb(Icon(Icons.image, color: Colors.white54)),
-                        SizedBox(width: 8.w),
-                        _imageThumb(Icon(Icons.image, color: Colors.white54)),
-                        SizedBox(width: 8.w),
-                        _imageThumb(Icon(Icons.image, color: Colors.white54)),
-                        SizedBox(width: 8.w),
-                        _imageThumb(Icon(Icons.image, color: Colors.white54)),
-                      ],
+                  if (data.uploads.picturePaths.isNotEmpty)
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: data.uploads.picturePaths.map((path) {
+                          return Padding(
+                            padding: EdgeInsets.only(right: 8.w),
+                            child: _imageThumb(
+                              Image.file(File(path), fit: BoxFit.cover),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    )
+                  else
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _imageThumb(Icon(Icons.image, color: Colors.white54)),
+                          SizedBox(width: 8.w),
+                          _imageThumb(Icon(Icons.image, color: Colors.white54)),
+                          SizedBox(width: 8.w),
+                          _imageThumb(Icon(Icons.image, color: Colors.white54)),
+                          SizedBox(width: 8.w),
+                          _imageThumb(Icon(Icons.image, color: Colors.white54)),
+                        ],
+                      ),
                     ),
-                  ),
                   SizedBox(height: 12.h),
                   _ynRow(
                     'Video uploaded?',
@@ -430,11 +384,17 @@ class CheckingTab extends StatelessWidget {
                         Positioned(
                           left: 12.w,
                           bottom: 12.h,
+                          right: 12.w,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Muscular Workout',
+                                data.uploads.videoPath != null &&
+                                        data.uploads.videoPath!.isNotEmpty
+                                    ? data.uploads.videoPath!.split('/').last
+                                    : 'Muscular Workout',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 14.sp,
@@ -442,7 +402,10 @@ class CheckingTab extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                'Upper Body Low',
+                                data.uploads.videoPath != null &&
+                                        data.uploads.videoPath!.isNotEmpty
+                                    ? 'Uploaded Video'
+                                    : 'Upper Body Low',
                                 style: TextStyle(
                                   color: Colors.white70,
                                   fontSize: 12.sp,
@@ -474,7 +437,7 @@ class CheckingTab extends StatelessWidget {
                   ),
                   SizedBox(height: 12.h),
                   Text(
-                    'Q1 . What are you proud of?',
+                    'Q1 . What are you proud of? *',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -491,13 +454,13 @@ class CheckingTab extends StatelessWidget {
                       border: Border.all(color: Colors.white10),
                     ),
                     child: Text(
-                      'A1. I\'m proud of my hard work and perseverance.',
+                      'A1. ${data.answer1.isNotEmpty ? data.answer1 : "No answer"}',
                       style: TextStyle(color: Colors.white, fontSize: 13.sp),
                     ),
                   ),
                   SizedBox(height: 12.h),
                   Text(
-                    'Q2 . What went well last week? *',
+                    'Q2 . Calories per default quantity *',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -514,7 +477,7 @@ class CheckingTab extends StatelessWidget {
                       border: Border.all(color: Colors.white10),
                     ),
                     child: Text(
-                      'A2. I completed all my tasks on time.',
+                      'A2. ${data.answer2.isNotEmpty ? data.answer2 : "No answer"}',
                       style: TextStyle(color: Colors.white, fontSize: 13.sp),
                     ),
                   ),
@@ -730,74 +693,7 @@ class CheckingTab extends StatelessWidget {
                     ),
                   ),
 
-                  if (data.training.cardioCompleted) ...[
-                    SizedBox(height: 16.h),
-                    Container(
-                      padding: EdgeInsets.all(12.sp),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0F0F15),
-                        borderRadius: BorderRadius.circular(12.r),
-                        border: Border.all(color: const Color(0xFF2E2E5D)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Cardio Type ?',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              // Small avatar/icon placeholder from image
-                              CircleAvatar(
-                                radius: 10.r,
-                                backgroundImage: const NetworkImage(
-                                  'https://i.pravatar.cc/150?img=3',
-                                ), // Placeholder
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 12.h),
-                          Wrap(
-                            spacing: 10.w,
-                            runSpacing: 10.h,
-                            children: cardioOptions.map((type) {
-                              return _cardioOption(
-                                type,
-                                data.training.cardioType == type,
-                                () => context.read<CheckInBloc>().add(
-                                  TrainingTextChanged('cardioType', type),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                          SizedBox(height: 20.h),
-                          Text(
-                            'Duration (Minutes)',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12.sp,
-                            ),
-                          ),
-                          SizedBox(height: 8.h),
-                          _filledField(
-                            cardioDurationCtrl,
-                            hint: 'Type here',
-                            onChanged: (v) => context.read<CheckInBloc>().add(
-                              TrainingTextChanged('cardioDuration', v),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-
-                  SizedBox(height: 12.h),
+                  SizedBox(height: 8.h),
                   Text(
                     'Feedback Training',
                     style: TextStyle(
@@ -807,7 +703,7 @@ class CheckingTab extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 8.h),
-                  _filledField(
+                  _textArea(
                     feedbackCtrl,
                     hint: 'Type..',
                     onChanged: (v) => context.read<CheckInBloc>().add(
