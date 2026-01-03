@@ -4,19 +4,23 @@ import 'checkin_state.dart';
 import '../../../domain/usecases/checkin/get_checkin_initial_usecase.dart';
 import '../../../domain/usecases/checkin/save_checkin_usecase.dart';
 import '../../../domain/usecases/checkin/get_checkin_history_usecase.dart';
+import '../../../domain/usecases/checkin/get_checkin_date_usecase.dart';
 import '../../../domain/entities/checkin_entities/check_in_entity.dart';
 
 class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
   final GetCheckInInitialUseCase getInitial;
   final SaveCheckInUseCase saveCheckIn;
   final GetCheckInHistoryUseCase getHistory;
+  final GetCheckInDateUseCase getCheckInDate;
 
   CheckInBloc({
     required this.getInitial,
     required this.saveCheckIn,
     required this.getHistory,
+    required this.getCheckInDate,
   }) : super(const CheckInState()) {
     on<CheckInInitRequested>(_onInit);
+    on<CheckInDateRequested>(_onDateRequested);
     on<CheckInStepSet>(_onStepSet);
     on<CheckInNextPressed>(_onNextPressed);
     on<CheckInTabSet>(_onTabSet);
@@ -32,6 +36,11 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     on<SubmitPressed>(_onSubmitPressed);
     on<CheckInHistoryPrev>(_onHistoryPrev);
     on<CheckInHistoryNext>(_onHistoryNext);
+    on<PhotoSelected>(_onPhotoSelected);
+    on<PhotoRemoved>(_onPhotoRemoved);
+    on<VideoSelected>(_onVideoSelected);
+    on<UploadButtonPressed>(_onUploadButtonPressed);
+    on<WeightChanged>(_onWeightChanged);
   }
 
   Future<void> _onInit(
@@ -41,6 +50,7 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     emit(state.copyWith(status: CheckInStatus.loading));
     try {
       final data = await getInitial();
+      add(const CheckInDateRequested());
       emit(
         state.copyWith(
           status: CheckInStatus.ready,
@@ -250,6 +260,20 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     emit(state.copyWith(status: CheckInStatus.saving));
     try {
       await saveCheckIn(d);
+
+      // Sync weights to checkInDate after successful save
+      final currentDate = state.checkInDate;
+      if (currentDate != null) {
+        emit(
+          state.copyWith(
+            checkInDate: currentDate.copyWith(
+              currentWeight: d.currentWeight,
+              averageWeight: d.averageWeight,
+            ),
+          ),
+        );
+      }
+
       emit(state.copyWith(status: CheckInStatus.saved));
       emit(state.copyWith(status: CheckInStatus.ready));
     } catch (e) {
@@ -259,10 +283,7 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     }
   }
 
-  void _onHistoryPrev(
-    CheckInHistoryPrev event,
-    Emitter<CheckInState> emit,
-  ) {
+  void _onHistoryPrev(CheckInHistoryPrev event, Emitter<CheckInState> emit) {
     final list = state.history;
     if (list.isEmpty) return;
     final idx = state.historyIndex;
@@ -271,15 +292,88 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     }
   }
 
-  void _onHistoryNext(
-    CheckInHistoryNext event,
-    Emitter<CheckInState> emit,
-  ) {
+  void _onHistoryNext(CheckInHistoryNext event, Emitter<CheckInState> emit) {
     final list = state.history;
     if (list.isEmpty) return;
     final idx = state.historyIndex;
     if (idx > 0) {
       emit(state.copyWith(historyIndex: idx - 1));
     }
+  }
+
+  void _onPhotoSelected(PhotoSelected event, Emitter<CheckInState> emit) {
+    final d = state.data;
+    if (d == null) return;
+    final currentPaths = List<String>.from(d.uploads.picturePaths);
+    currentPaths.addAll(event.paths);
+    final u = d.uploads.copyWith(picturePaths: currentPaths);
+    emit(state.copyWith(data: d.copyWith(uploads: u)));
+  }
+
+  void _onPhotoRemoved(PhotoRemoved event, Emitter<CheckInState> emit) {
+    final d = state.data;
+    if (d == null) return;
+    final currentPaths = List<String>.from(d.uploads.picturePaths);
+    currentPaths.remove(event.path);
+    final u = d.uploads.copyWith(picturePaths: currentPaths);
+    emit(state.copyWith(data: d.copyWith(uploads: u)));
+  }
+
+  void _onVideoSelected(VideoSelected event, Emitter<CheckInState> emit) {
+    final d = state.data;
+    if (d == null) return;
+    final u = d.uploads.copyWith(videoPath: event.path);
+    emit(state.copyWith(data: d.copyWith(uploads: u)));
+  }
+
+  Future<void> _onDateRequested(
+    CheckInDateRequested event,
+    Emitter<CheckInState> emit,
+  ) async {
+    try {
+      final dateData = await getCheckInDate();
+      emit(state.copyWith(checkInDate: dateData));
+
+      // Sync weights to form data if available
+      final d = state.data;
+      if (d != null) {
+        emit(
+          state.copyWith(
+            data: d.copyWith(
+              currentWeight: dateData.currentWeight,
+              averageWeight: dateData.averageWeight,
+            ),
+          ),
+        );
+      }
+    } catch (_) {
+      // Fail silently or handle error for date fetching
+    }
+  }
+
+  void _onWeightChanged(WeightChanged event, Emitter<CheckInState> emit) {
+    final d = state.data;
+    if (d == null) return;
+    if (event.field == 'current') {
+      emit(state.copyWith(data: d.copyWith(currentWeight: event.value)));
+    } else {
+      emit(state.copyWith(data: d.copyWith(averageWeight: event.value)));
+    }
+  }
+
+  Future<void> _onUploadButtonPressed(
+    UploadButtonPressed event,
+    Emitter<CheckInState> emit,
+  ) async {
+    final d = state.data;
+    if (d == null) return;
+
+    final u = d.uploads.copyWith(
+      picturesUploaded: d.uploads.picturePaths.isNotEmpty,
+      videoUploaded:
+          d.uploads.videoPath != null && d.uploads.videoPath!.isNotEmpty,
+    );
+
+    emit(state.copyWith(data: d.copyWith(uploads: u)));
   }
 }

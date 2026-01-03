@@ -5,7 +5,7 @@ abstract class CheckInEvent extends Equatable {
   @override
   List<Object?> get props => [];
 }
- 
+
 class CheckInTabSet extends CheckInEvent {
   final String tab; // 'weekly' | 'old'
   const CheckInTabSet(this.tab);
@@ -109,4 +109,43 @@ class CheckInHistoryPrev extends CheckInEvent {
 
 class CheckInHistoryNext extends CheckInEvent {
   const CheckInHistoryNext();
+}
+
+class CheckInDateRequested extends CheckInEvent {
+  const CheckInDateRequested();
+  @override
+  List<Object?> get props => [];
+}
+
+class PhotoSelected extends CheckInEvent {
+  final List<String> paths;
+  const PhotoSelected(this.paths);
+  @override
+  List<Object?> get props => [paths];
+}
+
+class PhotoRemoved extends CheckInEvent {
+  final String path;
+  const PhotoRemoved(this.path);
+  @override
+  List<Object?> get props => [path];
+}
+
+class VideoSelected extends CheckInEvent {
+  final String path;
+  const VideoSelected(this.path);
+  @override
+  List<Object?> get props => [path];
+}
+
+class UploadButtonPressed extends CheckInEvent {
+  const UploadButtonPressed();
+}
+
+class WeightChanged extends CheckInEvent {
+  final String field;
+  final double value;
+  const WeightChanged(this.field, this.value);
+  @override
+  List<Object?> get props => [field, value];
 }
