@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'api_exception.dart';
 import 'api_interceptors.dart';
 import '../storage/token_storage.dart';
+import '../session/session_manager.dart';
 
 class NetworkConfig {
   final String baseUrl;
@@ -29,6 +30,7 @@ class ApiClient {
   ApiClient({
     required NetworkConfig config,
     required TokenStorage tokenStorage,
+    SessionManager? sessionManager,
     Future<String?> Function()? onRefreshToken,
   }) : _config = config,
        _tokenStorage = tokenStorage {
@@ -50,6 +52,7 @@ class ApiClient {
       TokenRefreshInterceptor(
         tokenStorage: _tokenStorage,
         dio: _dio,
+        sessionManager: sessionManager,
         onRefreshToken: onRefreshToken,
       ),
       LoggingInterceptor(),
