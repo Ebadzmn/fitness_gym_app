@@ -88,13 +88,13 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     }
     emit(state.copyWith(status: CheckInStatus.loading));
     try {
-      final items = await getHistory();
+      final data = await getHistory(0);
       emit(
         state.copyWith(
           status: CheckInStatus.ready,
           tab: CheckInViewTab.old,
-          history: items,
-          historyIndex: 0,
+          oldCheckIn: data,
+          skip: 0,
         ),
       );
     } catch (e) {
@@ -283,21 +283,53 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     }
   }
 
-  void _onHistoryPrev(CheckInHistoryPrev event, Emitter<CheckInState> emit) {
-    final list = state.history;
-    if (list.isEmpty) return;
-    final idx = state.historyIndex;
-    if (idx < list.length - 1) {
-      emit(state.copyWith(historyIndex: idx + 1));
+  Future<void> _onHistoryPrev(
+    CheckInHistoryPrev event,
+    Emitter<CheckInState> emit,
+  ) async {
+    final newSkip = state.skip + 1;
+    emit(state.copyWith(status: CheckInStatus.loading));
+    try {
+      final data = await getHistory(newSkip);
+      if (data != null) {
+        emit(
+          state.copyWith(
+            status: CheckInStatus.ready,
+            oldCheckIn: data,
+            skip: newSkip,
+          ),
+        );
+      } else {
+        // No more data, stay at current skip
+        emit(state.copyWith(status: CheckInStatus.ready));
+      }
+    } catch (e) {
+      emit(state.copyWith(status: CheckInStatus.ready));
     }
   }
 
-  void _onHistoryNext(CheckInHistoryNext event, Emitter<CheckInState> emit) {
-    final list = state.history;
-    if (list.isEmpty) return;
-    final idx = state.historyIndex;
-    if (idx > 0) {
-      emit(state.copyWith(historyIndex: idx - 1));
+  Future<void> _onHistoryNext(
+    CheckInHistoryNext event,
+    Emitter<CheckInState> emit,
+  ) async {
+    if (state.skip <= 0) return;
+    final newSkip = state.skip - 1;
+    emit(state.copyWith(status: CheckInStatus.loading));
+    try {
+      final data = await getHistory(newSkip);
+      if (data != null) {
+        emit(
+          state.copyWith(
+            status: CheckInStatus.ready,
+            oldCheckIn: data,
+            skip: newSkip,
+          ),
+        );
+      } else {
+        emit(state.copyWith(status: CheckInStatus.ready));
+      }
+    } catch (e) {
+      emit(state.copyWith(status: CheckInStatus.ready));
     }
   }
 

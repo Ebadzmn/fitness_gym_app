@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import '../../../domain/entities/checkin_entities/check_in_entity.dart';
 import '../../../domain/entities/checkin_entities/check_in_date_entity.dart';
+import '../../../domain/entities/checkin_entities/old_check_in_entity.dart';
 
 enum CheckInViewTab { weekly, old }
 
@@ -12,8 +13,8 @@ class CheckInState extends Equatable {
   final CheckInDateEntity? checkInDate;
   final String? errorMessage;
   final CheckInViewTab tab;
-  final List<CheckInEntity> history;
-  final int historyIndex;
+  final OldCheckInEntity? oldCheckIn;
+  final int skip;
 
   const CheckInState({
     this.status = CheckInStatus.initial,
@@ -21,8 +22,8 @@ class CheckInState extends Equatable {
     this.checkInDate,
     this.errorMessage,
     this.tab = CheckInViewTab.weekly,
-    this.history = const <CheckInEntity>[],
-    this.historyIndex = 0,
+    this.oldCheckIn,
+    this.skip = 0,
   });
 
   CheckInState copyWith({
@@ -31,16 +32,16 @@ class CheckInState extends Equatable {
     CheckInDateEntity? checkInDate,
     String? errorMessage,
     CheckInViewTab? tab,
-    List<CheckInEntity>? history,
-    int? historyIndex,
+    OldCheckInEntity? oldCheckIn,
+    int? skip,
   }) => CheckInState(
     status: status ?? this.status,
     data: data ?? this.data,
     checkInDate: checkInDate ?? this.checkInDate,
     errorMessage: errorMessage ?? this.errorMessage,
     tab: tab ?? this.tab,
-    history: history ?? this.history,
-    historyIndex: historyIndex ?? this.historyIndex,
+    oldCheckIn: oldCheckIn ?? this.oldCheckIn,
+    skip: skip ?? this.skip,
   );
 
   @override
@@ -50,7 +51,7 @@ class CheckInState extends Equatable {
     checkInDate,
     errorMessage,
     tab,
-    history,
-    historyIndex,
+    oldCheckIn,
+    skip,
   ];
 }

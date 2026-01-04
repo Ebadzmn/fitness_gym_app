@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/apiUrls/api_urls.dart';
 import 'core/network/api_client.dart';
 import 'core/storage/token_storage.dart';
+import 'core/session/session_manager.dart';
 import 'features/auth/data/datasources/auth_remote_datasource.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
@@ -20,14 +21,26 @@ import 'presentation/daily/daily_tracking/presentation/pages/bloc/daily_bloc.dar
 final sl = GetIt.instance;
 
 Future<void> init() async {
+  //! External
+  final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton(() => sharedPreferences);
+  sl.registerLazySingleton(() => Dio());
+
+  //! Core
+  sl.registerLazySingleton<TokenStorage>(() => TokenStorage(sl()));
+  sl.registerLazySingleton<SessionManager>(
+    () => SessionManager(tokenStorage: sl()),
+  );
+  sl.registerLazySingleton<NetworkConfig>(
+    () => NetworkConfig(baseUrl: ApiUrls.baseUrl),
+  );
+  sl.registerLazySingleton<ApiClient>(
+    () => ApiClient(config: sl(), tokenStorage: sl(), sessionManager: sl()),
+  );
+
   //! Features - Auth
   // Bloc
-  sl.registerFactory(
-    () => AuthBloc(
-      loginUseCase: sl(),
-      tokenStorage: sl(),
-    ),
-  );
+  sl.registerFactory(() => AuthBloc(loginUseCase: sl(), tokenStorage: sl()));
 
   // Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
@@ -44,12 +57,7 @@ Future<void> init() async {
 
   //! Features - Daily Tracking
   // Bloc
-  sl.registerFactory(
-    () => DailyBloc(
-      getInitial: sl(),
-      saveDaily: sl(),
-    ),
-  );
+  sl.registerFactory(() => DailyBloc(getInitial: sl(), saveDaily: sl()));
 
   // Use cases
   sl.registerLazySingleton(() => GetDailyInitialUseCase(sl()));
@@ -64,20 +72,4 @@ Future<void> init() async {
   sl.registerLazySingleton<DailyTrackingRemoteDataSource>(
     () => DailyTrackingRemoteDataSourceImpl(apiClient: sl()),
   );
-
-  //! Core
-  sl.registerLazySingleton<TokenStorage>(
-    () => TokenStorage(sl()),
-  );
-  sl.registerLazySingleton<NetworkConfig>(
-    () => NetworkConfig(baseUrl: ApiUrls.baseUrl),
-  );
-  sl.registerLazySingleton<ApiClient>(
-    () => ApiClient(config: sl(), tokenStorage: sl()),
-  );
-
-  //! External
-  final sharedPreferences = await SharedPreferences.getInstance();
-  sl.registerLazySingleton(() => sharedPreferences);
-  sl.registerLazySingleton(() => Dio());
 }

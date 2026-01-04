@@ -326,7 +326,17 @@ class CheckingTab extends StatelessWidget {
                           return Padding(
                             padding: EdgeInsets.only(right: 8.w),
                             child: _imageThumb(
-                              Image.file(File(path), fit: BoxFit.cover),
+                              Image.file(
+                                File(path),
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Center(
+                                      child: Icon(
+                                        Icons.broken_image,
+                                        color: Colors.white24,
+                                      ),
+                                    ),
+                              ),
                             ),
                           );
                         }).toList(),

@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
 import '../../domain/entities/checkin_entities/check_in_entity.dart';
 import '../../domain/entities/checkin_entities/check_in_date_entity.dart';
+import '../../domain/entities/checkin_entities/old_check_in_entity.dart';
 import '../../core/network/api_client.dart';
 import '../../core/apiUrls/api_urls.dart';
 
@@ -169,5 +170,25 @@ class FakeCheckInRepository {
     final m = monday.month.toString().padLeft(2, '0');
     final d = monday.day.toString().padLeft(2, '0');
     return '$y-$m-$d';
+  }
+
+  /// Fetch old check-in data from API with pagination.
+  /// Returns null if no data found for the given skip value.
+  Future<OldCheckInEntity?> getOldCheckIn(int skip) async {
+    try {
+      final response = await apiClient.get(
+        ApiUrls.oldCheckInData,
+        queryParameters: {'skip': skip},
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data['data'];
+        if (data != null) {
+          return OldCheckInEntity.fromMap(Map<String, dynamic>.from(data));
+        }
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
   }
 }

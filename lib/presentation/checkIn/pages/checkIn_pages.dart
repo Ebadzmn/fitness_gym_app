@@ -4,6 +4,7 @@ import 'package:fitness_app/domain/usecases/checkin/get_checkin_history_usecase.
 import 'package:fitness_app/presentation/checkIn/widgets/checkIn_widgets.dart';
 import 'package:fitness_app/presentation/checkIn/widgets/questions_tab.dart';
 import 'package:fitness_app/presentation/checkIn/widgets/checking_tab.dart';
+import 'package:fitness_app/presentation/checkIn/widgets/old_checking_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -15,7 +16,7 @@ import 'package:fitness_app/domain/usecases/checkin/save_checkin_usecase.dart';
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_bloc.dart';
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_event.dart';
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_state.dart';
-import 'package:fitness_app/domain/entities/checkin_entities/check_in_entity.dart';
+import 'package:fitness_app/domain/entities/checkin_entities/old_check_in_entity.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:fitness_app/injection_container.dart';
@@ -208,9 +209,9 @@ class _CheckInView extends StatelessWidget {
                 ),
                 SizedBox(height: 20.h),
 
-                // Old Check-In view uses history navigation, Weekly shows only date info (no step prev/next)
+                // Old Check-In view uses API pagination, Weekly shows only date info
                 if (state.tab == CheckInViewTab.old) ...[
-                  _oldList(context, state.history, state.historyIndex),
+                  _oldCheckInView(context, state.oldCheckIn, state.skip),
                 ] else ...[
                   Container(
                     padding: EdgeInsets.symmetric(
@@ -328,8 +329,12 @@ class _CheckInView extends StatelessWidget {
     );
   }
 
-  Widget _oldList(BuildContext context, List<CheckInEntity> items, int index) {
-    if (items.isEmpty) {
+  Widget _oldCheckInView(
+    BuildContext context,
+    OldCheckInEntity? data,
+    int skip,
+  ) {
+    if (data == null) {
       return Container(
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
@@ -351,12 +356,10 @@ class _CheckInView extends StatelessWidget {
         ),
       );
     }
-    final safeIndex = index.clamp(0, items.length - 1);
-    final current = items[safeIndex];
-    final weekLabel = current.weekId ?? '-';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Date header
         Container(
           padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
           decoration: BoxDecoration(
@@ -369,7 +372,7 @@ class _CheckInView extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Week starting $weekLabel',
+                  'Check-in: ${data.formattedDate}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -380,27 +383,34 @@ class _CheckInView extends StatelessWidget {
                 ),
               ),
               SizedBox(width: 12.w),
-              Text(
-                '${safeIndex + 1} of ${items.length}',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w500,
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: data.checkinCompleted == 'Completed'
+                      ? const Color(0xFF446B36)
+                      : const Color(0xFFB87333),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Text(
+                  data.checkinCompleted,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
           ),
         ),
         SizedBox(height: 12.h),
+        // Navigation buttons
         Row(
           children: [
             Expanded(
               child: ElevatedButton(
-                onPressed: safeIndex < items.length - 1
-                    ? () => context.read<CheckInBloc>().add(
-                        const CheckInHistoryPrev(),
-                      )
-                    : null,
+                onPressed: () =>
+                    context.read<CheckInBloc>().add(const CheckInHistoryPrev()),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1C222E),
                   padding: EdgeInsets.symmetric(vertical: 12.h),
@@ -421,13 +431,14 @@ class _CheckInView extends StatelessWidget {
             SizedBox(width: 12.w),
             Expanded(
               child: ElevatedButton(
-                onPressed: safeIndex > 0
+                onPressed: skip > 0
                     ? () => context.read<CheckInBloc>().add(
                         const CheckInHistoryNext(),
                       )
                     : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF446B36),
+                  disabledBackgroundColor: const Color(0xFF2A3A2A),
                   padding: EdgeInsets.symmetric(vertical: 12.h),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r),
@@ -436,7 +447,7 @@ class _CheckInView extends StatelessWidget {
                 child: Text(
                   'Next',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: skip > 0 ? Colors.white : Colors.white38,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                   ),
@@ -446,13 +457,8 @@ class _CheckInView extends StatelessWidget {
           ],
         ),
         SizedBox(height: 16.h),
-        CheckInCard(
-          title:
-              'Energy ${current.wellBeing.energy.round()} • Diet ${current.nutrition.dietLevel.round()}',
-          value: 'Week starting $weekLabel',
-          icon: Icons.history,
-          showBadge: false,
-        ),
+        // Use OldCheckingTab widget with exact same design as CheckingTab
+        OldCheckingTab(data: data),
       ],
     );
   }

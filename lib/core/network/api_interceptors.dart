@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import '../storage/token_storage.dart';
+import '../session/session_manager.dart';
 import 'api_exception.dart';
 
 final Logger _networkLogger = Logger(
@@ -42,7 +43,9 @@ class LoggingInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    _networkLogger.i('⬅️  ${response.statusCode} ${response.requestOptions.uri}');
+    _networkLogger.i(
+      '⬅️  ${response.statusCode} ${response.requestOptions.uri}',
+    );
     _networkLogger.d('Response: ${response.data}');
     super.onResponse(response, handler);
   }
@@ -64,17 +67,23 @@ class LoggingInterceptor extends Interceptor {
 class TokenRefreshInterceptor extends Interceptor {
   final TokenStorage _tokenStorage;
   final Dio _dio;
+  final SessionManager? _sessionManager;
   final Future<String?> Function()? onRefreshToken;
 
   TokenRefreshInterceptor({
     required TokenStorage tokenStorage,
     required Dio dio,
+    SessionManager? sessionManager,
     this.onRefreshToken,
-  })  : _tokenStorage = tokenStorage,
-        _dio = dio;
+  }) : _tokenStorage = tokenStorage,
+       _dio = dio,
+       _sessionManager = sessionManager;
 
   @override
-  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
     if (err.response?.statusCode == 401) {
       if (onRefreshToken != null) {
         try {
@@ -83,14 +92,18 @@ class TokenRefreshInterceptor extends Interceptor {
             // Retry the original request with the new token
             final options = err.requestOptions;
             options.headers['Authorization'] = 'Bearer $newToken';
-            
+
             final response = await _dio.fetch(options);
             return handler.resolve(response);
           }
         } catch (e) {
+          // Token refresh failed, force logout
+          await _sessionManager?.forceLogout();
           return handler.next(err);
         }
       }
+      // No refresh callback or refresh returned null, force logout
+      await _sessionManager?.forceLogout();
     }
     super.onError(err, handler);
   }

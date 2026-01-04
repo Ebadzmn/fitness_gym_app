@@ -4,4 +4,6 @@ class ApiUrls {
   static const String dailyTrackingPost = '$baseUrl/daily/tracking';
   static const String checkInDate = '$baseUrl/check-in/date';
   static const String checkInPost = '$baseUrl/check-in';
+  static const String oldCheckInData = '$baseUrl/check-in/old-data';
+  static const String nutritionFood = '$baseUrl/food/nutrition';
 }
