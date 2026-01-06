@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'checkin_event.dart';
 import 'checkin_state.dart';
 import '../../../domain/usecases/checkin/get_checkin_initial_usecase.dart';
@@ -12,12 +13,14 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
   final SaveCheckInUseCase saveCheckIn;
   final GetCheckInHistoryUseCase getHistory;
   final GetCheckInDateUseCase getCheckInDate;
+  final SharedPreferences sharedPreferences;
 
   CheckInBloc({
     required this.getInitial,
     required this.saveCheckIn,
     required this.getHistory,
     required this.getCheckInDate,
+    required this.sharedPreferences,
   }) : super(const CheckInState()) {
     on<CheckInInitRequested>(_onInit);
     on<CheckInDateRequested>(_onDateRequested);
@@ -365,6 +368,12 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     try {
       final dateData = await getCheckInDate();
       emit(state.copyWith(checkInDate: dateData));
+
+      // Cache the current weight
+      await sharedPreferences.setString(
+        'cached_weight',
+        dateData.currentWeight.toString(),
+      );
 
       // Sync weights to form data if available
       final d = state.data;

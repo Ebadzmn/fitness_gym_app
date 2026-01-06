@@ -2,4 +2,5 @@ import 'package:fitness_app/domain/entities/training_entities/training_plan_enti
 
 abstract class TrainingPlanRepository {
   Future<List<TrainingPlanEntity>> getTrainingPlans();
+  Future<TrainingPlanEntity> getTrainingPlanById(String id);
 }

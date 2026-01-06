@@ -99,4 +99,10 @@ class FakeTrainingPlanRepository implements TrainingPlanRepository {
       ),
     ];
   }
+
+  @override
+  Future<TrainingPlanEntity> getTrainingPlanById(String id) {
+    // TODO: implement getTrainingPlanById
+    throw UnimplementedError();
+  }
 }
