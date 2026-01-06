@@ -6,15 +6,7 @@ import 'package:fitness_app/presentation/auth/pages/password_changed_success_pag
 import 'package:fitness_app/presentation/checkIn/pages/checkIn_pages.dart';
 import 'package:fitness_app/presentation/home/pages/home_page.dart';
 import 'package:fitness_app/presentation/training/pages/exercise_page.dart';
-import 'package:fitness_app/presentation/training/pages/exercise_detail_page.dart';
-import 'package:fitness_app/domain/entities/training_entities/exercise_entity.dart';
-import 'package:fitness_app/domain/entities/training_entities/training_plan_entity.dart';
-import 'package:fitness_app/presentation/training/pages/training_history_detail_page.dart';
-import 'package:fitness_app/presentation/training/pages/training_history_page.dart';
-import 'package:fitness_app/presentation/training/pages/training_plan_detail_page.dart';
 import 'package:fitness_app/presentation/training/pages/training_plan_page.dart';
-import 'package:fitness_app/presentation/training/pages/training_split_page.dart';
-import 'package:fitness_app/presentation/training/pages/workout_session_page.dart';
 import 'package:fitness_app/presentation/nutrition/pages/nutrition_page.dart';
 import 'package:fitness_app/presentation/nutrition/pages/nutrition_plan_page.dart';
 import 'package:fitness_app/presentation/nutrition/pages/nutrition_food_items_page.dart';
@@ -22,12 +14,19 @@ import 'package:fitness_app/presentation/nutrition/pages/nutrition_track_meals_p
 import 'package:fitness_app/presentation/nutrition/pages/nutrition_statistics_page.dart';
 import 'package:fitness_app/presentation/nutrition/pages/nutrition_peds_page.dart';
 import 'package:fitness_app/presentation/nutrition/pages/nutrition_supplement_page.dart';
+import 'package:fitness_app/presentation/training/pages/exercise_detail_page.dart';
+import 'package:fitness_app/domain/entities/training_entities/exercise_entity.dart';
+import 'package:fitness_app/presentation/training/pages/training_history_detail_page.dart';
+import 'package:fitness_app/presentation/training/pages/training_history_page.dart';
+import 'package:fitness_app/presentation/training/pages/training_plan_detail_page.dart';
+import 'package:fitness_app/presentation/training/pages/training_split_page.dart';
+import 'package:fitness_app/presentation/training/pages/workout_session_page.dart';
+import 'package:fitness_app/domain/entities/training_entities/training_history_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:fitness_app/presentation/auth/pages/login_page.dart';
 import 'package:fitness_app/presentation/auth/pages/splash_page.dart';
 
 import 'package:go_router/go_router.dart';
-import 'package:fitness_app/domain/entities/training_entities/training_history_entity.dart';
 
 class AppRoutes {
   static const String splashPage = '/splash';
@@ -99,7 +98,6 @@ final GoRouter AppRouter = GoRouter(
         child: const ForgetpassPage(),
       ),
     ),
-
 
     GoRoute(
       path: AppRoutes.otpPages,
@@ -230,11 +228,15 @@ final GoRouter AppRouter = GoRouter(
 
     GoRoute(
       path: AppRoutes.WorkoutSessionPage,
-      pageBuilder: (context, state) => AppRoutes.fadeTransitionPage(
-        context: context,
-        state: state,
-        child: const WorkoutSessionPage(),
-      ),
+      pageBuilder: (context, state) {
+        final extra = state.extra;
+        final planId = extra is String ? extra : 'unknown';
+        return AppRoutes.fadeTransitionPage(
+          context: context,
+          state: state,
+          child: WorkoutSessionPage(planId: planId),
+        );
+      },
     ),
 
     GoRoute(
@@ -276,20 +278,11 @@ final GoRouter AppRouter = GoRouter(
       path: AppRoutes.trainingPlanDetailPage,
       pageBuilder: (context, state) {
         final extra = state.extra;
-        final plan = extra is TrainingPlanEntity
-            ? extra
-            : const TrainingPlanEntity(
-                id: '0',
-                title: 'Error',
-                subtitle: '',
-                date: '',
-                type: '',
-                exercises: [],
-              );
+        final planId = extra is String ? extra : '0';
         return AppRoutes.fadeTransitionPage(
           context: context,
           state: state,
-          child: TrainingPlanDetailPage(plan: plan),
+          child: TrainingPlanDetailPage(planId: planId),
         );
       },
     ),

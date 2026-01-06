@@ -2,7 +2,7 @@ import 'package:fitness_app/core/appRoutes/app_routes.dart';
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:fitness_app/domain/entities/training_entities/training_plan_entity.dart';
-import 'package:fitness_app/features/training/data/repositories/fake_training_plan_repository.dart';
+import 'package:fitness_app/injection_container.dart';
 import 'package:fitness_app/features/training/domain/usecases/get_training_plans_usecase.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/training_plan/training_plan_bloc.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/training_plan/training_plan_event.dart';
@@ -18,19 +18,11 @@ class TrainingPlanPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (_) => FakeTrainingPlanRepository(),
-      child: Builder(
-        builder: (ctx) {
-          final repo = RepositoryProvider.of<FakeTrainingPlanRepository>(ctx);
-          return BlocProvider(
-            create: (_) => TrainingPlanBloc(
-              getTrainingPlans: GetTrainingPlansUseCase(repo),
-            )..add(const TrainingPlanLoadRequested()),
-            child: const _TrainingPlanView(),
-          );
-        },
-      ),
+    return BlocProvider(
+      create: (_) =>
+          TrainingPlanBloc(getTrainingPlans: sl<GetTrainingPlansUseCase>())
+            ..add(const TrainingPlanLoadRequested()),
+      child: const _TrainingPlanView(),
     );
   }
 }
@@ -103,7 +95,9 @@ class _TrainingPlanCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => context.push(AppRoutes.trainingPlanDetailPage, extra: plan),
+      onTap: () {
+        context.push(AppRoutes.trainingPlanDetailPage, extra: plan.id);
+      },
       child: Container(
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
@@ -125,6 +119,8 @@ class _TrainingPlanCard extends StatelessWidget {
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w700,
               ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
             SizedBox(height: 8.h),
             Text(
@@ -134,6 +130,8 @@ class _TrainingPlanCard extends StatelessWidget {
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w400,
               ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
             ),
             SizedBox(height: 12.h),
             Row(
@@ -144,12 +142,16 @@ class _TrainingPlanCard extends StatelessWidget {
                   size: 16.sp,
                 ),
                 SizedBox(width: 6.w),
-                Text(
-                  plan.date,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
+                Expanded(
+                  child: Text(
+                    plan.date,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                 ),
               ],

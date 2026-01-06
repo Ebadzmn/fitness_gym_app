@@ -17,6 +17,12 @@ import 'domain/repositories/daily/daily_repository.dart';
 import 'domain/usecases/daily/get_daily_initial_usecase.dart';
 import 'domain/usecases/daily/save_daily_usecase.dart';
 import 'presentation/daily/daily_tracking/presentation/pages/bloc/daily_bloc.dart';
+import 'features/training/data/datasources/training_remote_datasource.dart';
+import 'features/training/data/repositories/training_repository_impl.dart';
+import 'domain/repositories/training_history/training_plan_repository.dart';
+import 'features/training/domain/usecases/get_training_plans_usecase.dart';
+import 'package:fitness_app/features/training/domain/usecases/get_training_plan_by_id_usecase.dart';
+import 'package:fitness_app/features/training/presentation/pages/bloc/workout_session/workout_session_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -71,5 +77,25 @@ Future<void> init() async {
   // Data sources
   sl.registerLazySingleton<DailyTrackingRemoteDataSource>(
     () => DailyTrackingRemoteDataSourceImpl(apiClient: sl()),
+  );
+
+  //! Features - Training
+  // Bloc
+  // TrainingPlanBloc is created in the UI using provided UseCase, or can be registered here if needed factory.
+  // For now, staying consistent with existing pattern if Blocs are factories.
+  sl.registerFactory(() => WorkoutSessionCubit(getTrainingPlanById: sl()));
+
+  // Use cases
+  sl.registerLazySingleton(() => GetTrainingPlansUseCase(sl()));
+  sl.registerLazySingleton(() => GetTrainingPlanByIdUseCase(repository: sl()));
+
+  // Repository
+  sl.registerLazySingleton<TrainingPlanRepository>(
+    () => TrainingRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<TrainingRemoteDataSource>(
+    () => TrainingRemoteDataSourceImpl(apiClient: sl()),
   );
 }

@@ -1,5 +1,6 @@
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fitness_app/domain/usecases/checkin/get_checkin_history_usecase.dart';
 import 'package:fitness_app/presentation/checkIn/widgets/checkIn_widgets.dart';
 import 'package:fitness_app/presentation/checkIn/widgets/questions_tab.dart';
@@ -37,6 +38,7 @@ class CheckinPages extends StatelessWidget {
               saveCheckIn: SaveCheckInUseCase(repo),
               getHistory: GetCheckInHistoryUseCase(repo),
               getCheckInDate: GetCheckInDateUseCase(repo),
+              sharedPreferences: sl<SharedPreferences>(),
             )..add(const CheckInInitRequested()),
             child: const _CheckInView(),
           );
