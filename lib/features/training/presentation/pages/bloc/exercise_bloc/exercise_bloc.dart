@@ -12,30 +12,87 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
     on<ExerciseSearchChanged>(_onSearch);
   }
 
-  Future<void> _onInit(ExerciseInitRequested event, Emitter<ExerciseState> emit) async {
+  Future<void> _onInit(
+    ExerciseInitRequested event,
+    Emitter<ExerciseState> emit,
+  ) async {
     emit(state.copyWith(status: ExerciseStatus.loading));
-    try {
-      final all = await getExercises();
-      emit(_apply(all: all, filter: state.currentFilter, query: state.query).copyWith(status: ExerciseStatus.ready));
-    } catch (e) {
-      emit(state.copyWith(status: ExerciseStatus.error, errorMessage: e.toString()));
-    }
+    final result = await getExercises();
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          status: ExerciseStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (all) => emit(
+        _apply(
+          all: all,
+          filter: state.currentFilter,
+          query: state.query,
+        ).copyWith(status: ExerciseStatus.ready),
+      ),
+    );
   }
 
-  void _onFilter(ExerciseFilterSet event, Emitter<ExerciseState> emit) {
-    emit(_apply(all: state.all, filter: event.filter, query: state.query).copyWith(currentFilter: event.filter));
+  Future<void> _onFilter(
+    ExerciseFilterSet event,
+    Emitter<ExerciseState> emit,
+  ) async {
+    // If selecting 'All', fetch all or default. If specific, fetch specific.
+    // Update state to show loading or keep current content while loading
+    emit(
+      state.copyWith(
+        currentFilter: event.filter,
+        status: ExerciseStatus.loading,
+      ),
+    );
+
+    final result = await getExercises(
+      muscleCategory: event.filter == 'All' ? null : event.filter,
+    );
+
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          status: ExerciseStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (all) => emit(
+        _apply(
+          all: all,
+          filter: event.filter,
+          query: state.query,
+        ).copyWith(status: ExerciseStatus.ready),
+      ),
+    );
   }
 
   void _onSearch(ExerciseSearchChanged event, Emitter<ExerciseState> emit) {
-    emit(_apply(all: state.all, filter: state.currentFilter, query: event.query).copyWith(query: event.query));
+    emit(
+      _apply(
+        all: state.all,
+        filter: state.currentFilter,
+        query: event.query,
+      ).copyWith(query: event.query),
+    );
   }
 
-  ExerciseState _apply({required List<ExerciseEntity> all, required String filter, required String query}) {
+  ExerciseState _apply({
+    required List<ExerciseEntity> all,
+    required String filter,
+    required String query,
+  }) {
     final List<ExerciseEntity> list = all;
     final filtered = list.where((e) {
-      final matchFilter = filter == 'All' || e.category.toLowerCase() == filter.toLowerCase();
+      final matchFilter =
+          filter == 'All' || e.category.toLowerCase() == filter.toLowerCase();
       final q = query.trim().toLowerCase();
-      final matchQuery = q.isEmpty || e.title.toLowerCase().contains(q) || e.tags.any((t) => t.toLowerCase().contains(q));
+      final matchQuery =
+          q.isEmpty ||
+          e.title.toLowerCase().contains(q) ||
+          e.tags.any((t) => t.toLowerCase().contains(q));
       return matchFilter && matchQuery;
     }).toList();
     return state.copyWith(all: list, visible: filtered);

@@ -1,8 +1,12 @@
-import 'package:fitness_app/features/training/data/repositories/fake_exercise_repository.dart';
-import 'package:fitness_app/domain/entities/training_entities/exercise_entity.dart';
+import 'package:dartz/dartz.dart';
+import '../../../../core/network/api_exception.dart';
+import '../../../../domain/entities/training_entities/exercise_entity.dart';
+import '../../domain/repositories/exercise_repository.dart';
 
 class GetExercisesUseCase {
-  final FakeExerciseRepository repo;
+  final ExerciseRepository repo;
   GetExercisesUseCase(this.repo);
-  Future<List<ExerciseEntity>> call() => repo.loadAll();
+  Future<Either<ApiException, List<ExerciseEntity>>> call({
+    String? muscleCategory,
+  }) => repo.getExercises(muscleCategory: muscleCategory);
 }

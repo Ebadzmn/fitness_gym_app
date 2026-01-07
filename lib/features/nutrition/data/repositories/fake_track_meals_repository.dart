@@ -1,25 +1,12 @@
-import 'dart:async';
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_plan_entity.dart';
+import 'package:fitness_app/domain/entities/nutrition_entities/meal_food_item_entity.dart';
 
 class FakeTrackMealsRepository {
-  String _keyForDate(DateTime date) =>
-      'track_meals_${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-
   Future<List<NutritionMealEntity>> loadMealsForDate(DateTime date) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getStringList(_keyForDate(date)) ?? const <String>[];
-    final persisted = <NutritionMealEntity>[];
-    for (final s in saved) {
-      try {
-        final map = json.decode(s) as Map<String, dynamic>;
-        persisted.add(NutritionMealEntity.fromMap(map));
-      } catch (_) {}
-    }
-    final defaults = const [
+    return [
       NutritionMealEntity(
+        id: 'default_1',
         timeLabel: '7:00',
         title: 'Meals 1',
         calories: 520,
@@ -27,12 +14,14 @@ class FakeTrackMealsRepository {
         carbsG: 70,
         fatsG: 6,
         items: [
-          'Oats (30g)',
-          'Milk (200ml)',
-          'Banana (1 Piece)',
+          MealFoodItemEntity(name: 'Oats', quantity: '30g'),
+          MealFoodItemEntity(name: 'Milk', quantity: '200ml'),
+          MealFoodItemEntity(name: 'Banana', quantity: '1 Piece'),
         ],
+        trainingDay: 'training day',
       ),
       NutritionMealEntity(
+        id: 'default_2',
         timeLabel: '10:00',
         title: 'Meals 2',
         calories: 300,
@@ -40,11 +29,13 @@ class FakeTrackMealsRepository {
         carbsG: 30,
         fatsG: 5,
         items: [
-          'Greek Yogurt (150g)',
-          'Honey (10g)',
+          MealFoodItemEntity(name: 'Greek Yogurt', quantity: '150g'),
+          MealFoodItemEntity(name: 'Honey', quantity: '10g'),
         ],
+        trainingDay: 'training day',
       ),
       NutritionMealEntity(
+        id: 'default_3',
         timeLabel: '13:00',
         title: 'Meals 3',
         calories: 650,
@@ -52,20 +43,16 @@ class FakeTrackMealsRepository {
         carbsG: 80,
         fatsG: 8,
         items: [
-          'Chicken breast (200g)',
-          'Rice (150g)',
-          'Mixed Vegetables (200g)',
+          MealFoodItemEntity(name: 'Chicken Breast', quantity: '200g'),
+          MealFoodItemEntity(name: 'Rice', quantity: '100g'),
+          MealFoodItemEntity(name: 'Broccoli', quantity: '50g'),
         ],
+        trainingDay: 'training day',
       ),
     ];
-    return [...persisted, ...defaults];
   }
 
   Future<void> saveMealForDate(DateTime date, NutritionMealEntity meal) async {
-    final prefs = await SharedPreferences.getInstance();
-    final key = _keyForDate(date);
-    final list = prefs.getStringList(key) ?? <String>[];
-    list.add(json.encode(meal.toMap()));
-    await prefs.setStringList(key, list);
+    // Fake save
   }
 }

@@ -7,30 +7,19 @@ import 'package:go_router/go_router.dart';
 import 'package:fitness_app/core/appRoutes/app_routes.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:fitness_app/core/config/app_text_style.dart';
-import 'package:fitness_app/features/training/data/repositories/fake_exercise_repository.dart';
-import 'package:fitness_app/features/training/domain/usecases/get_exercises_usecase.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/exercise_bloc/exercise_bloc.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/exercise_bloc/exercise_event.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/exercise_bloc/exercise_state.dart';
+import '../../../../../../injection_container.dart';
 
 class ExercisePage extends StatelessWidget {
   const ExercisePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (_) => FakeExerciseRepository(),
-      child: Builder(
-        builder: (ctx) {
-          final repo = RepositoryProvider.of<FakeExerciseRepository>(ctx);
-          return BlocProvider(
-            create: (_) =>
-                ExerciseBloc(getExercises: GetExercisesUseCase(repo))
-                  ..add(const ExerciseInitRequested()),
-            child: const _ExerciseView(),
-          );
-        },
-      ),
+    return BlocProvider(
+      create: (_) => sl<ExerciseBloc>()..add(const ExerciseInitRequested()),
+      child: const _ExerciseView(),
     );
   }
 }
@@ -60,9 +49,6 @@ class _ExerciseView extends StatelessWidget {
       ),
       body: BlocBuilder<ExerciseBloc, ExerciseState>(
         builder: (context, state) {
-          if (state.status == ExerciseStatus.loading) {
-            return const Center(child: CircularProgressIndicator());
-          }
           return SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
             child: Column(
@@ -72,12 +58,25 @@ class _ExerciseView extends StatelessWidget {
                 SizedBox(height: 16.h),
                 _filters(context, state.currentFilter),
                 SizedBox(height: 20.h),
-                ...state.visible.map(
-                  (e) => Padding(
-                    padding: EdgeInsets.only(bottom: 12.h),
-                    child: _exerciseCard(context, e),
+                if (state.status == ExerciseStatus.loading)
+                  SizedBox(
+                    height: 400.h,
+                    child: const Center(child: CircularProgressIndicator()),
+                  )
+                else if (state.status == ExerciseStatus.error)
+                  Center(
+                    child: Text(
+                      state.errorMessage ?? 'An error occurred',
+                      style: GoogleFonts.poppins(color: Colors.white),
+                    ),
+                  )
+                else
+                  ...state.visible.map(
+                    (e) => Padding(
+                      padding: EdgeInsets.only(bottom: 12.h),
+                      child: _exerciseCard(context, e),
+                    ),
                   ),
-                ),
               ],
             ),
           );
@@ -176,15 +175,19 @@ class _ExerciseView extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-          Container(
-            width: 64.w,
-            height: 64.w,
-            decoration: BoxDecoration(
-              color: const Color(0xFF2B2D3F),
-              borderRadius: BorderRadius.circular(16.r),
+            Container(
+              width: 64.w,
+              height: 64.w,
+              decoration: BoxDecoration(
+                color: const Color(0xFF2B2D3F),
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+              child: Icon(
+                Icons.fitness_center,
+                color: Colors.white,
+                size: 28.sp,
+              ),
             ),
-            child: Icon(Icons.fitness_center, color: Colors.white, size: 28.sp),
-          ),
 
             SizedBox(width: 12.w),
 

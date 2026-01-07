@@ -28,3 +28,16 @@ class TrackMealsAddMeal extends TrackMealsEvent {
   @override
   List<Object?> get props => [date, meal];
 }
+
+class TrackMealsDeleteFoodItem extends TrackMealsEvent {
+  final String mealId;
+  final String foodId;
+  final DateTime date;
+  const TrackMealsDeleteFoodItem({
+    required this.mealId,
+    required this.foodId,
+    required this.date,
+  });
+  @override
+  List<Object?> get props => [mealId, foodId, date];
+}

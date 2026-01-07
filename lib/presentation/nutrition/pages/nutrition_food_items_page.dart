@@ -12,26 +12,17 @@ import 'package:fitness_app/features/nutrition/presentation/pages/bloc/food_item
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/food_items/food_items_event.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/food_items/food_items_state.dart';
 import 'package:fitness_app/injection_container.dart';
-import 'package:fitness_app/core/network/api_client.dart';
 
 class NutritionFoodItemsPage extends StatelessWidget {
   const NutritionFoodItemsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (_) => NutritionRepository(apiClient: sl<ApiClient>()),
-      child: Builder(
-        builder: (ctx) {
-          final repo = RepositoryProvider.of<NutritionRepository>(ctx);
-          return BlocProvider(
-            create: (_) =>
-                FoodItemsBloc(getItems: GetFoodItemsUseCase(repo))
-                  ..add(const FoodItemsLoadRequested()),
-            child: const _FoodItemsView(),
-          );
-        },
-      ),
+    return BlocProvider(
+      create: (_) => FoodItemsBloc(
+        getItems: GetFoodItemsUseCase(sl<NutritionRepository>()),
+      )..add(const FoodItemsLoadRequested()),
+      child: const _FoodItemsView(),
     );
   }
 }

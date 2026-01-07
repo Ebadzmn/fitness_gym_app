@@ -9,3 +9,10 @@ abstract class NutritionPlanEvent extends Equatable {
 class NutritionPlanLoadRequested extends NutritionPlanEvent {
   const NutritionPlanLoadRequested();
 }
+
+class NutritionPlanTabChanged extends NutritionPlanEvent {
+  final int index;
+  const NutritionPlanTabChanged(this.index);
+  @override
+  List<Object> get props => [index];
+}

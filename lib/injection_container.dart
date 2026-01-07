@@ -23,6 +23,26 @@ import 'domain/repositories/training_history/training_plan_repository.dart';
 import 'features/training/domain/usecases/get_training_plans_usecase.dart';
 import 'package:fitness_app/features/training/domain/usecases/get_training_plan_by_id_usecase.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/workout_session/workout_session_cubit.dart';
+import 'features/training/presentation/pages/bloc/exercise_bloc/exercise_bloc.dart';
+import 'features/training/domain/usecases/get_exercises_usecase.dart';
+import 'features/training/domain/repositories/exercise_repository.dart';
+import 'features/training/data/repositories/exercise_repository_impl.dart';
+import 'features/training/data/datasources/exercise_remote_data_source.dart';
+import 'features/training/data/datasources/training_split_remote_data_source.dart';
+import 'features/training/data/repositories/training_split_repository_impl.dart';
+import 'domain/repositories/training_history/training_split_repository.dart';
+import 'features/training/domain/usecases/get_training_split_usecase.dart';
+import 'features/training/presentation/pages/bloc/training_spilt2/training_split_bloc.dart';
+import 'features/nutrition/data/datasources/nutrition_remote_data_source.dart';
+import 'features/nutrition/data/repositories/nutrition_repository_impl.dart';
+import 'features/nutrition/data/repositories/nutrition_repository.dart';
+import 'features/nutrition/domain/usecases/get_nutrition_plan_usecase.dart';
+import 'features/nutrition/presentation/pages/bloc/nutrition_plan/nutrition_plan_bloc.dart';
+import 'features/nutrition/presentation/pages/bloc/track_meals/track_meals_bloc.dart';
+import 'features/nutrition/domain/usecases/get_track_meals_usecase.dart';
+import 'features/nutrition/domain/usecases/save_track_meal_usecase.dart';
+import 'features/nutrition/domain/usecases/delete_tracked_food_item_usecase.dart';
+import 'features/nutrition/domain/usecases/add_food_item_to_meal_usecase.dart';
 
 final sl = GetIt.instance;
 
@@ -98,4 +118,50 @@ Future<void> init() async {
   sl.registerLazySingleton<TrainingRemoteDataSource>(
     () => TrainingRemoteDataSourceImpl(apiClient: sl()),
   );
+
+  // Exercise Feature
+  sl.registerFactory(() => ExerciseBloc(getExercises: sl()));
+  sl.registerLazySingleton(() => GetExercisesUseCase(sl()));
+  sl.registerLazySingleton<ExerciseRepository>(
+    () => ExerciseRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<ExerciseRemoteDataSource>(
+    () => ExerciseRemoteDataSourceImpl(apiClient: sl()),
+  );
+
+  // Training Split Feature
+  sl.registerFactory(() => TrainingSplitBloc(getSplit: sl()));
+  sl.registerLazySingleton(() => GetTrainingSplitUseCase(sl()));
+  sl.registerLazySingleton<TrainingSplitRepository>(
+    () => TrainingSplitRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<TrainingSplitRemoteDataSource>(
+    () => TrainingSplitRemoteDataSourceImpl(apiClient: sl()),
+  );
+
+  // Nutrition Feature
+  sl.registerFactory(() => NutritionPlanBloc(getPlan: sl()));
+  sl.registerLazySingleton(() => GetNutritionPlanUseCase(sl()));
+  sl.registerLazySingleton<NutritionRepository>(
+    () => NutritionRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<NutritionRemoteDataSource>(
+    () => NutritionRemoteDataSourceImpl(apiClient: sl()),
+  );
+
+  // Track Meals Feature
+  sl.registerFactory(
+    () => TrackMealsBloc(
+      initialDate: DateTime.now(),
+      getMeals: sl(),
+      getPlan: sl(),
+      saveMeal: sl(),
+      deleteFoodItem: sl(),
+    ),
+  );
+  sl.registerLazySingleton(() => GetTrackMealsUseCase(sl()));
+  sl.registerLazySingleton(() => SaveTrackMealUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteTrackedFoodItemUseCase(sl()));
+  // AddFoodToMeal
+  sl.registerLazySingleton(() => AddFoodItemToMealUseCase(sl()));
 }

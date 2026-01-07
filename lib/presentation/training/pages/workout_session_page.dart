@@ -271,17 +271,23 @@ class _ExerciseRow extends StatefulWidget {
 
 class _ExerciseRowState extends State<_ExerciseRow> {
   late TextEditingController weightController;
+  late TextEditingController repsController;
+  late TextEditingController setsController;
   bool isCompleted = false;
 
   @override
   void initState() {
     super.initState();
     weightController = TextEditingController();
+    repsController = TextEditingController(text: widget.exercise.rep ?? '');
+    setsController = TextEditingController(text: widget.exercise.sets ?? '');
   }
 
   @override
   void dispose() {
     weightController.dispose();
+    repsController.dispose();
+    setsController.dispose();
     super.dispose();
   }
 
@@ -341,9 +347,9 @@ class _ExerciseRowState extends State<_ExerciseRow> {
               SizedBox(width: 8.w),
               _inputBox('Weight', weightController, isEditable: true),
               SizedBox(width: 8.w),
-              _inputBox('Reps', null, value: widget.exercise.rep ?? '-'),
+              _inputBox('Reps', repsController, isEditable: true),
               SizedBox(width: 8.w),
-              _inputBox('Sets', null, value: widget.exercise.sets ?? '-'),
+              _inputBox('Sets', setsController, isEditable: true),
               SizedBox(width: 8.w),
               GestureDetector(
                 onTap: () {
