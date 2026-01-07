@@ -6,6 +6,7 @@ import '../models/tracked_meal_model.dart';
 import '../../../../domain/entities/nutrition_entities/nutrition_plan_entity.dart';
 import '../../../../domain/entities/nutrition_entities/nutrition_response_entity.dart';
 import '../../../../domain/entities/nutrition_entities/food_item_entity.dart';
+import '../models/nutrition_statistics_model.dart';
 
 abstract class NutritionRemoteDataSource {
   Future<NutritionPlanResponseEntity> fetchNutritionPlan(String userId);
@@ -18,6 +19,7 @@ abstract class NutritionRemoteDataSource {
     Map<String, dynamic> foodItem,
   );
   Future<void> saveTrackedMeal(String date, Map<String, dynamic> mealData);
+  Future<NutritionStatisticsModel> fetchNutritionStatistics(String date);
 }
 
 class NutritionRemoteDataSourceImpl implements NutritionRemoteDataSource {
@@ -130,5 +132,22 @@ class NutritionRemoteDataSourceImpl implements NutritionRemoteDataSource {
     Map<String, dynamic> mealData,
   ) async {
     await apiClient.post(ApiUrls.trackMeal, data: {...mealData, 'date': date});
+  }
+
+  @override
+  Future<NutritionStatisticsModel> fetchNutritionStatistics(String date) async {
+    final response = await apiClient.get(
+      ApiUrls.trackMeal,
+      queryParameters: {'date': date},
+    );
+
+    if (response.data['success'] == true) {
+      return NutritionStatisticsModel.fromJson(response.data['data']);
+    } else {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        error: response.data['message'],
+      );
+    }
   }
 }

@@ -4,6 +4,7 @@ import '../../../../domain/entities/nutrition_entities/nutrition_response_entity
 import '../../../../domain/entities/nutrition_entities/nutrition_plan_entity.dart';
 import '../../../../domain/entities/nutrition_entities/food_item_entity.dart';
 import '../../../../domain/entities/nutrition_entities/meal_food_item_entity.dart';
+import '../../../../domain/entities/nutrition_entities/nutrition_statistics_entity.dart';
 
 abstract class NutritionRepository {
   Future<Either<ApiException, NutritionPlanResponseEntity>> getNutritionPlan(
@@ -25,4 +26,5 @@ abstract class NutritionRepository {
     DateTime date,
     NutritionMealEntity meal,
   );
+  Future<NutritionStatisticsEntity> getNutritionStatistics(DateTime date);
 }

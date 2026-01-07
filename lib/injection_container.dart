@@ -43,6 +43,8 @@ import 'features/nutrition/domain/usecases/get_track_meals_usecase.dart';
 import 'features/nutrition/domain/usecases/save_track_meal_usecase.dart';
 import 'features/nutrition/domain/usecases/delete_tracked_food_item_usecase.dart';
 import 'features/nutrition/domain/usecases/add_food_item_to_meal_usecase.dart';
+import 'features/nutrition/domain/usecases/get_nutrition_statistics_usecase.dart';
+import 'features/nutrition/presentation/pages/bloc/nutrition_statistics/nutrition_statistics_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -164,4 +166,8 @@ Future<void> init() async {
   sl.registerLazySingleton(() => DeleteTrackedFoodItemUseCase(sl()));
   // AddFoodToMeal
   sl.registerLazySingleton(() => AddFoodItemToMealUseCase(sl()));
+
+  // Nutrition Statistics
+  sl.registerFactory(() => NutritionStatisticsBloc(getStatistics: sl()));
+  sl.registerLazySingleton(() => GetNutritionStatisticsUseCase(sl()));
 }
