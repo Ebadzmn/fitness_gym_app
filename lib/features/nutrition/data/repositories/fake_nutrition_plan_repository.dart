@@ -1,5 +1,5 @@
-import 'dart:async';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_plan_entity.dart';
+import 'package:fitness_app/domain/entities/nutrition_entities/meal_food_item_entity.dart';
 
 class FakeNutritionPlanRepository {
   Future<NutritionPlanEntity> loadPlan() async {
@@ -12,8 +12,9 @@ class FakeNutritionPlanRepository {
       proteinG: 200,
       carbsG: 200,
       fatsG: 80,
-      meals: const [
+      meals: [
         NutritionMealEntity(
+          id: '1',
           timeLabel: '7:00',
           title: 'BREAKFAST',
           calories: 550,
@@ -21,13 +22,15 @@ class FakeNutritionPlanRepository {
           carbsG: 75,
           fatsG: 5,
           items: [
-            'Oats (30g)',
-            'Whey Protein (30g)',
-            'Banana (1 Piece)',
-            'Almonds (20g)',
+            MealFoodItemEntity(name: 'Oatmeal', quantity: '50g'),
+            MealFoodItemEntity(name: 'Protein Powder', quantity: '30g'),
+            MealFoodItemEntity(name: 'Banana', quantity: '1 Piece'),
+            MealFoodItemEntity(name: 'Almonds', quantity: '20g'),
           ],
+          trainingDay: 'training day',
         ),
         NutritionMealEntity(
+          id: '2',
           timeLabel: '10:00',
           title: 'SNACK 1',
           calories: 550,
@@ -35,11 +38,13 @@ class FakeNutritionPlanRepository {
           carbsG: 75,
           fatsG: 5,
           items: [
-            'Protein (40g)',
-            'Apple (1 Piece)',
+            MealFoodItemEntity(name: 'Protein', quantity: '40g'),
+            MealFoodItemEntity(name: 'Apple', quantity: '1 Piece'),
           ],
+          trainingDay: 'training day',
         ),
         NutritionMealEntity(
+          id: '3',
           timeLabel: '13:00',
           title: 'LUNCH',
           calories: 550,
@@ -47,11 +52,12 @@ class FakeNutritionPlanRepository {
           carbsG: 75,
           fatsG: 5,
           items: [
-            'Chicken breast (200g)',
-            'Rice (150g)',
-            'Mixed Vegetables (200g)',
-            'Olive oil (10ml)',
+            MealFoodItemEntity(name: 'Chicken breast', quantity: '200g'),
+            MealFoodItemEntity(name: 'Rice', quantity: '150g'),
+            MealFoodItemEntity(name: 'Mixed Vegetables', quantity: '200g'),
+            MealFoodItemEntity(name: 'Olive oil', quantity: '10ml'),
           ],
+          trainingDay: 'training day',
         ),
       ],
     );

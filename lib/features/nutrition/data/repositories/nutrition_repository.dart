@@ -1,25 +1,28 @@
-import 'package:fitness_app/core/apiUrls/api_urls.dart';
-import 'package:fitness_app/core/network/api_client.dart';
-import 'package:fitness_app/domain/entities/nutrition_entities/food_item_entity.dart';
+import 'package:dartz/dartz.dart';
+import '../../../../core/network/api_exception.dart';
+import '../../../../domain/entities/nutrition_entities/nutrition_response_entity.dart';
+import '../../../../domain/entities/nutrition_entities/nutrition_plan_entity.dart';
+import '../../../../domain/entities/nutrition_entities/food_item_entity.dart';
+import '../../../../domain/entities/nutrition_entities/meal_food_item_entity.dart';
 
-class NutritionRepository {
-  final ApiClient apiClient;
-
-  NutritionRepository({required this.apiClient});
-
-  Future<List<FoodItemEntity>> getFoodItems() async {
-    try {
-      final response = await apiClient.get(ApiUrls.nutritionFood);
-      if (response.statusCode == 200 && response.data['success'] == true) {
-        final data = response.data['data'];
-        if (data != null && data['items'] != null) {
-          final List items = data['items'];
-          return items.map((e) => FoodItemEntity.fromJson(e)).toList();
-        }
-      }
-      return [];
-    } catch (e) {
-      throw Exception('Failed to load food items: $e');
-    }
-  }
+abstract class NutritionRepository {
+  Future<Either<ApiException, NutritionPlanResponseEntity>> getNutritionPlan(
+    String userId,
+  );
+  Future<List<FoodItemEntity>> getFoodItems();
+  Future<List<NutritionMealEntity>> getTrackedMeals(DateTime date);
+  Future<void> deleteTrackedFoodItem(
+    DateTime date,
+    String mealId,
+    String foodId,
+  );
+  Future<Either<ApiException, void>> addFoodItemToMeal(
+    DateTime date,
+    String mealId,
+    MealFoodItemEntity foodItem,
+  );
+  Future<Either<ApiException, void>> saveTrackMeal(
+    DateTime date,
+    NutritionMealEntity meal,
+  );
 }

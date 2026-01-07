@@ -1,8 +1,16 @@
-import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_plan_entity.dart';
-import 'package:fitness_app/features/nutrition/data/repositories/fake_nutrition_plan_repository.dart';
+import 'package:dartz/dartz.dart';
+import '../../../../core/network/api_exception.dart';
+import '../../../../domain/entities/nutrition_entities/nutrition_response_entity.dart';
+import '../../data/repositories/nutrition_repository.dart';
 
 class GetNutritionPlanUseCase {
-  final FakeNutritionPlanRepository repo;
-  GetNutritionPlanUseCase(this.repo);
-  Future<NutritionPlanEntity> call() => repo.loadPlan();
+  final NutritionRepository repository;
+
+  GetNutritionPlanUseCase(this.repository);
+
+  Future<Either<ApiException, NutritionPlanResponseEntity>> call(
+    String userId,
+  ) {
+    return repository.getNutritionPlan(userId);
+  }
 }

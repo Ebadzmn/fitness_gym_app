@@ -6,4 +6,7 @@ class ApiUrls {
   static const String checkInPost = '$baseUrl/check-in';
   static const String oldCheckInData = '$baseUrl/check-in/old-data';
   static const String nutritionFood = '$baseUrl/food/nutrition';
+  static const String exerciseCoachAthlete = '$baseUrl/exercise/coach/athlete';
+  static const String trainingSplit = '$baseUrl/training/splite';
+  static const String trackMeal = '$baseUrl/track/meal';
 }

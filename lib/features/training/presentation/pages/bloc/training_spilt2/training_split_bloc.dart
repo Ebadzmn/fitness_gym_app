@@ -5,17 +5,27 @@ import 'package:fitness_app/features/training/domain/usecases/get_training_split
 
 class TrainingSplitBloc extends Bloc<TrainingSplitEvent, TrainingSplitState> {
   final GetTrainingSplitUseCase getSplit;
-  TrainingSplitBloc({required this.getSplit}) : super(const TrainingSplitState()) {
+  TrainingSplitBloc({required this.getSplit})
+    : super(const TrainingSplitState()) {
     on<TrainingSplitInitRequested>(_onInit);
   }
 
-  Future<void> _onInit(TrainingSplitInitRequested event, Emitter<TrainingSplitState> emit) async {
+  Future<void> _onInit(
+    TrainingSplitInitRequested event,
+    Emitter<TrainingSplitState> emit,
+  ) async {
     emit(state.copyWith(status: TrainingSplitStatus.loading));
-    try {
-      final items = await getSplit();
-      emit(state.copyWith(status: TrainingSplitStatus.ready, items: items));
-    } catch (e) {
-      emit(state.copyWith(status: TrainingSplitStatus.error, errorMessage: e.toString()));
-    }
+    // Hardcoded User ID as per instruction
+    final result = await getSplit('693ddd32418ae5411e5359d4');
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          status: TrainingSplitStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (items) =>
+          emit(state.copyWith(status: TrainingSplitStatus.ready, items: items)),
+    );
   }
 }

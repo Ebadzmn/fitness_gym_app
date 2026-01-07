@@ -5,15 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fitness_app/domain/entities/nutrition_entities/meal_food_item_entity.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_plan_entity.dart';
-import 'package:fitness_app/features/nutrition/data/repositories/fake_track_meals_repository.dart';
-import 'package:fitness_app/features/nutrition/data/repositories/fake_nutrition_plan_repository.dart';
-import 'package:fitness_app/features/nutrition/domain/usecases/get_track_meals_usecase.dart';
-import 'package:fitness_app/features/nutrition/domain/usecases/get_nutrition_plan_usecase.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/track_meals/track_meals_bloc.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/track_meals/track_meals_event.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/track_meals/track_meals_state.dart';
-import 'package:fitness_app/features/nutrition/domain/usecases/save_track_meal_usecase.dart';
+import 'package:fitness_app/injection_container.dart';
 
 class NutritionTrackMealsPage extends StatelessWidget {
   const NutritionTrackMealsPage({super.key});
@@ -21,30 +18,10 @@ class NutritionTrackMealsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final initialDate = DateTime.now();
-    return MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider(create: (_) => FakeTrackMealsRepository()),
-        RepositoryProvider(create: (_) => FakeNutritionPlanRepository()),
-      ],
-      child: Builder(
-        builder: (ctx) {
-          final mealsRepo = RepositoryProvider.of<FakeTrackMealsRepository>(
-            ctx,
-          );
-          final planRepo = RepositoryProvider.of<FakeNutritionPlanRepository>(
-            ctx,
-          );
-          return BlocProvider(
-            create: (_) => TrackMealsBloc(
-              initialDate: initialDate,
-              getMeals: GetTrackMealsUseCase(mealsRepo),
-              getPlan: GetNutritionPlanUseCase(planRepo),
-              saveMeal: SaveTrackMealUseCase(mealsRepo),
-            )..add(TrackMealsLoadRequested(initialDate)),
-            child: const _TrackMealsView(),
-          );
-        },
-      ),
+    return BlocProvider(
+      create: (_) =>
+          sl<TrackMealsBloc>()..add(TrackMealsLoadRequested(initialDate)),
+      child: const _TrackMealsView(),
     );
   }
 }
@@ -76,6 +53,14 @@ class _TrackMealsView extends StatelessWidget {
         builder: (context, state) {
           if (state.status == TrackMealsStatus.loading) {
             return const Center(child: CircularProgressIndicator());
+          }
+          if (state.status == TrackMealsStatus.failure) {
+            return Center(
+              child: Text(
+                'Error: ${state.errorMessage}',
+                style: const TextStyle(color: Colors.white),
+              ),
+            );
           }
 
           return SingleChildScrollView(
@@ -121,7 +106,11 @@ class _TrackMealsView extends StatelessWidget {
                 SizedBox(height: 12.h),
                 if (state.plan != null) _planHeader(state.plan!),
                 if (state.plan != null) SizedBox(height: 12.h),
-                if (state.plan != null) _macroCircles(state.plan!),
+                if (state.plan != null)
+                  _macroCircles(
+                    state.plan!,
+                    state.meals,
+                  ),
                 SizedBox(height: 12.h),
                 ...state.meals.map((m) => _MealTile(meal: m)).toList(),
               ],
@@ -294,7 +283,17 @@ class _TrackMealsView extends StatelessWidget {
     );
   }
 
-  Widget _macroCircles(NutritionPlanEntity plan) {
+  Widget _macroCircles(
+    NutritionPlanEntity plan,
+    List<NutritionMealEntity> meals,
+  ) {
+    final totalProtein =
+        meals.fold<double>(0, (sum, m) => sum + m.proteinG);
+    final totalCarbs =
+        meals.fold<double>(0, (sum, m) => sum + m.carbsG);
+    final totalFats =
+        meals.fold<double>(0, (sum, m) => sum + m.fatsG);
+
     Widget macroItem(String text, String label, Color color, Color fillcolor) {
       return Column(
         children: [
@@ -338,19 +337,19 @@ class _TrackMealsView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           macroItem(
-            '${plan.proteinG}g',
+            '${totalProtein.toInt()}g',
             'Protein',
             const Color(0xFF2287DD),
             const Color(0xFF1B3043),
           ),
           macroItem(
-            '${plan.carbsG}g',
+            '${totalCarbs.toInt()}g',
             'Carbs',
             const Color(0xFF43A047),
             const Color(0xFF224225),
           ),
           macroItem(
-            '${plan.fatsG}g',
+            '${totalFats.toInt()}g',
             'Fats',
             const Color(0xFFFF6D00),
             const Color(0xFF42291A),
@@ -420,213 +419,219 @@ class _MealTileState extends State<_MealTile> {
           SizedBox(height: 12.h),
 
           // Macros Row
-          Row(
-            children: [
-              Text(
-                '${m.calories} kcal',
-                style: GoogleFonts.poppins(
-                  color: const Color(0xFF43A047), // Green color for calories
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.w500,
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                Text(
+                  '${m.calories} kcal',
+                  style: GoogleFonts.poppins(
+                    color: const Color(0xFF43A047), // Green color for calories
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-              SizedBox(width: 16.w),
-              _macroBadge(
-                'P: ${m.proteinG}g',
-                const Color(0xFF1B3043),
-                const Color(0xFF2287DD),
-              ),
-              SizedBox(width: 8.w),
-              _macroBadge(
-                'C: ${m.carbsG}g',
-                const Color(0xFF224225),
-                const Color(0xFF43A047),
-              ),
-              SizedBox(width: 8.w),
-              _macroBadge(
-                'F: ${m.fatsG}g',
-                const Color(0xFF42291A),
-                const Color(0xFFFF6D00),
-              ),
-            ],
+                SizedBox(width: 16.w),
+                _macroBadge(
+                  'P: ${m.proteinG.toInt()}g', // Showing integer for clean look
+                  const Color(0xFF1B3043),
+                  const Color(0xFF2287DD),
+                ),
+                SizedBox(width: 8.w),
+                _macroBadge(
+                  'C: ${m.carbsG.toInt()}g',
+                  const Color(0xFF224225),
+                  const Color(0xFF43A047),
+                ),
+                SizedBox(width: 8.w),
+                _macroBadge(
+                  'F: ${m.fatsG.toInt()}g',
+                  const Color(0xFF42291A),
+                  const Color(0xFFFF6D00),
+                ),
+              ],
+            ),
           ),
 
           // Expandable Content (Table)
-          if (_expanded) ...[
-            SizedBox(height: 20.h),
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xFF2E2E5D)),
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Column(
-                children: [
-                  // Table Header
-                  IntrinsicHeight(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 12.h,
-                              horizontal: 16.w,
-                            ),
-                            child: Text(
-                              'Name',
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                        const VerticalDivider(
-                          width: 1,
-                          thickness: 1,
-                          color: Color(0xFF2E2E5D),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 12.h),
-                            child: Center(
-                              child: Text(
-                                'Quantity',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const VerticalDivider(
-                          width: 1,
-                          thickness: 1,
-                          color: Color(0xFF2E2E5D),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 12.h),
-                            child: Center(
-                              child: Text(
-                                'Action',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+          // Expandable Content
+          _expandableContent(context, m),
+        ],
+      ),
+    );
+  }
+
+  Widget _expandableContent(BuildContext context, NutritionMealEntity m) {
+    if (!_expanded) return const SizedBox.shrink();
+
+    return Container(
+      margin: EdgeInsets.only(top: 12.h),
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C1C1E),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Table Header
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 8.h),
+            decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(color: Color(0xFF2E2E5D))),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Center(
+                    child: Text(
+                      'Name',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                  const Divider(
-                    height: 1,
-                    thickness: 1,
-                    color: Color(0xFF2E2E5D),
+                ),
+                Container(
+                  width: 1,
+                  height: 20.h,
+                  color: const Color(0xFF2E2E5D),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Center(
+                    child: Text(
+                      'Quantity',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
-                  // Table Data
-                  ...m.items.map((item) {
-                    // Parsing logic
-                    String name = item;
-                    String quantity = '';
-                    if (item.contains('(') && item.contains(')')) {
-                      int startIndex = item.lastIndexOf('(');
-                      int endIndex = item.lastIndexOf(')');
-                      name = item.substring(0, startIndex).trim();
-                      quantity = item
-                          .substring(startIndex + 1, endIndex)
-                          .trim();
-                    }
+                ),
+                Container(
+                  width: 1,
+                  height: 20.h,
+                  color: const Color(0xFF2E2E5D),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Center(
+                    child: Text(
+                      'Action',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
 
-                    return Column(
-                      children: [
-                        IntrinsicHeight(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: 12.h,
-                                    horizontal: 16.w,
-                                  ),
-                                  child: Text(
-                                    name,
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.white,
-                                      fontSize: 13.sp,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                              const VerticalDivider(
-                                width: 1,
-                                thickness: 1,
-                                color: Color(0xFF2E2E5D),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Center(
-                                  child: Text(
-                                    quantity,
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.white,
-                                      fontSize: 13.sp,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const VerticalDivider(
-                                width: 1,
-                                thickness: 1,
-                                color: Color(0xFF2E2E5D),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Center(
-                                  child: IconButton(
-                                    onPressed: () {
-                                      // TODO: Implement delete action
-                                    },
-                                    icon: Icon(
-                                      Icons.delete_outline,
-                                      color: const Color(0xFFFDD835),
-                                      size: 20.sp,
-                                    ),
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (item != m.items.last)
-                          const Divider(
-                            height: 1,
-                            thickness: 1,
-                            color: Color(0xFF2E2E5D),
-                          ),
-                      ],
-                    );
-                  }).toList(),
-                ],
+          if (m.items.isEmpty)
+            Padding(
+              padding: EdgeInsets.all(16.w),
+              child: Center(
+                child: Text(
+                  'No items logged.',
+                  style: GoogleFonts.poppins(
+                    color: Colors.grey,
+                    fontSize: 12.sp,
+                  ),
+                ),
               ),
             ),
-          ],
+
+          // Items list
+          if (m.items.isNotEmpty)
+            ...m.items.map(
+              (item) => Container(
+                decoration: const BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Color(0xFF2E2E5D))),
+                ),
+                child: IntrinsicHeight(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: 12.h,
+                            horizontal: 8.w,
+                          ),
+                          child: Text(
+                            item.name,
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      VerticalDivider(
+                        width: 1,
+                        thickness: 1,
+                        color: const Color(0xFF2E2E5D),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Center(
+                          child: Text(
+                            item.quantity,
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                      ),
+                      VerticalDivider(
+                        width: 1,
+                        thickness: 1,
+                        color: const Color(0xFF2E2E5D),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Center(
+                          child: InkWell(
+                            onTap: () {
+                              if (item.id != null) {
+                                context.read<TrackMealsBloc>().add(
+                                  TrackMealsDeleteFoodItem(
+                                    mealId: m.id,
+                                    foodId: item.id!,
+                                    date: context
+                                        .read<TrackMealsBloc>()
+                                        .state
+                                        .date,
+                                  ),
+                                );
+                              }
+                            },
+                            child: Icon(
+                              Icons.delete_outline,
+                              color: const Color(0xFFFDD835),
+                              size: 20.sp,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -638,7 +643,6 @@ class _MealTileState extends State<_MealTile> {
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(8.r),
-        // border: Border.all(color: textColor.withOpacity(0.3)), // Optional border
       ),
       child: Text(
         text,
@@ -669,6 +673,7 @@ class _AddMealDialogState extends State<_AddMealDialog> {
     super.initState();
     _addRow();
   }
+
   void _addRow() {
     _foodCtrls.add(TextEditingController());
     _qtyCtrls.add(TextEditingController());
@@ -697,9 +702,14 @@ class _AddMealDialogState extends State<_AddMealDialog> {
             SizedBox(height: 10.h),
             Row(
               children: [
-                Expanded(child: _inputField('Meal Name', 'Type...', controller: _mealCtrl)),
+                Expanded(
+                  child: _inputField(
+                    'Meal Name',
+                    'Type...',
+                    controller: _mealCtrl,
+                  ),
+                ),
                 SizedBox(width: 16.w),
-               
               ],
             ),
             SizedBox(height: 16.h),
@@ -708,9 +718,21 @@ class _AddMealDialogState extends State<_AddMealDialog> {
                 for (int i = 0; i < _foodCtrls.length; i++) ...[
                   Row(
                     children: [
-                      Expanded(child: _inputField('Food Name', 'Type...', controller: _foodCtrls[i])),
+                      Expanded(
+                        child: _inputField(
+                          'Food Name',
+                          'Type...',
+                          controller: _foodCtrls[i],
+                        ),
+                      ),
                       SizedBox(width: 16.w),
-                      Expanded(child: _inputField('Quantity', 'e.g. 200g', controller: _qtyCtrls[i])),
+                      Expanded(
+                        child: _inputField(
+                          'Quantity',
+                          'e.g. 200g',
+                          controller: _qtyCtrls[i],
+                        ),
+                      ),
                     ],
                   ),
                   SizedBox(height: 12.h),
@@ -725,7 +747,10 @@ class _AddMealDialogState extends State<_AddMealDialog> {
                         borderRadius: BorderRadius.circular(14.r),
                         border: Border.all(color: const Color(0xFF82C941)),
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10.w,
+                        vertical: 6.h,
+                      ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -765,21 +790,30 @@ class _AddMealDialogState extends State<_AddMealDialog> {
                     Colors.white,
                     () {
                       final mealName = _mealCtrl.text.trim();
-                      final timeLabel = _timeCtrl.text.trim().isEmpty ? 'Custom' : _timeCtrl.text.trim();
-                      final items = <String>[];
+                      final timeLabel = _timeCtrl.text.trim().isEmpty
+                          ? 'Custom'
+                          : _timeCtrl.text.trim();
+                      final items = <MealFoodItemEntity>[];
                       for (int i = 0; i < _foodCtrls.length; i++) {
                         final food = _foodCtrls[i].text.trim();
                         final qty = _qtyCtrls[i].text.trim();
                         if (food.isEmpty || qty.isEmpty) continue;
-                        items.add('$food ($qty)');
+                        items.add(
+                          MealFoodItemEntity(name: food, quantity: qty),
+                        );
                       }
                       if (mealName.isEmpty || items.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Meal name and at least one item required')),
+                          const SnackBar(
+                            content: Text(
+                              'Meal name and at least one item required',
+                            ),
+                          ),
                         );
                         return;
                       }
                       final meal = NutritionMealEntity(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
                         timeLabel: timeLabel,
                         title: mealName,
                         calories: 0,
@@ -787,8 +821,11 @@ class _AddMealDialogState extends State<_AddMealDialog> {
                         carbsG: 0,
                         fatsG: 0,
                         items: items,
+                        trainingDay: 'training day',
                       );
-                      context.read<TrackMealsBloc>().add(TrackMealsAddMeal(widget.date, meal));
+                      context.read<TrackMealsBloc>().add(
+                        TrackMealsAddMeal(widget.date, meal),
+                      );
                       Navigator.pop(context);
                     },
                     borderColor: const Color(0xFF3F3F9F),
@@ -802,7 +839,11 @@ class _AddMealDialogState extends State<_AddMealDialog> {
     );
   }
 
-  Widget _inputField(String label, String hint, {TextEditingController? controller}) {
+  Widget _inputField(
+    String label,
+    String hint, {
+    TextEditingController? controller,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
