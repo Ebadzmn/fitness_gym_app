@@ -7,6 +7,7 @@ import '../../../../domain/entities/nutrition_entities/nutrition_plan_entity.dar
 import '../../../../domain/entities/nutrition_entities/food_item_entity.dart';
 import '../../../../features/nutrition/data/repositories/nutrition_repository.dart';
 import '../datasources/nutrition_remote_data_source.dart';
+import '../../../../domain/entities/nutrition_entities/nutrition_statistics_entity.dart';
 
 class NutritionRepositoryImpl implements NutritionRepository {
   final NutritionRemoteDataSource remoteDataSource;
@@ -107,6 +108,21 @@ class NutritionRepositoryImpl implements NutritionRepository {
       await remoteDataSource.deleteTrackedFoodItem(dateStr, mealId, foodId);
     } on DioException catch (e) {
       throw ApiException(message: e.message ?? 'Failed to delete food item');
+    } catch (e) {
+      throw ApiException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<NutritionStatisticsEntity> getNutritionStatistics(
+    DateTime date,
+  ) async {
+    try {
+      final dateStr =
+          '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      return await remoteDataSource.fetchNutritionStatistics(dateStr);
+    } on DioException catch (e) {
+      throw ApiException(message: e.message ?? 'Failed to fetch statistics');
     } catch (e) {
       throw ApiException(message: e.toString());
     }
