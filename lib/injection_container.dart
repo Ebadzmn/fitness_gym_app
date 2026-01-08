@@ -45,6 +45,13 @@ import 'features/nutrition/domain/usecases/delete_tracked_food_item_usecase.dart
 import 'features/nutrition/domain/usecases/add_food_item_to_meal_usecase.dart';
 import 'features/nutrition/domain/usecases/get_nutrition_statistics_usecase.dart';
 import 'features/nutrition/presentation/pages/bloc/nutrition_statistics/nutrition_statistics_bloc.dart';
+import 'package:fitness_app/features/nutrition/domain/usecases/get_supplements_usecase.dart';
+import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_supplement/nutrition_supplement_bloc.dart';
+import 'features/profile/data/datasources/profile_remote_data_source.dart';
+import 'features/profile/data/repositories/profile_repository_impl.dart';
+import 'features/profile/domain/repositories/profile_repository.dart';
+import 'features/profile/domain/usecases/get_profile_usecase.dart';
+import 'features/profile/presentation/bloc/profile_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -143,7 +150,10 @@ Future<void> init() async {
 
   // Nutrition Feature
   sl.registerFactory(() => NutritionPlanBloc(getPlan: sl()));
-  sl.registerLazySingleton(() => GetNutritionPlanUseCase(sl()));
+  sl.registerLazySingleton(
+    () => GetNutritionPlanUseCase(sl()),
+  ); // Changed from GetNutritionInitialUseCase to match original
+  sl.registerLazySingleton(() => GetSupplementsUseCase(sl()));
   sl.registerLazySingleton<NutritionRepository>(
     () => NutritionRepositoryImpl(remoteDataSource: sl()),
   );
@@ -155,12 +165,13 @@ Future<void> init() async {
   sl.registerFactory(
     () => TrackMealsBloc(
       initialDate: DateTime.now(),
-      getMeals: sl(),
+      getMeals: sl(), // Kept original 'getMeals'
       getPlan: sl(),
       saveMeal: sl(),
       deleteFoodItem: sl(),
     ),
   );
+  sl.registerFactory(() => NutritionSupplementBloc(getSupplements: sl()));
   sl.registerLazySingleton(() => GetTrackMealsUseCase(sl()));
   sl.registerLazySingleton(() => SaveTrackMealUseCase(sl()));
   sl.registerLazySingleton(() => DeleteTrackedFoodItemUseCase(sl()));
@@ -170,4 +181,14 @@ Future<void> init() async {
   // Nutrition Statistics
   sl.registerFactory(() => NutritionStatisticsBloc(getStatistics: sl()));
   sl.registerLazySingleton(() => GetNutritionStatisticsUseCase(sl()));
+
+  // Feature - Profile
+  sl.registerFactory(() => ProfileBloc(getProfile: sl()));
+  sl.registerLazySingleton(() => GetProfileUseCase(sl()));
+  sl.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<ProfileRemoteDataSource>(
+    () => ProfileRemoteDataSourceImpl(apiClient: sl()),
+  );
 }

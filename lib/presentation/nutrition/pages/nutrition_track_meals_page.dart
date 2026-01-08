@@ -1,5 +1,6 @@
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
+import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_response_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,6 +8,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/meal_food_item_entity.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_plan_entity.dart';
+import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_daily_tracking_entity.dart';
+import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_response_entity.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/track_meals/track_meals_bloc.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/track_meals/track_meals_event.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/track_meals/track_meals_state.dart';
@@ -104,15 +107,20 @@ class _TrackMealsView extends StatelessWidget {
                 SizedBox(height: 12.h),
                 _datePicker(context, state.date),
                 SizedBox(height: 12.h),
-                if (state.plan != null) _planHeader(state.plan!),
-                if (state.plan != null) SizedBox(height: 12.h),
-                if (state.plan != null)
-                  _macroCircles(
-                    state.plan!,
-                    state.meals,
+                if (state.trackingData != null)
+                  _planHeader(
+                    state.trackingData!.totals,
+                    state.trackingData!.water,
                   ),
+                if (state.trackingData != null) SizedBox(height: 12.h),
+                if (state.trackingData != null)
+                  _macroCircles(state.trackingData!.totals),
                 SizedBox(height: 12.h),
-                ...state.meals.map((m) => _MealTile(meal: m)).toList(),
+                if (state.trackingData != null &&
+                    state.trackingData!.data.isNotEmpty)
+                  ...state.trackingData!.data.first.meals
+                      .map((m) => _MealTile(meal: m))
+                      .toList(),
               ],
             ),
           );
@@ -182,7 +190,7 @@ class _TrackMealsView extends StatelessWidget {
     );
   }
 
-  Widget _planHeader(NutritionPlanEntity plan) {
+  Widget _planHeader(NutritionTotalsEntity totals, int water) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF274128),
@@ -212,7 +220,7 @@ class _TrackMealsView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    plan.title,
+                    'Daily Goal', // Hardcoded title as it was in Bloc before
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -221,7 +229,7 @@ class _TrackMealsView extends StatelessWidget {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    '${plan.mealsCount} Meals',
+                    'Track Your Meals', // Replaced Plan meals count with static text or remove
                     style: GoogleFonts.poppins(
                       color: Colors.white70,
                       fontSize: 12.sp,
@@ -250,7 +258,7 @@ class _TrackMealsView extends StatelessWidget {
                     ),
                     SizedBox(width: 6.w),
                     Text(
-                      '${plan.waterLiters}L\nWater',
+                      '${water}ml\nWater',
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 13.sp,
@@ -267,7 +275,7 @@ class _TrackMealsView extends StatelessWidget {
                     ),
                     SizedBox(width: 6.w),
                     Text(
-                      '${plan.calories}\nCalories',
+                      '${totals.totalCalories}\nCalories',
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 13.sp,
@@ -283,16 +291,10 @@ class _TrackMealsView extends StatelessWidget {
     );
   }
 
-  Widget _macroCircles(
-    NutritionPlanEntity plan,
-    List<NutritionMealEntity> meals,
-  ) {
-    final totalProtein =
-        meals.fold<double>(0, (sum, m) => sum + m.proteinG);
-    final totalCarbs =
-        meals.fold<double>(0, (sum, m) => sum + m.carbsG);
-    final totalFats =
-        meals.fold<double>(0, (sum, m) => sum + m.fatsG);
+  Widget _macroCircles(NutritionTotalsEntity totals) {
+    final totalProtein = totals.totalProtein;
+    final totalCarbs = totals.totalCarbs;
+    final totalFats = totals.totalFats;
 
     Widget macroItem(String text, String label, Color color, Color fillcolor) {
       return Column(
@@ -361,7 +363,7 @@ class _TrackMealsView extends StatelessWidget {
 }
 
 class _MealTile extends StatefulWidget {
-  final NutritionMealEntity meal;
+  final TrackingMealEntity meal;
   const _MealTile({required this.meal});
 
   @override
@@ -391,7 +393,7 @@ class _MealTileState extends State<_MealTile> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                m.title,
+                m.mealNumber, // changed from title
                 style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 18.sp,
@@ -424,7 +426,7 @@ class _MealTileState extends State<_MealTile> {
             child: Row(
               children: [
                 Text(
-                  '${m.calories} kcal',
+                  '${m.totalCalories} kcal', // changed from calories
                   style: GoogleFonts.poppins(
                     color: const Color(0xFF43A047), // Green color for calories
                     fontSize: 15.sp,
@@ -433,19 +435,19 @@ class _MealTileState extends State<_MealTile> {
                 ),
                 SizedBox(width: 16.w),
                 _macroBadge(
-                  'P: ${m.proteinG.toInt()}g', // Showing integer for clean look
+                  'P: ${m.totalProtein.toInt()}g', // changed from proteinG
                   const Color(0xFF1B3043),
                   const Color(0xFF2287DD),
                 ),
                 SizedBox(width: 8.w),
                 _macroBadge(
-                  'C: ${m.carbsG.toInt()}g',
+                  'C: ${m.totalCarbs.toInt()}g', // changed from carbsG
                   const Color(0xFF224225),
                   const Color(0xFF43A047),
                 ),
                 SizedBox(width: 8.w),
                 _macroBadge(
-                  'F: ${m.fatsG.toInt()}g',
+                  'F: ${m.totalFats.toInt()}g', // changed from fatsG
                   const Color(0xFF42291A),
                   const Color(0xFFFF6D00),
                 ),
@@ -461,7 +463,7 @@ class _MealTileState extends State<_MealTile> {
     );
   }
 
-  Widget _expandableContent(BuildContext context, NutritionMealEntity m) {
+  Widget _expandableContent(BuildContext context, TrackingMealEntity m) {
     if (!_expanded) return const SizedBox.shrink();
 
     return Container(
@@ -536,7 +538,7 @@ class _MealTileState extends State<_MealTile> {
             ),
           ),
 
-          if (m.items.isEmpty)
+          if (m.food.isEmpty)
             Padding(
               padding: EdgeInsets.all(16.w),
               child: Center(
@@ -551,8 +553,8 @@ class _MealTileState extends State<_MealTile> {
             ),
 
           // Items list
-          if (m.items.isNotEmpty)
-            ...m.items.map(
+          if (m.food.isNotEmpty)
+            ...m.food.map(
               (item) => Container(
                 decoration: const BoxDecoration(
                   border: Border(bottom: BorderSide(color: Color(0xFF2E2E5D))),

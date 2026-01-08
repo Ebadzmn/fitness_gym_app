@@ -5,8 +5,28 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_supplement/nutrition_supplement_bloc.dart';
+import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_supplement/nutrition_supplement_event.dart';
+import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_supplement/nutrition_supplement_state.dart';
+import 'package:fitness_app/injection_container.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 class NutritionSupplementPage extends StatelessWidget {
   const NutritionSupplementPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) =>
+          sl<NutritionSupplementBloc>()
+            ..add(const NutritionSupplementLoadRequested()),
+      child: const _NutritionSupplementView(),
+    );
+  }
+}
+
+class _NutritionSupplementView extends StatelessWidget {
+  const _NutritionSupplementView();
 
   @override
   Widget build(BuildContext context) {
@@ -28,73 +48,112 @@ class NutritionSupplementPage extends StatelessWidget {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
-        child: Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFF13131F),
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(color: const Color(0xFF2E2E5D)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.all(16.w),
-                child: Row(
+      body: BlocBuilder<NutritionSupplementBloc, NutritionSupplementState>(
+        builder: (context, state) {
+          if (state.status == NutritionSupplementStatus.loading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (state.status == NutritionSupplementStatus.failure) {
+            return Center(
+              child: Text(
+                'Error: ${state.errorMessage}',
+                style: const TextStyle(color: Colors.white),
+              ),
+            );
+          }
+          if (state.status == NutritionSupplementStatus.success &&
+              state.data != null) {
+            final supplements = state.data!.items;
+            return SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF13131F),
+                  borderRadius: BorderRadius.circular(16.r),
+                  border: Border.all(color: const Color(0xFF2E2E5D)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.water_drop, color: Colors.white, size: 20.sp),
-                    SizedBox(width: 8.w),
-                    Text(
-                      'Supplement',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
+                    Padding(
+                      padding: EdgeInsets.all(16.w),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.water_drop,
+                            color: Colors.white,
+                            size: 20.sp,
+                          ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            'Supplement',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Divider(color: const Color(0xFF2E2E5D), height: 1),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(minWidth: 800.w),
+                        child: Table(
+                          columnWidths: const {
+                            0: FlexColumnWidth(1.2), // Name
+                            1: FlexColumnWidth(1.2), // Dosage
+                            2: FlexColumnWidth(0.8), // Time
+                            3: FlexColumnWidth(0.8), // Purpose
+                            4: FlexColumnWidth(1.2), // Brand
+                            5: FlexColumnWidth(1.6), // Comment
+                          },
+                          defaultVerticalAlignment:
+                              TableCellVerticalAlignment.middle,
+                          children: [
+                            TableRow(
+                              decoration: const BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(color: Color(0xFF2E2E5D)),
+                                ),
+                              ),
+                              children: [
+                                _headerCell('Name'),
+                                _headerCell('Dosage'),
+                                _headerCell('Time'),
+                                _headerCell('Purpose'),
+                                _headerCell('Brand'),
+                                _headerCell('Comment'),
+                              ],
+                            ),
+                            ...supplements.map(
+                              (supplement) => _dataRow(
+                                supplement.name,
+                                supplement.dosage,
+                                supplement.time,
+                                supplement.purpose,
+                                supplement.brand,
+                                supplement.note, // Note mapped to Comment
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-              Divider(color: const Color(0xFF2E2E5D), height: 1),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: 800.w),
-                  child: Table(
-                    columnWidths: const {
-                      0: FlexColumnWidth(1.2), // Name
-                      1: FlexColumnWidth(1.2), // Dosage
-                      2: FlexColumnWidth(0.8), // Time
-                      3: FlexColumnWidth(0.8), // Purpose
-                      4: FlexColumnWidth(1.2), // Brand
-                      5: FlexColumnWidth(1.6), // Comment
-                    },
-                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                    children: [
-                      TableRow(
-                        decoration: const BoxDecoration(
-                          border: Border(bottom: BorderSide(color: Color(0xFF2E2E5D))),
-                        ),
-                        children: [
-                          _headerCell('Name'),
-                          _headerCell('Dosage'),
-                          _headerCell('Time'),
-                          _headerCell('Purpose'),
-                          _headerCell('Brand'),
-                          _headerCell('Comment'),
-                        ],
-                      ),
-                      _dataRow('Multivitamin', '5g per day', 'Morning', 'General health', 'Brand A', 'Daily multivitamin'),
-                      _dataRow('Vitamin C', '1 tab', 'Morning', 'Immune support', 'Brand B', 'With breakfast'),
-                      _dataRow('Zinc', '1 tab', 'Night', 'Recovery', 'Brand C', 'Take before sleep'),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+            );
+          }
+          return const Center(
+            child: Text(
+              'No supplements found',
+              style: TextStyle(color: Colors.white),
+            ),
+          );
+        },
       ),
     );
   }

@@ -5,13 +5,17 @@ import '../../../../domain/entities/nutrition_entities/nutrition_plan_entity.dar
 import '../../../../domain/entities/nutrition_entities/food_item_entity.dart';
 import '../../../../domain/entities/nutrition_entities/meal_food_item_entity.dart';
 import '../../../../domain/entities/nutrition_entities/nutrition_statistics_entity.dart';
+import '../../../../domain/entities/nutrition_entities/nutrition_daily_tracking_entity.dart';
+import '../../../../domain/entities/nutrition_entities/supplement_entity.dart';
 
 abstract class NutritionRepository {
   Future<Either<ApiException, NutritionPlanResponseEntity>> getNutritionPlan(
     String userId,
   );
   Future<List<FoodItemEntity>> getFoodItems();
-  Future<List<NutritionMealEntity>> getTrackedMeals(DateTime date);
+  Future<Either<ApiException, NutritionDailyTrackingEntity>> getTrackedMeals(
+    DateTime date,
+  );
   Future<void> deleteTrackedFoodItem(
     DateTime date,
     String mealId,
@@ -27,4 +31,5 @@ abstract class NutritionRepository {
     NutritionMealEntity meal,
   );
   Future<NutritionStatisticsEntity> getNutritionStatistics(DateTime date);
+  Future<Either<ApiException, SupplementResponseEntity>> getSupplements();
 }
