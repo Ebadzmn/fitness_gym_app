@@ -8,6 +8,8 @@ import '../../../../domain/entities/nutrition_entities/food_item_entity.dart';
 import '../../../../features/nutrition/data/repositories/nutrition_repository.dart';
 import '../datasources/nutrition_remote_data_source.dart';
 import '../../../../domain/entities/nutrition_entities/nutrition_statistics_entity.dart';
+import '../../../../domain/entities/nutrition_entities/nutrition_daily_tracking_entity.dart';
+import '../../../../domain/entities/nutrition_entities/supplement_entity.dart';
 
 class NutritionRepositoryImpl implements NutritionRepository {
   final NutritionRemoteDataSource remoteDataSource;
@@ -40,16 +42,21 @@ class NutritionRepositoryImpl implements NutritionRepository {
   }
 
   @override
-  Future<List<NutritionMealEntity>> getTrackedMeals(DateTime date) async {
+  Future<Either<ApiException, NutritionDailyTrackingEntity>> getTrackedMeals(
+    DateTime date,
+  ) async {
     try {
       // Convert DateTime to YYYY-MM-DD string
       final dateStr =
           '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-      return await remoteDataSource.fetchTrackedMeals(dateStr);
+      final result = await remoteDataSource.fetchTrackedMeals(dateStr);
+      return Right(result);
     } on DioException catch (e) {
-      throw ApiException(message: e.message ?? 'Failed to fetch tracked meals');
+      return Left(
+        ApiException(message: e.message ?? 'Failed to fetch tracked meals'),
+      );
     } catch (e) {
-      throw ApiException(message: e.toString());
+      return Left(ApiException(message: e.toString()));
     }
   }
 
@@ -125,6 +132,21 @@ class NutritionRepositoryImpl implements NutritionRepository {
       throw ApiException(message: e.message ?? 'Failed to fetch statistics');
     } catch (e) {
       throw ApiException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<Either<ApiException, SupplementResponseEntity>>
+  getSupplements() async {
+    try {
+      final result = await remoteDataSource.fetchSupplements();
+      return Right(result);
+    } on DioException catch (e) {
+      return Left(
+        ApiException(message: e.message ?? 'Failed to fetch supplements'),
+      );
+    } catch (e) {
+      return Left(ApiException(message: e.toString()));
     }
   }
 }

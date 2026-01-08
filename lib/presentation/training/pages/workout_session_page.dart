@@ -308,13 +308,26 @@ class _ExerciseRowState extends State<_ExerciseRow> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            widget.exercise.name,
-            style: GoogleFonts.poppins(
-              color: Colors.white,
-              fontSize: 14.sp,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                widget.exercise.name,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                '${widget.exercise.sets ?? '-'} Sets',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
           SizedBox(height: 8.h),
           Row(
@@ -327,18 +340,13 @@ class _ExerciseRowState extends State<_ExerciseRow> {
                       ? const Color(0x4D2E5B24)
                       : const Color(0xFF1A1A2E),
                   borderRadius: BorderRadius.circular(20.r),
-                  border: Border.all(
-                    color: isCompleted
-                        ? const Color(0xFF2E5B24)
-                        : Colors.white10,
-                  ),
+                  border: Border.all(color: const Color(0xFF2E5B24)),
                 ),
                 child: Text(
-                  widget.exercise.range ?? '-',
+                  '8-10 WDH',
                   style: GoogleFonts.poppins(
-                    color: isCompleted
-                        ? const Color(0xFF4CAF50)
-                        : Colors.white60,
+                    color: const Color(0xFF4CAF50),
+
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w600,
                   ),
@@ -349,7 +357,7 @@ class _ExerciseRowState extends State<_ExerciseRow> {
               SizedBox(width: 8.w),
               _inputBox('Reps', repsController, isEditable: true),
               SizedBox(width: 8.w),
-              _inputBox('Sets', setsController, isEditable: true),
+              _inputBox('RIR', setsController, isEditable: true),
               SizedBox(width: 8.w),
               GestureDetector(
                 onTap: () {

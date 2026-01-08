@@ -1,6 +1,9 @@
 import 'package:fitness_app/core/appRoutes/app_routes.dart';
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
+import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_dashboard_entity.dart';
+import 'package:fitness_app/injection_container.dart';
+import 'package:fitness_app/features/nutrition/domain/usecases/get_track_meals_usecase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,6 +14,8 @@ import 'package:fitness_app/features/nutrition/domain/usecases/get_nutrition_ini
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_bloc/nutrition_bloc.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_bloc/nutrition_event.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_bloc/nutrition_state.dart';
+import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_statistics_entity.dart'
+    as stats;
 
 class NutritionPage extends StatelessWidget {
   const NutritionPage({super.key});
@@ -19,15 +24,18 @@ class NutritionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return RepositoryProvider(
       create: (_) => FakeNutritionRepository(),
-      child: Builder(builder: (ctx) {
-        final repo = RepositoryProvider.of<FakeNutritionRepository>(ctx);
-        return BlocProvider(
-          create: (_) => NutritionBloc(
-            getInitial: GetNutritionInitialUseCase(repo),
-          )..add(const NutritionInitRequested()),
-          child: const _NutritionView(),
-        );
-      }),
+      child: Builder(
+        builder: (ctx) {
+          final repo = RepositoryProvider.of<FakeNutritionRepository>(ctx);
+          return BlocProvider(
+            create: (_) => NutritionBloc(
+              getInitial: GetNutritionInitialUseCase(repo),
+              getTrackMeals: sl<GetTrackMealsUseCase>(),
+            )..add(const NutritionInitRequested()),
+            child: const _NutritionView(),
+          );
+        },
+      ),
     );
   }
 }
@@ -66,16 +74,13 @@ class _NutritionView extends StatelessWidget {
             child: Column(
               children: [
                 _macrosCard(
-                  caloriesText: '${data.caloriesConsumed} / ${data.caloriesGoal} kcal',
-                  proteinLabel: 'Protein',
-                  proteinValueText: '${data.proteinConsumed}g/ ${data.proteinGoal}g',
-                  proteinProgress: data.proteinConsumed / data.proteinGoal,
-                  carbsLabel: 'Carbs',
-                  carbsValueText: '${data.carbsConsumed}g/ ${data.carbsGoal}g',
-                  carbsProgress: data.carbsConsumed / data.carbsGoal,
-                  fatLabel: 'Fat',
-                  fatValueText: '${data.fatConsumed}g/ ${data.fatGoal}g',
-                  fatProgress: data.fatConsumed / data.fatGoal,
+                  totals: stats.NutritionTotalsEntity(
+                    totalCalories: data.caloriesConsumed.toDouble(),
+                    totalProtein: data.proteinConsumed.toDouble(),
+                    totalFats: data.fatConsumed.toDouble(),
+                    totalCarbs: data.carbsConsumed.toDouble(),
+                  ),
+                  goals: data,
                 ),
                 SizedBox(height: 16.h),
                 Row(
@@ -87,7 +92,8 @@ class _NutritionView extends StatelessWidget {
                         title: 'Food Items',
                         subtitle: 'Database',
                         borderColor: const Color(0xFF294328),
-                        onTap: () => context.push(AppRoutes.nutritionFoodItemsPage),
+                        onTap: () =>
+                            context.push(AppRoutes.nutritionFoodItemsPage),
                       ),
                     ),
                     SizedBox(width: 12.w),
@@ -113,7 +119,8 @@ class _NutritionView extends StatelessWidget {
                         title: 'TRACK MEALS',
                         subtitle: 'To Record',
                         borderColor: const Color(0xFFFF6D00).withOpacity(0.4),
-                        onTap: () => context.push(AppRoutes.nutritionTrackMealsPage),
+                        onTap: () =>
+                            context.push(AppRoutes.nutritionTrackMealsPage),
                       ),
                     ),
                     SizedBox(width: 12.w),
@@ -124,7 +131,8 @@ class _NutritionView extends StatelessWidget {
                         title: 'STATISTICS',
                         subtitle: 'View History',
                         borderColor: const Color(0xFFFC9502).withOpacity(0.4),
-                        onTap: () => context.push(AppRoutes.nutritionStatisticsPage),
+                        onTap: () =>
+                            context.push(AppRoutes.nutritionStatisticsPage),
                       ),
                     ),
                   ],
@@ -139,7 +147,8 @@ class _NutritionView extends StatelessWidget {
                         title: 'SUPPLEMENTS Plan',
                         subtitle: '',
                         borderColor: const Color(0xFFFC9502).withOpacity(0.4),
-                        onTap: () => context.push(AppRoutes.nutritionSupplementPage),
+                        onTap: () =>
+                            context.push(AppRoutes.nutritionSupplementPage),
                       ),
                     ),
                     SizedBox(width: 12.w),
@@ -164,16 +173,8 @@ class _NutritionView extends StatelessWidget {
   }
 
   Widget _macrosCard({
-    required String caloriesText,
-    required String proteinLabel,
-    required String proteinValueText,
-    required double proteinProgress,
-    required String carbsLabel,
-    required String carbsValueText,
-    required double carbsProgress,
-    required String fatLabel,
-    required String fatValueText,
-    required double fatProgress,
+    required stats.NutritionTotalsEntity totals,
+    required NutritionDashboardEntity goals,
   }) {
     return Container(
       padding: EdgeInsets.all(12.sp),
@@ -197,7 +198,7 @@ class _NutritionView extends StatelessWidget {
                 ),
               ),
               Text(
-                caloriesText,
+                '${totals.totalCalories.toInt()} / ${goals.caloriesGoal} kcal',
                 style: GoogleFonts.poppins(
                   color: const Color(0xFF82C941),
                   fontSize: 13.sp,
@@ -207,11 +208,26 @@ class _NutritionView extends StatelessWidget {
             ],
           ),
           SizedBox(height: 12.h),
-          _macroRow(label: proteinLabel, valueText: proteinValueText, color: const Color(0xFF4A6CF7), progress: proteinProgress),
+          _macroRow(
+            label: 'Protein',
+            valueText: '${totals.totalProtein.toInt()}g/ ${goals.proteinGoal}g',
+            color: const Color(0xFF4A6CF7),
+            progress: totals.totalProtein / goals.proteinGoal,
+          ),
           SizedBox(height: 8.h),
-          _macroRow(label: carbsLabel, valueText: carbsValueText, color: const Color(0xFF82C941), progress: carbsProgress),
+          _macroRow(
+            label: 'Carbs',
+            valueText: '${totals.totalCarbs.toInt()}g/ ${goals.carbsGoal}g',
+            color: const Color(0xFF82C941),
+            progress: totals.totalCarbs / goals.carbsGoal,
+          ),
           SizedBox(height: 8.h),
-          _macroRow(label: fatLabel, valueText: fatValueText, color: const Color(0xFFFF6D00), progress: fatProgress),
+          _macroRow(
+            label: 'Fat',
+            valueText: '${totals.totalFats.toInt()}g/ ${goals.fatGoal}g',
+            color: const Color(0xFFFF6D00),
+            progress: totals.totalFats / goals.fatGoal,
+          ),
         ],
       ),
     );
@@ -230,8 +246,17 @@ class _NutritionView extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: GoogleFonts.poppins(color: Colors.white, fontSize: 13.sp)),
-            Text(valueText, style: GoogleFonts.poppins(color: Colors.white70, fontSize: 13.sp)),
+            Text(
+              label,
+              style: GoogleFonts.poppins(color: Colors.white, fontSize: 13.sp),
+            ),
+            Text(
+              valueText,
+              style: GoogleFonts.poppins(
+                color: Colors.white70,
+                fontSize: 13.sp,
+              ),
+            ),
           ],
         ),
         SizedBox(height: 6.h),
