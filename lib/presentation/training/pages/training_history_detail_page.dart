@@ -13,11 +13,20 @@ class TrainingHistoryDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Group sets by exercise name
+    final Map<String, List<PushDataEntity>> exercises = {};
+    for (var set in historyItem.pushData) {
+      if (!exercises.containsKey(set.exerciseName)) {
+        exercises[set.exerciseName] = [];
+      }
+      exercises[set.exerciseName]!.add(set);
+    }
+
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
         title: Text(
-          historyItem.workoutName,
+          historyItem.trainingName,
           style: AppTextStyle.appbarHeading.copyWith(fontSize: 16.sp),
         ),
         centerTitle: true,
@@ -41,14 +50,14 @@ class TrainingHistoryDetailPage extends StatelessWidget {
           children: [
             // Date
             Text(
-              historyItem.dateTime,
+              '${historyItem.createdAt.day}/${historyItem.createdAt.month}/${historyItem.createdAt.year} at ${historyItem.time.hour}:${historyItem.time.minute}',
               style: GoogleFonts.poppins(color: Colors.white, fontSize: 13.sp),
             ),
             SizedBox(height: 8.h),
             // Notes
-            if (historyItem.notes.isNotEmpty)
+            if (historyItem.note.isNotEmpty)
               Text(
-                historyItem.notes,
+                historyItem.note,
                 style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 13.sp,
@@ -67,7 +76,10 @@ class TrainingHistoryDetailPage extends StatelessWidget {
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: historyItem.exercises.map((exercise) {
+                children: exercises.entries.map((entry) {
+                  final exerciseName = entry.key;
+                  final sets = entry.value;
+
                   return Padding(
                     padding: EdgeInsets.only(bottom: 20.h),
                     child: Column(
@@ -78,7 +90,7 @@ class TrainingHistoryDetailPage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              exercise.name,
+                              exerciseName,
                               style: GoogleFonts.poppins(
                                 color: Colors.white,
                                 fontSize: 14.sp,
@@ -96,21 +108,21 @@ class TrainingHistoryDetailPage extends StatelessWidget {
                         ),
                         SizedBox(height: 12.h),
                         // Sets Rows
-                        ...exercise.sets.map(
+                        ...sets.map(
                           (set) => Padding(
                             padding: EdgeInsets.only(bottom: 8.h),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  set.weightAndReps,
+                                  '${set.weight} kg x ${set.repRange}',
                                   style: GoogleFonts.poppins(
                                     color: Colors.white70,
                                     fontSize: 13.sp,
                                   ),
                                 ),
                                 Text(
-                                  set.oneRm,
+                                  set.oneRM?.toString() ?? '-',
                                   style: GoogleFonts.poppins(
                                     color: Colors.white70,
                                     fontSize: 13.sp,

@@ -17,18 +17,27 @@ class TrainingHistoryBloc
     Emitter<TrainingHistoryState> emit,
   ) async {
     emit(state.copyWith(status: TrainingHistoryStatus.loading));
-    try {
-      final history = await getHistory();
-      emit(
-        state.copyWith(status: TrainingHistoryStatus.success, history: history),
-      );
-    } catch (e) {
-      emit(
-        state.copyWith(
-          status: TrainingHistoryStatus.failure,
-          errorMessage: e.toString(),
-        ),
-      );
-    }
+    // TODO: Get real USER ID from Profile/Auth Bloc
+    final result = await getHistory();
+    result.fold(
+      (failure) {
+        print("Bloc Failure: ${failure.message}");
+        emit(
+          state.copyWith(
+            status: TrainingHistoryStatus.failure,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (response) {
+        print("Bloc Success: ${response.history.length} items");
+        emit(
+          state.copyWith(
+            status: TrainingHistoryStatus.success,
+            history: response.history,
+          ),
+        );
+      },
+    );
   }
 }

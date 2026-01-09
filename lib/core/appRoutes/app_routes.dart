@@ -254,17 +254,16 @@ final GoRouter AppRouter = GoRouter(
         final extra = state.extra;
         final historyItem = extra is TrainingHistoryEntity
             ? extra
-            : const TrainingHistoryEntity(
+            : TrainingHistoryEntity(
                 id: '',
-                month: '',
-                workoutCount: 0,
-                workoutName: 'Error',
-                dateTime: '',
-                notes: '',
-                exercises: [],
-                duration: '',
-                volume: '',
-                prs: '',
+                userId: '',
+                trainingName: 'Error',
+                time: const TrainingTimeEntity(hour: '0', minute: '0'),
+                pushData: const [],
+                note: '',
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+                totalWeight: 0,
               );
         return AppRoutes.fadeTransitionPage(
           context: context,

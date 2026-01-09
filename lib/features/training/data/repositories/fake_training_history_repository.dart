@@ -1,46 +1,89 @@
+import 'package:dartz/dartz.dart';
+import 'package:fitness_app/core/network/api_exception.dart';
 import 'package:fitness_app/domain/entities/training_entities/training_history_entity.dart';
 import 'package:fitness_app/domain/repositories/training_history/training_history_repository.dart';
 
 class FakeTrainingHistoryRepository implements TrainingHistoryRepository {
   @override
-  Future<List<TrainingHistoryEntity>> getHistory() async {
+  Future<Either<ApiException, TrainingHistoryResponseEntity>>
+  getHistory() async {
     await Future.delayed(const Duration(milliseconds: 500));
-    return [
-      const TrainingHistoryEntity(
-        id: '1',
-        month: 'November',
-        workoutCount: 9,
-        workoutName: 'Pull Fullbody',
-        dateTime: 'Tuesday, 18 November 2025 at 16:52',
-        notes: 'Warm up the rotator cuffs and hips',
-        exercises: [
-          HistoryExerciseEntity(
-            name: 'Seated Row (Machine)',
-            bestSetDisplay: 'Best: 68 kg x 8 @ 10 [F]',
-            sets: [
-              HistorySetEntity(weightAndReps: '36 kg x 6', oneRm: '42'),
-              HistorySetEntity(weightAndReps: '50 kg x 6', oneRm: '51'),
+    return Right(
+      TrainingHistoryResponseEntity(
+        pr: const PREntity(volumePR: false),
+        history: [
+          TrainingHistoryEntity(
+            id: '69602faa26e8ec314aa09503',
+            userId: '694af4853dd5d5e3ce5852f2',
+            trainingName: 'Bench Press(seated Row) machin',
+            time: const TrainingTimeEntity(hour: '1', minute: '30'),
+            pushData: const [
+              PushDataEntity(
+                weight: 70,
+                repRange: '55',
+                rir: '2',
+                set: 4,
+                exerciseName: 'Seated Row (Machine)',
+                oneRM: null,
+              ),
+              PushDataEntity(
+                weight: 70,
+                repRange: '55',
+                rir: '2',
+                set: 4,
+                exerciseName: 'Seated Row (Machine)',
+                oneRM: null,
+              ),
+              PushDataEntity(
+                weight: 65,
+                repRange: '7',
+                rir: '2',
+                set: 1,
+                exerciseName: 'Wide Row Machine',
+                oneRM: null,
+              ),
+              PushDataEntity(
+                weight: 65,
+                repRange: '7',
+                rir: '2',
+                set: 2,
+                exerciseName: 'Wide Row Machine',
+                oneRM: null,
+              ),
             ],
+            note: 'Focus on proper form and full range of motion',
+            createdAt: DateTime.parse('2025-11-18T16:52:00Z'),
+            updatedAt: DateTime.parse('2025-11-18T16:52:00Z'),
+            totalWeight: 5000,
           ),
-          HistoryExerciseEntity(
-            name: 'Wide Row (Machine)',
-            bestSetDisplay: 'Best: 65 kg x 7 @ 10 [F]',
-            sets: [
-              HistorySetEntity(weightAndReps: '20 kg x 6', oneRm: '23'),
-              HistorySetEntity(weightAndReps: '40 kg x 2', oneRm: '41'),
+          TrainingHistoryEntity(
+            id: '69603a9e86856f9ab27aa4c0',
+            userId: '694af4853dd5d5e3ce5852f2',
+            trainingName: 'push body',
+            time: const TrainingTimeEntity(hour: '0', minute: '0'),
+            pushData: const [
+              PushDataEntity(
+                weight: 0,
+                repRange: '8-10',
+                rir: '70-80kg',
+                set: 4,
+                exerciseName: 'Bench Press',
+              ),
+              PushDataEntity(
+                weight: 70,
+                repRange: '8-10',
+                rir: '70-80kg',
+                set: 1,
+                exerciseName: 'Pull Ups',
+              ),
             ],
-          ),
-          HistoryExerciseEntity(
-            name: 'Wide Row Machine',
-            bestSetDisplay: 'Best: 65 kg x 7 @ 10 [F]',
-            sets:
-                [], // Truncated for brevity in list view, details not shown in screenshot for 3rd item
+            note: 'Mock Note',
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+            totalWeight: null,
           ),
         ],
-        duration: '1 h 31 m',
-        volume: '5000(kg)',
-        prs: '0 PRs',
       ),
-    ];
+    );
   }
 }

@@ -26,7 +26,7 @@ class ApiException implements Exception {
         final statusCode = error.response?.statusCode;
         final data = error.response?.data;
         String message = 'Server error';
-        
+
         if (data is Map && data.containsKey('message')) {
           message = data['message'];
         } else if (data is Map && data.containsKey('error')) {
@@ -48,7 +48,7 @@ class ApiException implements Exception {
             type: ApiExceptionType.forbidden,
           );
         }
-        
+
         return ApiException(
           message: message,
           statusCode: statusCode,
@@ -74,7 +74,8 @@ class ApiException implements Exception {
   }
 
   @override
-  String toString() => 'ApiException: $message (Status: $statusCode, Type: $type)';
+  String toString() =>
+      'ApiException: $message (Status: $statusCode, Type: $type)';
 }
 
 enum ApiExceptionType {

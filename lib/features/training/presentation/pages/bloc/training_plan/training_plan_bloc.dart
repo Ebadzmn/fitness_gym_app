@@ -16,16 +16,17 @@ class TrainingPlanBloc extends Bloc<TrainingPlanEvent, TrainingPlanState> {
     Emitter<TrainingPlanState> emit,
   ) async {
     emit(state.copyWith(status: TrainingPlanStatus.loading));
-    try {
-      final plans = await getTrainingPlans();
-      emit(state.copyWith(status: TrainingPlanStatus.success, plans: plans));
-    } catch (e) {
-      emit(
+    final result = await getTrainingPlans();
+    result.fold(
+      (failure) => emit(
         state.copyWith(
           status: TrainingPlanStatus.failure,
-          errorMessage: e.toString(),
+          errorMessage: failure.message,
         ),
-      );
-    }
+      ),
+      (plans) => emit(
+        state.copyWith(status: TrainingPlanStatus.success, plans: plans),
+      ),
+    );
   }
 }

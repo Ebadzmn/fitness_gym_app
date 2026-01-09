@@ -29,3 +29,5 @@ class WorkoutSessionError extends WorkoutSessionState {
   @override
   List<Object?> get props => [message];
 }
+
+class WorkoutSessionSaved extends WorkoutSessionState {}

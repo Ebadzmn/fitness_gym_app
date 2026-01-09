@@ -3,7 +3,7 @@ import 'package:fitness_app/core/appRoutes/app_routes.dart';
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:fitness_app/domain/entities/training_entities/training_history_entity.dart';
-import 'package:fitness_app/features/training/data/repositories/fake_training_history_repository.dart';
+import 'package:fitness_app/domain/entities/training_entities/training_history_entity.dart';
 import 'package:fitness_app/features/training/domain/usecases/get_training_history_usecase.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/training_history/training_history_bloc.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/training_history/training_history_event.dart';
@@ -14,26 +14,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:fitness_app/injection_container.dart' as di;
+
 class TrainingHistoryPage extends StatelessWidget {
   const TrainingHistoryPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (_) => FakeTrainingHistoryRepository(),
-      child: Builder(
-        builder: (ctx) {
-          final repo = RepositoryProvider.of<FakeTrainingHistoryRepository>(
-            ctx,
-          );
-          return BlocProvider(
-            create: (_) =>
-                TrainingHistoryBloc(getHistory: GetTrainingHistoryUseCase(repo))
-                  ..add(const TrainingHistoryLoadRequested()),
-            child: const _TrainingHistoryView(),
-          );
-        },
-      ),
+    return BlocProvider(
+      create: (_) =>
+          TrainingHistoryBloc(getHistory: di.sl<GetTrainingHistoryUseCase>())
+            ..add(const TrainingHistoryLoadRequested()),
+      child: const _TrainingHistoryView(),
     );
   }
 }
@@ -99,6 +91,16 @@ class _HistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Group sets by exercise name
+    final Map<String, List<PushDataEntity>> exercises = {};
+    for (var set in item.pushData) {
+      if (!exercises.containsKey(set.exerciseName)) {
+        exercises[set.exerciseName] = [];
+      }
+      exercises[set.exerciseName]!.add(set);
+    }
+    final topExercises = exercises.keys.take(3).toList();
+
     return InkWell(
       onTap: () =>
           context.push(AppRoutes.trainingHistoryDetailPage, extra: item),
@@ -118,15 +120,16 @@ class _HistoryCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  item.month,
+                  _formatMonthOnly(item.createdAt),
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
+                // "9 Workouts" - logic would go here ideally
                 Text(
-                  '${item.workoutCount} Workouts',
+                  '1 Workout', // Placeholder as we don't have month count easily
                   style: GoogleFonts.poppins(
                     color: Colors.white70,
                     fontSize: 12.sp,
@@ -136,9 +139,9 @@ class _HistoryCard extends StatelessWidget {
             ),
             SizedBox(height: 16.h),
 
-            // Workout Title & Date
+            // Workout Title
             Text(
-              item.workoutName,
+              item.trainingName,
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 16.sp,
@@ -146,8 +149,9 @@ class _HistoryCard extends StatelessWidget {
               ),
             ),
             SizedBox(height: 4.h),
+            // Full Date
             Text(
-              item.dateTime,
+              _formatFullDate(item.createdAt),
               style: GoogleFonts.poppins(
                 color: Colors.white70,
                 fontSize: 13.sp,
@@ -173,35 +177,49 @@ class _HistoryCard extends StatelessWidget {
             ),
             SizedBox(height: 8.h),
 
-            // Exercises List
-            ...item.exercises
-                .take(3)
-                .map(
-                  (e) => Padding(
-                    padding: EdgeInsets.only(bottom: 8.h),
-                    child: Text(
-                      '${e.sets.length} x ${e.name} → ${e.bestSetDisplay}',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 13.sp,
-                        height: 1.4,
-                      ),
-                    ),
+            // Exercises List with Best Set logic
+            ...topExercises.map((name) {
+              final sets = exercises[name]!;
+              // Find best set: max weight
+              // If multiple max weights, pick one (e.g. first)
+              var bestSet = sets.first;
+              for (var s in sets) {
+                if (s.weight > bestSet.weight) {
+                  bestSet = s;
+                }
+              }
+
+              return Padding(
+                padding: EdgeInsets.only(bottom: 8.h),
+                child: Text(
+                  '${sets.length} × $name → Best: ${bestSet.weight} kg × ${bestSet.repRange} @ 10 [F]',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 13.sp,
+                    height: 1.4,
                   ),
                 ),
+              );
+            }),
 
             SizedBox(height: 16.h),
 
             // Stats Row
             Row(
               children: [
-                _statItem(Icons.access_time_filled, item.duration),
+                _statItem(
+                  Icons.access_time_filled,
+                  '${item.time.hour} h ${item.time.minute} m',
+                ),
                 SizedBox(width: 20.w),
-                _statItem(Icons.monitor_weight_outlined, item.volume),
+                _statItem(
+                  Icons.monitor_weight_outlined,
+                  '${item.totalWeight ?? 0}(kg)',
+                ),
                 SizedBox(width: 20.w),
                 _statItem(
                   Icons.emoji_events_outlined,
-                  item.prs,
+                  '0 PRs', // Placeholder
                   iconColor: Colors.green,
                 ),
               ],
@@ -223,5 +241,58 @@ class _HistoryCard extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _formatMonthOnly(DateTime date) {
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    return months[date.month - 1];
+  }
+
+  String _formatFullDate(DateTime date) {
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    const weekdays = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
+
+    final weekday = weekdays[date.weekday - 1];
+    final month = months[date.month - 1];
+    final day = date.day;
+    final year = date.year;
+    final hour = date.hour.toString().padLeft(2, '0');
+    final minute = date.minute.toString().padLeft(2, '0');
+
+    return '$weekday, $day $month $year at $hour:$minute';
   }
 }
