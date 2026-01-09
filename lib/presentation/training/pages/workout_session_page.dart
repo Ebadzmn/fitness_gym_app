@@ -9,6 +9,7 @@ import 'package:fitness_app/features/training/presentation/pages/bloc/workout_ti
 import 'package:fitness_app/features/training/presentation/pages/bloc/workout_timer/workout_timer_state.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/workout_session/workout_session_cubit.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/workout_session/workout_session_state.dart';
+import 'package:fitness_app/features/training/data/models/training_history_request_model.dart';
 import 'package:fitness_app/injection_container.dart';
 
 class WorkoutSessionPage extends StatefulWidget {
@@ -20,14 +21,81 @@ class WorkoutSessionPage extends StatefulWidget {
 }
 
 class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
-  @override
-  void initState() {
-    super.initState();
-  }
+  // Map to store controllers for each exercise: index -> { 'weight': c, 'reps': c, 'rir': c }
+  final Map<int, Map<String, TextEditingController>> _exerciseControllers = {};
+  final TextEditingController _noteController = TextEditingController();
 
   @override
   void dispose() {
+    for (var controllers in _exerciseControllers.values) {
+      controllers.values.forEach((c) => c.dispose());
+    }
+    _noteController.dispose();
     super.dispose();
+  }
+
+  void _initializeControllers(List<dynamic> exercises) {
+    for (int i = 0; i < exercises.length; i++) {
+      if (!_exerciseControllers.containsKey(i)) {
+        final exercise = exercises[i];
+        _exerciseControllers[i] = {
+          'weight': TextEditingController(),
+          'reps': TextEditingController(
+            text: exercise.rep ?? exercise.range ?? '',
+          ),
+          'rir': TextEditingController(text: exercise.rir ?? ''),
+        };
+      }
+    }
+  }
+
+  void _onComplete(BuildContext context, dynamic plan, int duration) {
+    final List<PushData> pushData = [];
+    final exercises = plan.exercises;
+
+    for (int i = 0; i < exercises.length; i++) {
+      final controllers = _exerciseControllers[i];
+      if (controllers != null) {
+        // Parse values. If empty, maybe defaults? Or strict parsing?
+        // User request JSON had numbers for weight/set/reps? No, "repRange", "rir" are strings. "weight" is number. "set" is number.
+        final weight = num.tryParse(controllers['weight']?.text ?? '0') ?? 0;
+        final repRange = controllers['reps']?.text ?? '';
+        final rir = controllers['rir']?.text ?? '';
+
+        // Note: 'set' in PushData seems to be 'sets' count? Or the set number?
+        // JSON example showed "set": 4. And it was inside an array.
+        // Assuming it matches the plan's set count.
+        // The plan entity has 'sets' as String "4 Sets" or "2 X". Need to parse or just use 0.
+        // Let's use 0 or try to parse the string "4 Sets".
+        int set = 0;
+        final setsStr = exercises[i].sets ?? '';
+        final setsMatch = RegExp(r'\d+').firstMatch(setsStr);
+        if (setsMatch != null) {
+          set = int.tryParse(setsMatch.group(0)!) ?? 0;
+        }
+
+        pushData.add(
+          PushData(
+            weight: weight,
+            repRange:
+                repRange, // Using 'repRange' field for user-entered Reps as per usage
+            rir: rir,
+            set: set,
+            exerciseName: exercises[i].name,
+          ),
+        );
+      }
+    }
+
+    final hours = (duration ~/ 3600).toString();
+    final minutes = ((duration % 3600) ~/ 60).toString();
+
+    context.read<WorkoutSessionCubit>().saveSession(
+      trainingName: plan.title,
+      time: TrainingTime(hour: hours, minite: minutes),
+      pushData: pushData,
+      note: _noteController.text,
+    );
   }
 
   @override
@@ -35,127 +103,169 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
     return BlocProvider(
       create: (context) =>
           sl<WorkoutSessionCubit>()..loadWorkoutSession(widget.planId),
-      child: BlocBuilder<WorkoutSessionCubit, WorkoutSessionState>(
-        builder: (context, state) {
-          if (state is WorkoutSessionLoading) {
-            return const Scaffold(
-              backgroundColor: AppColor.primaryColor,
-              body: Center(
-                child: CircularProgressIndicator(color: Color(0xFF4CAF50)),
-              ),
+      child: BlocListener<WorkoutSessionCubit, WorkoutSessionState>(
+        listener: (context, state) {
+          if (state is WorkoutSessionSaved) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Workout saved successfully!')),
             );
+            context.pop();
           }
           if (state is WorkoutSessionError) {
-            return Scaffold(
-              backgroundColor: AppColor.primaryColor,
-              body: Center(
-                child: Text(
-                  state.message,
-                  style: GoogleFonts.poppins(color: Colors.white),
-                ),
-              ),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
-          if (state is WorkoutSessionLoaded) {
-            final plan = state.plan;
-            final exercises = plan.exercises;
-            return BlocProvider(
-              create: (context) => WorkoutTimerCubit(),
-              child: Scaffold(
-                backgroundColor: AppColor.primaryColor,
-                resizeToAvoidBottomInset: true,
-                appBar: AppBar(
-                  backgroundColor: AppColor.primaryColor,
-                  elevation: 0,
-                  leading: Padding(
-                    padding: EdgeInsets.all(8.w),
-                    child: CircleAvatar(
-                      backgroundColor: Colors.white10,
-                      child: IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () => context.pop(),
-                      ),
-                    ),
-                  ),
-                  title: Column(
-                    children: [
-                      Text(
-                        plan.title,
-                        style: AppTextStyle.appbarHeading.copyWith(
-                          fontSize: 16.sp,
-                        ),
-                      ),
-                      Text(
-                        '${exercises.length} Exercises',
-                        style: GoogleFonts.poppins(
-                          color: Colors.white70,
-                          fontSize: 12.sp,
-                        ),
-                      ),
-                    ],
-                  ),
-                  centerTitle: true,
-                ),
-                body: Column(
-                  children: [
-                    const _TimerSection(),
-                    SizedBox(height: 10.h),
-                    Expanded(
-                      child: exercises.isEmpty
-                          ? Center(
-                              child: Text(
-                                'No exercises in this plan',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white54,
-                                ),
-                              ),
-                            )
-                          : ListView.builder(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16.w,
-                                vertical: 10.h,
-                              ),
-                              itemCount: exercises.length,
-                              itemBuilder: (context, index) {
-                                final exercise = exercises[index];
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (index == 0) ...[
-                                      Text(
-                                        'Exercises',
-                                        style: GoogleFonts.poppins(
-                                          color: Colors.white,
-                                          fontSize: 16.sp,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      SizedBox(height: 12.h),
-                                    ],
-                                    _ExerciseRow(
-                                      exercise: exercise,
-                                      index: index + 1,
-                                    ),
-
-                                    if (index == exercises.length - 1) ...[
-                                      SizedBox(height: 20.h),
-                                      const _NotesInput(),
-                                      SizedBox(height: 24.h),
-                                      const _BottomButtons(),
-                                      SizedBox(height: 20.h),
-                                    ],
-                                  ],
-                                );
-                              },
-                            ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-          return const SizedBox();
         },
+        child: BlocBuilder<WorkoutSessionCubit, WorkoutSessionState>(
+          builder: (context, state) {
+            if (state is WorkoutSessionLoading) {
+              return const Scaffold(
+                backgroundColor: AppColor.primaryColor,
+                body: Center(
+                  child: CircularProgressIndicator(color: Color(0xFF4CAF50)),
+                ),
+              );
+            }
+            if (state is WorkoutSessionError) {
+              return Scaffold(
+                backgroundColor: AppColor.primaryColor,
+                body: Center(
+                  child: Text(
+                    state.message,
+                    style: GoogleFonts.poppins(color: Colors.white),
+                  ),
+                ),
+              );
+            }
+            if (state is WorkoutSessionLoaded) {
+              final plan = state.plan;
+              final exercises = plan.exercises;
+              _initializeControllers(exercises);
+
+              return BlocProvider(
+                create: (context) => WorkoutTimerCubit(),
+                child: Builder(
+                  builder: (context) {
+                    return Scaffold(
+                      backgroundColor: AppColor.primaryColor,
+                      resizeToAvoidBottomInset: true,
+                      appBar: AppBar(
+                        backgroundColor: AppColor.primaryColor,
+                        elevation: 0,
+                        leading: Padding(
+                          padding: EdgeInsets.all(8.w),
+                          child: CircleAvatar(
+                            backgroundColor: Colors.white10,
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.arrow_back,
+                                color: Colors.white,
+                              ),
+                              onPressed: () => context.pop(),
+                            ),
+                          ),
+                        ),
+                        title: Column(
+                          children: [
+                            Text(
+                              plan.title,
+                              style: AppTextStyle.appbarHeading.copyWith(
+                                fontSize: 16.sp,
+                              ),
+                            ),
+                            Text(
+                              '${exercises.length} Exercises',
+                              style: GoogleFonts.poppins(
+                                color: Colors.white70,
+                                fontSize: 12.sp,
+                              ),
+                            ),
+                          ],
+                        ),
+                        centerTitle: true,
+                      ),
+                      body: Column(
+                        children: [
+                          const _TimerSection(),
+                          SizedBox(height: 10.h),
+                          Expanded(
+                            child: exercises.isEmpty
+                                ? Center(
+                                    child: Text(
+                                      'No exercises in this plan',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white54,
+                                      ),
+                                    ),
+                                  )
+                                : ListView.builder(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 16.w,
+                                      vertical: 10.h,
+                                    ),
+                                    itemCount: exercises.length,
+                                    itemBuilder: (context, index) {
+                                      final exercise = exercises[index];
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          if (index == 0) ...[
+                                            Text(
+                                              'Exercises',
+                                              style: GoogleFonts.poppins(
+                                                color: Colors.white,
+                                                fontSize: 16.sp,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            SizedBox(height: 12.h),
+                                          ],
+                                          _ExerciseRow(
+                                            exercise: exercise,
+                                            index: index + 1,
+                                            controllers:
+                                                _exerciseControllers[index]!,
+                                          ),
+
+                                          if (index ==
+                                              exercises.length - 1) ...[
+                                            SizedBox(height: 20.h),
+                                            _NotesInput(
+                                              controller: _noteController,
+                                            ),
+                                            SizedBox(height: 24.h),
+                                            _BottomButtons(
+                                              onComplete: () {
+                                                final duration = context
+                                                    .read<WorkoutTimerCubit>()
+                                                    .state
+                                                    .duration;
+                                                _onComplete(
+                                                  context,
+                                                  plan,
+                                                  duration,
+                                                );
+                                              },
+                                            ),
+                                            SizedBox(height: 20.h),
+                                          ],
+                                        ],
+                                      );
+                                    },
+                                  ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              );
+            }
+            return const SizedBox();
+          },
+        ),
       ),
     );
   }
@@ -262,34 +372,20 @@ class _TimerSection extends StatelessWidget {
 class _ExerciseRow extends StatefulWidget {
   final dynamic exercise;
   final int index;
+  final Map<String, TextEditingController> controllers;
 
-  const _ExerciseRow({required this.exercise, required this.index});
+  const _ExerciseRow({
+    required this.exercise,
+    required this.index,
+    required this.controllers,
+  });
 
   @override
   State<_ExerciseRow> createState() => _ExerciseRowState();
 }
 
 class _ExerciseRowState extends State<_ExerciseRow> {
-  late TextEditingController weightController;
-  late TextEditingController repsController;
-  late TextEditingController setsController;
   bool isCompleted = false;
-
-  @override
-  void initState() {
-    super.initState();
-    weightController = TextEditingController();
-    repsController = TextEditingController(text: widget.exercise.rep ?? '');
-    setsController = TextEditingController(text: widget.exercise.sets ?? '');
-  }
-
-  @override
-  void dispose() {
-    weightController.dispose();
-    repsController.dispose();
-    setsController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -343,7 +439,7 @@ class _ExerciseRowState extends State<_ExerciseRow> {
                   border: Border.all(color: const Color(0xFF2E5B24)),
                 ),
                 child: Text(
-                  '8-10 WDH',
+                  '${widget.exercise.range ?? '8-10'} WDH',
                   style: GoogleFonts.poppins(
                     color: const Color(0xFF4CAF50),
 
@@ -353,11 +449,15 @@ class _ExerciseRowState extends State<_ExerciseRow> {
                 ),
               ),
               SizedBox(width: 8.w),
-              _inputBox('Weight', weightController, isEditable: true),
+              _inputBox(
+                'Weight',
+                widget.controllers['weight'],
+                isEditable: true,
+              ),
               SizedBox(width: 8.w),
-              _inputBox('Reps', repsController, isEditable: true),
+              _inputBox('Reps', widget.controllers['reps'], isEditable: true),
               SizedBox(width: 8.w),
-              _inputBox('RIR', setsController, isEditable: true),
+              _inputBox('RIR', widget.controllers['rir'], isEditable: true),
               SizedBox(width: 8.w),
               GestureDetector(
                 onTap: () {
@@ -437,7 +537,8 @@ class _ExerciseRowState extends State<_ExerciseRow> {
 }
 
 class _NotesInput extends StatelessWidget {
-  const _NotesInput();
+  final TextEditingController controller;
+  const _NotesInput({required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -461,6 +562,7 @@ class _NotesInput extends StatelessWidget {
             border: Border.all(color: const Color(0xFF2E2E5D)),
           ),
           child: TextField(
+            controller: controller,
             style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp),
             maxLines: 4,
             decoration: InputDecoration(
@@ -479,7 +581,8 @@ class _NotesInput extends StatelessWidget {
 }
 
 class _BottomButtons extends StatelessWidget {
-  const _BottomButtons();
+  final VoidCallback onComplete;
+  const _BottomButtons({required this.onComplete});
 
   @override
   Widget build(BuildContext context) {
@@ -509,7 +612,7 @@ class _BottomButtons extends StatelessWidget {
         SizedBox(width: 16.w),
         Expanded(
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: onComplete,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF4CAF50),
               padding: EdgeInsets.symmetric(vertical: 16.h),

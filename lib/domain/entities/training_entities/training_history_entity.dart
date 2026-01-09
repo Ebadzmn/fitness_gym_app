@@ -1,45 +1,91 @@
-class TrainingHistoryEntity {
+import 'package:equatable/equatable.dart';
+
+class TrainingHistoryResponseEntity extends Equatable {
+  final List<TrainingHistoryEntity> history;
+  final PREntity pr;
+
+  const TrainingHistoryResponseEntity({
+    required this.history,
+    required this.pr,
+  });
+
+  @override
+  List<Object?> get props => [history, pr];
+}
+
+class TrainingHistoryEntity extends Equatable {
   final String id;
-  final String month;
-  final int workoutCount;
-  final String workoutName;
-  final String dateTime;
-  final String notes; // Added notes
-  final List<HistoryExerciseEntity> exercises; // Changed from List<String>
-  final String duration;
-  final String volume;
-  final String prs;
+  final String userId;
+  final String trainingName;
+  final TrainingTimeEntity time;
+  final List<PushDataEntity> pushData;
+  final String note;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final num? totalWeight;
 
   const TrainingHistoryEntity({
     required this.id,
-    required this.month,
-    required this.workoutCount,
-    required this.workoutName,
-    required this.dateTime,
-    this.notes = '',
-    required this.exercises,
-    required this.duration,
-    required this.volume,
-    required this.prs,
+    required this.userId,
+    required this.trainingName,
+    required this.time,
+    required this.pushData,
+    required this.note,
+    required this.createdAt,
+    required this.updatedAt,
+    this.totalWeight,
   });
+
+  @override
+  List<Object?> get props => [
+    id,
+    userId,
+    trainingName,
+    time,
+    pushData,
+    note,
+    createdAt,
+    updatedAt,
+    totalWeight,
+  ];
 }
 
-class HistoryExerciseEntity {
-  final String name;
-  final List<HistorySetEntity> sets;
-  final String
-  bestSetDisplay; // For the history list card (e.g. "Best: 68 kg x 8 @ 10 [F]")
+class PushDataEntity extends Equatable {
+  final num weight;
+  final String repRange;
+  final String rir;
+  final int set;
+  final String exerciseName;
+  final num? oneRM;
 
-  const HistoryExerciseEntity({
-    required this.name,
-    required this.sets,
-    required this.bestSetDisplay,
+  const PushDataEntity({
+    required this.weight,
+    required this.repRange,
+    required this.rir,
+    required this.set,
+    required this.exerciseName,
+    this.oneRM,
   });
+
+  @override
+  List<Object?> get props => [weight, repRange, rir, set, exerciseName, oneRM];
 }
 
-class HistorySetEntity {
-  final String weightAndReps; // e.g. "36 kg x 6"
-  final String oneRm; // e.g. "42"
+class TrainingTimeEntity extends Equatable {
+  final String hour;
+  final String minute;
 
-  const HistorySetEntity({required this.weightAndReps, required this.oneRm});
+  const TrainingTimeEntity({required this.hour, required this.minute});
+
+  @override
+  List<Object?> get props => [hour, minute];
+}
+
+class PREntity extends Equatable {
+  final bool volumePR;
+
+  const PREntity({required this.volumePR});
+
+  @override
+  List<Object?> get props => [volumePR];
 }

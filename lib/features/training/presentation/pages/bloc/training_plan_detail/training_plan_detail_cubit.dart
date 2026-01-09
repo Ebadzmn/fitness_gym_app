@@ -19,11 +19,10 @@ class TrainingPlanDetailCubit extends Cubit<TrainingPlanDetailState> {
     // Given the request "click card -> hit api", showing loading or updating is better.
     emit(TrainingPlanDetailLoading());
 
-    try {
-      final plan = await getTrainingPlanById(id);
-      emit(TrainingPlanDetailLoaded(plan));
-    } catch (e) {
-      emit(TrainingPlanDetailError(e.toString()));
-    }
+    final result = await getTrainingPlanById(id);
+    result.fold(
+      (failure) => emit(TrainingPlanDetailError(failure.message)),
+      (plan) => emit(TrainingPlanDetailLoaded(plan)),
+    );
   }
 }

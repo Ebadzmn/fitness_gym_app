@@ -6,6 +6,7 @@ class TrainingPlanExerciseEntity {
   final String? range;
   final String? comment;
   final String? type; // e.g., "Machine", "Cable"
+  final String? rir;
 
   const TrainingPlanExerciseEntity({
     required this.name,
@@ -15,6 +16,7 @@ class TrainingPlanExerciseEntity {
     this.range,
     this.comment,
     this.type,
+    this.rir,
   });
 }
 

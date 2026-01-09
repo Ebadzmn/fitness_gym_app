@@ -22,6 +22,10 @@ import 'features/training/data/repositories/training_repository_impl.dart';
 import 'domain/repositories/training_history/training_plan_repository.dart';
 import 'features/training/domain/usecases/get_training_plans_usecase.dart';
 import 'package:fitness_app/features/training/domain/usecases/get_training_plan_by_id_usecase.dart';
+import 'package:fitness_app/features/training/domain/usecases/save_training_history_usecase.dart';
+import 'package:fitness_app/features/training/domain/usecases/get_training_history_usecase.dart';
+import 'package:fitness_app/domain/repositories/training_history/training_history_repository.dart';
+import 'package:fitness_app/features/training/data/repositories/training_history_repository_impl.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/workout_session/workout_session_cubit.dart';
 import 'features/training/presentation/pages/bloc/exercise_bloc/exercise_bloc.dart';
 import 'features/training/domain/usecases/get_exercises_usecase.dart';
@@ -112,15 +116,26 @@ Future<void> init() async {
   // Bloc
   // TrainingPlanBloc is created in the UI using provided UseCase, or can be registered here if needed factory.
   // For now, staying consistent with existing pattern if Blocs are factories.
-  sl.registerFactory(() => WorkoutSessionCubit(getTrainingPlanById: sl()));
+  sl.registerFactory(
+    () => WorkoutSessionCubit(
+      getTrainingPlanById: sl(),
+      saveTrainingHistory: sl(),
+      getProfile: sl(),
+    ),
+  );
 
   // Use cases
   sl.registerLazySingleton(() => GetTrainingPlansUseCase(sl()));
   sl.registerLazySingleton(() => GetTrainingPlanByIdUseCase(repository: sl()));
+  sl.registerLazySingleton(() => SaveTrainingHistoryUseCase(sl()));
+  sl.registerLazySingleton(() => GetTrainingHistoryUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<TrainingPlanRepository>(
     () => TrainingRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<TrainingHistoryRepository>(
+    () => TrainingHistoryRepositoryImpl(remoteDataSource: sl()),
   );
 
   // Data sources

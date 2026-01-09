@@ -1,13 +1,17 @@
+import 'package:dartz/dartz.dart';
+import 'package:fitness_app/core/network/api_exception.dart';
 import 'package:fitness_app/domain/entities/training_entities/training_plan_entity.dart';
 import 'package:fitness_app/domain/repositories/training_history/training_plan_repository.dart';
+import 'package:fitness_app/features/training/data/models/training_history_request_model.dart';
 
 class FakeTrainingPlanRepository implements TrainingPlanRepository {
   @override
-  Future<List<TrainingPlanEntity>> getTrainingPlans() async {
+  Future<Either<ApiException, List<TrainingPlanEntity>>>
+  getTrainingPlans() async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 500));
 
-    return const [
+    return const Right([
       TrainingPlanEntity(
         id: '1',
         title: 'PLACEHOLDER',
@@ -97,12 +101,22 @@ class FakeTrainingPlanRepository implements TrainingPlanRepository {
           ),
         ],
       ),
-    ];
+    ]);
   }
 
   @override
-  Future<TrainingPlanEntity> getTrainingPlanById(String id) {
+  Future<Either<ApiException, TrainingPlanEntity>> getTrainingPlanById(
+    String id,
+  ) async {
     // TODO: implement getTrainingPlanById
     throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<ApiException, void>> saveTrainingHistory(
+    TrainingHistoryRequest request,
+  ) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    return const Right(null);
   }
 }

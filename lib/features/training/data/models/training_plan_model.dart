@@ -48,6 +48,7 @@ class TrainingPlanExerciseModel extends TrainingPlanExerciseEntity {
     super.range,
     super.comment,
     super.type,
+    super.rir,
   });
 
   factory TrainingPlanExerciseModel.fromJson(Map<String, dynamic> json) {
@@ -57,10 +58,13 @@ class TrainingPlanExerciseModel extends TrainingPlanExerciseEntity {
           'Unknown Exercise',
       sets: json['sets']?.toString() ?? '0',
       rep: (json['rep'] ?? json['reps'])?.toString(),
-      range: json['range']?.toString(),
-      comment: json['comment']?.toString(),
+      range: (json['repRange'] ?? json['range'])
+          ?.toString(), // Mapping repRange to range
+      comment: (json['excerciseNote'] ?? json['comment'])
+          ?.toString(), // Mapping excerciseNote to comment
       muscle: json['muscle']?.toString(),
       type: json['type']?.toString(),
+      rir: json['rir']?.toString(),
     );
   }
 }
