@@ -148,15 +148,30 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
     if (t.cardioCompleted) {
       final durOk = RegExp(r'^[0-9]+$').hasMatch(t.duration.trim());
       if (!durOk || t.duration.trim().isEmpty) {
-        emit(state.copyWith(status: DailyStatus.error, errorMessage: 'Please enter cardio duration (minutes) as a number'));
+        emit(
+          state.copyWith(
+            status: DailyStatus.error,
+            errorMessage: 'Please enter cardio duration (minutes) as a number',
+          ),
+        );
         return;
       }
       if (t.cardioType.trim().isEmpty) {
-        emit(state.copyWith(status: DailyStatus.error, errorMessage: 'Please select a cardio type'));
+        emit(
+          state.copyWith(
+            status: DailyStatus.error,
+            errorMessage: 'Please select a cardio type',
+          ),
+        );
         return;
       }
       if (t.intensity < 1 || t.intensity > 10) {
-        emit(state.copyWith(status: DailyStatus.error, errorMessage: 'Cardio intensity must be between 1 and 10'));
+        emit(
+          state.copyWith(
+            status: DailyStatus.error,
+            errorMessage: 'Cardio intensity must be between 1 and 10',
+          ),
+        );
         return;
       }
     }
@@ -165,9 +180,7 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
       await saveDaily(data);
       emit(state.copyWith(status: DailyStatus.saved));
     } catch (e) {
-      emit(
-        state.copyWith(status: DailyStatus.error, errorMessage: 'Failed'),
-      );
+      emit(state.copyWith(status: DailyStatus.error, errorMessage: 'Failed'));
     }
   }
 
@@ -186,8 +199,8 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
       case 'bodyTempText':
         updated = v.copyWith(bodyTempText: event.value);
         break;
-      case 'activityTimeText':
-        updated = v.copyWith(activityTimeText: event.value);
+      case 'activityStepCount':
+        updated = v.copyWith(activityStepCount: event.value);
         break;
     }
     emit(state.copyWith(data: data.copyWith(vital: updated)));

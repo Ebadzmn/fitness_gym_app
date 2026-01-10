@@ -6,6 +6,8 @@ import 'package:fitness_app/core/session/session_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:fitness_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'injection_container.dart' as di;
 
 void main() async {
@@ -47,22 +49,25 @@ class _MyAppState extends State<MyApp> {
       designSize: const Size(360, 690),
       minTextAdapt: true,
       splitScreenMode: true,
-      builder: (context, child) => MaterialApp.router(
-        routerConfig: AppRouter,
-        theme: ThemeData(
-          textTheme: GoogleFonts.poppinsTextTheme().copyWith(
-            titleLarge: AppTextStyle.appbarHeading,
-            headlineMedium: AppTextStyle.authHeading1,
-            headlineSmall: AppTextStyle.authHeading2,
+      builder: (context, child) => BlocProvider(
+        create: (context) => di.sl<AuthBloc>(),
+        child: MaterialApp.router(
+          routerConfig: AppRouter,
+          theme: ThemeData(
+            textTheme: GoogleFonts.poppinsTextTheme().copyWith(
+              titleLarge: AppTextStyle.appbarHeading,
+              headlineMedium: AppTextStyle.authHeading1,
+              headlineSmall: AppTextStyle.authHeading2,
+            ),
+            scaffoldBackgroundColor: AppColor.primaryColor,
+            primaryColor: AppColor.primaryColor,
+            appBarTheme: AppBarTheme(
+              titleTextStyle: AppTextStyle.appbarHeading,
+              backgroundColor: AppColor.primaryColor,
+            ),
           ),
-          scaffoldBackgroundColor: AppColor.primaryColor,
-          primaryColor: AppColor.primaryColor,
-          appBarTheme: AppBarTheme(
-            titleTextStyle: AppTextStyle.appbarHeading,
-            backgroundColor: AppColor.primaryColor,
-          ),
+          debugShowCheckedModeBanner: false,
         ),
-        debugShowCheckedModeBanner: false,
       ),
     );
   }

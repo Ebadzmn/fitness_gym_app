@@ -8,12 +8,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUseCase loginUseCase;
   final TokenStorage tokenStorage;
 
-  AuthBloc({
-    required this.loginUseCase,
-    required this.tokenStorage,
-  }) : super(AuthInitial()) {
+  AuthBloc({required this.loginUseCase, required this.tokenStorage})
+    : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
     on<AuthCheckRequested>(_onAuthCheckRequested);
+    on<LogoutRequested>(_onLogoutRequested);
+  }
+
+  Future<void> _onLogoutRequested(
+    LogoutRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    await tokenStorage.clearTokens();
+    emit(AuthUnauthenticated());
   }
 
   Future<void> _onAuthCheckRequested(

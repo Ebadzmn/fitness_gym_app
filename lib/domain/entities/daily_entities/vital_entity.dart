@@ -5,14 +5,14 @@ class VitalEntity extends Equatable {
   final String weightText;
   final String waterText;
   final String bodyTempText;
-  final String activityTimeText;
+  final String activityStepCount;
 
   const VitalEntity({
     required this.dateLabel,
     required this.weightText,
     required this.waterText,
     required this.bodyTempText,
-    required this.activityTimeText,
+    required this.activityStepCount,
   });
 
   VitalEntity copyWith({
@@ -20,16 +20,21 @@ class VitalEntity extends Equatable {
     String? weightText,
     String? waterText,
     String? bodyTempText,
-    String? activityTimeText,
+    String? activityStepCount,
   }) => VitalEntity(
-        dateLabel: dateLabel ?? this.dateLabel,
-        weightText: weightText ?? this.weightText,
-        waterText: waterText ?? this.waterText,
-        bodyTempText: bodyTempText ?? this.bodyTempText,
-        activityTimeText: activityTimeText ?? this.activityTimeText,
-      );
+    dateLabel: dateLabel ?? this.dateLabel,
+    weightText: weightText ?? this.weightText,
+    waterText: waterText ?? this.waterText,
+    bodyTempText: bodyTempText ?? this.bodyTempText,
+    activityStepCount: activityStepCount ?? this.activityStepCount,
+  );
 
   @override
-  List<Object?> get props => [dateLabel, weightText, waterText, bodyTempText, activityTimeText];
+  List<Object?> get props => [
+    dateLabel,
+    weightText,
+    waterText,
+    bodyTempText,
+    activityStepCount,
+  ];
 }
-

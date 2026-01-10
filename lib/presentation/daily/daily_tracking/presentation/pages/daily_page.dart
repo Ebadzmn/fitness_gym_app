@@ -12,6 +12,7 @@ import 'package:fitness_app/injection_container.dart' as di;
 import 'bloc/daily_bloc.dart';
 import 'bloc/daily_event.dart';
 import 'bloc/daily_state.dart';
+import 'package:fitness_app/core/constants/daily_tracking_constants.dart';
 
 class DailyPage extends StatelessWidget {
   const DailyPage({super.key});
@@ -94,7 +95,7 @@ class _DailyView extends StatelessWidget {
                   SizedBox(height: 12.h),
                   _trainingCard(context, data),
                   SizedBox(height: 12.h),
-                  _activityTimeCard(context, data.vital.activityTimeText),
+                  _activityTimeCard(context, data.vital.activityStepCount),
                   SizedBox(height: 20.h),
                   _nutritionCard(context, data),
                   SizedBox(height: 12.h),
@@ -765,7 +766,11 @@ class _DailyView extends StatelessWidget {
                   child: _checkboxTile(
                     context,
                     'Placeholder',
-                    data.training.plans.contains('Placeholder'),
+                    data.training.plans.contains(
+                      DailyTrackingConstants.trainingPlanValues[0],
+                    ),
+                    valueToDispatch:
+                        DailyTrackingConstants.trainingPlanValues[0],
                   ),
                 ),
                 SizedBox(width: 12.w),
@@ -773,7 +778,11 @@ class _DailyView extends StatelessWidget {
                   child: _checkboxTile(
                     context,
                     'Push Fullbody',
-                    data.training.plans.contains('Push Fullbody'),
+                    data.training.plans.contains(
+                      DailyTrackingConstants.trainingPlanValues[1],
+                    ),
+                    valueToDispatch:
+                        DailyTrackingConstants.trainingPlanValues[1],
                   ),
                 ),
               ],
@@ -785,7 +794,11 @@ class _DailyView extends StatelessWidget {
                   child: _checkboxTile(
                     context,
                     'Leg Day Advanced',
-                    data.training.plans.contains('Leg Day Advanced'),
+                    data.training.plans.contains(
+                      DailyTrackingConstants.trainingPlanValues[2],
+                    ),
+                    valueToDispatch:
+                        DailyTrackingConstants.trainingPlanValues[2],
                   ),
                 ),
                 SizedBox(width: 12.w),
@@ -793,7 +806,11 @@ class _DailyView extends StatelessWidget {
                   child: _checkboxTile(
                     context,
                     'Training plan 1',
-                    data.training.plans.contains('Training plan 1'),
+                    data.training.plans.contains(
+                      DailyTrackingConstants.trainingPlanValues[3],
+                    ),
+                    valueToDispatch:
+                        DailyTrackingConstants.trainingPlanValues[3],
                   ),
                 ),
               ],
@@ -840,23 +857,13 @@ class _DailyView extends StatelessWidget {
   }
 
   Widget _cardioOptionsRow(BuildContext context, String selectedType) {
-    final opts = <String>[
-      'Walking (outdoor)',
-      'Walking (treadmill)',
-      'Stairmaster',
-      'Stepper',
-      'Cycling',
-      'Elliptical',
-      'Rowing',
-      'Swimming',
-      'Hiking',
-      'Other',
-    ];
+    final opts = DailyTrackingConstants.cardioTypeValues;
     return Wrap(
       spacing: 16.w,
       runSpacing: 16.h,
       children: opts.map((label) {
         final isSelected = selectedType == label;
+        final displayLabel = label[0] + label.substring(1).toLowerCase();
         return InkWell(
           onTap: () =>
               context.read<DailyBloc>().add(TrainingCardioTypeChanged(label)),
@@ -885,7 +892,7 @@ class _DailyView extends StatelessWidget {
               ),
               SizedBox(width: 8.w),
               Text(
-                label,
+                displayLabel,
                 style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 12.sp,
@@ -899,10 +906,17 @@ class _DailyView extends StatelessWidget {
     );
   }
 
-  Widget _checkboxTile(BuildContext context, String label, bool value) {
+  Widget _checkboxTile(
+    BuildContext context,
+    String label,
+    bool value, {
+    String? valueToDispatch,
+  }) {
+    final dispatchValue = valueToDispatch ?? label;
     return InkWell(
-      onTap: () =>
-          context.read<DailyBloc>().add(TrainingPlanToggled(label, !value)),
+      onTap: () => context.read<DailyBloc>().add(
+        TrainingPlanToggled(dispatchValue, !value),
+      ),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         decoration: BoxDecoration(
@@ -926,11 +940,7 @@ class _DailyView extends StatelessWidget {
                     : Colors.transparent,
               ),
               child: value
-                  ? Icon(
-                      Icons.check,
-                      size: 14.sp,
-                      color: Colors.white,
-                    )
+                  ? Icon(Icons.check, size: 14.sp, color: Colors.white)
                   : null,
             ),
             SizedBox(width: 8.w),
@@ -1028,13 +1038,14 @@ class _DailyView extends StatelessWidget {
             SizedBox(height: 12.h),
             TextFormField(
               controller: ctrl,
+              keyboardType: TextInputType.number,
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w400,
               ),
               decoration: InputDecoration(
-                hintText: '99',
+                hintText: '10000',
                 hintStyle: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 14.sp,
@@ -1056,7 +1067,7 @@ class _DailyView extends StatelessWidget {
                 ),
               ),
               onChanged: (v) => context.read<DailyBloc>().add(
-                VitalTextChanged('activityTimeText', v),
+                VitalTextChanged('activityStepCount', v),
               ),
             ),
           ],
@@ -1371,12 +1382,7 @@ class _DailyView extends StatelessWidget {
             DropdownTile(
               title: 'Cycle Phase?',
               value: data.women.cyclePhase,
-              options: const [
-                'Follicular',
-                'Ovulation',
-                'Luteal',
-                'Menstruation',
-              ],
+              options: DailyTrackingConstants.cyclePhaseValues,
               onChanged: (v) =>
                   context.read<DailyBloc>().add(WomenCyclePhaseChanged(v)),
             ),
@@ -1439,20 +1445,7 @@ class _DailyView extends StatelessWidget {
             DropdownMultiSelectTile(
               title: 'Symptoms',
               selected: data.women.symptoms,
-              options: const [
-                'Everything Fine',
-                'Cramps',
-                'Breast Tenderness',
-                'Headache',
-                'Acne',
-                'Lower Back Pain',
-                'Tiredness',
-                'Cravings',
-                'Sleepless',
-                'Abdominal Pain',
-                'Vaginal Itching',
-                'Vaginal Dryness',
-              ],
+              options: DailyTrackingConstants.womenSymptomsValues,
               onChanged: (s) =>
                   context.read<DailyBloc>().add(WomenSymptomsChanged(s)),
             ),
