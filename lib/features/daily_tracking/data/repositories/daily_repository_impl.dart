@@ -41,7 +41,7 @@ class DailyRepositoryImpl implements DailyRepository {
         weightText: '65.2 (kg)',
         waterText: '1.2 (Lit)',
         bodyTempText: '',
-        activityTimeText: '08:00',
+        activityStepCount: '10000',
       ),
       isSick: false,
       wellBeing: const WellBeingEntity(
@@ -59,7 +59,7 @@ class DailyRepositoryImpl implements DailyRepository {
             cardioCompleted: true,
             feedback: '',
             plans: <String>{},
-            cardioType: 'Walking',
+            cardioType: 'WALKING',
             duration: '30',
             intensity: 1,
           ),

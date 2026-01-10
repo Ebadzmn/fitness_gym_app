@@ -4,7 +4,6 @@ import 'package:fitness_app/core/config/assets_path.dart';
 import 'package:fitness_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:fitness_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:fitness_app/features/auth/presentation/bloc/auth_state.dart';
-import 'package:fitness_app/injection_container.dart' as di;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -15,10 +14,7 @@ class SplashPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => di.sl<AuthBloc>(),
-      child: const SplashView(),
-    );
+    return const SplashView();
   }
 }
 
@@ -30,14 +26,13 @@ class SplashView extends StatefulWidget {
 }
 
 class _SplashViewState extends State<SplashView> {
-
   @override
   void initState() {
     super.initState();
     // 2 seconds delay for splash animation or branding
     Timer(const Duration(seconds: 2), () {
-       // After delay, trigger auth check
-       context.read<AuthBloc>().add(AuthCheckRequested());
+      // After delay, trigger auth check
+      context.read<AuthBloc>().add(AuthCheckRequested());
     });
   }
 

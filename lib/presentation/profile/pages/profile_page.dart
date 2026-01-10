@@ -9,6 +9,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fitness_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:fitness_app/features/auth/presentation/bloc/auth_event.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -44,6 +46,15 @@ class _ProfileView extends StatelessWidget {
             ),
           ),
         ),
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(right: 16.w),
+            child: IconButton(
+              icon: const Icon(Icons.logout, color: Colors.white),
+              onPressed: () => _showLogoutDialog(context),
+            ),
+          ),
+        ],
       ),
       body: BlocBuilder<ProfileBloc, ProfileState>(
         builder: (context, state) {
@@ -459,6 +470,41 @@ class _ProfileView extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF13131F),
+        title: Text('Logout', style: GoogleFonts.poppins(color: Colors.white)),
+        content: Text(
+          'Are you sure you want to logout?',
+          style: GoogleFonts.poppins(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.poppins(color: Colors.white),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<AuthBloc>().add(LogoutRequested());
+              context.go(
+                '/login',
+              ); // Force navigate as a fallback or if listener is missing
+            },
+            child: Text(
+              'Logout',
+              style: GoogleFonts.poppins(color: Colors.redAccent),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
