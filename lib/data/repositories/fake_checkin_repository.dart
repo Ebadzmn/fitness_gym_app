@@ -69,7 +69,7 @@ class FakeCheckInRepository {
     formData['training[trainingCompleted]'] = data.training.trainingCompleted;
     formData['trainingFeedback'] = data.training.feedback;
 
-    formData['dailyNote'] = data.dailyNotes;
+    formData['athleteNote'] = data.athleteNote;
 
     // Files
     if (data.uploads.videoPath != null && data.uploads.videoPath!.isNotEmpty) {
@@ -150,7 +150,7 @@ class FakeCheckInRepository {
               picturesUploaded: true,
               videoUploaded: false,
             ),
-            dailyNotes: 'Sample notes for week starting $weekId',
+            athleteNote: 'Sample notes for week starting $weekId',
           ),
         );
       }

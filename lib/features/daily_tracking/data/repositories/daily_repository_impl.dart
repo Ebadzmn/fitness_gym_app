@@ -29,11 +29,12 @@ class DailyRepositoryImpl implements DailyRepository {
         persistedTraining = TrainingEntity.fromMap(jsonDecode(trainingJson));
       } catch (_) {}
     }
-    
+
     // Auto-generate today's date
     final now = DateTime.now();
-    final dateLabel = '${now.year}.${now.month.toString().padLeft(2, '0')}.${now.day.toString().padLeft(2, '0')}';
-    
+    final dateLabel =
+        '${now.year}.${now.month.toString().padLeft(2, '0')}.${now.day.toString().padLeft(2, '0')}';
+
     return DailyTrackingEntity(
       vital: VitalEntity(
         dateLabel: dateLabel,
@@ -44,14 +45,15 @@ class DailyRepositoryImpl implements DailyRepository {
       ),
       isSick: false,
       wellBeing: const WellBeingEntity(
-        energy: 6,
-        stress: 6,
-        muscleSoreness: 6,
-        mood: 6,
-        motivation: 6,
+        energy: 1,
+        stress: 1,
+        muscleSoreness: 1,
+        mood: 1,
+        motivation: 1,
       ),
       sleep: const SleepEntity(durationText: '08 : 45 (Minutes)', quality: 8),
-      training: persistedTraining ??
+      training:
+          persistedTraining ??
           const TrainingEntity(
             trainingCompleted: true,
             cardioCompleted: true,
@@ -59,12 +61,12 @@ class DailyRepositoryImpl implements DailyRepository {
             plans: <String>{},
             cardioType: 'Walking',
             duration: '30',
-            intensity: 6,
+            intensity: 1,
           ),
       nutrition: const NutritionEntity(
-        dietLevel: 6,
-        digestion: 6,
-        hunger: 6,
+        dietLevel: 1,
+        digestion: 1,
+        hunger: 1,
         caloriesText: '',
         carbsText: '',
         proteinText: '',
@@ -75,8 +77,8 @@ class DailyRepositoryImpl implements DailyRepository {
       women: const WomenEntity(
         cyclePhase: null,
         cycleDayLabel: 'Monday',
-        pms: 6,
-        cramps: 6,
+        pms: 1,
+        cramps: 1,
         symptoms: <String>{},
       ),
       pedHealth: const PedHealthEntity(
@@ -95,11 +97,14 @@ class DailyRepositoryImpl implements DailyRepository {
   Future<void> save(DailyTrackingEntity entity) async {
     // Save to API
     await remoteDataSource.submitDailyTracking(entity);
-    
+
     // Also keeping local persistence for training as per original code logic if desired,
     // but primary goal is API. I'll keep local save as backup/cache if needed or just do API.
     // The prompt specifically asked for API integration.
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('daily_training_last', jsonEncode(entity.training.toMap()));
+    await prefs.setString(
+      'daily_training_last',
+      jsonEncode(entity.training.toMap()),
+    );
   }
 }

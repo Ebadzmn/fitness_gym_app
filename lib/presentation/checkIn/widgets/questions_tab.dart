@@ -5,7 +5,7 @@ import 'package:fitness_app/presentation/daily/daily_tracking/presentation/pages
     hide
         NutritionTextChanged,
         WellBeingChanged,
-        DailyNotesChanged,
+        DailyNotesChanged, // This might still be needed if DailyTracking still uses it, but CheckIn now uses AthleteNoteChanged
         TrainingToggleChanged;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -252,7 +252,7 @@ class QuestionsTab extends StatelessWidget {
         final feedbackCtrl = TextEditingController(
           text: data.training.feedback,
         );
-        final dailyNotesCtrl = TextEditingController(text: data.dailyNotes);
+        final athleteNoteCtrl = TextEditingController(text: data.athleteNote);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -529,7 +529,7 @@ class QuestionsTab extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Daily Notes',
+                    'Athlete Note',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -538,10 +538,10 @@ class QuestionsTab extends StatelessWidget {
                   ),
                   SizedBox(height: 8.h),
                   _textArea(
-                    dailyNotesCtrl,
+                    athleteNoteCtrl,
                     hint: 'Type...',
                     onChanged: (v) =>
-                        context.read<CheckInBloc>().add(DailyNotesChanged(v)),
+                        context.read<CheckInBloc>().add(AthleteNoteChanged(v)),
                   ),
                 ],
               ),

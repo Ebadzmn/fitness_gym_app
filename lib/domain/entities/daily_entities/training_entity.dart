@@ -16,7 +16,7 @@ class TrainingEntity extends Equatable {
     required this.plans,
     required this.cardioType,
     required this.duration,
-    this.intensity = 6,
+    this.intensity = 1,
   });
 
   TrainingEntity copyWith({
@@ -28,34 +28,42 @@ class TrainingEntity extends Equatable {
     String? duration,
     double? intensity,
   }) => TrainingEntity(
-        trainingCompleted: trainingCompleted ?? this.trainingCompleted,
-        cardioCompleted: cardioCompleted ?? this.cardioCompleted,
-        feedback: feedback ?? this.feedback,
-        plans: plans ?? this.plans,
-        cardioType: cardioType ?? this.cardioType,
-        duration: duration ?? this.duration,
-        intensity: intensity ?? this.intensity,
-      );
+    trainingCompleted: trainingCompleted ?? this.trainingCompleted,
+    cardioCompleted: cardioCompleted ?? this.cardioCompleted,
+    feedback: feedback ?? this.feedback,
+    plans: plans ?? this.plans,
+    cardioType: cardioType ?? this.cardioType,
+    duration: duration ?? this.duration,
+    intensity: intensity ?? this.intensity,
+  );
 
   @override
-  List<Object?> get props => [trainingCompleted, cardioCompleted, feedback, plans, cardioType, duration, intensity];
+  List<Object?> get props => [
+    trainingCompleted,
+    cardioCompleted,
+    feedback,
+    plans,
+    cardioType,
+    duration,
+    intensity,
+  ];
 
   Map<String, dynamic> toMap() => {
-        'trainingCompleted': trainingCompleted,
-        'cardioCompleted': cardioCompleted,
-        'feedback': feedback,
-        'plans': plans.toList(),
-        'cardioType': cardioType,
-        'duration': duration,
-        'intensity': intensity,
-      };
+    'trainingCompleted': trainingCompleted,
+    'cardioCompleted': cardioCompleted,
+    'feedback': feedback,
+    'plans': plans.toList(),
+    'cardioType': cardioType,
+    'duration': duration,
+    'intensity': intensity,
+  };
   factory TrainingEntity.fromMap(Map<String, dynamic> map) => TrainingEntity(
-        trainingCompleted: map['trainingCompleted'] ?? true,
-        cardioCompleted: map['cardioCompleted'] ?? true,
-        feedback: map['feedback'] ?? '',
-        plans: Set<String>.from(map['plans'] ?? const <String>[]),
-        cardioType: map['cardioType'] ?? 'Walking',
-        duration: map['duration'] ?? '30 min',
-        intensity: (map['intensity'] ?? 6).toDouble(),
-      );
+    trainingCompleted: map['trainingCompleted'] ?? true,
+    cardioCompleted: map['cardioCompleted'] ?? true,
+    feedback: map['feedback'] ?? '',
+    plans: Set<String>.from(map['plans'] ?? const <String>[]),
+    cardioType: map['cardioType'] ?? 'Walking',
+    duration: map['duration'] ?? '30 min',
+    intensity: (map['intensity'] ?? 1).toDouble(),
+  );
 }
