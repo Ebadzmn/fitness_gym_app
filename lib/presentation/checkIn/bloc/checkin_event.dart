@@ -92,9 +92,9 @@ class TrainingTextChanged extends CheckInEvent {
   List<Object?> get props => [field, value];
 }
 
-class DailyNotesChanged extends CheckInEvent {
+class AthleteNoteChanged extends CheckInEvent {
   final String value;
-  const DailyNotesChanged(this.value);
+  const AthleteNoteChanged(this.value);
   @override
   List<Object?> get props => [value];
 }

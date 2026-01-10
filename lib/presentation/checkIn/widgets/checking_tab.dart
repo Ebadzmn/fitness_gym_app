@@ -273,7 +273,7 @@ class CheckingTab extends StatelessWidget {
         final feedbackCtrl = TextEditingController(
           text: data.training.feedback,
         );
-        final dailyNotesCtrl = TextEditingController(text: data.dailyNotes);
+        final athleteNoteCtrl = TextEditingController(text: data.athleteNote);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -735,7 +735,7 @@ class CheckingTab extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Daily Notes',
+                    'Athlete Note',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -744,10 +744,10 @@ class CheckingTab extends StatelessWidget {
                   ),
                   SizedBox(height: 8.h),
                   _textArea(
-                    dailyNotesCtrl,
+                    athleteNoteCtrl,
                     hint: 'Type...',
                     onChanged: (v) =>
-                        context.read<CheckInBloc>().add(DailyNotesChanged(v)),
+                        context.read<CheckInBloc>().add(AthleteNoteChanged(v)),
                   ),
                 ],
               ),

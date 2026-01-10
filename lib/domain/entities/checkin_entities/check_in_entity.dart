@@ -9,7 +9,7 @@ class CheckInEntity extends Equatable {
   final CheckInNutrition nutrition;
   final CheckInTraining training;
   final CheckInUploads uploads;
-  final String dailyNotes;
+  final String athleteNote;
   final String? weekId;
   final double currentWeight;
   final double averageWeight;
@@ -22,7 +22,7 @@ class CheckInEntity extends Equatable {
     this.nutrition = const CheckInNutrition(),
     this.training = const CheckInTraining(),
     this.uploads = const CheckInUploads(),
-    this.dailyNotes = '',
+    this.athleteNote = '',
     this.weekId,
     this.currentWeight = 0,
     this.averageWeight = 0,
@@ -36,7 +36,7 @@ class CheckInEntity extends Equatable {
     CheckInNutrition? nutrition,
     CheckInTraining? training,
     CheckInUploads? uploads,
-    String? dailyNotes,
+    String? athleteNote,
     String? weekId,
     double? currentWeight,
     double? averageWeight,
@@ -49,7 +49,7 @@ class CheckInEntity extends Equatable {
       nutrition: nutrition ?? this.nutrition,
       training: training ?? this.training,
       uploads: uploads ?? this.uploads,
-      dailyNotes: dailyNotes ?? this.dailyNotes,
+      athleteNote: athleteNote ?? this.athleteNote,
       weekId: weekId ?? this.weekId,
       currentWeight: currentWeight ?? this.currentWeight,
       averageWeight: averageWeight ?? this.averageWeight,
@@ -64,7 +64,7 @@ class CheckInEntity extends Equatable {
     'nutrition': nutrition.toMap(),
     'training': training.toMap(),
     'uploads': uploads.toMap(),
-    'dailyNotes': dailyNotes,
+    'athleteNote': athleteNote,
     'weekId': weekId,
     'currentWeight': currentWeight,
     'averageWeight': averageWeight,
@@ -85,7 +85,7 @@ class CheckInEntity extends Equatable {
     uploads: CheckInUploads.fromMap(
       Map<String, dynamic>.from(map['uploads'] ?? {}),
     ),
-    dailyNotes: map['dailyNotes'] ?? '',
+    athleteNote: map['athleteNote'] ?? '',
     weekId: map['weekId'],
     currentWeight: (map['currentWeight'] ?? 0).toDouble(),
     averageWeight: (map['averageWeight'] ?? 0).toDouble(),
@@ -103,7 +103,7 @@ class CheckInEntity extends Equatable {
     nutrition,
     training,
     uploads,
-    dailyNotes,
+    athleteNote,
     weekId,
     currentWeight,
     averageWeight,
@@ -117,10 +117,10 @@ class CheckInWellBeing extends Equatable {
   final double sleep;
 
   const CheckInWellBeing({
-    this.energy = 6,
-    this.stress = 6,
-    this.mood = 6,
-    this.sleep = 6,
+    this.energy = 1,
+    this.stress = 1,
+    this.mood = 1,
+    this.sleep = 1,
   });
 
   CheckInWellBeing copyWith({
@@ -143,10 +143,10 @@ class CheckInWellBeing extends Equatable {
   };
   factory CheckInWellBeing.fromMap(Map<String, dynamic> map) =>
       CheckInWellBeing(
-        energy: (map['energy'] ?? 6).toDouble(),
-        stress: (map['stress'] ?? 6).toDouble(),
-        mood: (map['mood'] ?? 6).toDouble(),
-        sleep: (map['sleep'] ?? 6).toDouble(),
+        energy: (map['energy'] ?? 1).toDouble(),
+        stress: (map['stress'] ?? 1).toDouble(),
+        mood: (map['mood'] ?? 1).toDouble(),
+        sleep: (map['sleep'] ?? 1).toDouble(),
       );
 
   @override
@@ -159,8 +159,8 @@ class CheckInNutrition extends Equatable {
   final String challenge;
 
   const CheckInNutrition({
-    this.dietLevel = 6,
-    this.digestion = 6,
+    this.dietLevel = 1,
+    this.digestion = 1,
     this.challenge = '',
   });
 
@@ -181,8 +181,8 @@ class CheckInNutrition extends Equatable {
   };
   factory CheckInNutrition.fromMap(Map<String, dynamic> map) =>
       CheckInNutrition(
-        dietLevel: (map['dietLevel'] ?? 6).toDouble(),
-        digestion: (map['digestion'] ?? 6).toDouble(),
+        dietLevel: (map['dietLevel'] ?? 1).toDouble(),
+        digestion: (map['digestion'] ?? 1).toDouble(),
         challenge: map['challenge'] ?? '',
       );
 
@@ -200,8 +200,8 @@ class CheckInTraining extends Equatable {
   final String cardioDuration;
 
   const CheckInTraining({
-    this.feelStrength = 6,
-    this.pumps = 6,
+    this.feelStrength = 1,
+    this.pumps = 1,
     this.trainingCompleted = true,
     this.cardioCompleted = true,
     this.feedback = '',
@@ -237,8 +237,8 @@ class CheckInTraining extends Equatable {
     'cardioDuration': cardioDuration,
   };
   factory CheckInTraining.fromMap(Map<String, dynamic> map) => CheckInTraining(
-    feelStrength: (map['feelStrength'] ?? 6).toDouble(),
-    pumps: (map['pumps'] ?? 6).toDouble(),
+    feelStrength: (map['feelStrength'] ?? 1).toDouble(),
+    pumps: (map['pumps'] ?? 1).toDouble(),
     trainingCompleted: map['trainingCompleted'] ?? true,
     cardioCompleted: map['cardioCompleted'] ?? true,
     feedback: map['feedback'] ?? '',

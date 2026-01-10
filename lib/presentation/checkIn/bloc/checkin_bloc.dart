@@ -35,7 +35,7 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     on<TrainingNumberChanged>(_onTrainingNumberChanged);
     on<TrainingToggleChanged>(_onTrainingToggleChanged);
     on<TrainingTextChanged>(_onTrainingTextChanged);
-    on<DailyNotesChanged>(_onDailyNotesChanged);
+    on<AthleteNoteChanged>(_onAthleteNoteChanged);
     on<SubmitPressed>(_onSubmitPressed);
     on<CheckInHistoryPrev>(_onHistoryPrev);
     on<CheckInHistoryNext>(_onHistoryNext);
@@ -245,13 +245,13 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     emit(state.copyWith(data: d.copyWith(training: updated)));
   }
 
-  void _onDailyNotesChanged(
-    DailyNotesChanged event,
+  void _onAthleteNoteChanged(
+    AthleteNoteChanged event,
     Emitter<CheckInState> emit,
   ) {
     final d = state.data;
     if (d == null) return;
-    emit(state.copyWith(data: d.copyWith(dailyNotes: event.value)));
+    emit(state.copyWith(data: d.copyWith(athleteNote: event.value)));
   }
 
   Future<void> _onSubmitPressed(
