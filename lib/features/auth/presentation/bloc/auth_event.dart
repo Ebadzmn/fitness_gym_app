@@ -20,3 +20,22 @@ class LoginRequested extends AuthEvent {
 class AuthCheckRequested extends AuthEvent {}
 
 class LogoutRequested extends AuthEvent {}
+
+class ForgetPasswordRequested extends AuthEvent {
+  final String email;
+
+  const ForgetPasswordRequested({required this.email});
+
+  @override
+  List<Object> get props => [email];
+}
+
+class VerifyOtpRequested extends AuthEvent {
+  final String email;
+  final String otp;
+
+  const VerifyOtpRequested({required this.email, required this.otp});
+
+  @override
+  List<Object> get props => [email, otp];
+}

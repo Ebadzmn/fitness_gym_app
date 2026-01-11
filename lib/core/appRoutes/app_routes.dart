@@ -101,11 +101,14 @@ final GoRouter AppRouter = GoRouter(
 
     GoRoute(
       path: AppRoutes.otpPages,
-      pageBuilder: (context, state) => AppRoutes.fadeTransitionPage(
-        context: context,
-        state: state,
-        child: const OtpPages(),
-      ),
+      pageBuilder: (context, state) {
+        final email = state.extra as String? ?? '';
+        return AppRoutes.fadeTransitionPage(
+          context: context,
+          state: state,
+          child: OtpPages(email: email),
+        );
+      },
     ),
 
     GoRoute(

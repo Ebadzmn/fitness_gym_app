@@ -44,7 +44,7 @@ class LoginPage extends StatelessWidget {
                   SizedBox(height: 70.h),
 
                   Text(
-                    'Wolf Wind',
+                    'Wolves Win.',
                     style: AppTextStyle.authHeading1,
                     textAlign: TextAlign.center,
                   ),

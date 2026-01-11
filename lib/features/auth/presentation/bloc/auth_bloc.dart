@@ -1,18 +1,56 @@
 import 'package:fitness_app/core/storage/token_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/login_usecase.dart';
+import '../../domain/usecases/forget_password_usecase.dart';
+import '../../domain/usecases/verify_otp_usecase.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUseCase loginUseCase;
+  final ForgetPasswordUseCase forgetPasswordUseCase;
+  final VerifyOtpUseCase verifyOtpUseCase;
   final TokenStorage tokenStorage;
 
-  AuthBloc({required this.loginUseCase, required this.tokenStorage})
-    : super(AuthInitial()) {
+  AuthBloc({
+    required this.loginUseCase,
+    required this.forgetPasswordUseCase,
+    required this.verifyOtpUseCase,
+    required this.tokenStorage,
+  }) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<LogoutRequested>(_onLogoutRequested);
+    on<ForgetPasswordRequested>(_onForgetPasswordRequested);
+    on<VerifyOtpRequested>(_onVerifyOtpRequested);
+  }
+
+  Future<void> _onVerifyOtpRequested(
+    VerifyOtpRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    try {
+      await verifyOtpUseCase(
+        VerifyOtpParams(email: event.email, otp: event.otp),
+      );
+      emit(OtpVerificationSuccess());
+    } catch (e) {
+      emit(AuthFailure(e.toString()));
+    }
+  }
+
+  Future<void> _onForgetPasswordRequested(
+    ForgetPasswordRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    try {
+      await forgetPasswordUseCase(ForgetPasswordParams(email: event.email));
+      emit(ForgetPasswordSuccess());
+    } catch (e) {
+      emit(AuthFailure(e.toString()));
+    }
   }
 
   Future<void> _onLogoutRequested(

@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final Color backgroundColor;
 
   const CustomButton({
     super.key,
     required this.text,
-    required this.onPressed,
-    this.backgroundColor = const Color(0xFF1F2050), // ডিফল্ট বাটন কালার (ছবির মতো)
+    this.onPressed,
+    this.backgroundColor = const Color(
+      0xFF1F2050,
+    ), // ডিফল্ট বাটন কালার (ছবির মতো)
   });
 
   @override
@@ -22,7 +24,9 @@ class CustomButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor, // ব্যাকগ্রাউন্ড কালার
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12), // বর্ডার রাউন্ড (Text Field এর সাথে মিল রেখে)
+            borderRadius: BorderRadius.circular(
+              12,
+            ), // বর্ডার রাউন্ড (Text Field এর সাথে মিল রেখে)
           ),
           elevation: 2, // হালকা শ্যাডো
         ),

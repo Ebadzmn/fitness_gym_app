@@ -10,6 +10,8 @@ import 'features/auth/data/datasources/auth_remote_datasource.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/domain/usecases/login_usecase.dart';
+import 'features/auth/domain/usecases/forget_password_usecase.dart';
+import 'features/auth/domain/usecases/verify_otp_usecase.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/daily_tracking/data/datasources/daily_tracking_remote_datasource.dart';
 import 'features/daily_tracking/data/repositories/daily_repository_impl.dart';
@@ -79,10 +81,19 @@ Future<void> init() async {
 
   //! Features - Auth
   // Bloc
-  sl.registerFactory(() => AuthBloc(loginUseCase: sl(), tokenStorage: sl()));
+  sl.registerFactory(
+    () => AuthBloc(
+      loginUseCase: sl(),
+      forgetPasswordUseCase: sl(),
+      verifyOtpUseCase: sl(),
+      tokenStorage: sl(),
+    ),
+  );
 
   // Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
+  sl.registerLazySingleton(() => ForgetPasswordUseCase(sl()));
+  sl.registerLazySingleton(() => VerifyOtpUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(
