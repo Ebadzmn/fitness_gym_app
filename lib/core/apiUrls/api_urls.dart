@@ -9,4 +9,7 @@ class ApiUrls {
   static const String exerciseCoachAthlete = '$baseUrl/exercise/coach/athlete';
   static const String trainingSplit = '$baseUrl/training/splite';
   static const String trackMeal = '$baseUrl/track/meal';
+  static const String forgetPasswordUrl =
+      '$baseUrl/auth/athlete/forget-password';
+  static const String verifyEmailUrl = '$baseUrl/auth/athlete/verify-email';
 }

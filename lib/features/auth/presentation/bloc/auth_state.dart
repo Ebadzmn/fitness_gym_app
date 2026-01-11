@@ -3,7 +3,7 @@ import '../../domain/entities/auth_entity.dart';
 
 abstract class AuthState extends Equatable {
   const AuthState();
-  
+
   @override
   List<Object> get props => [];
 }
@@ -33,3 +33,7 @@ class AuthFailure extends AuthState {
 class AuthAuthenticated extends AuthState {}
 
 class AuthUnauthenticated extends AuthState {}
+
+class ForgetPasswordSuccess extends AuthState {}
+
+class OtpVerificationSuccess extends AuthState {}

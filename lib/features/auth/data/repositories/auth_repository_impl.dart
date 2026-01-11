@@ -16,4 +16,22 @@ class AuthRepositoryImpl implements AuthRepository {
       rethrow;
     }
   }
+
+  @override
+  Future<void> forgetPassword(String email) async {
+    try {
+      await remoteDataSource.forgetPassword(email);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> verifyOtp(String email, String otp) async {
+    try {
+      await remoteDataSource.verifyOtp(email, otp);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
