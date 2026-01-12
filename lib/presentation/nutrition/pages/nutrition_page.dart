@@ -3,14 +3,11 @@ import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_dashboard_entity.dart';
 import 'package:fitness_app/injection_container.dart';
-import 'package:fitness_app/features/nutrition/domain/usecases/get_track_meals_usecase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
-import 'package:fitness_app/features/nutrition/data/repositories/fake_nutrition_repository.dart';
-import 'package:fitness_app/features/nutrition/domain/usecases/get_nutrition_initial_usecase.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_bloc/nutrition_bloc.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_bloc/nutrition_event.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_bloc/nutrition_state.dart';
@@ -22,20 +19,9 @@ class NutritionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (_) => FakeNutritionRepository(),
-      child: Builder(
-        builder: (ctx) {
-          final repo = RepositoryProvider.of<FakeNutritionRepository>(ctx);
-          return BlocProvider(
-            create: (_) => NutritionBloc(
-              getInitial: GetNutritionInitialUseCase(repo),
-              getTrackMeals: sl<GetTrackMealsUseCase>(),
-            )..add(const NutritionInitRequested()),
-            child: const _NutritionView(),
-          );
-        },
-      ),
+    return BlocProvider(
+      create: (_) => sl<NutritionBloc>()..add(const NutritionInitRequested()),
+      child: const _NutritionView(),
     );
   }
 }

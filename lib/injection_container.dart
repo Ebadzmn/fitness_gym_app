@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/apiUrls/api_urls.dart';
 import 'core/network/api_client.dart';
 import 'core/storage/token_storage.dart';
+import 'core/storage/nutrition_storage.dart';
 import 'core/session/session_manager.dart';
 import 'features/auth/data/datasources/auth_remote_datasource.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
@@ -42,14 +43,18 @@ import 'features/training/presentation/pages/bloc/training_spilt2/training_split
 import 'features/nutrition/data/datasources/nutrition_remote_data_source.dart';
 import 'features/nutrition/data/repositories/nutrition_repository_impl.dart';
 import 'features/nutrition/data/repositories/nutrition_repository.dart';
+import 'features/nutrition/data/repositories/fake_nutrition_repository.dart';
 import 'features/nutrition/domain/usecases/get_nutrition_plan_usecase.dart';
+import 'features/nutrition/domain/usecases/get_nutrition_initial_usecase.dart';
 import 'features/nutrition/presentation/pages/bloc/nutrition_plan/nutrition_plan_bloc.dart';
+import 'features/nutrition/presentation/pages/bloc/nutrition_bloc/nutrition_bloc.dart';
 import 'features/nutrition/presentation/pages/bloc/track_meals/track_meals_bloc.dart';
 import 'features/nutrition/domain/usecases/get_track_meals_usecase.dart';
 import 'features/nutrition/domain/usecases/save_track_meal_usecase.dart';
 import 'features/nutrition/domain/usecases/delete_tracked_food_item_usecase.dart';
 import 'features/nutrition/domain/usecases/add_food_item_to_meal_usecase.dart';
 import 'features/nutrition/domain/usecases/get_nutrition_statistics_usecase.dart';
+import 'features/nutrition/domain/usecases/sync_nutrition_data_usecase.dart';
 import 'features/nutrition/presentation/pages/bloc/nutrition_statistics/nutrition_statistics_bloc.dart';
 import 'package:fitness_app/features/nutrition/domain/usecases/get_supplements_usecase.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_supplement/nutrition_supplement_bloc.dart';
@@ -69,6 +74,7 @@ Future<void> init() async {
 
   //! Core
   sl.registerLazySingleton<TokenStorage>(() => TokenStorage(sl()));
+  sl.registerLazySingleton<NutritionStorage>(() => NutritionStorage(sl()));
   sl.registerLazySingleton<SessionManager>(
     () => SessionManager(tokenStorage: sl()),
   );
@@ -87,6 +93,7 @@ Future<void> init() async {
       forgetPasswordUseCase: sl(),
       verifyOtpUseCase: sl(),
       tokenStorage: sl(),
+      syncNutritionDataUseCase: sl(),
     ),
   );
 
@@ -176,6 +183,15 @@ Future<void> init() async {
 
   // Nutrition Feature
   sl.registerFactory(() => NutritionPlanBloc(getPlan: sl()));
+  sl.registerFactory(
+    () => NutritionBloc(
+      getProfile: sl(),
+      getPlan: sl(),
+      getTrackMeals: sl(),
+      nutritionStorage: sl(),
+    ),
+  );
+  sl.registerLazySingleton(() => GetNutritionInitialUseCase(sl()));
   sl.registerLazySingleton(
     () => GetNutritionPlanUseCase(sl()),
   ); // Changed from GetNutritionInitialUseCase to match original
@@ -186,6 +202,7 @@ Future<void> init() async {
   sl.registerLazySingleton<NutritionRemoteDataSource>(
     () => NutritionRemoteDataSourceImpl(apiClient: sl()),
   );
+  sl.registerLazySingleton(() => FakeNutritionRepository());
 
   // Track Meals Feature
   sl.registerFactory(
@@ -207,6 +224,15 @@ Future<void> init() async {
   // Nutrition Statistics
   sl.registerFactory(() => NutritionStatisticsBloc(getStatistics: sl()));
   sl.registerLazySingleton(() => GetNutritionStatisticsUseCase(sl()));
+
+  sl.registerLazySingleton(
+    () => SyncNutritionDataUseCase(
+      getProfileUseCase: sl(),
+      getNutritionPlanUseCase: sl(),
+      getTrackMealsUseCase: sl(),
+      nutritionStorage: sl(),
+    ),
+  );
 
   // Feature - Profile
   sl.registerFactory(() => ProfileBloc(getProfile: sl()));

@@ -1,4 +1,5 @@
 import 'package:fitness_app/core/storage/token_storage.dart';
+import 'package:fitness_app/features/nutrition/domain/usecases/sync_nutrition_data_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/forget_password_usecase.dart';
@@ -11,12 +12,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final ForgetPasswordUseCase forgetPasswordUseCase;
   final VerifyOtpUseCase verifyOtpUseCase;
   final TokenStorage tokenStorage;
+  final SyncNutritionDataUseCase syncNutritionDataUseCase;
 
   AuthBloc({
     required this.loginUseCase,
     required this.forgetPasswordUseCase,
     required this.verifyOtpUseCase,
     required this.tokenStorage,
+    required this.syncNutritionDataUseCase,
   }) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
     on<AuthCheckRequested>(_onAuthCheckRequested);
@@ -68,6 +71,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final token = tokenStorage.getAccessToken();
     if (token != null && token.isNotEmpty) {
       emit(AuthAuthenticated());
+      // Trigger sync if authenticated
+      syncNutritionDataUseCase();
     } else {
       emit(AuthUnauthenticated());
     }
@@ -83,6 +88,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         LoginParams(email: event.email, password: event.password),
       );
       await tokenStorage.saveAccessToken(result.token);
+
+      // Trigger sync after successful login
+      syncNutritionDataUseCase();
+
       emit(AuthSuccess(result));
     } catch (e) {
       emit(AuthFailure(e.toString()));
