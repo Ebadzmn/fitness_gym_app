@@ -3,6 +3,7 @@ import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:fitness_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:fitness_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
 import 'package:fitness_app/presentation/auth/widgets/customButton.dart';
 import 'package:fitness_app/presentation/auth/widgets/customTextField.dart';
 import 'package:fitness_app/presentation/auth/widgets/custom_Appbar.dart';
@@ -46,13 +47,14 @@ class _ForgetpassPageState extends State<ForgetpassPage> {
             children: [
               SizedBox(height: 10.h),
 
-              /// --- Reusable AppBar ---
-              const CustomAppBar(title: 'Forget Password'),
+              CustomAppBar(
+                title: AppLocalizations.of(context)!.forgetPasswordAppBarTitle,
+              ),
 
               SizedBox(height: 81.h),
 
               Text(
-                'Forgot Password',
+                AppLocalizations.of(context)!.forgetPasswordTitle,
                 style: AppTextStyle.authHeading1,
                 textAlign: TextAlign.center,
               ),
@@ -60,7 +62,7 @@ class _ForgetpassPageState extends State<ForgetpassPage> {
               SizedBox(height: 11.h),
 
               Text(
-                'Enter the email or phone your account and we’ll send a code to reset your password',
+                AppLocalizations.of(context)!.forgetPasswordDescription,
                 style: AppTextStyle.authHeading2,
                 textAlign: TextAlign.center,
               ),
@@ -68,8 +70,8 @@ class _ForgetpassPageState extends State<ForgetpassPage> {
               SizedBox(height: 24.h),
 
               CustomTextField(
-                label: 'Email',
-                hintText: 'Enter your email address',
+                label: AppLocalizations.of(context)!.forgetPasswordEmailLabel,
+                hintText: AppLocalizations.of(context)!.forgetPasswordEmailHint,
                 prefixIcon: Icons.email,
                 controller: _emailController,
               ),
@@ -79,20 +81,25 @@ class _ForgetpassPageState extends State<ForgetpassPage> {
               BlocBuilder<AuthBloc, AuthState>(
                 builder: (context, state) {
                   return CustomButton(
-                    text: state is AuthLoading ? 'Sending...' : 'Send Code',
+                    text: state is AuthLoading
+                        ? AppLocalizations.of(context)!.forgetPasswordSending
+                        : AppLocalizations.of(context)!.forgetPasswordSendCode,
                     onPressed: state is AuthLoading
                         ? null
                         : () {
                             if (_emailController.text.isNotEmpty) {
                               context.read<AuthBloc>().add(
-                                ForgetPasswordRequested(
-                                  email: _emailController.text,
-                                ),
-                              );
+                                    ForgetPasswordRequested(
+                                      email: _emailController.text,
+                                    ),
+                                  );
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Please enter your email'),
+                                SnackBar(
+                                  content: Text(
+                                    AppLocalizations.of(context)!
+                                        .forgetPasswordEmailRequired,
+                                  ),
                                 ),
                               );
                             }
