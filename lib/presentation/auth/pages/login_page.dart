@@ -1,8 +1,10 @@
 import 'package:fitness_app/core/appRoutes/app_routes.dart';
+import 'package:fitness_app/core/bloc/locale_cubit.dart';
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:fitness_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:fitness_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
 import 'package:fitness_app/presentation/auth/widgets/customButton.dart';
 import 'package:fitness_app/presentation/auth/widgets/customTextField.dart';
 import 'package:fitness_app/presentation/auth/widgets/custom_Appbar.dart';
@@ -38,13 +40,12 @@ class LoginPage extends StatelessWidget {
                 children: [
                   SizedBox(height: 10.h),
 
-                  /// --- Reusable AppBar ---
-                  const CustomAppBar(title: 'Login'),
+                  CustomAppBar(title: AppLocalizations.of(context)!.loginAppBarTitle),
 
                   SizedBox(height: 70.h),
 
                   Text(
-                    'Wolves Win.',
+                    AppLocalizations.of(context)!.loginHeadline,
                     style: AppTextStyle.authHeading1,
                     textAlign: TextAlign.center,
                   ),
@@ -55,8 +56,8 @@ class LoginPage extends StatelessWidget {
 
                   CustomTextField(
                     controller: emailController,
-                    hintText: 'Enter your email',
-                    label: 'Email',
+                    hintText: AppLocalizations.of(context)!.loginEmailHint,
+                    label: AppLocalizations.of(context)!.loginEmailLabel,
                     prefixIcon: Icons.email,
                   ),
 
@@ -64,8 +65,8 @@ class LoginPage extends StatelessWidget {
 
                   CustomTextField(
                     controller: passwordController,
-                    hintText: 'Enter your password',
-                    label: 'Password',
+                    hintText: AppLocalizations.of(context)!.loginPasswordHint,
+                    label: AppLocalizations.of(context)!.loginPasswordLabel,
                     prefixIcon: Icons.lock,
                     isPassword: true,
                     suffixIcon: const Icon(Icons.visibility),
@@ -81,7 +82,7 @@ class LoginPage extends StatelessWidget {
                           context.push(AppRoutes.forgetPassPage);
                         },
                         child: Text(
-                          'Forgot password?',
+                          AppLocalizations.of(context)!.loginForgotPassword,
                           style: AppTextStyle.authHeading3,
                           textAlign: TextAlign.right,
                         ),
@@ -93,22 +94,69 @@ class LoginPage extends StatelessWidget {
 
                   state is AuthLoading
                       ? const CircularProgressIndicator()
-                      : CustomButton(
-                          text: 'Login',
-                          onPressed: () {
-                            context.read<AuthBloc>().add(
-                              LoginRequested(
-                                email: emailController.text,
-                                password: passwordController.text,
-                              ),
-                            );
-                          },
+                      : Column(
+                          children: [
+                            CustomButton(
+                              text: AppLocalizations.of(context)!.loginButton,
+                              onPressed: () {
+                                context.read<AuthBloc>().add(
+                                      LoginRequested(
+                                        email: emailController.text,
+                                        password: passwordController.text,
+                                      ),
+                                    );
+                              },
+                            ),
+                            SizedBox(height: 16.h),
+                            _LanguageToggleButton(),
+                          ],
                         ),
                 ],
               ),
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _LanguageToggleButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context);
+    final isEnglish = locale.languageCode == 'en';
+    final label = isEnglish ? 'EN' : 'DE';
+
+    return Align(
+      alignment: Alignment.center,
+      child: TextButton(
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          foregroundColor: Colors.white.withOpacity(0.8),
+        ),
+        onPressed: () {
+          context.read<LocaleCubit>().toggleLocale();
+        },
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.language,
+              size: 18,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
