@@ -12,6 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
 
 class TrainingPlanPage extends StatelessWidget {
   const TrainingPlanPage({super.key});
@@ -32,10 +33,11 @@ class _TrainingPlanView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
-        title: Text('Training Plan', style: AppTextStyle.appbarHeading),
+        title: Text(localizations.trainingPlanAppBarTitle, style: AppTextStyle.appbarHeading),
         centerTitle: true,
         backgroundColor: AppColor.primaryColor,
         elevation: 0,
@@ -56,7 +58,12 @@ class _TrainingPlanView extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (state.status == TrainingPlanStatus.failure) {
-            return Center(child: Text('Error: ${state.errorMessage}'));
+            return Center(
+              child: Text(
+                '${localizations.dailyTrackingError}: ${state.errorMessage}',
+                style: GoogleFonts.poppins(color: Colors.white),
+              ),
+            );
           }
 
           return GridView.builder(

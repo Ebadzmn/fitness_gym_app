@@ -8,6 +8,7 @@ import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_plan/nutrition_plan_event.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_plan/nutrition_plan_state.dart';
 import '../../../../injection_container.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
 
 class NutritionPlanPage extends StatelessWidget {
   const NutritionPlanPage({super.key});
@@ -34,6 +35,7 @@ class _NutritionPlanViewState extends State<_NutritionPlanView> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFF0F0F15),
       appBar: AppBar(
@@ -51,7 +53,7 @@ class _NutritionPlanViewState extends State<_NutritionPlanView> {
           ),
         ),
         title: Text(
-          'Nutrition Plan',
+          localizations.nutritionMenuPlanTitle,
           style: GoogleFonts.poppins(
             color: Colors.white,
             fontSize: 18.sp,
@@ -288,19 +290,19 @@ class _NutritionPlanViewState extends State<_NutritionPlanView> {
         children: [
           macroItem(
             '${plan.proteinG}g',
-            'Protein',
+            AppLocalizations.of(context)!.dailyNutritionProteinLabel,
             const Color(0xFF2287DD),
             const Color(0xFF1B3043),
           ),
           macroItem(
             '${plan.carbsG}g',
-            'Carbs',
+            AppLocalizations.of(context)!.dailyNutritionCarbsLabel,
             const Color(0xFF43A047),
             const Color(0xFF224225),
           ),
           macroItem(
             '${plan.fatsG}g',
-            'Fats',
+            AppLocalizations.of(context)!.dailyNutritionFatsLabel,
             const Color(0xFFFF6D00),
             const Color(0xFF42291A),
           ),

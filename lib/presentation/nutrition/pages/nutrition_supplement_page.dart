@@ -10,6 +10,7 @@ import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_supplement/nutrition_supplement_state.dart';
 import 'package:fitness_app/injection_container.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
 
 class NutritionSupplementPage extends StatelessWidget {
   const NutritionSupplementPage({super.key});
@@ -30,10 +31,14 @@ class _NutritionSupplementView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
-        title: Text('Supplement', style: AppTextStyle.appbarHeading),
+        title: Text(
+          localizations.nutritionMenuSupplementTitle,
+          style: AppTextStyle.appbarHeading,
+        ),
         centerTitle: true,
         backgroundColor: AppColor.primaryColor,
         elevation: 0,
@@ -86,7 +91,7 @@ class _NutritionSupplementView extends StatelessWidget {
                           ),
                           SizedBox(width: 8.w),
                           Text(
-                            'Supplement',
+                            localizations.nutritionSupplementsHeaderTitle,
                             style: GoogleFonts.poppins(
                               color: Colors.white,
                               fontSize: 16.sp,
@@ -120,12 +125,27 @@ class _NutritionSupplementView extends StatelessWidget {
                                 ),
                               ),
                               children: [
-                                _headerCell('Name'),
-                                _headerCell('Dosage'),
-                                _headerCell('Time'),
-                                _headerCell('Purpose'),
-                                _headerCell('Brand'),
-                                _headerCell('Comment'),
+                                _headerCell(
+                                  localizations.nutritionSupplementsTableName,
+                                ),
+                                _headerCell(
+                                  localizations
+                                      .nutritionSupplementsTableDosage,
+                                ),
+                                _headerCell(
+                                  localizations.nutritionSupplementsTableTime,
+                                ),
+                                _headerCell(
+                                  localizations
+                                      .nutritionSupplementsTablePurpose,
+                                ),
+                                _headerCell(
+                                  localizations.nutritionSupplementsTableBrand,
+                                ),
+                                _headerCell(
+                                  localizations
+                                      .nutritionSupplementsTableComment,
+                                ),
                               ],
                             ),
                             ...supplements.map(
@@ -147,10 +167,10 @@ class _NutritionSupplementView extends StatelessWidget {
               ),
             );
           }
-          return const Center(
+          return Center(
             child: Text(
-              'No supplements found',
-              style: TextStyle(color: Colors.white),
+              localizations.nutritionSupplementsEmpty,
+              style: const TextStyle(color: Colors.white),
             ),
           );
         },

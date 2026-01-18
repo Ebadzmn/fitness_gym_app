@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:go_router/go_router.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/training_spilt2/training_split_bloc.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/training_spilt2/training_split_event.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/training_spilt2/training_split_state.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../../../injection_container.dart';
 
 class TrainingSplitPage extends StatelessWidget {
@@ -26,6 +27,7 @@ class _TrainingSplitView extends StatelessWidget {
   const _TrainingSplitView();
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
@@ -41,7 +43,7 @@ class _TrainingSplitView extends StatelessWidget {
             ),
           ),
         ),
-        title: Text('Training Split', style: AppTextStyle.appbarHeading),
+        title: Text(localizations.trainingSplitAppBarTitle, style: AppTextStyle.appbarHeading),
         centerTitle: true,
       ),
       body: BlocBuilder<TrainingSplitBloc, TrainingSplitState>(
@@ -51,14 +53,15 @@ class _TrainingSplitView extends StatelessWidget {
           }
           return SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
-            child: _splitTable(state.items),
+            child: _splitTable(context, state.items),
           );
         },
       ),
     );
   }
 
-  Widget _splitTable(List items) {
+  Widget _splitTable(BuildContext context, List items) {
+    final localizations = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: const Color(0xFF2E2E5D)),
@@ -79,7 +82,7 @@ class _TrainingSplitView extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      'Day',
+                      localizations.trainingSplitHeaderDay,
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         color: Colors.white,
@@ -90,7 +93,7 @@ class _TrainingSplitView extends StatelessWidget {
                   ),
                   Expanded(
                     child: Text(
-                      'Work',
+                      localizations.trainingSplitHeaderWork,
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         color: Colors.white,

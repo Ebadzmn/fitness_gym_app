@@ -131,6 +131,216 @@ abstract class AppLocalizations {
   /// **'Profile'**
   String get navProfile;
 
+  /// No description provided for @profileAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileAppBarTitle;
+
+  /// No description provided for @profileLogoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get profileLogoutTitle;
+
+  /// No description provided for @profileLogoutMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to logout?'**
+  String get profileLogoutMessage;
+
+  /// No description provided for @profileLogoutCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get profileLogoutCancel;
+
+  /// No description provided for @profileLogoutConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get profileLogoutConfirm;
+
+  /// No description provided for @profileSectionPersonalData.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Data'**
+  String get profileSectionPersonalData;
+
+  /// No description provided for @profileSectionAthleteInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Athlete Info'**
+  String get profileSectionAthleteInfo;
+
+  /// No description provided for @profileSectionAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get profileSectionAccount;
+
+  /// No description provided for @profileSectionShowInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Information'**
+  String get profileSectionShowInfo;
+
+  /// No description provided for @profileLabelFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get profileLabelFullName;
+
+  /// No description provided for @profileLabelEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get profileLabelEmail;
+
+  /// No description provided for @profileLabelGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get profileLabelGender;
+
+  /// No description provided for @profileLabelStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get profileLabelStatus;
+
+  /// No description provided for @profileLabelCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get profileLabelCategory;
+
+  /// No description provided for @profileLabelCheckInDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-in day'**
+  String get profileLabelCheckInDay;
+
+  /// No description provided for @profileLabelHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Height (cm)'**
+  String get profileLabelHeight;
+
+  /// No description provided for @profileLabelAge.
+  ///
+  /// In en, this message translates to:
+  /// **'Age'**
+  String get profileLabelAge;
+
+  /// No description provided for @profileLabelAgeYearsSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'Years'**
+  String get profileLabelAgeYearsSuffix;
+
+  /// No description provided for @profileLabelGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal'**
+  String get profileLabelGoal;
+
+  /// No description provided for @profileLabelTrainingDaySteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Training Day Steps'**
+  String get profileLabelTrainingDaySteps;
+
+  /// No description provided for @profileLabelRestDaySteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest day Steps'**
+  String get profileLabelRestDaySteps;
+
+  /// No description provided for @profileLabelStepsSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'Step'**
+  String get profileLabelStepsSuffix;
+
+  /// No description provided for @profileLabelRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get profileLabelRole;
+
+  /// No description provided for @profileLabelCoach.
+  ///
+  /// In en, this message translates to:
+  /// **'Coach'**
+  String get profileLabelCoach;
+
+  /// No description provided for @profileLabelMemberSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Member since'**
+  String get profileLabelMemberSince;
+
+  /// No description provided for @profileLabelShowName.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Name'**
+  String get profileLabelShowName;
+
+  /// No description provided for @profileLabelShowDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Date'**
+  String get profileLabelShowDate;
+
+  /// No description provided for @profileLabelLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get profileLabelLocation;
+
+  /// No description provided for @profileLabelDivision.
+  ///
+  /// In en, this message translates to:
+  /// **'Division'**
+  String get profileLabelDivision;
+
+  /// No description provided for @profileLabelCountdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Countdown'**
+  String get profileLabelCountdown;
+
+  /// No description provided for @profileLabelDaysSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get profileLabelDaysSuffix;
+
+  /// No description provided for @profileTimelineHeaderWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get profileTimelineHeaderWeek;
+
+  /// No description provided for @profileTimelineHeaderDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get profileTimelineHeaderDate;
+
+  /// No description provided for @profileTimelineHeaderPhase.
+  ///
+  /// In en, this message translates to:
+  /// **'Phase'**
+  String get profileTimelineHeaderPhase;
+
+  /// No description provided for @profileEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No profile data found'**
+  String get profileEmpty;
+
   /// No description provided for @loginAppBarTitle.
   ///
   /// In en, this message translates to:
@@ -244,6 +454,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved'**
   String get dailyTrackingSaved;
+
+  /// No description provided for @trainingAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Training'**
+  String get trainingAppBarTitle;
+
+  /// No description provided for @trainingStatsPrsThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **\"PR's this week\"**
+  String get trainingStatsPrsThisWeek;
+
+  /// No description provided for @trainingStatsWeeklyVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Volume'**
+  String get trainingStatsWeeklyVolume;
+
+  /// No description provided for @trainingStatsTrainings.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainings'**
+  String get trainingStatsTrainings;
+
+  /// No description provided for @trainingMenuExercisesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'EXERCISES'**
+  String get trainingMenuExercisesTitle;
+
+  /// No description provided for @trainingMenuExercisesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Database'**
+  String get trainingMenuExercisesSubtitle;
+
+  /// No description provided for @trainingMenuPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'TRAINING PLAN'**
+  String get trainingMenuPlanTitle;
+
+  /// No description provided for @trainingMenuPlanSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Overview'**
+  String get trainingMenuPlanSubtitle;
+
+  /// No description provided for @trainingMenuHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'HISTORIE'**
+  String get trainingMenuHistoryTitle;
+
+  /// No description provided for @trainingMenuHistorySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Past Workouts'**
+  String get trainingMenuHistorySubtitle;
+
+  /// No description provided for @trainingMenuSplitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'TRAINING SPLIT'**
+  String get trainingMenuSplitTitle;
+
+  /// No description provided for @trainingMenuSplitSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View Training Split'**
+  String get trainingMenuSplitSubtitle;
+
+  /// No description provided for @trainingSplitAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Training Split'**
+  String get trainingSplitAppBarTitle;
+
+  /// No description provided for @trainingExerciseAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercises'**
+  String get trainingExerciseAppBarTitle;
+
+  /// No description provided for @trainingExerciseSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search exercise'**
+  String get trainingExerciseSearchHint;
+
+  /// No description provided for @trainingExerciseFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get trainingExerciseFilterAll;
+
+  /// No description provided for @trainingExerciseFilterChest.
+  ///
+  /// In en, this message translates to:
+  /// **'Chest'**
+  String get trainingExerciseFilterChest;
+
+  /// No description provided for @trainingExerciseFilterBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get trainingExerciseFilterBack;
+
+  /// No description provided for @trainingExerciseFilterLegs.
+  ///
+  /// In en, this message translates to:
+  /// **'Legs'**
+  String get trainingExerciseFilterLegs;
+
+  /// No description provided for @trainingExerciseGenericError.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred'**
+  String get trainingExerciseGenericError;
+
+  /// No description provided for @trainingPlanAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Training Plan'**
+  String get trainingPlanAppBarTitle;
+
+  /// No description provided for @trainingHistoryAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Training History'**
+  String get trainingHistoryAppBarTitle;
+
+  /// No description provided for @trainingHistoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No history available'**
+  String get trainingHistoryEmpty;
+
+  /// No description provided for @trainingHistoryHeaderWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Workout(s)'**
+  String trainingHistoryHeaderWorkouts(Object count);
+
+  /// No description provided for @trainingHistoryLabelSetsBest.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets / Best Set → Best Set'**
+  String get trainingHistoryLabelSetsBest;
+
+  /// No description provided for @trainingHistoryLabelBest.
+  ///
+  /// In en, this message translates to:
+  /// **'Best'**
+  String get trainingHistoryLabelBest;
+
+  /// No description provided for @trainingHistoryLabelPrs.
+  ///
+  /// In en, this message translates to:
+  /// **'PRs'**
+  String get trainingHistoryLabelPrs;
+
+  /// No description provided for @trainingSplitHeaderDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get trainingSplitHeaderDay;
+
+  /// No description provided for @trainingSplitHeaderWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get trainingSplitHeaderWork;
 
   /// No description provided for @dailyDateLabel.
   ///
@@ -460,6 +844,324 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nutrition'**
   String get dailyNutritionSectionTitle;
+
+  /// No description provided for @nutritionAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutrition'**
+  String get nutritionAppBarTitle;
+
+  /// No description provided for @nutritionMenuFoodItemsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Food Items'**
+  String get nutritionMenuFoodItemsTitle;
+
+  /// No description provided for @nutritionMenuFoodItemsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Database'**
+  String get nutritionMenuFoodItemsSubtitle;
+
+  /// No description provided for @nutritionMenuPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutrition Plan'**
+  String get nutritionMenuPlanTitle;
+
+  /// No description provided for @nutritionMenuPlanSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Overview'**
+  String get nutritionMenuPlanSubtitle;
+
+  /// No description provided for @nutritionMenuTrackMealsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Meals'**
+  String get nutritionMenuTrackMealsTitle;
+
+  /// No description provided for @nutritionMenuTrackMealsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'To record'**
+  String get nutritionMenuTrackMealsSubtitle;
+
+  /// No description provided for @nutritionMenuStatisticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get nutritionMenuStatisticsTitle;
+
+  /// No description provided for @nutritionMenuStatisticsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View history'**
+  String get nutritionMenuStatisticsSubtitle;
+
+  /// No description provided for @nutritionMenuSupplementTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplements Plan'**
+  String get nutritionMenuSupplementTitle;
+
+  /// No description provided for @nutritionMenuPedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'PEDs'**
+  String get nutritionMenuPedTitle;
+
+  /// No description provided for @nutritionMenuPedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan'**
+  String get nutritionMenuPedSubtitle;
+
+  /// No description provided for @nutritionTodayMacrosTitle.
+  ///
+  /// In en, this message translates to:
+  /// **\"Today's Macros\"**
+  String get nutritionTodayMacrosTitle;
+
+  /// No description provided for @nutritionMacroProteinLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein'**
+  String get nutritionMacroProteinLabel;
+
+  /// No description provided for @nutritionMacroCarbsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Carbs'**
+  String get nutritionMacroCarbsLabel;
+
+  /// No description provided for @nutritionMacroFatsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fat'**
+  String get nutritionMacroFatsLabel;
+
+  /// No description provided for @nutritionTrackDailyGoalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Goal'**
+  String get nutritionTrackDailyGoalTitle;
+
+  /// No description provided for @nutritionTrackDailyGoalSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track your meals'**
+  String get nutritionTrackDailyGoalSubtitle;
+
+  /// No description provided for @nutritionTrackAddItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Add item'**
+  String get nutritionTrackAddItem;
+
+  /// No description provided for @nutritionTrackCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get nutritionTrackCancel;
+
+  /// No description provided for @nutritionTrackAddMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Meal'**
+  String get nutritionTrackAddMeal;
+
+  /// No description provided for @nutritionTrackMealNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal Name'**
+  String get nutritionTrackMealNameLabel;
+
+  /// No description provided for @nutritionTrackMealTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time Label'**
+  String get nutritionTrackMealTimeLabel;
+
+  /// No description provided for @nutritionTrackFoodNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Food Name'**
+  String get nutritionTrackFoodNameLabel;
+
+  /// No description provided for @nutritionTrackFoodQuantityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get nutritionTrackFoodQuantityLabel;
+
+  /// No description provided for @nutritionTrackFoodQuantityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 200g'**
+  String get nutritionTrackFoodQuantityHint;
+
+  /// No description provided for @nutritionTrackFoodNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type...'**
+  String get nutritionTrackFoodNameHint;
+
+  /// No description provided for @nutritionTrackValidationMealRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal name and at least one item required'**
+  String get nutritionTrackValidationMealRequired;
+
+  /// No description provided for @nutritionTrackTrainingDayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'training day'**
+  String get nutritionTrackTrainingDayLabel;
+
+  /// No description provided for @nutritionTrackTableActionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Action'**
+  String get nutritionTrackTableActionLabel;
+
+  /// No description provided for @nutritionTrackNoItemsLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'No items logged.'**
+  String get nutritionTrackNoItemsLogged;
+
+  /// No description provided for @nutritionFoodItemsEnergyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy ({quantity}):'**
+  String nutritionFoodItemsEnergyLabel(Object quantity);
+
+  /// No description provided for @nutritionFoodItemsProteinLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein'**
+  String get nutritionFoodItemsProteinLabel;
+
+  /// No description provided for @nutritionFoodItemsCarbsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Carbs'**
+  String get nutritionFoodItemsCarbsLabel;
+
+  /// No description provided for @nutritionFoodItemsFatsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fats'**
+  String get nutritionFoodItemsFatsLabel;
+
+  /// No description provided for @nutritionFoodItemsSatFatsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sat F'**
+  String get nutritionFoodItemsSatFatsLabel;
+
+  /// No description provided for @nutritionFoodItemsUnsatFatsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsat F'**
+  String get nutritionFoodItemsUnsatFatsLabel;
+
+  /// No description provided for @nutritionFoodItemsSugarLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sugar'**
+  String get nutritionFoodItemsSugarLabel;
+
+  /// No description provided for @nutritionFoodItemsCategoryProtein.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein'**
+  String get nutritionFoodItemsCategoryProtein;
+
+  /// No description provided for @nutritionFoodItemsCategoryCarbs.
+  ///
+  /// In en, this message translates to:
+  /// **'Carbs'**
+  String get nutritionFoodItemsCategoryCarbs;
+
+  /// No description provided for @nutritionFoodItemsCategoryFats.
+  ///
+  /// In en, this message translates to:
+  /// **'Fats'**
+  String get nutritionFoodItemsCategoryFats;
+
+  /// No description provided for @nutritionFoodItemsCategorySupplements.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplements'**
+  String get nutritionFoodItemsCategorySupplements;
+
+  /// No description provided for @nutritionFoodItemsCategoryFruits.
+  ///
+  /// In en, this message translates to:
+  /// **'Fruits'**
+  String get nutritionFoodItemsCategoryFruits;
+
+  /// No description provided for @nutritionFoodItemsCategoryVegetables.
+  ///
+  /// In en, this message translates to:
+  /// **'Vegetables'**
+  String get nutritionFoodItemsCategoryVegetables;
+
+  /// No description provided for @nutritionFoodItemsCategoryAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get nutritionFoodItemsCategoryAll;
+
+  /// No description provided for @nutritionSupplementsHeaderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplement'**
+  String get nutritionSupplementsHeaderTitle;
+
+  /// No description provided for @nutritionSupplementsTableName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get nutritionSupplementsTableName;
+
+  /// No description provided for @nutritionSupplementsTableDosage.
+  ///
+  /// In en, this message translates to:
+  /// **'Dosage'**
+  String get nutritionSupplementsTableDosage;
+
+  /// No description provided for @nutritionSupplementsTableTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get nutritionSupplementsTableTime;
+
+  /// No description provided for @nutritionSupplementsTablePurpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Purpose'**
+  String get nutritionSupplementsTablePurpose;
+
+  /// No description provided for @nutritionSupplementsTableBrand.
+  ///
+  /// In en, this message translates to:
+  /// **'Brand'**
+  String get nutritionSupplementsTableBrand;
+
+  /// No description provided for @nutritionSupplementsTableComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment'**
+  String get nutritionSupplementsTableComment;
+
+  /// No description provided for @nutritionSupplementsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No supplements found'**
+  String get nutritionSupplementsEmpty;
 
   /// No description provided for @dailyNutritionCaloriesLabel.
   ///

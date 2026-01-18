@@ -27,6 +27,111 @@ class AppLocalizationsDe extends AppLocalizations {
   String get navProfile => 'Profil';
 
   @override
+  String get profileAppBarTitle => 'Profil';
+
+  @override
+  String get profileLogoutTitle => 'Abmelden';
+
+  @override
+  String get profileLogoutMessage => 'Möchtest du dich wirklich abmelden?';
+
+  @override
+  String get profileLogoutCancel => 'Abbrechen';
+
+  @override
+  String get profileLogoutConfirm => 'Abmelden';
+
+  @override
+  String get profileSectionPersonalData => 'Persönliche Daten';
+
+  @override
+  String get profileSectionAthleteInfo => 'Athleten-Infos';
+
+  @override
+  String get profileSectionAccount => 'Konto';
+
+  @override
+  String get profileSectionShowInfo => 'Show-Informationen';
+
+  @override
+  String get profileLabelFullName => 'Vollständiger Name';
+
+  @override
+  String get profileLabelEmail => 'E-Mail';
+
+  @override
+  String get profileLabelGender => 'Geschlecht';
+
+  @override
+  String get profileLabelStatus => 'Status';
+
+  @override
+  String get profileLabelCategory => 'Kategorie';
+
+  @override
+  String get profileLabelCheckInDay => 'Check-in-Tag';
+
+  @override
+  String get profileLabelHeight => 'Größe (cm)';
+
+  @override
+  String get profileLabelAge => 'Alter';
+
+  @override
+  String get profileLabelAgeYearsSuffix => 'Jahre';
+
+  @override
+  String get profileLabelGoal => 'Ziel';
+
+  @override
+  String get profileLabelTrainingDaySteps => 'Schritte Trainingstag';
+
+  @override
+  String get profileLabelRestDaySteps => 'Schritte Ruhetag';
+
+  @override
+  String get profileLabelStepsSuffix => 'Schritte';
+
+  @override
+  String get profileLabelRole => 'Rolle';
+
+  @override
+  String get profileLabelCoach => 'Coach';
+
+  @override
+  String get profileLabelMemberSince => 'Mitglied seit';
+
+  @override
+  String get profileLabelShowName => 'Show-Name';
+
+  @override
+  String get profileLabelShowDate => 'Show-Datum';
+
+  @override
+  String get profileLabelLocation => 'Ort';
+
+  @override
+  String get profileLabelDivision => 'Division';
+
+  @override
+  String get profileLabelCountdown => 'Countdown';
+
+  @override
+  String get profileLabelDaysSuffix => 'Tage';
+
+  @override
+  String get profileTimelineHeaderWeek => 'Woche';
+
+  @override
+  String get profileTimelineHeaderDate => 'Datum';
+
+  @override
+  String get profileTimelineHeaderPhase => 'Phase';
+
+  @override
+  String get profileEmpty => 'Keine Profildaten gefunden';
+
+  @override
   String get loginAppBarTitle => 'Anmelden';
 
   @override
@@ -82,6 +187,95 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get dailyTrackingSaved => 'Gespeichert';
+
+  @override
+  String get trainingAppBarTitle => 'Training';
+
+  @override
+  String get trainingStatsPrsThisWeek => 'PRs dieser Woche';
+
+  @override
+  String get trainingStatsWeeklyVolume => 'Wöchentliches Volumen';
+
+  @override
+  String get trainingStatsTrainings => 'Trainingseinheiten';
+
+  @override
+  String get trainingMenuExercisesTitle => 'ÜBUNGEN';
+
+  @override
+  String get trainingMenuExercisesSubtitle => 'Datenbank';
+
+  @override
+  String get trainingMenuPlanTitle => 'TRAININGSPLAN';
+
+  @override
+  String get trainingMenuPlanSubtitle => 'Wochenübersicht';
+
+  @override
+  String get trainingMenuHistoryTitle => 'HISTORIE';
+
+  @override
+  String get trainingMenuHistorySubtitle => 'Vergangene Workouts';
+
+  @override
+  String get trainingMenuSplitTitle => 'TRAINING SPLIT';
+
+  @override
+  String get trainingMenuSplitSubtitle => 'Trainingssplit ansehen';
+
+  @override
+  String get trainingSplitAppBarTitle => 'Training Split';
+
+  @override
+  String get trainingExerciseAppBarTitle => 'Übungen';
+
+  @override
+  String get trainingExerciseSearchHint => 'Übung suchen';
+
+  @override
+  String get trainingExerciseFilterAll => 'Alle';
+
+  @override
+  String get trainingExerciseFilterChest => 'Brust';
+
+  @override
+  String get trainingExerciseFilterBack => 'Rücken';
+
+  @override
+  String get trainingExerciseFilterLegs => 'Beine';
+
+  @override
+  String get trainingExerciseGenericError => 'Es ist ein Fehler aufgetreten';
+
+  @override
+  String get trainingPlanAppBarTitle => 'Trainingsplan';
+
+  @override
+  String get trainingHistoryAppBarTitle => 'Training Historie';
+
+  @override
+  String get trainingHistoryEmpty => 'Keine Historie verfügbar';
+
+  @override
+  String trainingHistoryHeaderWorkouts(Object count) {
+    return '$count Workout';
+  }
+
+  @override
+  String get trainingHistoryLabelSetsBest => 'Sätze / Bestes Set → Bestes Set';
+
+  @override
+  String get trainingHistoryLabelBest => 'Bestes';
+
+  @override
+  String get trainingHistoryLabelPrs => 'PRs';
+
+  @override
+  String get trainingSplitHeaderDay => 'Tag';
+
+  @override
+  String get trainingSplitHeaderWork => 'Arbeit';
 
   @override
   String get dailyDateLabel => 'Datum:';
@@ -202,6 +396,168 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get dailyNutritionFatsLabel => 'Fette';
+
+  @override
+  String get nutritionAppBarTitle => 'Ernährung';
+
+  @override
+  String get nutritionMenuFoodItemsTitle => 'Lebensmittel';
+
+  @override
+  String get nutritionMenuFoodItemsSubtitle => 'Datenbank';
+
+  @override
+  String get nutritionMenuPlanTitle => 'Ernährungsplan';
+
+  @override
+  String get nutritionMenuPlanSubtitle => 'Wochenübersicht';
+
+  @override
+  String get nutritionMenuTrackMealsTitle => 'Mahlzeiten tracken';
+
+  @override
+  String get nutritionMenuTrackMealsSubtitle => 'Zum protokollieren';
+
+  @override
+  String get nutritionMenuStatisticsTitle => 'Statistiken';
+
+  @override
+  String get nutritionMenuStatisticsSubtitle => 'Verlauf ansehen';
+
+  @override
+  String get nutritionMenuSupplementTitle => 'Supplement-Plan';
+
+  @override
+  String get nutritionMenuPedTitle => 'PEDs';
+
+  @override
+  String get nutritionMenuPedSubtitle => 'Plan';
+
+  @override
+  String get nutritionTodayMacrosTitle => 'Heutige Makros';
+
+  @override
+  String get nutritionMacroProteinLabel => 'Protein';
+
+  @override
+  String get nutritionMacroCarbsLabel => 'Kohlenhydrate';
+
+  @override
+  String get nutritionMacroFatsLabel => 'Fett';
+
+  @override
+  String get nutritionTrackDailyGoalTitle => 'Tagesziel';
+
+  @override
+  String get nutritionTrackDailyGoalSubtitle => 'Mahlzeiten tracken';
+
+  @override
+  String get nutritionTrackAddItem => 'Eintrag hinzufügen';
+
+  @override
+  String get nutritionTrackCancel => 'Abbrechen';
+
+  @override
+  String get nutritionTrackAddMeal => 'Mahlzeit hinzufügen';
+
+  @override
+  String get nutritionTrackMealNameLabel => 'Mahlzeitenname';
+
+  @override
+  String get nutritionTrackMealTimeLabel => 'Zeitlabel';
+
+  @override
+  String get nutritionTrackFoodNameLabel => 'Lebensmittelname';
+
+  @override
+  String get nutritionTrackFoodQuantityLabel => 'Menge';
+
+  @override
+  String get nutritionTrackFoodQuantityHint => 'z.B. 200g';
+
+  @override
+  String get nutritionTrackFoodNameHint => 'Eingeben...';
+
+  @override
+  String get nutritionTrackValidationMealRequired =>
+      'Mahlzeitenname und mindestens ein Eintrag erforderlich';
+
+  @override
+  String get nutritionTrackTrainingDayLabel => 'Trainingstag';
+
+  @override
+  String get nutritionTrackTableActionLabel => 'Aktion';
+
+  @override
+  String get nutritionTrackNoItemsLogged => 'Keine Einträge erfasst.';
+
+  @override
+  String nutritionFoodItemsEnergyLabel(Object quantity) {
+    return 'Energie ($quantity):';
+  }
+
+  @override
+  String get nutritionFoodItemsProteinLabel => 'Protein';
+
+  @override
+  String get nutritionFoodItemsCarbsLabel => 'Kohlenhydrate';
+
+  @override
+  String get nutritionFoodItemsFatsLabel => 'Fette';
+
+  @override
+  String get nutritionFoodItemsSatFatsLabel => 'ges. F';
+
+  @override
+  String get nutritionFoodItemsUnsatFatsLabel => 'unges. F';
+
+  @override
+  String get nutritionFoodItemsSugarLabel => 'Zucker';
+
+  @override
+  String get nutritionFoodItemsCategoryProtein => 'Protein';
+
+  @override
+  String get nutritionFoodItemsCategoryCarbs => 'Kohlenhydrate';
+
+  @override
+  String get nutritionFoodItemsCategoryFats => 'Fette';
+
+  @override
+  String get nutritionFoodItemsCategorySupplements => 'Supplements';
+
+  @override
+  String get nutritionFoodItemsCategoryFruits => 'Obst';
+
+  @override
+  String get nutritionFoodItemsCategoryVegetables => 'Gemüse';
+
+  @override
+  String get nutritionFoodItemsCategoryAll => 'Alle';
+
+  @override
+  String get nutritionSupplementsHeaderTitle => 'Supplement';
+
+  @override
+  String get nutritionSupplementsTableName => 'Name';
+
+  @override
+  String get nutritionSupplementsTableDosage => 'Dosierung';
+
+  @override
+  String get nutritionSupplementsTableTime => 'Zeit';
+
+  @override
+  String get nutritionSupplementsTablePurpose => 'Zweck';
+
+  @override
+  String get nutritionSupplementsTableBrand => 'Marke';
+
+  @override
+  String get nutritionSupplementsTableComment => 'Kommentar';
+
+  @override
+  String get nutritionSupplementsEmpty => 'Keine Supplements gefunden';
 
   @override
   String get dailyNutritionHungerLabel => 'Hunger (1-10)';

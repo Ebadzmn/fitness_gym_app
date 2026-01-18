@@ -11,6 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
 
 class NutritionStatisticsPage extends StatelessWidget {
   const NutritionStatisticsPage({super.key});
@@ -31,10 +32,14 @@ class _NutritionStatisticsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
-        title: Text('Statistics', style: AppTextStyle.appbarHeading),
+        title: Text(
+          localizations.nutritionMenuStatisticsTitle,
+          style: AppTextStyle.appbarHeading,
+        ),
         centerTitle: true,
         backgroundColor: AppColor.primaryColor,
         elevation: 0,
@@ -94,10 +99,10 @@ class _NutritionStatisticsView extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 20.h),
-                      _buildMacrosSection(stats),
+                      _buildMacrosSection(localizations, stats),
                       SizedBox(height: 30.h),
                       Text(
-                        'Calories',
+                        localizations.dailyNutritionCaloriesLabel,
                         style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontSize: 16.sp,
@@ -117,7 +122,10 @@ class _NutritionStatisticsView extends StatelessWidget {
     );
   }
 
-  Widget _buildMacrosSection(NutritionStatisticsEntity stats) {
+  Widget _buildMacrosSection(
+    AppLocalizations localizations,
+    NutritionStatisticsEntity stats,
+  ) {
     final protein = stats.percentages.proteinPercent;
     final carbs = stats.percentages.carbsPercent;
     final fats = stats.percentages.fatsPercent;
@@ -168,19 +176,19 @@ class _NutritionStatisticsView extends StatelessWidget {
           children: [
             _legendItem(
               const Color(0xFF43A047),
-              'Proteins ${protein.toStringAsFixed(0)}%',
+              '${localizations.dailyNutritionProteinLabel} ${protein.toStringAsFixed(0)}%',
               proteinG,
             ),
             SizedBox(height: 12.h),
             _legendItem(
               const Color(0xFF4A6CF7),
-              'Carbs ${carbs.toStringAsFixed(0)}%',
+              '${localizations.dailyNutritionCarbsLabel} ${carbs.toStringAsFixed(0)}%',
               carbsG,
             ),
             SizedBox(height: 12.h),
             _legendItem(
               const Color(0xFFFF6D00),
-              'Fats ${fats.toStringAsFixed(0)}%',
+              '${localizations.dailyNutritionFatsLabel} ${fats.toStringAsFixed(0)}%',
               fatsG,
             ),
           ],

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/features/training/data/repositories/fake_training_repository.dart';
@@ -11,6 +10,9 @@ import 'package:fitness_app/features/training/domain/usecases/get_training_initi
 import 'package:fitness_app/features/training/presentation/pages/bloc/training_bloc/training_bloc.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/training_bloc/training_event.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/training_bloc/training_state.dart';
+import 'package:fitness_app/core/bloc/nav_bloc.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 
 class TrainingPages extends StatelessWidget {
   const TrainingPages({super.key});
@@ -39,6 +41,7 @@ class _TrainingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
@@ -50,11 +53,13 @@ class _TrainingView extends StatelessWidget {
             backgroundColor: Colors.white10,
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => context.pop(),
+              onPressed: () {
+                context.read<NavBloc>().add(const NavEvent(0));
+              },
             ),
           ),
         ),
-        title: Text('Training', style: AppTextStyle.appbarHeading),
+        title: Text(localizations.trainingAppBarTitle, style: AppTextStyle.appbarHeading),
         centerTitle: true,
       ),
       body: BlocBuilder<TrainingBloc, TrainingState>(
@@ -74,7 +79,7 @@ class _TrainingView extends StatelessWidget {
                         icon: Icons.emoji_events_outlined,
                         iconColor: const Color(0xFFFFC107),
                         title: '${data.prsThisWeek}',
-                        subtitle: "PR's this week",
+                        subtitle: localizations.trainingStatsPrsThisWeek,
                         borderColor: const Color(0xFF936E19),
                       ),
                     ),
@@ -84,7 +89,7 @@ class _TrainingView extends StatelessWidget {
                         icon: Icons.fitness_center_outlined,
                         iconColor: Colors.blueGrey.shade200,
                         title: '${data.weeklyVolumeKg} kg',
-                        subtitle: 'Weekly Volume',
+                        subtitle: localizations.trainingStatsWeeklyVolume,
                         borderColor: const Color(0xFF09579A),
                       ),
                     ),
@@ -94,7 +99,7 @@ class _TrainingView extends StatelessWidget {
                         icon: Icons.local_fire_department_outlined,
                         iconColor: const Color(0xFFFF6D00),
                         title: '${data.trainingsCount}',
-                        subtitle: 'Trainings',
+                        subtitle: localizations.trainingStatsTrainings,
                         borderColor: const Color(0xFF936E19),
                       ),
                     ),
@@ -107,8 +112,8 @@ class _TrainingView extends StatelessWidget {
                       child: _menuTile(
                         icon: Icons.library_books_outlined,
                         iconColor: const Color(0xFF82C941),
-                        title: 'EXERCISES',
-                        subtitle: 'Database',
+                        title: localizations.trainingMenuExercisesTitle,
+                        subtitle: localizations.trainingMenuExercisesSubtitle,
                         onTap: () => context.push(AppRoutes.exercisesPage),
                       ),
                     ),
@@ -117,8 +122,8 @@ class _TrainingView extends StatelessWidget {
                       child: _menuTile(
                         icon: Icons.calendar_month_outlined,
                         iconColor: const Color(0xFF4A6CF7),
-                        title: 'TRAINING PLAN',
-                        subtitle: 'Weekly Overview',
+                        title: localizations.trainingMenuPlanTitle,
+                        subtitle: localizations.trainingMenuPlanSubtitle,
                         onTap: () => context.push(AppRoutes.trainingPlanPage),
                       ),
                     ),
@@ -131,10 +136,9 @@ class _TrainingView extends StatelessWidget {
                       child: _menuTile(
                         icon: Icons.history,
                         iconColor: const Color(0xFFFF6D00),
-                        title: 'HISTORIE',
-                        subtitle: 'Past Workouts',
-                        onTap: () =>
-                            context.push(AppRoutes.trainingHistoryPage),
+                        title: localizations.trainingMenuHistoryTitle,
+                        subtitle: localizations.trainingMenuHistorySubtitle,
+                        onTap: () => context.push(AppRoutes.trainingHistoryPage),
                       ),
                     ),
                     SizedBox(width: 12.w),
@@ -142,8 +146,8 @@ class _TrainingView extends StatelessWidget {
                       child: _menuTile(
                         icon: Icons.view_agenda_outlined,
                         iconColor: const Color(0xFFFF6D00),
-                        title: 'TRAINING SPLIT',
-                        subtitle: 'View Training Split',
+                        title: localizations.trainingMenuSplitTitle,
+                        subtitle: localizations.trainingMenuSplitSubtitle,
                         onTap: () => context.push(AppRoutes.trainingSplitPage),
                       ),
                     ),
@@ -165,7 +169,7 @@ class _TrainingView extends StatelessWidget {
     required String subtitle,
   }) {
     return Container(
-      height: 110.h,
+      constraints: BoxConstraints(minHeight: 110.h),
       decoration: BoxDecoration(
         color: const Color(0xFF1a1b1b),
         borderRadius: BorderRadius.circular(12.r),

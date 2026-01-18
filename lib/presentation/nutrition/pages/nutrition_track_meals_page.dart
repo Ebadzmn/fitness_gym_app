@@ -1,6 +1,5 @@
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
-import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_response_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -14,6 +13,7 @@ import 'package:fitness_app/features/nutrition/presentation/pages/bloc/track_mea
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/track_meals/track_meals_event.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/track_meals/track_meals_state.dart';
 import 'package:fitness_app/injection_container.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
 
 class NutritionTrackMealsPage extends StatelessWidget {
   const NutritionTrackMealsPage({super.key});
@@ -34,10 +34,14 @@ class _TrackMealsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
-        title: Text('Track Meals', style: AppTextStyle.appbarHeading),
+        title: Text(
+          localizations.nutritionMenuTrackMealsTitle,
+          style: AppTextStyle.appbarHeading,
+        ),
         centerTitle: true,
         backgroundColor: AppColor.primaryColor,
         elevation: 0,
@@ -60,7 +64,7 @@ class _TrackMealsView extends StatelessWidget {
           if (state.status == TrackMealsStatus.failure) {
             return Center(
               child: Text(
-                'Error: ${state.errorMessage}',
+                localizations.trainingExerciseGenericError,
                 style: const TextStyle(color: Colors.white),
               ),
             );
@@ -94,7 +98,7 @@ class _TrackMealsView extends StatelessWidget {
                         vertical: 6.h,
                       ),
                       child: Text(
-                        '+ Add',
+                        '+ ${localizations.nutritionTrackAddMeal}',
                         style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontSize: 13.sp,
@@ -109,12 +113,13 @@ class _TrackMealsView extends StatelessWidget {
                 SizedBox(height: 12.h),
                 if (state.trackingData != null)
                   _planHeader(
+                    context,
                     state.trackingData!.totals,
                     state.trackingData!.water,
                   ),
                 if (state.trackingData != null) SizedBox(height: 12.h),
                 if (state.trackingData != null)
-                  _macroCircles(state.trackingData!.totals),
+                  _macroCircles(context, state.trackingData!.totals),
                 SizedBox(height: 12.h),
                 if (state.trackingData != null &&
                     state.trackingData!.data.isNotEmpty)
@@ -130,12 +135,13 @@ class _TrackMealsView extends StatelessWidget {
   }
 
   Widget _datePicker(BuildContext context, DateTime date) {
+    final localizations = AppLocalizations.of(context)!;
     String label() {
       final now = DateTime.now();
       if (date.year == now.year &&
           date.month == now.month &&
           date.day == now.day)
-        return 'Today';
+        return localizations.dailyDateToday;
       return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
     }
 
@@ -190,7 +196,12 @@ class _TrackMealsView extends StatelessWidget {
     );
   }
 
-  Widget _planHeader(NutritionTotalsEntity totals, int water) {
+  Widget _planHeader(
+    BuildContext context,
+    NutritionTotalsEntity totals,
+    int water,
+  ) {
+    final localizations = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF274128),
@@ -220,7 +231,7 @@ class _TrackMealsView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Daily Goal', // Hardcoded title as it was in Bloc before
+                    localizations.nutritionTrackDailyGoalTitle,
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -229,7 +240,7 @@ class _TrackMealsView extends StatelessWidget {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    'Track Your Meals', // Replaced Plan meals count with static text or remove
+                    localizations.nutritionTrackDailyGoalSubtitle,
                     style: GoogleFonts.poppins(
                       color: Colors.white70,
                       fontSize: 12.sp,
@@ -258,7 +269,7 @@ class _TrackMealsView extends StatelessWidget {
                     ),
                     SizedBox(width: 6.w),
                     Text(
-                      '${water}ml\nWater',
+                      '${water}ml\n${localizations.dailyWaterLabel}',
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 13.sp,
@@ -275,7 +286,7 @@ class _TrackMealsView extends StatelessWidget {
                     ),
                     SizedBox(width: 6.w),
                     Text(
-                      '${totals.totalCalories}\nCalories',
+                      '${totals.totalCalories}\n${localizations.dailyNutritionCaloriesLabel}',
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 13.sp,
@@ -291,7 +302,7 @@ class _TrackMealsView extends StatelessWidget {
     );
   }
 
-  Widget _macroCircles(NutritionTotalsEntity totals) {
+  Widget _macroCircles(BuildContext context, NutritionTotalsEntity totals) {
     final totalProtein = totals.totalProtein;
     final totalCarbs = totals.totalCarbs;
     final totalFats = totals.totalFats;
@@ -340,19 +351,19 @@ class _TrackMealsView extends StatelessWidget {
         children: [
           macroItem(
             '${totalProtein.toInt()}g',
-            'Protein',
+            AppLocalizations.of(context)!.dailyNutritionProteinLabel,
             const Color(0xFF2287DD),
             const Color(0xFF1B3043),
           ),
           macroItem(
             '${totalCarbs.toInt()}g',
-            'Carbs',
+            AppLocalizations.of(context)!.dailyNutritionCarbsLabel,
             const Color(0xFF43A047),
             const Color(0xFF224225),
           ),
           macroItem(
             '${totalFats.toInt()}g',
-            'Fats',
+            AppLocalizations.of(context)!.dailyNutritionFatsLabel,
             const Color(0xFFFF6D00),
             const Color(0xFF42291A),
           ),
@@ -464,6 +475,7 @@ class _MealTileState extends State<_MealTile> {
   }
 
   Widget _expandableContent(BuildContext context, TrackingMealEntity m) {
+    final localizations = AppLocalizations.of(context)!;
     if (!_expanded) return const SizedBox.shrink();
 
     return Container(
@@ -489,7 +501,7 @@ class _MealTileState extends State<_MealTile> {
                   flex: 2,
                   child: Center(
                     child: Text(
-                      'Name',
+                      localizations.nutritionTrackFoodNameLabel,
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 14.sp,
@@ -507,7 +519,7 @@ class _MealTileState extends State<_MealTile> {
                   flex: 2,
                   child: Center(
                     child: Text(
-                      'Quantity',
+                      localizations.nutritionTrackFoodQuantityLabel,
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 14.sp,
@@ -525,7 +537,7 @@ class _MealTileState extends State<_MealTile> {
                   flex: 1,
                   child: Center(
                     child: Text(
-                      'Action',
+                      localizations.nutritionTrackTableActionLabel,
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 14.sp,
@@ -543,7 +555,7 @@ class _MealTileState extends State<_MealTile> {
               padding: EdgeInsets.all(16.w),
               child: Center(
                 child: Text(
-                  'No items logged.',
+                  localizations.nutritionTrackNoItemsLogged,
                   style: GoogleFonts.poppins(
                     color: Colors.grey,
                     fontSize: 12.sp,
@@ -684,6 +696,7 @@ class _AddMealDialogState extends State<_AddMealDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Dialog(
       backgroundColor: const Color(0xFF0F0F15),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
@@ -706,8 +719,8 @@ class _AddMealDialogState extends State<_AddMealDialog> {
               children: [
                 Expanded(
                   child: _inputField(
-                    'Meal Name',
-                    'Type...',
+                    localizations.nutritionTrackMealNameLabel,
+                    localizations.nutritionTrackFoodNameHint,
                     controller: _mealCtrl,
                   ),
                 ),
@@ -722,16 +735,16 @@ class _AddMealDialogState extends State<_AddMealDialog> {
                     children: [
                       Expanded(
                         child: _inputField(
-                          'Food Name',
-                          'Type...',
+                          localizations.nutritionTrackFoodNameLabel,
+                          localizations.nutritionTrackFoodNameHint,
                           controller: _foodCtrls[i],
                         ),
                       ),
                       SizedBox(width: 16.w),
                       Expanded(
                         child: _inputField(
-                          'Quantity',
-                          'e.g. 200g',
+                          localizations.nutritionTrackFoodQuantityLabel,
+                          localizations.nutritionTrackFoodQuantityHint,
                           controller: _qtyCtrls[i],
                         ),
                       ),
@@ -759,7 +772,7 @@ class _AddMealDialogState extends State<_AddMealDialog> {
                           const Icon(Icons.add, color: Colors.white),
                           SizedBox(width: 6.w),
                           Text(
-                            'Add item',
+                            localizations.nutritionTrackAddItem,
                             style: GoogleFonts.poppins(
                               color: Colors.white,
                               fontSize: 12.sp,
@@ -778,7 +791,7 @@ class _AddMealDialogState extends State<_AddMealDialog> {
               children: [
                 Expanded(
                   child: _button(
-                    'Cancel',
+                    localizations.nutritionTrackCancel,
                     const Color(0xFF1C222E),
                     Colors.white,
                     () => Navigator.pop(context),
@@ -787,7 +800,7 @@ class _AddMealDialogState extends State<_AddMealDialog> {
                 SizedBox(width: 12.w),
                 Expanded(
                   child: _button(
-                    'Add Meal',
+                    localizations.nutritionTrackAddMeal,
                     const Color(0xFF1A1A50),
                     Colors.white,
                     () {
@@ -805,13 +818,11 @@ class _AddMealDialogState extends State<_AddMealDialog> {
                         );
                       }
                       if (mealName.isEmpty || items.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Meal name and at least one item required',
-                            ),
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(
+                            localizations.nutritionTrackValidationMealRequired,
                           ),
-                        );
+                        ));
                         return;
                       }
                       final meal = NutritionMealEntity(
@@ -823,7 +834,7 @@ class _AddMealDialogState extends State<_AddMealDialog> {
                         carbsG: 0,
                         fatsG: 0,
                         items: items,
-                        trainingDay: 'training day',
+                        trainingDay: localizations.nutritionTrackTrainingDayLabel,
                       );
                       context.read<TrackMealsBloc>().add(
                         TrackMealsAddMeal(widget.date, meal),

@@ -12,6 +12,7 @@ import 'package:fitness_app/features/nutrition/presentation/pages/bloc/food_item
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/food_items/food_items_event.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/food_items/food_items_state.dart';
 import 'package:fitness_app/injection_container.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
 
 class NutritionFoodItemsPage extends StatelessWidget {
   const NutritionFoodItemsPage({super.key});
@@ -32,10 +33,14 @@ class _FoodItemsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
-        title: Text('Food Item', style: AppTextStyle.appbarHeading),
+        title: Text(
+          localizations.nutritionMenuFoodItemsTitle,
+          style: AppTextStyle.appbarHeading,
+        ),
         centerTitle: true,
         backgroundColor: AppColor.primaryColor,
         elevation: 0,
@@ -70,7 +75,7 @@ class _FoodItemsView extends StatelessWidget {
           if (state.status == FoodItemsStatus.failure) {
             return Center(
               child: Text(
-                'Failed to load items',
+                localizations.trainingExerciseGenericError,
                 style: TextStyle(color: Colors.white),
               ),
             );
@@ -104,6 +109,7 @@ class _FoodItemsView extends StatelessWidget {
   }
 
   Widget _searchField(BuildContext context, String query) {
+    final localizations = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: const Color(0XFF101021),
@@ -116,7 +122,7 @@ class _FoodItemsView extends StatelessWidget {
             context.read<FoodItemsBloc>().add(FoodItemsSearchChanged(v)),
         style: GoogleFonts.poppins(color: Colors.white),
         decoration: InputDecoration(
-          hintText: 'Search Food...',
+          hintText: localizations.dailyGenericTypeHint,
           hintStyle: GoogleFonts.poppins(color: Colors.white54),
           border: InputBorder.none,
         ),
@@ -125,6 +131,7 @@ class _FoodItemsView extends StatelessWidget {
   }
 
   Widget _filterRow(BuildContext context, FoodCategory selected) {
+    final localizations = AppLocalizations.of(context)!;
     Widget chip(String label, FoodCategory cat, {Color? color}) {
       final isSelected = selected == cat;
       return UnconstrainedBox(
@@ -166,11 +173,23 @@ class _FoodItemsView extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          chip('All', FoodCategory.all),
-          chip('Protein', FoodCategory.protein),
-          chip('Carbs', FoodCategory.carbs),
-          chip('Fats', FoodCategory.fats),
-          chip('Fruits', FoodCategory.fruits),
+          chip(localizations.nutritionFoodItemsCategoryAll, FoodCategory.all),
+          chip(
+            localizations.nutritionFoodItemsCategoryProtein,
+            FoodCategory.protein,
+          ),
+          chip(
+            localizations.nutritionFoodItemsCategoryCarbs,
+            FoodCategory.carbs,
+          ),
+          chip(
+            localizations.nutritionFoodItemsCategoryFats,
+            FoodCategory.fats,
+          ),
+          chip(
+            localizations.nutritionFoodItemsCategoryFruits,
+            FoodCategory.fruits,
+          ),
         ],
       ),
     );
@@ -183,6 +202,7 @@ class _FoodItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     Color catColor(FoodCategory c) {
       switch (c) {
         case FoodCategory.protein:
@@ -237,7 +257,7 @@ class _FoodItemTile extends StatelessWidget {
                     border: Border.all(color: const Color(0xFF2E2E5D)),
                   ),
                   child: Text(
-                    _catLabel(item.category),
+                    _catLabel(item.category, localizations),
                     style: GoogleFonts.poppins(
                       color: catColor(item.category),
                       fontSize: 12.sp,
@@ -251,7 +271,9 @@ class _FoodItemTile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Energy (${item.defaultQuantity}):',
+                  localizations.nutritionFoodItemsEnergyLabel(
+                    item.defaultQuantity,
+                  ),
                   style: GoogleFonts.poppins(
                     color: const Color(0xFF82C941),
                     fontSize: 13.sp,
@@ -271,23 +293,35 @@ class _FoodItemTile extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  _macroChip('P: ${item.protein}g', const Color(0xFF4A6CF7)),
-                  SizedBox(width: 8.w),
-                  _macroChip('C: ${item.carbs}g', const Color(0xFF82C941)),
-                  SizedBox(width: 8.w),
-                  _macroChip('F: ${item.fats}g', const Color(0xFFFF6D00)),
+                  _macroChip(
+                    '${localizations.dailyNutritionProteinLabel}: ${item.protein}g',
+                    const Color(0xFF4A6CF7),
+                  ),
                   SizedBox(width: 8.w),
                   _macroChip(
-                    'Sat F: ${item.saturatedFats}g',
+                    '${localizations.dailyNutritionCarbsLabel}: ${item.carbs}g',
+                    const Color(0xFF82C941),
+                  ),
+                  SizedBox(width: 8.w),
+                  _macroChip(
+                    '${localizations.dailyNutritionFatsLabel}: ${item.fats}g',
+                    const Color(0xFFFF6D00),
+                  ),
+                  SizedBox(width: 8.w),
+                  _macroChip(
+                    '${localizations.nutritionFoodItemsSatFatsLabel}: ${item.saturatedFats}g',
                     const Color(0xFF2E2E5D),
                   ),
                   SizedBox(width: 8.w),
                   _macroChip(
-                    'Unsat F: ${item.unsaturatedFats}g',
+                    '${localizations.nutritionFoodItemsUnsatFatsLabel}: ${item.unsaturatedFats}g',
                     const Color(0xFF82C941),
                   ),
                   SizedBox(width: 8.w),
-                  _macroChip('Sug: ${item.sugar}g', const Color(0xFFE04F5F)),
+                  _macroChip(
+                    '${localizations.nutritionFoodItemsSugarLabel}: ${item.sugar}g',
+                    const Color(0xFFE04F5F),
+                  ),
                 ],
               ),
             ),
@@ -297,22 +331,22 @@ class _FoodItemTile extends StatelessWidget {
     );
   }
 
-  String _catLabel(FoodCategory c) {
+  String _catLabel(FoodCategory c, AppLocalizations localizations) {
     switch (c) {
       case FoodCategory.protein:
-        return 'Protein';
+        return localizations.nutritionFoodItemsCategoryProtein;
       case FoodCategory.carbs:
-        return 'Carbs';
+        return localizations.nutritionFoodItemsCategoryCarbs;
       case FoodCategory.fats:
-        return 'Fats';
+        return localizations.nutritionFoodItemsCategoryFats;
       case FoodCategory.supplements:
-        return 'Supplements';
+        return localizations.nutritionFoodItemsCategorySupplements;
       case FoodCategory.fruits:
-        return 'Fruits';
+        return localizations.nutritionFoodItemsCategoryFruits;
       case FoodCategory.vegetables:
-        return 'Vegetables';
+        return localizations.nutritionFoodItemsCategoryVegetables;
       case FoodCategory.all:
-        return 'All';
+        return localizations.nutritionFoodItemsCategoryAll;
     }
   }
 

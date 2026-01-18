@@ -10,6 +10,7 @@ import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/exercise_bloc/exercise_bloc.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/exercise_bloc/exercise_event.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/exercise_bloc/exercise_state.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
 import '../../../../../../injection_container.dart';
 
 class ExercisePage extends StatelessWidget {
@@ -29,6 +30,7 @@ class _ExerciseView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
@@ -44,7 +46,7 @@ class _ExerciseView extends StatelessWidget {
             ),
           ),
         ),
-        title: Text('Exercise', style: AppTextStyle.appbarHeading),
+        title: Text(localizations.trainingExerciseAppBarTitle, style: AppTextStyle.appbarHeading),
         centerTitle: true,
       ),
       body: BlocBuilder<ExerciseBloc, ExerciseState>(
@@ -54,9 +56,9 @@ class _ExerciseView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _searchField(context, state.query),
+                _searchField(context, state.query, localizations),
                 SizedBox(height: 16.h),
-                _filters(context, state.currentFilter),
+                _filters(context, state.currentFilter, localizations),
                 SizedBox(height: 20.h),
                 if (state.status == ExerciseStatus.loading)
                   SizedBox(
@@ -66,7 +68,7 @@ class _ExerciseView extends StatelessWidget {
                 else if (state.status == ExerciseStatus.error)
                   Center(
                     child: Text(
-                      state.errorMessage ?? 'An error occurred',
+                      state.errorMessage ?? localizations.trainingExerciseGenericError,
                       style: GoogleFonts.poppins(color: Colors.white),
                     ),
                   )
@@ -85,13 +87,13 @@ class _ExerciseView extends StatelessWidget {
     );
   }
 
-  Widget _searchField(BuildContext context, String initial) {
+  Widget _searchField(BuildContext context, String initial, AppLocalizations localizations) {
     final ctrl = TextEditingController(text: initial);
     return TextFormField(
       controller: ctrl,
       style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp),
       decoration: InputDecoration(
-        hintText: 'Search Exercise',
+        hintText: localizations.trainingExerciseSearchHint,
         hintStyle: GoogleFonts.poppins(color: Colors.white70, fontSize: 14.sp),
         filled: true,
         fillColor: const Color(0XFF101021),
@@ -115,8 +117,13 @@ class _ExerciseView extends StatelessWidget {
     );
   }
 
-  Widget _filters(BuildContext context, String current) {
-    final filters = const ['All', 'Chest', 'Back', 'Legs'];
+  Widget _filters(BuildContext context, String current, AppLocalizations localizations) {
+    final filters = [
+      localizations.trainingExerciseFilterAll,
+      localizations.trainingExerciseFilterChest,
+      localizations.trainingExerciseFilterBack,
+      localizations.trainingExerciseFilterLegs,
+    ];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
