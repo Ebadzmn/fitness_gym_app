@@ -13,6 +13,7 @@ import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_bloc/nutrition_state.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_statistics_entity.dart'
     as stats;
+import 'package:fitness_app/l10n/app_localizations.dart';
 
 class NutritionPage extends StatelessWidget {
   const NutritionPage({super.key});
@@ -31,10 +32,11 @@ class _NutritionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
-        title: Text('Nutrition', style: AppTextStyle.appbarHeading),
+        title: Text(localizations.nutritionAppBarTitle, style: AppTextStyle.appbarHeading),
         centerTitle: true,
         backgroundColor: AppColor.primaryColor,
         elevation: 0,
@@ -60,6 +62,7 @@ class _NutritionView extends StatelessWidget {
             child: Column(
               children: [
                 _macrosCard(
+                  localizations: localizations,
                   totals: stats.NutritionTotalsEntity(
                     totalCalories: data.caloriesConsumed.toDouble(),
                     totalProtein: data.proteinConsumed.toDouble(),
@@ -75,8 +78,8 @@ class _NutritionView extends StatelessWidget {
                       child: _menuTile(
                         icon: Icons.restaurant_menu,
                         iconColor: const Color(0xFF82C941),
-                        title: 'Food Items',
-                        subtitle: 'Database',
+                        title: localizations.nutritionMenuFoodItemsTitle,
+                        subtitle: localizations.nutritionMenuFoodItemsSubtitle,
                         borderColor: const Color(0xFF294328),
                         onTap: () =>
                             context.push(AppRoutes.nutritionFoodItemsPage),
@@ -87,8 +90,8 @@ class _NutritionView extends StatelessWidget {
                       child: _menuTile(
                         icon: Icons.calendar_month_outlined,
                         iconColor: const Color(0xFF4A6CF7),
-                        title: 'NUTRITION PLAN',
-                        subtitle: 'Wekly Overview',
+                        title: localizations.nutritionMenuPlanTitle,
+                        subtitle: localizations.nutritionMenuPlanSubtitle,
                         borderColor: const Color(0xFF1D89E47A).withOpacity(0.4),
                         onTap: () => context.push(AppRoutes.nutritionPlanPage),
                       ),
@@ -102,8 +105,8 @@ class _NutritionView extends StatelessWidget {
                       child: _menuTile(
                         icon: Icons.add_circle_outline,
                         iconColor: const Color(0xFFFF6D00),
-                        title: 'TRACK MEALS',
-                        subtitle: 'To Record',
+                        title: localizations.nutritionMenuTrackMealsTitle,
+                        subtitle: localizations.nutritionMenuTrackMealsSubtitle,
                         borderColor: const Color(0xFFFF6D00).withOpacity(0.4),
                         onTap: () =>
                             context.push(AppRoutes.nutritionTrackMealsPage),
@@ -114,8 +117,8 @@ class _NutritionView extends StatelessWidget {
                       child: _menuTile(
                         icon: Icons.stacked_line_chart,
                         iconColor: const Color(0xFFFF6D00),
-                        title: 'STATISTICS',
-                        subtitle: 'View History',
+                        title: localizations.nutritionMenuStatisticsTitle,
+                        subtitle: localizations.nutritionMenuStatisticsSubtitle,
                         borderColor: const Color(0xFFFC9502).withOpacity(0.4),
                         onTap: () =>
                             context.push(AppRoutes.nutritionStatisticsPage),
@@ -130,7 +133,7 @@ class _NutritionView extends StatelessWidget {
                       child: _menuTile(
                         icon: Icons.medication_liquid,
                         iconColor: const Color(0xFF4A6CF7),
-                        title: 'SUPPLEMENTS Plan',
+                        title: localizations.nutritionMenuSupplementTitle,
                         subtitle: '',
                         borderColor: const Color(0xFFFC9502).withOpacity(0.4),
                         onTap: () =>
@@ -142,8 +145,8 @@ class _NutritionView extends StatelessWidget {
                       child: _menuTile(
                         icon: Icons.science_outlined,
                         iconColor: const Color(0xFFFF6D00),
-                        title: "PED's",
-                        subtitle: 'Plan',
+                        title: localizations.nutritionMenuPedTitle,
+                        subtitle: localizations.nutritionMenuPedSubtitle,
                         borderColor: const Color(0xFFFC9502).withOpacity(0.4),
                         onTap: () => context.push(AppRoutes.nutritionPEDsPage),
                       ),
@@ -159,6 +162,7 @@ class _NutritionView extends StatelessWidget {
   }
 
   Widget _macrosCard({
+    required AppLocalizations localizations,
     required stats.NutritionTotalsEntity totals,
     required NutritionDashboardEntity goals,
   }) {
@@ -176,7 +180,7 @@ class _NutritionView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Today's Macros",
+                localizations.nutritionTodayMacrosTitle,
                 style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 14.sp,
@@ -195,21 +199,21 @@ class _NutritionView extends StatelessWidget {
           ),
           SizedBox(height: 12.h),
           _macroRow(
-            label: 'Protein',
+            label: localizations.nutritionMacroProteinLabel,
             valueText: '${totals.totalProtein.toInt()}g/ ${goals.proteinGoal}g',
             color: const Color(0xFF4A6CF7),
             progress: totals.totalProtein / goals.proteinGoal,
           ),
           SizedBox(height: 8.h),
           _macroRow(
-            label: 'Carbs',
+            label: localizations.nutritionMacroCarbsLabel,
             valueText: '${totals.totalCarbs.toInt()}g/ ${goals.carbsGoal}g',
             color: const Color(0xFF82C941),
             progress: totals.totalCarbs / goals.carbsGoal,
           ),
           SizedBox(height: 8.h),
           _macroRow(
-            label: 'Fat',
+            label: localizations.nutritionMacroFatsLabel,
             valueText: '${totals.totalFats.toInt()}g/ ${goals.fatGoal}g',
             color: const Color(0xFFFF6D00),
             progress: totals.totalFats / goals.fatGoal,

@@ -1,8 +1,6 @@
 import 'package:fitness_app/core/appRoutes/app_routes.dart';
-
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
-import 'package:fitness_app/domain/entities/training_entities/training_history_entity.dart';
 import 'package:fitness_app/domain/entities/training_entities/training_history_entity.dart';
 import 'package:fitness_app/features/training/domain/usecases/get_training_history_usecase.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/training_history/training_history_bloc.dart';
@@ -13,7 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:fitness_app/l10n/app_localizations.dart';
 import 'package:fitness_app/injection_container.dart' as di;
 
 class TrainingHistoryPage extends StatelessWidget {
@@ -35,10 +33,11 @@ class _TrainingHistoryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
-        title: Text('Training History', style: AppTextStyle.appbarHeading),
+        title: Text(localizations.trainingHistoryAppBarTitle, style: AppTextStyle.appbarHeading),
         centerTitle: true,
         backgroundColor: AppColor.primaryColor,
         elevation: 0,
@@ -59,13 +58,18 @@ class _TrainingHistoryView extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (state.status == TrainingHistoryStatus.failure) {
-            return Center(child: Text('Error: ${state.errorMessage}'));
+            return Center(
+              child: Text(
+                '${localizations.dailyTrackingError}: ${state.errorMessage}',
+                style: GoogleFonts.poppins(color: Colors.white),
+              ),
+            );
           }
           if (state.history.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
-                "No history available",
-                style: TextStyle(color: Colors.white),
+                localizations.trainingHistoryEmpty,
+                style: GoogleFonts.poppins(color: Colors.white),
               ),
             );
           }

@@ -12,6 +12,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:fitness_app/features/auth/presentation/bloc/auth_event.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
+import 'package:fitness_app/core/bloc/nav_bloc.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -29,20 +31,24 @@ class _ProfileView extends StatelessWidget {
   const _ProfileView();
 
   void _showLogoutDialog(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF13131F),
-        title: Text('Logout', style: GoogleFonts.poppins(color: Colors.white)),
+        title: Text(
+          localizations.profileLogoutTitle,
+          style: GoogleFonts.poppins(color: Colors.white),
+        ),
         content: Text(
-          'Are you sure you want to logout?',
+          localizations.profileLogoutMessage,
           style: GoogleFonts.poppins(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Cancel',
+              localizations.profileLogoutCancel,
               style: GoogleFonts.poppins(color: Colors.white),
             ),
           ),
@@ -54,7 +60,7 @@ class _ProfileView extends StatelessWidget {
               );
             },
             child: Text(
-              'Logout',
+              localizations.profileLogoutConfirm,
               style: GoogleFonts.poppins(color: Colors.redAccent),
             ),
           ),
@@ -180,10 +186,14 @@ class _ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
-        title: Text('Profile', style: AppTextStyle.appbarHeading),
+        title: Text(
+          localizations.profileAppBarTitle,
+          style: AppTextStyle.appbarHeading,
+        ),
         centerTitle: true,
         backgroundColor: AppColor.primaryColor,
         elevation: 0,
@@ -193,7 +203,9 @@ class _ProfileView extends StatelessWidget {
             backgroundColor: Colors.white10,
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => context.pop(),
+              onPressed: () {
+                context.read<NavBloc>().add(const NavEvent(0));
+              },
             ),
           ),
         ),
@@ -219,7 +231,7 @@ class _ProfileView extends StatelessWidget {
           if (state.status == ProfileStatus.failure) {
             return Center(
               child: Text(
-                'Error: ${state.errorMessage}',
+                localizations.trainingExerciseGenericError,
                 style: const TextStyle(color: Colors.white),
               ),
             );
@@ -285,13 +297,25 @@ class _ProfileView extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _sectionHeader(Icons.person_outline, 'Personal Data'),
+                        _sectionHeader(
+                          Icons.person_outline,
+                          localizations.profileSectionPersonalData,
+                        ),
                         SizedBox(height: 16.h),
-                        _infoRow('Full Name', athlete.name),
+                        _infoRow(
+                          localizations.profileLabelFullName,
+                          athlete.name,
+                        ),
                         SizedBox(height: 12.h),
-                        _infoRow('Email', athlete.email),
+                        _infoRow(
+                          localizations.profileLabelEmail,
+                          athlete.email,
+                        ),
                         SizedBox(height: 12.h),
-                        _infoRow('Gender', athlete.gender),
+                        _infoRow(
+                          localizations.profileLabelGender,
+                          athlete.gender,
+                        ),
                       ],
                     ),
                   ),
@@ -307,36 +331,51 @@ class _ProfileView extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _sectionHeader(Icons.person_outline, 'Athlete Info'),
+                        _sectionHeader(
+                          Icons.person_outline,
+                          localizations.profileSectionAthleteInfo,
+                        ),
                         SizedBox(height: 16.h),
                         _infoRow(
-                          'Status',
+                          localizations.profileLabelStatus,
                           athlete.status,
                           valueColor: const Color(0xFFFFCC00),
                         ),
                         SizedBox(height: 12.h),
                         _infoRow(
-                          'Category',
+                          localizations.profileLabelCategory,
                           athlete.category,
                           valueColor: Colors.green,
                         ),
                         SizedBox(height: 12.h),
-                        _infoRow('Check-in day', athlete.checkInDay),
-                        SizedBox(height: 12.h),
-                        _infoRow('Hight (cm)', '${athlete.height} (cm)'),
-                        SizedBox(height: 12.h),
-                        _infoRow('Age', '${athlete.age} Years'),
-                        SizedBox(height: 12.h),
-                        _infoRow('Goal', athlete.goal),
-                        SizedBox(height: 12.h),
                         _infoRow(
-                          'Training Day Steps',
-                          '${athlete.trainingDaySteps} Step',
+                          localizations.profileLabelCheckInDay,
+                          athlete.checkInDay,
                         ),
                         SizedBox(height: 12.h),
                         _infoRow(
-                          'Rest day Steps',
-                          '${athlete.restDaySteps} Step',
+                          localizations.profileLabelHeight,
+                          '${athlete.height} (cm)',
+                        ),
+                        SizedBox(height: 12.h),
+                        _infoRow(
+                          localizations.profileLabelAge,
+                          '${athlete.age} ${localizations.profileLabelAgeYearsSuffix}',
+                        ),
+                        SizedBox(height: 12.h),
+                        _infoRow(
+                          localizations.profileLabelGoal,
+                          athlete.goal,
+                        ),
+                        SizedBox(height: 12.h),
+                        _infoRow(
+                          localizations.profileLabelTrainingDaySteps,
+                          '${athlete.trainingDaySteps} ${localizations.profileLabelStepsSuffix}',
+                        ),
+                        SizedBox(height: 12.h),
+                        _infoRow(
+                          localizations.profileLabelRestDaySteps,
+                          '${athlete.restDaySteps} ${localizations.profileLabelStepsSuffix}',
                         ),
                         SizedBox(height: 12.h),
                       ],
@@ -356,20 +395,23 @@ class _ProfileView extends StatelessWidget {
                       children: [
                         _sectionHeader(
                           Icons.person_outline,
-                          'Account',
+                          localizations.profileSectionAccount,
                           iconColor: Colors.yellow,
                         ),
                         SizedBox(height: 16.h),
                         _infoRow(
-                          'Role',
+                          localizations.profileLabelRole,
                           athlete.role,
                           valueColor: const Color(0xFFFFCC00),
                         ),
                         SizedBox(height: 12.h),
-                        _infoRow('Coach', profile.coachName),
+                        _infoRow(
+                          localizations.profileLabelCoach,
+                          profile.coachName,
+                        ),
                         SizedBox(height: 12.h),
                         _infoRow(
-                          'Member since',
+                          localizations.profileLabelMemberSince,
                           _formatDate(athlete.createdAt),
                         ),
                       ],
@@ -389,30 +431,36 @@ class _ProfileView extends StatelessWidget {
                       children: [
                         _sectionHeader(
                           Icons.emoji_events_outlined,
-                          'Show Information',
+                          localizations.profileSectionShowInfo,
                           iconColor: Colors.green,
                         ),
                         SizedBox(height: 16.h),
                         _infoRow(
-                          'Show Name',
+                          localizations.profileLabelShowName,
                           'WBFF Muscle',
                           valueColor: const Color(0xFFFFCC00),
                         ), // Placeholder or missing in response? Using static for now if not in Entity
                         SizedBox(height: 12.h),
                         _infoRow(
-                          'Show Date',
+                          localizations.profileLabelShowDate,
                           profile.show.date,
                           valueColor: Colors.green,
                         ),
                         SizedBox(height: 12.h),
                         _infoRow(
-                          'Location',
+                          localizations.profileLabelLocation,
                           'Olympia Hall, Germany',
                         ), // Placeholder
                         SizedBox(height: 12.h),
-                        _infoRow('Division', 'WBFF'), // Placeholder
+                        _infoRow(
+                          localizations.profileLabelDivision,
+                          'WBFF',
+                        ), // Placeholder
                         SizedBox(height: 12.h),
-                        _infoRow('Countdown', '${profile.countDown} Days'),
+                        _infoRow(
+                          localizations.profileLabelCountdown,
+                          '${profile.countDown} ${localizations.profileLabelDaysSuffix}',
+                        ),
                       ],
                     ),
                   ),
@@ -443,7 +491,7 @@ class _ProfileView extends StatelessWidget {
                               Expanded(
                                 flex: 1,
                                 child: Text(
-                                  'Week',
+                                  localizations.profileTimelineHeaderWeek,
                                   textAlign: TextAlign.center,
                                   style: GoogleFonts.poppins(
                                     color: Colors.white,
@@ -459,7 +507,7 @@ class _ProfileView extends StatelessWidget {
                               Expanded(
                                 flex: 2,
                                 child: Text(
-                                  'Date',
+                                  localizations.profileTimelineHeaderDate,
                                   textAlign: TextAlign.center,
                                   style: GoogleFonts.poppins(
                                     color: Colors.white,
@@ -475,7 +523,7 @@ class _ProfileView extends StatelessWidget {
                               Expanded(
                                 flex: 2,
                                 child: Text(
-                                  'Phase',
+                                  localizations.profileTimelineHeaderPhase,
                                   textAlign: TextAlign.center,
                                   style: GoogleFonts.poppins(
                                     color: Colors.white,
@@ -502,10 +550,10 @@ class _ProfileView extends StatelessWidget {
               ),
             );
           }
-          return const Center(
+          return Center(
             child: Text(
-              'No profile data found',
-              style: TextStyle(color: Colors.white),
+              localizations.profileEmpty,
+              style: const TextStyle(color: Colors.white),
             ),
           );
         },
