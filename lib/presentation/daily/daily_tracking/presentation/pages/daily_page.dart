@@ -1,8 +1,9 @@
 import 'package:fitness_app/domain/entities/daily_entities/daily_tracking_entity.dart';
+import 'package:fitness_app/core/coreWidget/full_width_slider.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:fitness_app/core/coreWidget/full_width_slider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fitness_app/core/config/assets_path.dart';
@@ -31,11 +32,12 @@ class _DailyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: const Text('Daily Tracking'),
+        title: Text(localizations.dailyTrackingAppBarTitle),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12),
@@ -55,13 +57,21 @@ class _DailyView extends StatelessWidget {
         listener: (context, state) {
           if (state.status == DailyStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errorMessage ?? 'Error')),
+              SnackBar(
+                content: Text(
+                  state.errorMessage ?? localizations.dailyTrackingError,
+                ),
+              ),
             );
           }
           if (state.status == DailyStatus.saved) {
             ScaffoldMessenger.of(
               context,
-            ).showSnackBar(const SnackBar(content: Text('Saved')));
+            ).showSnackBar(
+              SnackBar(
+                content: Text(localizations.dailyTrackingSaved),
+              ),
+            );
           }
         },
         builder: (context, state) {
@@ -75,7 +85,7 @@ class _DailyView extends StatelessWidget {
               child: Column(
                 children: [
                   SizedBox(height: 12.h),
-                  _dateTodayHeader(data.vital.dateLabel),
+                  _dateTodayHeader(context, data.vital.dateLabel),
                   SizedBox(height: 12.h),
                   _weightCard(context, data.vital.weightText),
                   SizedBox(height: 12.h),
@@ -137,7 +147,8 @@ class _DailyView extends StatelessWidget {
     );
   }
 
-  Widget _dateTodayHeader(String dateLabel) {
+  Widget _dateTodayHeader(BuildContext context, String dateLabel) {
+    final localizations = AppLocalizations.of(context)!;
     return Container(
       height: 60.h,
       width: double.infinity,
@@ -154,7 +165,7 @@ class _DailyView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Date:',
+                  localizations.dailyDateLabel,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 12.sp,
@@ -183,7 +194,7 @@ class _DailyView extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  'Today',
+                  localizations.dailyDateToday,
                   style: GoogleFonts.poppins(
                     color: Colors.green,
                     fontSize: 12.sp,
@@ -199,6 +210,7 @@ class _DailyView extends StatelessWidget {
   }
 
   Widget _weightCard(BuildContext context, String initial) {
+    final localizations = AppLocalizations.of(context)!;
     final ctrl = TextEditingController(text: initial);
     return Container(
       height: 110.h,
@@ -216,7 +228,7 @@ class _DailyView extends StatelessWidget {
                 SvgPicture.asset(AssetsPath.weight),
                 SizedBox(width: 8.w),
                 Text(
-                  'Weight:',
+                  localizations.dailyWeightLabel,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14.sp,
@@ -234,7 +246,7 @@ class _DailyView extends StatelessWidget {
                 fontWeight: FontWeight.w400,
               ),
               decoration: InputDecoration(
-                hintText: '65.2 (kg)',
+                hintText: localizations.dailyWeightHint,
                 hintStyle: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 14.sp,
@@ -266,6 +278,7 @@ class _DailyView extends StatelessWidget {
   }
 
   Widget _sleepCard(BuildContext context, String durationText, double quality) {
+    final localizations = AppLocalizations.of(context)!;
     final ctrl = TextEditingController(text: durationText);
     return Container(
       height: 170.h,
@@ -283,7 +296,7 @@ class _DailyView extends StatelessWidget {
                 SvgPicture.asset(AssetsPath.sleep),
                 SizedBox(width: 8.w),
                 Text(
-                  'Sleep:',
+                  localizations.dailySleepLabel,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14.sp,
@@ -301,7 +314,7 @@ class _DailyView extends StatelessWidget {
                 fontWeight: FontWeight.w400,
               ),
               decoration: InputDecoration(
-                hintText: '08 : 45 (Minutes)',
+                hintText: localizations.dailySleepDurationHint,
                 hintStyle: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 14.sp,
@@ -329,7 +342,7 @@ class _DailyView extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  'Sleep Quality (1 - 10 )',
+                  localizations.dailySleepQualityLabel,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14.sp,
@@ -358,6 +371,7 @@ class _DailyView extends StatelessWidget {
   }
 
   Widget _sickCard(BuildContext context, bool isSick) {
+    final localizations = AppLocalizations.of(context)!;
     return Container(
       height: 120.h,
       decoration: BoxDecoration(
@@ -373,7 +387,7 @@ class _DailyView extends StatelessWidget {
                 SvgPicture.asset(AssetsPath.sick),
                 SizedBox(width: 8.w),
                 Text(
-                  'Sick:',
+                  localizations.dailySickLabel,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14.sp,
@@ -385,14 +399,14 @@ class _DailyView extends StatelessWidget {
             SizedBox(height: 12.h),
             _circleOption(
               context,
-              'Yes',
+              localizations.commonYes,
               isSick == true,
               () => context.read<DailyBloc>().add(const SickChanged(true)),
             ),
             SizedBox(height: 12.h),
             _circleOption(
               context,
-              'No',
+              localizations.commonNo,
               isSick == false,
               () => context.read<DailyBloc>().add(const SickChanged(false)),
             ),
@@ -438,6 +452,7 @@ class _DailyView extends StatelessWidget {
   }
 
   Widget _waterCard(BuildContext context, String initial) {
+    final localizations = AppLocalizations.of(context)!;
     final ctrl = TextEditingController(text: initial);
     return Container(
       height: 120.h,
@@ -456,7 +471,7 @@ class _DailyView extends StatelessWidget {
                 SvgPicture.asset(AssetsPath.water),
                 SizedBox(width: 8.w),
                 Text(
-                  'Water:',
+                  localizations.dailyWaterLabel,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14.sp,
@@ -474,7 +489,7 @@ class _DailyView extends StatelessWidget {
                 fontWeight: FontWeight.w400,
               ),
               decoration: InputDecoration(
-                hintText: '1.2 (Lit)',
+                hintText: localizations.dailyWaterHint,
                 hintStyle: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 14.sp,
@@ -501,7 +516,7 @@ class _DailyView extends StatelessWidget {
             ),
             SizedBox(height: 6.h),
             Text(
-              'At least 2.5 liters recommended.',
+              localizations.dailyWaterAdvice,
               style: GoogleFonts.poppins(
                 color: Colors.green,
                 fontSize: 12.sp,
@@ -515,6 +530,7 @@ class _DailyView extends StatelessWidget {
   }
 
   Widget _energyWellBeingCard(BuildContext context, DailyTrackingEntity data) {
+    final localizations = AppLocalizations.of(context)!;
     final bodyTempCtrl = TextEditingController(text: data.vital.bodyTempText);
     return Container(
       width: double.infinity,
@@ -532,7 +548,7 @@ class _DailyView extends StatelessWidget {
                 Icon(Icons.health_and_safety_outlined, color: Colors.white),
                 SizedBox(width: 8.w),
                 Text(
-                  'Energy & Well-Being',
+                  localizations.dailyEnergySectionTitle,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14.sp,
@@ -546,7 +562,7 @@ class _DailyView extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Energy Level (1-10)',
+                    localizations.dailyEnergyLevelLabel,
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -572,7 +588,7 @@ class _DailyView extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Stress Level (1-10)',
+                    localizations.dailyStressLevelLabel,
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -598,7 +614,7 @@ class _DailyView extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Muscle Soreness (1-10)',
+                    localizations.dailyMuscleSorenessLabel,
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -625,7 +641,7 @@ class _DailyView extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Mood (1-10)',
+                    localizations.dailyMoodLabel,
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -651,7 +667,7 @@ class _DailyView extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Motivation (1-10)',
+                    localizations.dailyMotivationLabel,
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -676,7 +692,7 @@ class _DailyView extends StatelessWidget {
             ),
             SizedBox(height: 12.h),
             Text(
-              'Body Temperature',
+              localizations.dailyBodyTempLabel,
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 14.sp,
@@ -692,7 +708,7 @@ class _DailyView extends StatelessWidget {
                 fontWeight: FontWeight.w400,
               ),
               decoration: InputDecoration(
-                hintText: 'Type..',
+                hintText: localizations.dailyGenericTypeHint,
                 hintStyle: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 14.sp,
@@ -724,6 +740,7 @@ class _DailyView extends StatelessWidget {
   }
 
   Widget _trainingCard(BuildContext context, DailyTrackingEntity data) {
+    final localizations = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -740,7 +757,7 @@ class _DailyView extends StatelessWidget {
                 Icon(Icons.fitness_center_outlined, color: Colors.white),
                 SizedBox(width: 8.w),
                 Text(
-                  'Training',
+                  localizations.dailyTrainingSectionTitle,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14.sp,
@@ -751,21 +768,21 @@ class _DailyView extends StatelessWidget {
             ),
             SizedBox(height: 12.h),
             DropdownYesNoTile(
-              title: 'Training Completed?',
+              title: localizations.dailyTrainingCompletedTitle,
               value: data.training.trainingCompleted,
               onChanged: (v) => context.read<DailyBloc>().add(
                 TrainingToggleChanged('trainingCompleted', v),
               ),
             ),
             SizedBox(height: 12.h),
-            _titledBox('Training Plan?'),
+            _titledBox(localizations.dailyTrainingPlanTitle),
             SizedBox(height: 12.h),
             Row(
               children: [
                 Expanded(
                   child: _checkboxTile(
                     context,
-                    'Placeholder',
+                    localizations.dailyTrainingPlanPlaceholder,
                     data.training.plans.contains(
                       DailyTrackingConstants.trainingPlanValues[0],
                     ),
@@ -777,7 +794,7 @@ class _DailyView extends StatelessWidget {
                 Expanded(
                   child: _checkboxTile(
                     context,
-                    'Push Fullbody',
+                    localizations.dailyTrainingPlanPushFullbody,
                     data.training.plans.contains(
                       DailyTrackingConstants.trainingPlanValues[1],
                     ),
@@ -793,7 +810,7 @@ class _DailyView extends StatelessWidget {
                 Expanded(
                   child: _checkboxTile(
                     context,
-                    'Leg Day Advanced',
+                    localizations.dailyTrainingPlanLegDayAdvanced,
                     data.training.plans.contains(
                       DailyTrackingConstants.trainingPlanValues[2],
                     ),
@@ -805,7 +822,7 @@ class _DailyView extends StatelessWidget {
                 Expanded(
                   child: _checkboxTile(
                     context,
-                    'Training plan 1',
+                    localizations.dailyTrainingPlanPlan1,
                     data.training.plans.contains(
                       DailyTrackingConstants.trainingPlanValues[3],
                     ),
@@ -817,14 +834,14 @@ class _DailyView extends StatelessWidget {
             ),
             SizedBox(height: 12.h),
             DropdownYesNoTile(
-              title: 'Cardio Completed?',
+              title: localizations.dailyCardioCompletedTitle,
               value: data.training.cardioCompleted,
               onChanged: (v) => context.read<DailyBloc>().add(
                 TrainingToggleChanged('cardioCompleted', v),
               ),
             ),
             SizedBox(height: 12.h),
-            _titledBox('Cardio Type ?'),
+            _titledBox(localizations.dailyCardioTypeTitle),
             SizedBox(height: 12.h),
             _cardioOptionsRow(context, data.training.cardioType),
             SizedBox(height: 12.h),
@@ -857,13 +874,21 @@ class _DailyView extends StatelessWidget {
   }
 
   Widget _cardioOptionsRow(BuildContext context, String selectedType) {
+    final localizations = AppLocalizations.of(context)!;
     final opts = DailyTrackingConstants.cardioTypeValues;
     return Wrap(
       spacing: 16.w,
       runSpacing: 16.h,
       children: opts.map((label) {
         final isSelected = selectedType == label;
-        final displayLabel = label[0] + label.substring(1).toLowerCase();
+        String displayLabel;
+        if (label == 'WALKING') {
+          displayLabel = localizations.dailyCardioWalking;
+        } else if (label == 'CYCLING') {
+          displayLabel = localizations.dailyCardioCycling;
+        } else {
+          displayLabel = label[0] + label.substring(1).toLowerCase();
+        }
         return InkWell(
           onTap: () =>
               context.read<DailyBloc>().add(TrainingCardioTypeChanged(label)),
@@ -963,6 +988,7 @@ class _DailyView extends StatelessWidget {
   }
 
   Widget _durationField(BuildContext context, String initial) {
+    final localizations = AppLocalizations.of(context)!;
     final ctrl = TextEditingController(text: initial);
     return Container(
       decoration: BoxDecoration(
@@ -978,7 +1004,7 @@ class _DailyView extends StatelessWidget {
           fontWeight: FontWeight.w400,
         ),
         decoration: InputDecoration(
-          hintText: 'Duration  (Minutes)',
+          hintText: localizations.dailyDurationHint,
           hintStyle: GoogleFonts.poppins(
             color: Colors.white,
             fontSize: 14.sp,
@@ -1008,6 +1034,7 @@ class _DailyView extends StatelessWidget {
   }
 
   Widget _activityTimeCard(BuildContext context, String initial) {
+    final localizations = AppLocalizations.of(context)!;
     final ctrl = TextEditingController(text: initial);
     return Container(
       height: 120.h,
@@ -1026,7 +1053,7 @@ class _DailyView extends StatelessWidget {
                 SvgPicture.asset(AssetsPath.Clock),
                 SizedBox(width: 8.w),
                 Text(
-                  'Activity Steps:',
+                  localizations.dailyActivityStepsLabel,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14.sp,
@@ -1045,7 +1072,7 @@ class _DailyView extends StatelessWidget {
                 fontWeight: FontWeight.w400,
               ),
               decoration: InputDecoration(
-                hintText: '10000',
+                hintText: localizations.dailyActivityStepsHint,
                 hintStyle: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 14.sp,
@@ -1077,6 +1104,7 @@ class _DailyView extends StatelessWidget {
   }
 
   Widget _nutritionCard(BuildContext context, DailyTrackingEntity data) {
+    final localizations = AppLocalizations.of(context)!;
     final caloriesCtrl = TextEditingController(
       text: data.nutrition.caloriesText,
     );
@@ -1100,7 +1128,7 @@ class _DailyView extends StatelessWidget {
                 Icon(Icons.restaurant_outlined, color: Colors.white),
                 SizedBox(width: 8.w),
                 Text(
-                  'Nutrition',
+                  localizations.dailyNutritionSectionTitle,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14.sp,
@@ -1117,7 +1145,7 @@ class _DailyView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Calories',
+                        localizations.dailyNutritionCaloriesLabel,
                         style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontSize: 14.sp,
@@ -1127,7 +1155,7 @@ class _DailyView extends StatelessWidget {
                       SizedBox(height: 8.h),
                       _filledInput(
                         caloriesCtrl,
-                        'Type..',
+                        localizations.dailyGenericTypeHint,
                         (v) => context.read<DailyBloc>().add(
                           NutritionTextChanged('caloriesText', v),
                         ),
@@ -1141,7 +1169,7 @@ class _DailyView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Carbs',
+                        localizations.dailyNutritionCarbsLabel,
                         style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontSize: 14.sp,
@@ -1151,7 +1179,7 @@ class _DailyView extends StatelessWidget {
                       SizedBox(height: 8.h),
                       _filledInput(
                         carbsCtrl,
-                        'Type..',
+                        localizations.dailyGenericTypeHint,
                         (v) => context.read<DailyBloc>().add(
                           NutritionTextChanged('carbsText', v),
                         ),
@@ -1169,7 +1197,7 @@ class _DailyView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Protein',
+                        localizations.dailyNutritionProteinLabel,
                         style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontSize: 14.sp,
@@ -1179,7 +1207,7 @@ class _DailyView extends StatelessWidget {
                       SizedBox(height: 8.h),
                       _filledInput(
                         proteinCtrl,
-                        'Type..',
+                        localizations.dailyGenericTypeHint,
                         (v) => context.read<DailyBloc>().add(
                           NutritionTextChanged('proteinText', v),
                         ),
@@ -1193,7 +1221,7 @@ class _DailyView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Fats',
+                        localizations.dailyNutritionFatsLabel,
                         style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontSize: 14.sp,
@@ -1203,7 +1231,7 @@ class _DailyView extends StatelessWidget {
                       SizedBox(height: 8.h),
                       _filledInput(
                         fatsCtrl,
-                        'Type..',
+                        localizations.dailyGenericTypeHint,
                         (v) => context.read<DailyBloc>().add(
                           NutritionTextChanged('fatsText', v),
                         ),
@@ -1218,7 +1246,7 @@ class _DailyView extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Hunger  (1-10)',
+                    localizations.dailyNutritionHungerLabel,
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -1245,7 +1273,7 @@ class _DailyView extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Digestion  (1-10)',
+                    localizations.dailyNutritionDigestionLabel,
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -1270,7 +1298,7 @@ class _DailyView extends StatelessWidget {
             ),
             SizedBox(height: 12.h),
             Text(
-              'Salt (g)',
+              localizations.dailyNutritionSaltLabel,
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 14.sp,
@@ -1280,7 +1308,7 @@ class _DailyView extends StatelessWidget {
             SizedBox(height: 8.h),
             _filledInput(
               saltCtrl,
-              'Type..',
+              localizations.dailyGenericTypeHint,
               (v) => context.read<DailyBloc>().add(
                 NutritionTextChanged('saltText', v),
               ),
@@ -1333,8 +1361,9 @@ class _DailyView extends StatelessWidget {
   Widget _labeledField(
     String label,
     TextEditingController ctrl,
-    ValueChanged<String> onChanged,
-  ) {
+    ValueChanged<String> onChanged, {
+    String? hint,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1347,12 +1376,13 @@ class _DailyView extends StatelessWidget {
           ),
         ),
         SizedBox(height: 8.h),
-        _filledInput(ctrl, 'Type..', onChanged),
+        _filledInput(ctrl, hint ?? 'Type..', onChanged),
       ],
     );
   }
 
   Widget _womenCard(BuildContext context, DailyTrackingEntity data) {
+    final localizations = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -1369,7 +1399,7 @@ class _DailyView extends StatelessWidget {
                 Icon(Icons.woman_2_outlined, color: Colors.white),
                 SizedBox(width: 8.w),
                 Text(
-                  'Women',
+                  localizations.dailyWomenSectionTitle,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14.sp,
@@ -1380,20 +1410,22 @@ class _DailyView extends StatelessWidget {
             ),
             SizedBox(height: 12.h),
             DropdownTile(
-              title: 'Cycle Phase?',
+              title: localizations.dailyWomenCyclePhaseTitle,
               value: data.women.cyclePhase,
               options: DailyTrackingConstants.cyclePhaseValues,
               onChanged: (v) =>
                   context.read<DailyBloc>().add(WomenCyclePhaseChanged(v)),
             ),
             SizedBox(height: 12.h),
-            _titledBox('Cycle Day  ( ${data.women.cycleDayLabel} )'),
+            _titledBox(
+              localizations.dailyWomenCycleDayTitle(data.women.cycleDayLabel),
+            ),
             SizedBox(height: 12.h),
             Row(
               children: [
                 Expanded(
                   child: Text(
-                    'PMS Symptoms (1-10)',
+                    localizations.dailyWomenPmsLabel,
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -1419,7 +1451,7 @@ class _DailyView extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Cramps  (1-10)',
+                    localizations.dailyWomenCrampsLabel,
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -1443,7 +1475,7 @@ class _DailyView extends StatelessWidget {
             ),
             SizedBox(height: 12.h),
             DropdownMultiSelectTile(
-              title: 'Symptoms',
+              title: localizations.dailyWomenSymptomsTitle,
               selected: data.women.symptoms,
               options: DailyTrackingConstants.womenSymptomsValues,
               onChanged: (s) =>
@@ -1456,6 +1488,7 @@ class _DailyView extends StatelessWidget {
   }
 
   Widget _pedCard(BuildContext context, DailyTrackingEntity data) {
+    final localizations = AppLocalizations.of(context)!;
     final sideEffectsCtrl = TextEditingController(
       text: data.pedHealth.sideEffects,
     );
@@ -1475,7 +1508,7 @@ class _DailyView extends StatelessWidget {
                 Icon(Icons.medical_services_outlined, color: Colors.white),
                 SizedBox(width: 8.w),
                 Text(
-                  'PED',
+                  localizations.dailyPedSectionTitle,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14.sp,
@@ -1486,14 +1519,14 @@ class _DailyView extends StatelessWidget {
             ),
             SizedBox(height: 12.h),
             DropdownYesNoTile(
-              title: 'Daily Dosage Taken',
+              title: localizations.dailyPedDosageTitle,
               value: data.pedHealth.dosageTaken,
               onChanged: (v) =>
                   context.read<DailyBloc>().add(PedDosageChanged(v)),
             ),
             SizedBox(height: 12.h),
             Text(
-              'Side Effects Notes',
+              localizations.dailyPedSideEffectsTitle,
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 14.sp,
@@ -1503,7 +1536,7 @@ class _DailyView extends StatelessWidget {
             SizedBox(height: 8.h),
             _textArea(
               sideEffectsCtrl,
-              hint: 'Type...',
+              hint: localizations.dailyGenericTypeHint,
               onChanged: (v) =>
                   context.read<DailyBloc>().add(PedSideEffectsChanged(v)),
             ),
@@ -1514,6 +1547,7 @@ class _DailyView extends StatelessWidget {
   }
 
   Widget _bloodPressureCard(BuildContext context, DailyTrackingEntity data) {
+    final localizations = AppLocalizations.of(context)!;
     final systolicCtrl = TextEditingController(
       text: data.pedHealth.systolicText,
     );
@@ -1540,7 +1574,7 @@ class _DailyView extends StatelessWidget {
                 Icon(Icons.bloodtype_outlined, color: Colors.white),
                 SizedBox(width: 8.w),
                 Text(
-                  'Blood Pressure',
+                  localizations.dailyBpSectionTitle,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14.sp,
@@ -1554,39 +1588,43 @@ class _DailyView extends StatelessWidget {
               children: [
                 Expanded(
                   child: _labeledField(
-                    'Systolic',
+                    localizations.dailyBpSystolicLabel,
                     systolicCtrl,
                     (v) => context.read<DailyBloc>().add(
                       PedBpChanged('systolicText', v),
                     ),
+                    hint: localizations.dailyGenericTypeHint,
                   ),
                 ),
                 SizedBox(width: 12.w),
                 Expanded(
                   child: _labeledField(
-                    'Diastolic',
+                    localizations.dailyBpDiastolicLabel,
                     diastolicCtrl,
                     (v) => context.read<DailyBloc>().add(
                       PedBpChanged('diastolicText', v),
                     ),
+                    hint: localizations.dailyGenericTypeHint,
                   ),
                 ),
               ],
             ),
             SizedBox(height: 12.h),
             _labeledField(
-              'Resting Heart Rate',
+              localizations.dailyBpRestingHrLabel,
               restingHrCtrl,
               (v) => context.read<DailyBloc>().add(
                 PedBpChanged('restingHrText', v),
               ),
+              hint: localizations.dailyGenericTypeHint,
             ),
             SizedBox(height: 12.h),
             _labeledField(
-              'Blood Glucose',
+              localizations.dailyBpGlucoseLabel,
               glucoseCtrl,
               (v) =>
                   context.read<DailyBloc>().add(PedBpChanged('glucoseText', v)),
+              hint: localizations.dailyGenericTypeHint,
             ),
           ],
         ),
@@ -1595,6 +1633,7 @@ class _DailyView extends StatelessWidget {
   }
 
   Widget _dailyNotesCard(BuildContext context, String notes) {
+    final localizations = AppLocalizations.of(context)!;
     final notesCtrl = TextEditingController(text: notes);
     return Container(
       width: double.infinity,
@@ -1612,7 +1651,7 @@ class _DailyView extends StatelessWidget {
                 Icon(Icons.note_alt_outlined, color: Colors.white),
                 SizedBox(width: 8.w),
                 Text(
-                  'Daily Notes',
+                  localizations.dailyNotesSectionTitle,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14.sp,
@@ -1624,7 +1663,7 @@ class _DailyView extends StatelessWidget {
             SizedBox(height: 8.h),
             _textArea(
               notesCtrl,
-              hint: 'Type...',
+              hint: localizations.dailyGenericTypeHint,
               onChanged: (v) =>
                   context.read<DailyBloc>().add(DailyNotesChanged(v)),
             ),
@@ -1647,7 +1686,7 @@ class _DailyView extends StatelessWidget {
         ),
         onPressed: () => context.read<DailyBloc>().add(const SavePressed()),
         child: Text(
-          'Submit',
+          AppLocalizations.of(context)!.dailySubmitButton,
           style: GoogleFonts.poppins(
             color: Colors.white,
             fontWeight: FontWeight.w600,

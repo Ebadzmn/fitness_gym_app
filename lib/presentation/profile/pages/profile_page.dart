@@ -1,3 +1,4 @@
+import 'package:fitness_app/core/bloc/locale_cubit.dart';
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:fitness_app/features/profile/presentation/bloc/profile_bloc.dart';
@@ -27,6 +28,156 @@ class ProfilePage extends StatelessWidget {
 class _ProfileView extends StatelessWidget {
   const _ProfileView();
 
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF13131F),
+        title: Text('Logout', style: GoogleFonts.poppins(color: Colors.white)),
+        content: Text(
+          'Are you sure you want to logout?',
+          style: GoogleFonts.poppins(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.poppins(color: Colors.white),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<AuthBloc>().add(LogoutRequested());
+              context.go(
+                '/login',
+              );
+            },
+            child: Text(
+              'Logout',
+              style: GoogleFonts.poppins(color: Colors.redAccent),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(String dateString) {
+    if (dateString.isEmpty) return '';
+    try {
+      final date = DateTime.parse(dateString);
+      return '${date.day} / ${date.month} / ${date.year}';
+    } catch (e) {
+      return dateString;
+    }
+  }
+
+  Widget _tableRow(String week, String date, String phase, Color phaseColor) {
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: Colors.white24)),
+      ),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              flex: 1,
+              child: Container(
+                color: Colors.black,
+                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(vertical: 12.h),
+                child: Text(
+                  week,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 12.sp,
+                  ),
+                ),
+              ),
+            ),
+            Container(width: 1, color: Colors.white24),
+            Expanded(
+              flex: 2,
+              child: Container(
+                color: const Color(0xFF2C2C3E),
+                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(vertical: 12.h),
+                child: Text(
+                  date,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 12.sp,
+                  ),
+                ),
+              ),
+            ),
+            Container(width: 1, color: Colors.white24),
+            Expanded(
+              flex: 2,
+              child: Container(
+                color: phaseColor,
+                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
+                child: Text(
+                  phase,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _sectionHeader(IconData icon, String title, {Color? iconColor}) {
+    return Row(
+      children: [
+        Icon(icon, color: iconColor ?? const Color(0xFF82C941), size: 20.sp),
+        SizedBox(width: 8.w),
+        Text(
+          title,
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _infoRow(String label, String value, {Color? valueColor}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.poppins(
+            color: valueColor ?? Colors.white,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +199,11 @@ class _ProfileView extends StatelessWidget {
         ),
         actions: [
           Padding(
-            padding: EdgeInsets.only(right: 16.w),
+            padding: EdgeInsets.only(right: 8.w),
+            child: _LanguageToggleButton(),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: 8.w),
             child: IconButton(
               icon: const Icon(Icons.logout, color: Colors.white),
               onPressed: () => _showLogoutDialog(context),
@@ -357,150 +512,38 @@ class _ProfileView extends StatelessWidget {
       ),
     );
   }
+}
 
-  String _formatDate(String dateString) {
-    if (dateString.isEmpty) return '';
-    try {
-      final date = DateTime.parse(dateString);
-      return '${date.day} / ${date.month} / ${date.year}';
-    } catch (e) {
-      return dateString;
-    }
-  }
+class _LanguageToggleButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context);
+    final isEnglish = locale.languageCode == 'en';
+    final label = isEnglish ? 'EN' : 'DE';
 
-  Widget _tableRow(String week, String date, String phase, Color phaseColor) {
-    return Container(
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.white24)),
+    return TextButton(
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        foregroundColor: Colors.white.withOpacity(0.8),
       ),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              flex: 1,
-              child: Container(
-                color: Colors.black,
-                alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(vertical: 12.h),
-                child: Text(
-                  week,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 12.sp,
-                  ),
-                ),
-              ),
-            ),
-            Container(width: 1, color: Colors.white24),
-            Expanded(
-              flex: 2,
-              child: Container(
-                color: const Color(0xFF2C2C3E),
-                alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(vertical: 12.h),
-                child: Text(
-                  date,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 12.sp,
-                  ),
-                ),
-              ),
-            ),
-            Container(width: 1, color: Colors.white24),
-            Expanded(
-              flex: 2,
-              child: Container(
-                color: phaseColor,
-                alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
-                child: Text(
-                  phase,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _sectionHeader(IconData icon, String title, {Color? iconColor}) {
-    return Row(
-      children: [
-        Icon(icon, color: iconColor ?? const Color(0xFF82C941), size: 20.sp),
-        SizedBox(width: 8.w),
-        Text(
-          title,
-          style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
+      onPressed: () {
+        context.read<LocaleCubit>().toggleLocale();
+      },
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.language,
+            size: 18,
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _infoRow(String label, String value, {Color? valueColor}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-        Text(
-          value,
-          style: GoogleFonts.poppins(
-            color: valueColor ?? Colors.white,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF13131F),
-        title: Text('Logout', style: GoogleFonts.poppins(color: Colors.white)),
-        content: Text(
-          'Are you sure you want to logout?',
-          style: GoogleFonts.poppins(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: GoogleFonts.poppins(color: Colors.white),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              context.read<AuthBloc>().add(LogoutRequested());
-              context.go(
-                '/login',
-              ); // Force navigate as a fallback or if listener is missing
-            },
-            child: Text(
-              'Logout',
-              style: GoogleFonts.poppins(color: Colors.redAccent),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],

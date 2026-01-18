@@ -1,27 +1,27 @@
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:fitness_app/domain/usecases/checkin/get_checkin_history_usecase.dart';
-import 'package:fitness_app/presentation/checkIn/widgets/checkIn_widgets.dart';
-import 'package:fitness_app/presentation/checkIn/widgets/questions_tab.dart';
-import 'package:fitness_app/presentation/checkIn/widgets/checking_tab.dart';
-import 'package:fitness_app/presentation/checkIn/widgets/old_checking_tab.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fitness_app/domain/entities/checkin_entities/old_check_in_entity.dart';
 import 'package:fitness_app/data/repositories/fake_checkin_repository.dart';
-import 'package:fitness_app/domain/usecases/checkin/get_checkin_initial_usecase.dart';
 import 'package:fitness_app/domain/usecases/checkin/get_checkin_date_usecase.dart';
+import 'package:fitness_app/domain/usecases/checkin/get_checkin_history_usecase.dart';
+import 'package:fitness_app/domain/usecases/checkin/get_checkin_initial_usecase.dart';
 import 'package:fitness_app/domain/usecases/checkin/save_checkin_usecase.dart';
+import 'package:fitness_app/injection_container.dart';
+import 'package:fitness_app/core/network/api_client.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_bloc.dart';
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_event.dart';
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_state.dart';
-import 'package:fitness_app/domain/entities/checkin_entities/old_check_in_entity.dart';
+import 'package:fitness_app/presentation/checkIn/widgets/checkIn_widgets.dart';
+import 'package:fitness_app/presentation/checkIn/widgets/checking_tab.dart';
+import 'package:fitness_app/presentation/checkIn/widgets/old_checking_tab.dart';
+import 'package:fitness_app/presentation/checkIn/widgets/questions_tab.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
-
-import 'package:fitness_app/injection_container.dart';
-import 'package:fitness_app/core/network/api_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fitness_app/core/bloc/nav_bloc.dart';
 
 class CheckinPages extends StatelessWidget {
   const CheckinPages({super.key});
@@ -52,6 +52,7 @@ class _CheckInView extends StatelessWidget {
   const _CheckInView();
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
@@ -59,15 +60,17 @@ class _CheckInView extends StatelessWidget {
         elevation: 0,
         leading: Padding(
           padding: EdgeInsets.all(8.w),
-          child: CircleAvatar(
-            backgroundColor: Colors.white10,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => context.pop(),
+            child: CircleAvatar(
+              backgroundColor: Colors.white10,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () {
+                  context.read<NavBloc>().add(const NavEvent(0));
+                },
+              ),
             ),
-          ),
         ),
-        title: Text("Check -In", style: AppTextStyle.appbarHeading),
+        title: Text(localizations.checkInAppBarTitle, style: AppTextStyle.appbarHeading),
         centerTitle: true,
       ),
       body: BlocConsumer<CheckInBloc, CheckInState>(
@@ -103,7 +106,7 @@ class _CheckInView extends StatelessWidget {
                       ),
                       child: CheckInStep(
                         icon: Icons.person_outline,
-                        label: "Profile",
+                        label: localizations.checkInStepProfile,
                         isActive: step == 0,
                         isCompleted: step > 0,
                       ),
@@ -114,7 +117,7 @@ class _CheckInView extends StatelessWidget {
                       ),
                       child: CheckInStep(
                         icon: Icons.camera_alt_outlined,
-                        label: "Photos",
+                        label: localizations.checkInStepPhotos,
                         isActive: step == 1,
                         isCompleted: step > 1,
                       ),
@@ -125,7 +128,7 @@ class _CheckInView extends StatelessWidget {
                       ),
                       child: CheckInStep(
                         icon: Icons.chat_bubble_outline,
-                        label: "Questions",
+                        label: localizations.checkInStepQuestions,
                         isActive: step == 2,
                         isCompleted: step > 2,
                       ),
@@ -136,7 +139,7 @@ class _CheckInView extends StatelessWidget {
                       ),
                       child: CheckInStep(
                         icon: Icons.check_circle_outline,
-                        label: "Checking",
+                        label: localizations.checkInStepChecking,
                         isActive: step == 3,
                         isCompleted: step > 3,
                       ),
@@ -170,7 +173,7 @@ class _CheckInView extends StatelessWidget {
                             ),
                             alignment: Alignment.center,
                             child: Text(
-                              'Weekly Check-In',
+                              localizations.checkInTabWeekly,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14.sp,
@@ -196,7 +199,7 @@ class _CheckInView extends StatelessWidget {
                             ),
                             alignment: Alignment.center,
                             child: Text(
-                              'Old Check-In',
+                              localizations.checkInTabOld,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14.sp,
@@ -230,7 +233,7 @@ class _CheckInView extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            'Check-in Date: ${state.checkInDate?.nextCheckInDate ?? "Loading..."}',
+                            '${localizations.checkInDateLabel} ${state.checkInDate?.nextCheckInDate ?? localizations.checkInLoading}',
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -243,7 +246,7 @@ class _CheckInView extends StatelessWidget {
                         SizedBox(width: 12.w),
                         Expanded(
                           child: Text(
-                            'Day: ${state.checkInDate?.checkInDay ?? "Loading..."}',
+                            '${localizations.checkInDayLabel} ${state.checkInDate?.checkInDay ?? localizations.checkInLoading}',
                             textAlign: TextAlign.right,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -276,14 +279,14 @@ class _CheckInView extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(
                               0xFF446B36,
-                            ), // Green for Next
+                            ),
                             padding: EdgeInsets.symmetric(vertical: 14.h),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12.r),
                             ),
                           ),
                           child: Text(
-                            'Next',
+                            localizations.commonNext,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16.sp,
@@ -311,7 +314,7 @@ class _CheckInView extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            'Submit',
+                            localizations.commonSubmit,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16.sp,
@@ -336,6 +339,7 @@ class _CheckInView extends StatelessWidget {
     OldCheckInEntity? data,
     int skip,
   ) {
+    final localizations = AppLocalizations.of(context)!;
     if (data == null) {
       return Container(
         padding: EdgeInsets.all(16.w),
@@ -348,10 +352,10 @@ class _CheckInView extends StatelessWidget {
           children: [
             const Icon(Icons.history, color: Colors.white70),
             SizedBox(width: 12.w),
-            const Expanded(
+            Expanded(
               child: Text(
-                'No previous check-ins found',
-                style: TextStyle(color: Colors.white70),
+                localizations.checkInNoPreviousFound,
+                style: const TextStyle(color: Colors.white70),
               ),
             ),
           ],
@@ -374,7 +378,7 @@ class _CheckInView extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Check-in: ${data.formattedDate}',
+                  '${localizations.checkInLabel} ${data.formattedDate}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -466,6 +470,7 @@ class _CheckInView extends StatelessWidget {
   }
 
   Widget _bodyForStep(BuildContext context, int step) {
+    final localizations = AppLocalizations.of(context)!;
     if (step == 0) {
       return BlocBuilder<CheckInBloc, CheckInState>(
         builder: (context, state) {
@@ -473,14 +478,14 @@ class _CheckInView extends StatelessWidget {
           return Column(
             children: [
               CheckInCard(
-                title: "Current Weight (kg)",
+                title: localizations.checkInProfileCurrentWeightTitle,
                 value: checkInDate != null
                     ? "${checkInDate.currentWeight} (kg)"
                     : "0 (kg)",
                 showBadge: true,
               ),
               CheckInCard(
-                title: "Average Weight in %",
+                title: localizations.checkInProfileAverageWeightTitle,
                 value: checkInDate != null
                     ? "${checkInDate.averageWeight} (%)"
                     : "0 (%)",
@@ -498,12 +503,11 @@ class _CheckInView extends StatelessWidget {
         children: [
           InstructionText(
             icon: Icons.description_outlined,
-            text:
-                "You Can Select Multiple Files, But At Least One File Must Be Chosen",
+            text: localizations.checkInPhotosMultiFileInfo,
           ),
           SizedBox(height: 16.h),
           FileUploadWidget(
-            label: "Select File",
+            label: localizations.checkInPhotosSelectFileLabel,
             selectedPaths: uploads?.picturePaths ?? [],
             onTap: () async {
               final List<XFile> images = await picker.pickMultiImage();
@@ -520,12 +524,11 @@ class _CheckInView extends StatelessWidget {
           SizedBox(height: 24.h),
           InstructionText(
             icon: Icons.play_circle_outline,
-            text:
-                "Only One Video Can Be Uploaded, And The Maximum File Size Is 500 MB.",
+            text: localizations.checkInPhotosSingleVideoInfo,
           ),
           SizedBox(height: 16.h),
           VideoUploadWidget(
-            label: "Drag & drop video file",
+            label: localizations.checkInPhotosVideoDropLabel,
             selectedPath: uploads?.videoPath,
             onTap: () async {
               final XFile? video = await picker.pickVideo(
@@ -546,7 +549,9 @@ class _CheckInView extends StatelessWidget {
               onPressed: () {
                 context.read<CheckInBloc>().add(const UploadButtonPressed());
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Files uploaded successfully')),
+                  SnackBar(
+                    content: Text(localizations.checkInPhotosUploadSuccess),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -557,7 +562,7 @@ class _CheckInView extends StatelessWidget {
                 ),
               ),
               child: Text(
-                "Upload",
+                localizations.commonUpload,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16.sp,
@@ -582,7 +587,7 @@ class _CheckInView extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    "Back",
+                localizations.commonBack,
                     style: TextStyle(
                       color: Colors.white70,
                       fontSize: 14.sp,
@@ -605,7 +610,7 @@ class _CheckInView extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    "Next",
+                localizations.commonNext,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
