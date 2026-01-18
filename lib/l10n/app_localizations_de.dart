@@ -30,7 +30,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get loginAppBarTitle => 'Anmelden';
 
   @override
-  String get loginHeadline => 'Wölfe gewinnen.';
+  String get loginHeadline => 'Wolves Win.';
 
   @override
   String get loginEmailLabel => 'E-Mail';
