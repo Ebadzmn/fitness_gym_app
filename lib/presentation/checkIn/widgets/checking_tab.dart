@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_app/core/coreWidget/full_width_slider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
 
 class CheckingTab extends StatelessWidget {
   const CheckingTab({super.key});
@@ -66,13 +67,18 @@ class CheckingTab extends StatelessWidget {
                       size: 16.sp,
                     ),
                     SizedBox(width: 4.w),
-                    Text(
-                      'Check-in since last',
-                      style: TextStyle(
-                        color: const Color(0xFF69B427),
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    Builder(
+                      builder: (context) {
+                        final localizations = AppLocalizations.of(context)!;
+                        return Text(
+                          localizations.checkInSinceLastBadge,
+                          style: TextStyle(
+                            color: const Color(0xFF69B427),
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -110,7 +116,13 @@ class CheckingTab extends StatelessWidget {
     );
   }
 
-  Widget _ynRow(String title, bool value, ValueChanged<bool> onChanged) {
+  Widget _ynRow(
+    BuildContext context,
+    String title,
+    bool value,
+    ValueChanged<bool> onChanged,
+  ) {
+    final localizations = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -125,9 +137,9 @@ class CheckingTab extends StatelessWidget {
         SizedBox(height: 8.h),
         Column(
           children: [
-            _ynOption('Yes', value == true, () => onChanged(true)),
+            _ynOption(localizations.commonYes, value == true, () => onChanged(true)),
             SizedBox(width: 16.w),
-            _ynOption('No', value == false, () => onChanged(false)),
+            _ynOption(localizations.commonNo, value == false, () => onChanged(false)),
           ],
         ),
       ],
@@ -223,7 +235,7 @@ class CheckingTab extends StatelessWidget {
 
   Widget _textArea(
     TextEditingController ctrl, {
-    String hint = 'Type...',
+    required String hint,
     ValueChanged<String>? onChanged,
   }) {
     return TextFormField(
@@ -265,6 +277,7 @@ class CheckingTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<CheckInBloc, CheckInState>(
       builder: (context, state) {
+        final localizations = AppLocalizations.of(context)!;
         final data = state.data;
         if (data == null) return const SizedBox.shrink();
         final challengeCtrl = TextEditingController(
@@ -280,12 +293,12 @@ class CheckingTab extends StatelessWidget {
           children: [
             _summaryCard(
               icon: Icons.emoji_events_outlined,
-              title: 'Current Weight',
+              title: localizations.checkInCheckingCurrentWeightTitle,
               value: '${data.currentWeight} (kg)',
             ),
             _summaryCard(
               icon: Icons.percent,
-              title: 'Average Weight',
+              title: localizations.checkInCheckingAverageWeightTitle,
               value: '${data.averageWeight} (kg)',
             ),
 
@@ -301,7 +314,7 @@ class CheckingTab extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        'Basic Data',
+                        localizations.checkInCheckingBasicDataTitle,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 14.sp,
@@ -311,7 +324,8 @@ class CheckingTab extends StatelessWidget {
                     ],
                   ),
                   _ynRow(
-                    'Pictures uploaded?',
+                    context,
+                    localizations.checkInCheckingPicturesUploadedLabel,
                     data.uploads.picturesUploaded,
                     (v) => context.read<CheckInBloc>().add(
                       UploadsToggled('picturesUploaded', v),
@@ -359,7 +373,8 @@ class CheckingTab extends StatelessWidget {
                     ),
                   SizedBox(height: 12.h),
                   _ynRow(
-                    'Video uploaded?',
+                    context,
+                    localizations.checkInCheckingVideoUploadedLabel,
                     data.uploads.videoUploaded,
                     (v) => context.read<CheckInBloc>().add(
                       UploadsToggled('videoUploaded', v),
@@ -402,7 +417,7 @@ class CheckingTab extends StatelessWidget {
                                 data.uploads.videoPath != null &&
                                         data.uploads.videoPath!.isNotEmpty
                                     ? data.uploads.videoPath!.split('/').last
-                                    : 'Muscular Workout',
+                                    : localizations.checkInCheckingVideoPlaceholderTitle,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
@@ -414,8 +429,8 @@ class CheckingTab extends StatelessWidget {
                               Text(
                                 data.uploads.videoPath != null &&
                                         data.uploads.videoPath!.isNotEmpty
-                                    ? 'Uploaded Video'
-                                    : 'Upper Body Low',
+                                    ? localizations.checkInCheckingVideoUploadedSubtitle
+                                    : localizations.checkInCheckingVideoDefaultSubtitle,
                                 style: TextStyle(
                                   color: Colors.white70,
                                   fontSize: 12.sp,
@@ -442,12 +457,12 @@ class CheckingTab extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Select how many questions you have answered (You must answer at least 7 questions)',
+                    localizations.checkInCheckingQuestionCountDescription,
                     style: TextStyle(color: Colors.white70, fontSize: 12.sp),
                   ),
                   SizedBox(height: 12.h),
                   Text(
-                    'Q1 . What are you proud of? *',
+                    localizations.checkInQuestion1Title,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -464,13 +479,13 @@ class CheckingTab extends StatelessWidget {
                       border: Border.all(color: Colors.white10),
                     ),
                     child: Text(
-                      'A1. ${data.answer1.isNotEmpty ? data.answer1 : "No answer"}',
+                      'A1. ${data.answer1.isNotEmpty ? data.answer1 : localizations.commonNoAnswer}',
                       style: TextStyle(color: Colors.white, fontSize: 13.sp),
                     ),
                   ),
                   SizedBox(height: 12.h),
                   Text(
-                    'Q2 . Calories per default quantity *',
+                    localizations.checkInQuestion2Title,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -487,7 +502,7 @@ class CheckingTab extends StatelessWidget {
                       border: Border.all(color: Colors.white10),
                     ),
                     child: Text(
-                      'A2. ${data.answer2.isNotEmpty ? data.answer2 : "No answer"}',
+                      'A2. ${data.answer2.isNotEmpty ? data.answer2 : localizations.commonNoAnswer}',
                       style: TextStyle(color: Colors.white, fontSize: 13.sp),
                     ),
                   ),
@@ -506,7 +521,7 @@ class CheckingTab extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Well-Being',
+                    localizations.checkInWellBeingSectionTitle,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -515,7 +530,7 @@ class CheckingTab extends StatelessWidget {
                   ),
                   SizedBox(height: 12.h),
                   _labelWithValue(
-                    'Energy Level (1-10)',
+                    localizations.checkInWellBeingEnergyLabel,
                     data.wellBeing.energy.round(),
                   ),
                   FullWidthSlider(
@@ -529,7 +544,7 @@ class CheckingTab extends StatelessWidget {
                     overlayColor: const Color(0xFF69B427).withOpacity(0.2),
                   ),
                   _labelWithValue(
-                    'Stress level (1-10)',
+                    localizations.checkInWellBeingStressLabel,
                     data.wellBeing.stress.round(),
                   ),
                   FullWidthSlider(
@@ -543,7 +558,7 @@ class CheckingTab extends StatelessWidget {
                     overlayColor: const Color(0xFF69B427).withOpacity(0.2),
                   ),
                   _labelWithValue(
-                    'Mood level (1-10)',
+                    localizations.checkInWellBeingMoodLabel,
                     data.wellBeing.mood.round(),
                   ),
                   FullWidthSlider(
@@ -557,7 +572,7 @@ class CheckingTab extends StatelessWidget {
                     overlayColor: const Color(0xFF69B427).withOpacity(0.2),
                   ),
                   _labelWithValue(
-                    'Sleep quality (1-10)',
+                    localizations.checkInWellBeingSleepLabel,
                     data.wellBeing.sleep.round(),
                   ),
                   FullWidthSlider(
@@ -585,7 +600,7 @@ class CheckingTab extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Nutrition',
+                    localizations.checkInNutritionSectionTitle,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -594,7 +609,7 @@ class CheckingTab extends StatelessWidget {
                   ),
                   SizedBox(height: 12.h),
                   _labelWithValue(
-                    'Diet Level  (1-10)',
+                    localizations.checkInNutritionDietLevelLabel,
                     data.nutrition.dietLevel.round(),
                   ),
                   FullWidthSlider(
@@ -608,7 +623,7 @@ class CheckingTab extends StatelessWidget {
                     overlayColor: const Color(0xFF69B427).withOpacity(0.2),
                   ),
                   _labelWithValue(
-                    'Digestion  (1-10)',
+                    localizations.checkInNutritionDigestionLabel,
                     data.nutrition.digestion.round(),
                   ),
                   FullWidthSlider(
@@ -623,7 +638,7 @@ class CheckingTab extends StatelessWidget {
                   ),
                   SizedBox(height: 12.h),
                   Text(
-                    'Challenge Diet',
+                    localizations.checkInNutritionChallengeTitle,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -633,7 +648,7 @@ class CheckingTab extends StatelessWidget {
                   SizedBox(height: 8.h),
                   _filledField(
                     challengeCtrl,
-                    hint: 'Type..',
+                    hint: localizations.commonTypeHint,
                     onChanged: (v) => context.read<CheckInBloc>().add(
                       NutritionTextChanged('challenge', v),
                     ),
@@ -653,7 +668,7 @@ class CheckingTab extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Training',
+                    localizations.checkInTrainingSectionTitle,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -662,7 +677,7 @@ class CheckingTab extends StatelessWidget {
                   ),
                   SizedBox(height: 12.h),
                   _labelWithValue(
-                    'Feel Strength (1-10)',
+                    localizations.checkInTrainingFeelStrengthLabel,
                     data.training.feelStrength.round(),
                   ),
                   FullWidthSlider(
@@ -675,7 +690,10 @@ class CheckingTab extends StatelessWidget {
                     ),
                     overlayColor: const Color(0xFF69B427).withOpacity(0.2),
                   ),
-                  _labelWithValue('Pumps  (1-10)', data.training.pumps.round()),
+                  _labelWithValue(
+                    localizations.checkInTrainingPumpsLabel,
+                    data.training.pumps.round(),
+                  ),
                   FullWidthSlider(
                     value: data.training.pumps,
                     min: 1,
@@ -688,7 +706,8 @@ class CheckingTab extends StatelessWidget {
                   ),
                   SizedBox(height: 12.h),
                   _ynRow(
-                    'Training Completed?',
+                    context,
+                    localizations.checkInTrainingCompletedLabel,
                     data.training.trainingCompleted,
                     (v) => context.read<CheckInBloc>().add(
                       TrainingToggleChanged('trainingCompleted', v),
@@ -696,7 +715,8 @@ class CheckingTab extends StatelessWidget {
                   ),
                   SizedBox(height: 12.h),
                   _ynRow(
-                    'Cardio Completed?',
+                    context,
+                    localizations.checkInTrainingCardioCompletedLabel,
                     data.training.cardioCompleted,
                     (v) => context.read<CheckInBloc>().add(
                       TrainingToggleChanged('cardioCompleted', v),
@@ -705,7 +725,7 @@ class CheckingTab extends StatelessWidget {
 
                   SizedBox(height: 8.h),
                   Text(
-                    'Feedback Training',
+                    localizations.checkInTrainingFeedbackTitle,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -715,7 +735,7 @@ class CheckingTab extends StatelessWidget {
                   SizedBox(height: 8.h),
                   _textArea(
                     feedbackCtrl,
-                    hint: 'Type..',
+                    hint: localizations.commonTypeHint,
                     onChanged: (v) => context.read<CheckInBloc>().add(
                       TrainingTextChanged('feedback', v),
                     ),
@@ -735,7 +755,7 @@ class CheckingTab extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Athlete Note',
+                    localizations.checkInAthleteNoteTitle,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -745,7 +765,7 @@ class CheckingTab extends StatelessWidget {
                   SizedBox(height: 8.h),
                   _textArea(
                     athleteNoteCtrl,
-                    hint: 'Type...',
+                    hint: localizations.commonTypeHint,
                     onChanged: (v) =>
                         context.read<CheckInBloc>().add(AthleteNoteChanged(v)),
                   ),

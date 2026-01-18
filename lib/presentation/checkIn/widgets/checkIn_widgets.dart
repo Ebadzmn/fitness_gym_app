@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
 import 'dart:ui';
 import 'dart:io';
 
@@ -147,33 +148,38 @@ class CheckInCard extends StatelessWidget {
                   ),
                 ),
                 if (showBadge)
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 12.w,
-                      vertical: 6.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF82C941).withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(20.r),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.check_circle_outline,
-                          color: const Color(0xFF82C941),
-                          size: 14.sp,
+                  Builder(
+                    builder: (context) {
+                      final localizations = AppLocalizations.of(context)!;
+                      return Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 6.h,
                         ),
-                        SizedBox(width: 4.w),
-                        Text(
-                          "Check-in since last",
-                          style: TextStyle(
-                            color: const Color(0xFF82C941),
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF82C941).withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(20.r),
                         ),
-                      ],
-                    ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.check_circle_outline,
+                              color: const Color(0xFF82C941),
+                              size: 14.sp,
+                            ),
+                            SizedBox(width: 4.w),
+                            Text(
+                              localizations.checkInSinceLastBadge,
+                              style: TextStyle(
+                                color: const Color(0xFF82C941),
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
               ],
             ),
