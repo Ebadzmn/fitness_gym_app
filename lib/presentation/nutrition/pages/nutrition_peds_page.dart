@@ -1,6 +1,11 @@
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
+import 'package:fitness_app/core/apiUrls/api_urls.dart';
+import 'package:fitness_app/core/network/api_client.dart';
+import 'package:fitness_app/features/profile/domain/usecases/get_profile_usecase.dart';
+import 'package:fitness_app/injection_container.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
@@ -11,7 +16,20 @@ class NutritionPEDsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => _NutritionPedsCubit(getProfile: sl(), apiClient: sl())..load(),
+      child: const _NutritionPedsView(),
+    );
+  }
+}
+
+class _NutritionPedsView extends StatelessWidget {
+  const _NutritionPedsView();
+
+  @override
+  Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
@@ -41,19 +59,51 @@ class NutritionPEDsPage extends StatelessWidget {
             borderRadius: BorderRadius.circular(8.r),
           ),
           clipBehavior: Clip.antiAlias,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SingleChildScrollView(
-              child: _buildTable(),
-            ),
+          child: BlocBuilder<_NutritionPedsCubit, _NutritionPedsState>(
+            builder: (context, state) {
+              if (state.status == _NutritionPedsStatus.loading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (state.status == _NutritionPedsStatus.failure) {
+                return Center(
+                  child: Text(
+                    state.errorMessage ?? 'Failed to load PED data',
+                    style: const TextStyle(color: Colors.white),
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }
+
+              if (state.categories.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'No data',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                );
+              }
+
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SingleChildScrollView(
+                  child: _buildTable(
+                    weekLabel: state.weekLabel,
+                    categories: state.categories,
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTable() {
-    // Define column widths
+  Widget _buildTable({
+    required String weekLabel,
+    required List<_PedsCategory> categories,
+  }) {
     final double col1Width = 80.w;
     final double col2Width = 100.w;
     final double colDosageWidth = 60.w;
@@ -67,27 +117,33 @@ class NutritionPEDsPage extends StatelessWidget {
         1: FixedColumnWidth(col2Width),
         2: FixedColumnWidth(colDosageWidth),
         3: FixedColumnWidth(colFreqWidth),
-        4: FixedColumnWidth(colDayWidth), // MO
-        5: FixedColumnWidth(colDayWidth), // TU
-        6: FixedColumnWidth(colDayWidth), // WE
-        7: FixedColumnWidth(colDayWidth), // TH
-        8: FixedColumnWidth(colDayWidth), // FR
-        9: FixedColumnWidth(colDayWidth), // SA
-        10: FixedColumnWidth(colDayWidth), // SU
+        4: FixedColumnWidth(colDayWidth),
+        5: FixedColumnWidth(colDayWidth),
+        6: FixedColumnWidth(colDayWidth),
+        7: FixedColumnWidth(colDayWidth),
+        8: FixedColumnWidth(colDayWidth),
+        9: FixedColumnWidth(colDayWidth),
+        10: FixedColumnWidth(colDayWidth),
       },
       border: TableBorder.all(color: const Color(0xFF4A3455), width: 1),
       children: [
-        // Header Row
         TableRow(
           decoration: const BoxDecoration(color: Colors.white),
           children: [
-            Container(height: 30.h, color: const Color(0XFF101021)), // Empty above Category
+            Container(height: 30.h, color: const Color(0XFF101021)),
             Container(
               height: 30.h,
               color: const Color(0XFF101021),
               alignment: Alignment.centerLeft,
               padding: EdgeInsets.only(left: 8.w),
-              child: Text('WEEK 1', style: GoogleFonts.poppins(color: Colors.white, fontSize: 12.sp, fontWeight: FontWeight.bold)),
+              child: Text(
+                weekLabel.isEmpty ? 'WEEK' : weekLabel,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
             _headerCell('Dosage'),
             _headerCell('Frequency'),
@@ -100,18 +156,63 @@ class NutritionPEDsPage extends StatelessWidget {
             _headerCell('SUN'),
           ],
         ),
-        // Data Rows
-        ..._buildCategoryRows('TEST', ['TEST E', 'TEST P', 'HALOTESTIN', 'DIANABOL', 'PRIMOBOLAN', 'MASTERON', 'ANAVAR']),
-        ..._buildCategoryRows('DHT', ['PROVIRON', 'WINSTROL', 'ANADROL']),
-        ..._buildCategoryRows('19-NOR', ['NPP', 'DECA', 'TRENE']),
-        ..._buildCategoryRows('ESTROGEN & FERTILITY\nMANAGEMENT', ['ANASTROZOLE', 'EXEMESTANE', 'NOLVADEX', 'CLOMID', 'HCG', 'ARIMIDEX']),
-        ..._buildCategoryRows('FATLOSS', ['YOHIMBINE', 'CLEN', 'MOM']),
-        ..._buildCategoryRows('THYROID', ['T3', 'T4'], filledItem: 'T3', dosage: '4.0 mg', freq: 'ED', dayVal: '4.0 IU'),
-        ..._buildCategoryRows('INSULIN', ['LANTUS', 'NOVORAPID']),
-        ..._buildCategoryRows('OTHER', ['TELMISARTAN', 'METFORMIN', 'TB500', 'BPC-157']),
-        ..._buildCategoryRows('PEPTIDES', ['MOTSC', 'SLU-PP-332']),
+        for (final category in categories) ..._categoryRows(category),
       ],
     );
+  }
+
+  List<TableRow> _categoryRows(_PedsCategory category) {
+    final subs = category.subCategories;
+    final midIndex = subs.isEmpty ? -1 : subs.length ~/ 2;
+
+    return List.generate(subs.length, (index) {
+      final sub = subs[index];
+      return TableRow(
+        decoration: const BoxDecoration(color: Color(0xFF3C2A45)),
+        children: [
+          Container(
+            height: 35.h,
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            color: const Color(0xFF5A4565),
+            child:
+                index == midIndex
+                    ? Text(
+                      category.name,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                    : null,
+          ),
+          Container(
+            height: 35.h,
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            child: Text(
+              sub.name,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 10.sp,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          _dataCell(sub.dosage),
+          _dataCell(sub.frequency),
+          _dataCell(sub.mon),
+          _dataCell(sub.tue),
+          _dataCell(sub.wed),
+          _dataCell(sub.thu),
+          _dataCell(sub.fri),
+          _dataCell(sub.sat),
+          _dataCell(sub.sun),
+        ],
+      );
+    });
   }
 
   Widget _headerCell(String text) {
@@ -121,69 +222,13 @@ class NutritionPEDsPage extends StatelessWidget {
       color: Colors.white,
       child: Text(
         text,
-        style: GoogleFonts.poppins(color: Colors.black, fontSize: 10.sp, fontWeight: FontWeight.w600),
+        style: GoogleFonts.poppins(
+          color: Colors.black,
+          fontSize: 10.sp,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
-  }
-
-  List<TableRow> _buildCategoryRows(
-    String category,
-    List<String> items, {
-    String? filledItem,
-    String? dosage,
-    String? freq,
-    String? dayVal,
-  }) {
-    List<TableRow> rows = [];
-    for (int i = 0; i < items.length; i++) {
-      final item = items[i];
-      final isFilled = item == filledItem;
-      
-      rows.add(TableRow(
-        decoration: const BoxDecoration(color: Color(0xFF3C2A45)), // Row background color
-        children: [
-          // Category Cell (only for first item, otherwise placeholder but handled by row structure visual)
-          // Since TableRow cells must exist, we render a cell.
-          // To mimic rowspan visually in Table widget (which doesn't support rowspan natively easily),
-          // we can just render the text only on the middle row or top row, and clear borders?
-          // But TableBorder.all puts borders everywhere.
-          // Alternatively, we repeat the category name or leave empty.
-          // The design shows merged cells.
-          // A hack for "merged" look with TableBorder.all is hard.
-          // Instead, I'll just put the text in the middle row of the group if I knew the height,
-          // or just put it in the first row.
-          // Let's put it in the first row for now, or use a separate column approach if strict.
-          // For "same to same", I will just put the text in the vertical center.
-          // I will use a Container with same color to hide internal borders if possible? No.
-          // I'll just render the category name in the first cell, and empty strings in others.
-          Container(
-            height: 35.h,
-            alignment: Alignment.center,
-            padding: EdgeInsets.symmetric(horizontal: 4.w),
-            color: const Color(0xFF5A4565), // Category column slightly different color?
-            child: i == items.length ~/ 2
-                ? Text(category, textAlign: TextAlign.center, style: GoogleFonts.poppins(color: Colors.white, fontSize: 10.sp, fontWeight: FontWeight.bold))
-                : null,
-          ),
-          Container(
-            height: 35.h,
-            alignment: Alignment.center,
-            padding: EdgeInsets.symmetric(horizontal: 4.w),
-            child: Text(item, style: GoogleFonts.poppins(color: Colors.white, fontSize: 10.sp)),
-          ),
-          _dataCell(isFilled ? dosage ?? '' : ''),
-          _dataCell(isFilled ? freq ?? '' : ''),
-          _dataCell(isFilled ? dayVal ?? '' : ''),
-          _dataCell(isFilled ? dayVal ?? '' : ''),
-          _dataCell(isFilled ? dayVal ?? '' : ''),
-          _dataCell(isFilled ? dayVal ?? '' : ''),
-          _dataCell(isFilled ? dayVal ?? '' : ''),
-          _dataCell(isFilled ? dayVal ?? '' : ''),
-          _dataCell(isFilled ? dayVal ?? '' : ''),
-        ],
-      ));
-    }
-    return rows;
   }
 
   Widget _dataCell(String text) {
@@ -191,6 +236,178 @@ class NutritionPEDsPage extends StatelessWidget {
       height: 35.h,
       alignment: Alignment.center,
       child: Text(text, style: GoogleFonts.poppins(color: Colors.white, fontSize: 10.sp)),
+    );
+  }
+}
+
+enum _NutritionPedsStatus { loading, success, failure }
+
+class _NutritionPedsState {
+  final _NutritionPedsStatus status;
+  final String weekLabel;
+  final List<_PedsCategory> categories;
+  final String? errorMessage;
+
+  const _NutritionPedsState({
+    this.status = _NutritionPedsStatus.loading,
+    this.weekLabel = '',
+    this.categories = const [],
+    this.errorMessage,
+  });
+
+  _NutritionPedsState copyWith({
+    _NutritionPedsStatus? status,
+    String? weekLabel,
+    List<_PedsCategory>? categories,
+    String? errorMessage,
+  }) {
+    return _NutritionPedsState(
+      status: status ?? this.status,
+      weekLabel: weekLabel ?? this.weekLabel,
+      categories: categories ?? this.categories,
+      errorMessage: errorMessage,
+    );
+  }
+}
+
+class _NutritionPedsCubit extends Cubit<_NutritionPedsState> {
+  final GetProfileUseCase getProfile;
+  final ApiClient apiClient;
+
+  _NutritionPedsCubit({required this.getProfile, required this.apiClient})
+    : super(const _NutritionPedsState());
+
+  Future<void> load() async {
+    emit(state.copyWith(status: _NutritionPedsStatus.loading, errorMessage: null));
+
+    try {
+      final profileResult = await getProfile();
+      await profileResult.fold(
+        (failure) async {
+          emit(
+            state.copyWith(
+              status: _NutritionPedsStatus.failure,
+              errorMessage: 'Failed to load profile',
+            ),
+          );
+        },
+        (profile) async {
+          final athleteId = profile.athlete.id;
+          final response = await apiClient.get(ApiUrls.pedByAthlete(athleteId));
+          final payload = response.data;
+          if (payload is! Map) {
+            emit(
+              state.copyWith(
+                status: _NutritionPedsStatus.failure,
+                errorMessage: 'Invalid response',
+              ),
+            );
+            return;
+          }
+
+          final data = payload['data'];
+          if (data is! Map) {
+            emit(
+              state.copyWith(
+                status: _NutritionPedsStatus.failure,
+                errorMessage: 'Missing data',
+              ),
+            );
+            return;
+          }
+
+          final weekRaw = data['week']?.toString() ?? '';
+          final categoriesRaw = data['categories'];
+          final categories =
+              (categoriesRaw is List ? categoriesRaw : const [])
+                  .whereType<Map>()
+                  .map(_PedsCategory.fromJson)
+                  .toList();
+
+          emit(
+            state.copyWith(
+              status: _NutritionPedsStatus.success,
+              weekLabel: _formatWeekLabel(weekRaw),
+              categories: categories,
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: _NutritionPedsStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
+}
+
+String _formatWeekLabel(String raw) {
+  if (raw.trim().isEmpty) return '';
+  final match = RegExp(r'week[_\\s-]*(\\d+)', caseSensitive: false).firstMatch(raw);
+  if (match != null) {
+    return 'WEEK ${match.group(1)}';
+  }
+  return raw.toUpperCase().replaceAll('_', ' ');
+}
+
+class _PedsCategory {
+  final String name;
+  final List<_PedsSubCategory> subCategories;
+
+  const _PedsCategory({required this.name, required this.subCategories});
+
+  static _PedsCategory fromJson(Map json) {
+    final name = json['name']?.toString() ?? '';
+    final subsRaw = json['subCategory'];
+    final subs =
+        (subsRaw is List ? subsRaw : const [])
+            .whereType<Map>()
+            .map(_PedsSubCategory.fromJson)
+            .toList();
+    return _PedsCategory(name: name, subCategories: subs);
+  }
+}
+
+class _PedsSubCategory {
+  final String name;
+  final String dosage;
+  final String frequency;
+  final String mon;
+  final String tue;
+  final String wed;
+  final String thu;
+  final String fri;
+  final String sat;
+  final String sun;
+
+  const _PedsSubCategory({
+    required this.name,
+    required this.dosage,
+    required this.frequency,
+    required this.mon,
+    required this.tue,
+    required this.wed,
+    required this.thu,
+    required this.fri,
+    required this.sat,
+    required this.sun,
+  });
+
+  static _PedsSubCategory fromJson(Map json) {
+    return _PedsSubCategory(
+      name: json['name']?.toString() ?? '',
+      dosage: json['dosage']?.toString() ?? '',
+      frequency: json['frequency']?.toString() ?? '',
+      mon: json['mon']?.toString() ?? '',
+      tue: json['tue']?.toString() ?? '',
+      wed: json['wed']?.toString() ?? '',
+      thu: json['thu']?.toString() ?? '',
+      fri: json['fri']?.toString() ?? '',
+      sat: json['sat']?.toString() ?? '',
+      sun: json['sun']?.toString() ?? '',
     );
   }
 }
