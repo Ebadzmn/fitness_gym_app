@@ -11,12 +11,18 @@ import '../../../../../../domain/usecases/daily/save_daily_usecase.dart';
 import 'daily_event.dart';
 import 'daily_state.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 class DailyBloc extends Bloc<DailyEvent, DailyState> {
   final GetDailyInitialUseCase getInitial;
   final SaveDailyUseCase saveDaily;
+  final SharedPreferences sharedPreferences;
 
-  DailyBloc({required this.getInitial, required this.saveDaily})
-    : super(const DailyState()) {
+  DailyBloc({
+    required this.getInitial,
+    required this.saveDaily,
+    required this.sharedPreferences,
+  }) : super(const DailyState()) {
     on<DailyInitRequested>(_onInit);
     on<WellBeingChanged>(_onWellBeingChanged);
     on<TrainingToggleChanged>(_onTrainingToggleChanged);
@@ -178,6 +184,13 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
     emit(state.copyWith(status: DailyStatus.saving));
     try {
       await saveDaily(data);
+      // Cache the weight if it exists
+      if (data.vital.weightText.isNotEmpty) {
+        await sharedPreferences.setString(
+          'cached_weight',
+          data.vital.weightText,
+        );
+      }
       emit(state.copyWith(status: DailyStatus.saved));
     } catch (e) {
       emit(state.copyWith(status: DailyStatus.error, errorMessage: 'Failed'));
