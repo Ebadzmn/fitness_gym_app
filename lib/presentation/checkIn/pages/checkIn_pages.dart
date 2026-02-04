@@ -60,17 +60,20 @@ class _CheckInView extends StatelessWidget {
         elevation: 0,
         leading: Padding(
           padding: EdgeInsets.all(8.w),
-            child: CircleAvatar(
-              backgroundColor: Colors.white10,
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () {
-                  context.read<NavBloc>().add(const NavEvent(0));
-                },
-              ),
+          child: CircleAvatar(
+            backgroundColor: Colors.white10,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () {
+                context.read<NavBloc>().add(const NavEvent(0));
+              },
             ),
+          ),
         ),
-        title: Text(localizations.checkInAppBarTitle, style: AppTextStyle.appbarHeading),
+        title: Text(
+          localizations.checkInAppBarTitle,
+          style: AppTextStyle.appbarHeading,
+        ),
         centerTitle: true,
       ),
       body: BlocConsumer<CheckInBloc, CheckInState>(
@@ -218,48 +221,7 @@ class _CheckInView extends StatelessWidget {
                 if (state.tab == CheckInViewTab.old) ...[
                   _oldCheckInView(context, state.oldCheckIn, state.skip),
                 ] else ...[
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      vertical: 16.h,
-                      horizontal: 20.w,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1B2B1B),
-                      borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(color: const Color(0xFF2E4E2E)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            '${localizations.checkInDateLabel} ${state.checkInDate?.nextCheckInDate ?? localizations.checkInLoading}',
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 12.w),
-                        Expanded(
-                          child: Text(
-                            '${localizations.checkInDayLabel} ${state.checkInDate?.checkInDay ?? localizations.checkInLoading}',
-                            textAlign: TextAlign.right,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  _checkInDateView(localizations),
                 ],
                 SizedBox(height: 30.h),
 
@@ -277,9 +239,7 @@ class _CheckInView extends StatelessWidget {
                             const CheckInNextPressed(),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(
-                              0xFF446B36,
-                            ),
+                            backgroundColor: const Color(0xFF446B36),
                             padding: EdgeInsets.symmetric(vertical: 14.h),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12.r),
@@ -469,6 +429,61 @@ class _CheckInView extends StatelessWidget {
     );
   }
 
+  Widget _checkInDateView(AppLocalizations localizations) {
+    final now = DateTime.now();
+    final formattedDate = '${now.day}/${now.month}/${now.year}';
+    const days = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
+    final dayName = days[now.weekday - 1];
+
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 20.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1B2B1B),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: const Color(0xFF2E4E2E)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              '${localizations.checkInDateLabel} $formattedDate',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Text(
+              '${localizations.checkInDayLabel} $dayName',
+              textAlign: TextAlign.right,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _bodyForStep(BuildContext context, int step) {
     final localizations = AppLocalizations.of(context)!;
     if (step == 0) {
@@ -587,7 +602,7 @@ class _CheckInView extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                localizations.commonBack,
+                    localizations.commonBack,
                     style: TextStyle(
                       color: Colors.white70,
                       fontSize: 14.sp,
@@ -610,7 +625,7 @@ class _CheckInView extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                localizations.commonNext,
+                    localizations.commonNext,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14.sp,

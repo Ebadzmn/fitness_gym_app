@@ -350,7 +350,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginHeadline.
   ///
   /// In en, this message translates to:
-  /// **'Wolves Win.'**
+  /// **'Evolve today.'**
   String get loginHeadline;
 
   /// No description provided for @loginEmailLabel.

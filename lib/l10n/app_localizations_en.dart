@@ -135,7 +135,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginAppBarTitle => 'Login';
 
   @override
-  String get loginHeadline => 'Wolves Win.';
+  String get loginHeadline => 'Evolve today.';
 
   @override
   String get loginEmailLabel => 'Email';

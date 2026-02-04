@@ -114,7 +114,9 @@ Future<void> init() async {
 
   //! Features - Daily Tracking
   // Bloc
-  sl.registerFactory(() => DailyBloc(getInitial: sl(), saveDaily: sl()));
+  sl.registerFactory(
+    () => DailyBloc(getInitial: sl(), saveDaily: sl(), sharedPreferences: sl()),
+  );
 
   // Use cases
   sl.registerLazySingleton(() => GetDailyInitialUseCase(sl()));

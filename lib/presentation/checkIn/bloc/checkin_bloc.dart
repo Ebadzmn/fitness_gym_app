@@ -267,6 +267,12 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
       // Sync weights to checkInDate after successful save
       final currentDate = state.checkInDate;
       if (currentDate != null) {
+        // Update cache with new submitted weight
+        await sharedPreferences.setString(
+          'cached_weight',
+          d.currentWeight.toString(),
+        );
+
         emit(
           state.copyWith(
             checkInDate: currentDate.copyWith(
@@ -367,13 +373,20 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
   ) async {
     try {
       final dateData = await getCheckInDate();
-      emit(state.copyWith(checkInDate: dateData));
 
-      // Cache the current weight
-      await sharedPreferences.setString(
-        'cached_weight',
-        dateData.currentWeight.toString(),
-      );
+      // Check for cached weight
+      final cachedWeightStr = sharedPreferences.getString('cached_weight');
+      double currentWeight = dateData.currentWeight;
+
+      if (cachedWeightStr != null && cachedWeightStr.isNotEmpty) {
+        final cachedVal = double.tryParse(cachedWeightStr);
+        if (cachedVal != null) {
+          currentWeight = cachedVal;
+        }
+      }
+
+      final updatedDateData = dateData.copyWith(currentWeight: currentWeight);
+      emit(state.copyWith(checkInDate: updatedDateData));
 
       // Sync weights to form data if available
       final d = state.data;
@@ -381,8 +394,8 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
         emit(
           state.copyWith(
             data: d.copyWith(
-              currentWeight: dateData.currentWeight,
-              averageWeight: dateData.averageWeight,
+              currentWeight: updatedDateData.currentWeight,
+              averageWeight: updatedDateData.averageWeight,
             ),
           ),
         );
