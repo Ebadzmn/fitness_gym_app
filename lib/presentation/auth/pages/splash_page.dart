@@ -52,7 +52,7 @@ class _SplashViewState extends State<SplashView> {
           children: [
             Center(
               child: Image.asset(
-                AssetsPath.logov2,
+                AssetsPath.splashLogo,
                 width: 300.w,
                 height: 300.h,
               ),
