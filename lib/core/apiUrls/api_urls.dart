@@ -1,5 +1,6 @@
 class ApiUrls {
-  static const String baseUrl = 'http://10.10.7.101:5005/api/v1';
+  // static const String baseUrl = 'http://10.10.7.100:5005/api/v1';
+  static const String baseUrl = 'http://51.20.134.216:5000/api/v1';
   static const String loginUrl = '$baseUrl/auth/athlete/login';
   static const String dailyTrackingPost = '$baseUrl/daily/tracking';
   static const String checkInDate = '$baseUrl/check-in/date';

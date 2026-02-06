@@ -1,5 +1,5 @@
 class AssetsPath {
-  static const String splashLogo = 'assets/images/splash.png';
+  static const String splashLogo = 'assets/images/splash1.png';
   static const String AbCalender = 'assets/images/Vector.svg';
   static const String weight = 'assets/images/weight.svg';
   static const String sleep = 'assets/images/sleep.svg';
