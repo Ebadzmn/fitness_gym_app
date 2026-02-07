@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/apiUrls/api_urls.dart';
 import 'core/network/api_client.dart';
+import 'core/notifications/fcm_service.dart';
 import 'core/storage/token_storage.dart';
 import 'core/storage/nutrition_storage.dart';
 import 'core/session/session_manager.dart';
@@ -83,6 +84,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<ApiClient>(
     () => ApiClient(config: sl(), tokenStorage: sl(), sessionManager: sl()),
+  );
+  sl.registerLazySingleton<FcmService>(
+    () => FcmService(tokenStorage: sl(), apiClient: sl()),
   );
 
   //! Features - Auth

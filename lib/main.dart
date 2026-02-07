@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fitness_app/core/appRoutes/app_routes.dart';
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:fitness_app/core/bloc/locale_cubit.dart';
+import 'package:fitness_app/core/notifications/fcm_service.dart';
 import 'package:fitness_app/core/session/session_manager.dart';
+import 'package:fitness_app/firebase_options.dart';
 import 'package:fitness_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -14,7 +18,12 @@ import 'injection_container.dart' as di;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   await di.init();
+  await di.sl<FcmService>().init();
   runApp(const MyApp());
 }
 

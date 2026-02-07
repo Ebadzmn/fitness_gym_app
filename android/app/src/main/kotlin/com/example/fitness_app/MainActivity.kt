@@ -1,4 +1,4 @@
-package com.example.fitness_app
+package com.evolveapp.fitness
 
 import io.flutter.embedding.android.FlutterActivity
 
