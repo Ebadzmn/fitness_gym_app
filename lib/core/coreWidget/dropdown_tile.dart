@@ -8,6 +8,7 @@ class DropdownTile extends StatelessWidget {
   final List<String> options;
   final ValueChanged<String> onChanged;
   final double height;
+  final String hint;
 
   const DropdownTile({
     super.key,
@@ -16,6 +17,7 @@ class DropdownTile extends StatelessWidget {
     required this.options,
     required this.onChanged,
     this.height = 40,
+    this.hint = 'Select',
   });
 
   void _openSheet(BuildContext context) {
@@ -94,7 +96,7 @@ class DropdownTile extends StatelessWidget {
                 color: (value != null ? Colors.green : Colors.grey).withOpacity(0.2),
                 borderRadius: BorderRadius.circular(8.r),
               ),
-              child: Text(value ?? 'Type..', style: GoogleFonts.poppins(color: Colors.white, fontSize: 12.sp)),
+              child: Text(value ?? hint, style: GoogleFonts.poppins(color: Colors.white, fontSize: 12.sp)),
             ),
             SizedBox(width: 8.w),
             Icon(Icons.expand_more, color: Colors.white70, size: 20.sp),
@@ -110,8 +112,16 @@ class DropdownMultiSelectTile extends StatelessWidget {
   final Set<String> selected;
   final List<String> options;
   final ValueChanged<Set<String>> onChanged;
+  final String hint;
 
-  const DropdownMultiSelectTile({super.key, required this.title, required this.selected, required this.options, required this.onChanged});
+  const DropdownMultiSelectTile({
+    super.key,
+    required this.title,
+    required this.selected,
+    required this.options,
+    required this.onChanged,
+    this.hint = 'Select',
+  });
 
   void _openSheet(BuildContext context) {
     final temp = Set<String>.from(selected);
@@ -183,7 +193,7 @@ class DropdownMultiSelectTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final display = selected.isEmpty ? 'Type..' : '${selected.length} selected';
+    final display = selected.isEmpty ? hint : '${selected.length} selected';
     return InkWell(
       onTap: () => _openSheet(context),
       child: Container(

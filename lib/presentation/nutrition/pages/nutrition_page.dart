@@ -46,7 +46,13 @@ class _NutritionView extends StatelessWidget {
             backgroundColor: Colors.white10,
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => context.pop(),
+              onPressed: () {
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go(AppRoutes.homePage);
+                }
+              },
             ),
           ),
         ),

@@ -38,10 +38,10 @@ class DailyRepositoryImpl implements DailyRepository {
     return DailyTrackingEntity(
       vital: VitalEntity(
         dateLabel: dateLabel,
-        weightText: '65.2 (kg)',
-        waterText: '1.2 (Lit)',
+        weightText: '',
+        waterText: '',
         bodyTempText: '',
-        activityStepCount: '10000',
+        activityStepCount: '',
       ),
       isSick: false,
       wellBeing: const WellBeingEntity(
@@ -51,7 +51,7 @@ class DailyRepositoryImpl implements DailyRepository {
         mood: 1,
         motivation: 1,
       ),
-      sleep: const SleepEntity(durationText: '08 : 45 (Minutes)', quality: 8),
+      sleep: const SleepEntity(durationText: '', quality: 1),
       training:
           persistedTraining ??
           const TrainingEntity(
@@ -60,7 +60,7 @@ class DailyRepositoryImpl implements DailyRepository {
             feedback: '',
             plans: <String>{},
             cardioType: 'WALKING',
-            duration: '30',
+            duration: '',
             intensity: 1,
           ),
       nutrition: const NutritionEntity(
@@ -84,9 +84,9 @@ class DailyRepositoryImpl implements DailyRepository {
       pedHealth: const PedHealthEntity(
         dosageTaken: false,
         sideEffects: '',
-        systolicText: '120 (mmhg)',
-        diastolicText: '80 (mmhg)',
-        restingHrText: '40-60 (BPM)',
+        systolicText: '',
+        diastolicText: '',
+        restingHrText: '',
         glucoseText: '',
       ),
       notes: '',

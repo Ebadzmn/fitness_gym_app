@@ -3,6 +3,7 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -46,16 +47,16 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDQT88aVJehCiN22sPPSJhXiHPonyb_-wg',
+  static FirebaseOptions get android => FirebaseOptions(
+    apiKey: dotenv.env['FIREBASE_ANDROID_API_KEY']!,
     appId: '1:675991636837:android:7a4a4638c30a1bb222af8c',
     messagingSenderId: '675991636837',
     projectId: 'evolve-949b3',
     storageBucket: 'evolve-949b3.firebasestorage.app',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyC6KmAU817uKwYXg6Uy6UIw26k7rId-FgQ',
+  static FirebaseOptions get ios => FirebaseOptions(
+    apiKey: dotenv.env['FIREBASE_IOS_API_KEY']!,
     appId: '1:675991636837:ios:25631f713158b01c22af8c',
     messagingSenderId: '675991636837',
     projectId: 'evolve-949b3',
@@ -63,8 +64,8 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.evolveapp.fitness',
   );
 
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyC6KmAU817uKwYXg6Uy6UIw26k7rId-FgQ',
+  static FirebaseOptions get macos => FirebaseOptions(
+    apiKey: dotenv.env['FIREBASE_MACOS_API_KEY']!,
     appId: '1:675991636837:ios:25631f713158b01c22af8c',
     messagingSenderId: '675991636837',
     projectId: 'evolve-949b3',
