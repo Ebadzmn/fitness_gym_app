@@ -66,16 +66,19 @@ class _NutritionPlanViewState extends State<_NutritionPlanView> {
           if (state.status == NutritionPlanStatus.loading) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (state.status == NutritionPlanStatus.failure) {
+          if (state.status == NutritionPlanStatus.failure || state.data == null) {
             return Center(
               child: Text(
-                'Error: ${state.errorMessage}',
-                style: const TextStyle(color: Colors.white),
+                'Information not available',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             );
           }
-          final plan = state.data;
-          if (plan == null) return const SizedBox();
+          final plan = state.data!;
 
           return SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),

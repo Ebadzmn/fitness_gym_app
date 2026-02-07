@@ -4,12 +4,31 @@ import 'package:fitness_app/core/coreWidget/full_width_slider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:fitness_app/core/coreWidget/yes_no_selector.dart';
 import 'package:fitness_app/core/coreWidget/dropdown_yes_no_tile.dart';
 import 'package:fitness_app/core/coreWidget/dropdown_tile.dart';
 
-class DailyPages extends StatelessWidget {
+class DailyPages extends StatefulWidget {
   const DailyPages({super.key});
+
+  @override
+  State<DailyPages> createState() => _DailyPagesState();
+}
+
+class _DailyPagesState extends State<DailyPages> {
+  final TextEditingController _waterController = TextEditingController();
+  final TextEditingController _activityTimeController = TextEditingController();
+
+  String get _formattedDate {
+    final now = DateTime.now();
+    return "${now.year}.${now.month.toString().padLeft(2, '0')}.${now.day.toString().padLeft(2, '0')}";
+  }
+
+  @override
+  void dispose() {
+    _waterController.dispose();
+    _activityTimeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +84,7 @@ body: Padding(
                     fontWeight: FontWeight.w500,
                   ),),
                   SizedBox(height: 4.h,),
-                  Text('2023.08.15' , style: GoogleFonts.poppins(
+                  Text(_formattedDate , style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
@@ -129,13 +148,14 @@ body: Padding(
                 ],),
                 SizedBox(height: 12.h,),
                TextFormField(
+      controller: _waterController,
       style: GoogleFonts.poppins(
         color: Colors.white, // ← input text will be white
         fontSize: 14.sp,
         fontWeight: FontWeight.w400,
       ),
       decoration: InputDecoration(
-        hintText: '1.2 (Lit)',
+        hintText: 'Enter Water (Lit)',
         hintStyle: GoogleFonts.poppins(
     color: Colors.white,
     fontSize: 14.sp,
@@ -208,13 +228,14 @@ body: Padding(
                 SizedBox(height: 12.h,),
             
                 TextFormField(
+                  controller: _activityTimeController,
                   style: GoogleFonts.poppins(
                     color: Colors.white, // ← input text will be white
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w400,
                   ),
                   decoration: InputDecoration(
-                    hintText: '08:00',
+                    hintText: 'hh:mm',
                     hintStyle: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 14.sp,
@@ -350,10 +371,21 @@ class _SickOptionsState extends State<SickOptions> {
   }
 }
 
-class weightcard extends StatelessWidget {
-  const weightcard({
-    super.key,
-  });
+class weightcard extends StatefulWidget {
+  const weightcard({super.key});
+
+  @override
+  State<weightcard> createState() => _weightcardState();
+}
+
+class _weightcardState extends State<weightcard> {
+  final TextEditingController _weightController = TextEditingController();
+
+  @override
+  void dispose() {
+    _weightController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -381,13 +413,14 @@ class weightcard extends StatelessWidget {
             ),
             SizedBox(height: 12.h,),
          TextFormField(
+      controller: _weightController,
       style: GoogleFonts.poppins(
         color: Colors.white, // ← input text will be white
         fontSize: 14.sp,
         fontWeight: FontWeight.w400,
       ),
       decoration: InputDecoration(
-        hintText: '65.2 (kg)',
+        hintText: 'Enter Weight (kg)',
         hintStyle: GoogleFonts.poppins(
     color: Colors.white,
     fontSize: 14.sp,
@@ -423,10 +456,22 @@ class weightcard extends StatelessWidget {
   }
 }
 
-class sleepcard extends StatelessWidget {
-  const sleepcard({
-    super.key,
-  });
+class sleepcard extends StatefulWidget {
+  const sleepcard({super.key});
+
+  @override
+  State<sleepcard> createState() => _sleepcardState();
+}
+
+class _sleepcardState extends State<sleepcard> {
+  final TextEditingController _sleepDurationController = TextEditingController();
+  double _sleepQuality = 4.0;
+
+  @override
+  void dispose() {
+    _sleepDurationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -456,13 +501,14 @@ class sleepcard extends StatelessWidget {
             SizedBox(height: 12.h,),
     
             TextFormField(
+      controller: _sleepDurationController,
       style: GoogleFonts.poppins(
         color: Colors.white, // ← input text will be white
         fontSize: 14.sp,
         fontWeight: FontWeight.w400,
       ),
       decoration: InputDecoration(
-        hintText: '08 : 45 (Minutes)',
+        hintText: 'hh:mm',
         hintStyle: GoogleFonts.poppins(
     color: Colors.white,
     fontSize: 14.sp,
@@ -512,7 +558,7 @@ class sleepcard extends StatelessWidget {
       ),
     ),
     child: Center(
-      child: Text('8' , style: GoogleFonts.poppins(
+      child: Text('${_sleepQuality.round()}' , style: GoogleFonts.poppins(
       color: Colors.green,
       fontSize: 12.sp,
       fontWeight: FontWeight.w500,
@@ -522,11 +568,11 @@ class sleepcard extends StatelessWidget {
       ],
     ),
         FullWidthSlider(
-          value: 4.0,
+          value: _sleepQuality,
           min: 1.0,
           max: 10.0,
           divisions: 9,
-          onChanged: (_) {},
+          onChanged: (v) => setState(() => _sleepQuality = v),
           overlayColor: Colors.green.withOpacity(0.2),
         )
           ],
@@ -546,10 +592,10 @@ class TrainingCard extends StatefulWidget {
 class _TrainingCardState extends State<TrainingCard> {
   bool _trainingCompleted = false;
   bool _cardioCompleted = false;
-  bool _planPlaceholder = true;
+  bool _planPullWorkout = false;
   bool _planPushFullbody = false;
   bool _planLegDayAdvanced = false;
-  bool _planTraining1 = false;
+  bool _planUpperBody = false;
   String _cardioType = 'Walking';
   final TextEditingController _durationCtrl = TextEditingController();
 
@@ -593,7 +639,7 @@ class _TrainingCardState extends State<TrainingCard> {
 
             Row(
               children: [
-                Expanded(child: _checkboxTile('Placeholder', _planPlaceholder, (v) => setState(() => _planPlaceholder = v ?? false))),
+                Expanded(child: _checkboxTile('Pull Workout', _planPullWorkout, (v) => setState(() => _planPullWorkout = v ?? false))),
                 SizedBox(width: 12.w),
                 Expanded(child: _checkboxTile('Push Fullbody', _planPushFullbody, (v) => setState(() => _planPushFullbody = v ?? false))),
               ],
@@ -603,7 +649,7 @@ class _TrainingCardState extends State<TrainingCard> {
               children: [
                 Expanded(child: _checkboxTile('Leg Day Advanced', _planLegDayAdvanced, (v) => setState(() => _planLegDayAdvanced = v ?? false))),
                 SizedBox(width: 12.w),
-                Expanded(child: _checkboxTile('Training plan 1', _planTraining1, (v) => setState(() => _planTraining1 = v ?? false))),
+                Expanded(child: _checkboxTile('Upper Body', _planUpperBody, (v) => setState(() => _planUpperBody = v ?? false))),
               ],
             ),
 
@@ -724,6 +770,13 @@ class _WomenCardState extends State<WomenCard> {
   double _pms = 6;
   double _cramps = 6;
   final Set<String> _symptoms = {};
+  final TextEditingController _cycleDayCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _cycleDayCtrl.dispose();
+    super.dispose();
+  }
 
   Widget _pillValue(int v) {
     return Container(
@@ -760,9 +813,30 @@ class _WomenCardState extends State<WomenCard> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [Icon(Icons.woman_2_outlined, color: Colors.white), SizedBox(width: 8.w), Text('Women', style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600))]),
           SizedBox(height: 12.h),
-          DropdownTile(title: 'Cycle Phase?', value: _cyclePhase, options: const ['Follicular', 'Ovulation', 'Luteal', 'Menstruation'], onChanged: (v) => setState(() => _cyclePhase = v)),
+          DropdownTile(
+            title: 'Cycle Phase?',
+            value: _cyclePhase,
+            options: const ['Follicular', 'Ovulation', 'Luteal', 'Menstruation'],
+            onChanged: (v) => setState(() => _cyclePhase = v),
+            hint: 'Select Phase',
+          ),
           SizedBox(height: 12.h),
-          _titledBox('Cycle Day  ( Monday )'),
+          _titledBox('Cycle Day'),
+          SizedBox(height: 8.h),
+          TextFormField(
+            controller: _cycleDayCtrl,
+            style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w400),
+            decoration: InputDecoration(
+              hintText: 'Enter Day',
+              hintStyle: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w400),
+              filled: true,
+              fillColor: const Color(0XFF0A0A1F),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
+              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
+              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
+              contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+            ),
+          ),
           SizedBox(height: 12.h),
           Row(children: [Expanded(child: Text('PMS Symptoms (1-10)', style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500))), _pillValue(_pms.round())]),
           FullWidthSlider(value: _pms, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _pms = v), overlayColor: Colors.green.withOpacity(0.2)),
@@ -774,6 +848,7 @@ class _WomenCardState extends State<WomenCard> {
             selected: _symptoms,
             options: const ['Everything Fine', 'Cramps', 'Breast Tenderness', 'Headache', 'Acne', 'Lower Back Pain', 'Tiredness', 'Cravings', 'Sleepless', 'Abdominal Pain', 'Vaginal Itching', 'Vaginal Dryness'],
             onChanged: (s) => setState(() => _symptoms..clear()..addAll(s)),
+            hint: 'Select Symptoms',
           ),
         ]),
       ),
@@ -791,9 +866,9 @@ class PedCard extends StatefulWidget {
 class _PedCardState extends State<PedCard> {
   bool _dailyDosageTaken = false;
   final _sideEffectsCtrl = TextEditingController();
-  final _systolicCtrl = TextEditingController(text: '120 (mmhg)');
-  final _diastolicCtrl = TextEditingController(text: '80 (mmhg)');
-  final _restingHrCtrl = TextEditingController(text: '40-60 (BPM)');
+  final _systolicCtrl = TextEditingController();
+  final _diastolicCtrl = TextEditingController();
+  final _restingHrCtrl = TextEditingController();
   final _glucoseCtrl = TextEditingController();
   final _notesCtrl = TextEditingController();
 
@@ -822,23 +897,23 @@ class _PedCardState extends State<PedCard> {
           SizedBox(height: 12.h),
           Text('Side Effects Notes', style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500)),
           SizedBox(height: 8.h),
-          _textArea(_sideEffectsCtrl, hint: 'Type...'),
+          _textArea(_sideEffectsCtrl, hint: 'Enter side effects...'),
           SizedBox(height: 12.h),
           Row(children: [Icon(Icons.bloodtype_outlined, color: Colors.white), SizedBox(width: 8.w), Text('Blood Pressure (Everybody)', style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600))]),
           SizedBox(height: 12.h),
           Row(children: [
-            Expanded(child: _labeledField('Systolic', _systolicCtrl)),
+            Expanded(child: _labeledField('Systolic', _systolicCtrl, hint: 'Enter Systolic')),
             SizedBox(width: 12.w),
-            Expanded(child: _labeledField('Diastolic', _diastolicCtrl)),
+            Expanded(child: _labeledField('Diastolic', _diastolicCtrl, hint: 'Enter Diastolic')),
           ]),
           SizedBox(height: 12.h),
-          _labeledField('Resting Heart Rate', _restingHrCtrl),
+          _labeledField('Resting Heart Rate', _restingHrCtrl, hint: 'Enter Heart Rate'),
           SizedBox(height: 12.h),
-          _labeledField('Blood Glucose', _glucoseCtrl),
+          _labeledField('Blood Glucose', _glucoseCtrl, hint: 'Enter Glucose'),
           SizedBox(height: 12.h),
           Text('Daily Notes', style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500)),
           SizedBox(height: 8.h),
-          _textArea(_notesCtrl, hint: 'Type...'),
+          _textArea(_notesCtrl, hint: 'Enter notes...'),
           SizedBox(height: 16.h),
           SizedBox(width: double.infinity, height: 44.h, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent.shade200, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r))), onPressed: () {}, child: Text('Submit', style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600))))
         ]),
@@ -864,7 +939,7 @@ class _PedCardState extends State<PedCard> {
     );
   }
 
-  Widget _labeledField(String label, TextEditingController ctrl) {
+  Widget _labeledField(String label, TextEditingController ctrl, {String hint = 'Enter Value'}) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(label, style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500)),
       SizedBox(height: 8.h),
@@ -872,7 +947,7 @@ class _PedCardState extends State<PedCard> {
         controller: ctrl,
         style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w400),
         decoration: InputDecoration(
-          hintText: 'Type..',
+          hintText: hint,
           hintStyle: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w400),
           filled: true,
           fillColor: const Color(0XFF0A0A1F),
@@ -896,6 +971,21 @@ class NutritionCard extends StatefulWidget {
 class _NutritionCardState extends State<NutritionCard> {
   double _hunger = 6;
   double _digestion = 6;
+  final TextEditingController _caloriesCtrl = TextEditingController();
+  final TextEditingController _carbsCtrl = TextEditingController();
+  final TextEditingController _proteinCtrl = TextEditingController();
+  final TextEditingController _fatsCtrl = TextEditingController();
+  final TextEditingController _saltCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _caloriesCtrl.dispose();
+    _carbsCtrl.dispose();
+    _proteinCtrl.dispose();
+    _fatsCtrl.dispose();
+    _saltCtrl.dispose();
+    super.dispose();
+  }
 
   Widget _label(String text) {
     return Text(text, style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500));
@@ -916,8 +1006,9 @@ class _NutritionCardState extends State<NutritionCard> {
     );
   }
 
-  Widget _filledInput(String hint) {
+  Widget _filledInput(String hint, TextEditingController controller) {
     return TextFormField(
+      controller: controller,
       style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w400),
       decoration: InputDecoration(
         hintText: hint,
@@ -956,13 +1047,13 @@ class _NutritionCardState extends State<NutritionCard> {
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   _label('Calories'),
                   SizedBox(height: 8.h),
-                  _filledInput('Type..'),
+                  _filledInput('Enter (kcal)', _caloriesCtrl),
                 ])),
                 SizedBox(width: 12.w),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   _label('Carbs'),
                   SizedBox(height: 8.h),
-                  _filledInput('Type..'),
+                  _filledInput('Enter (g)', _carbsCtrl),
                 ])),
               ],
             ),
@@ -973,13 +1064,13 @@ class _NutritionCardState extends State<NutritionCard> {
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   _label('Protein'),
                   SizedBox(height: 8.h),
-                  _filledInput('Type..'),
+                  _filledInput('Enter (g)', _proteinCtrl),
                 ])),
                 SizedBox(width: 12.w),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   _label('Fats'),
                   SizedBox(height: 8.h),
-                  _filledInput('Type..'),
+                  _filledInput('Enter (g)', _fatsCtrl),
                 ])),
               ],
             ),
@@ -1008,7 +1099,7 @@ class _NutritionCardState extends State<NutritionCard> {
             SizedBox(height: 12.h),
             _label('Salt (g)'),
             SizedBox(height: 8.h),
-            _filledInput('Type..'),
+            _filledInput('Enter Salt (g)', _saltCtrl),
           ],
         ),
       ),
@@ -1029,6 +1120,13 @@ class _EnergyWellBeingCardState extends State<EnergyWellBeingCard> {
   double _muscleSoreness = 6;
   double _mood = 6;
   double _motivation = 6;
+  final TextEditingController _bodyTempCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _bodyTempCtrl.dispose();
+    super.dispose();
+  }
 
   Widget _labelWithValue(String label, int value) {
     return Row(
@@ -1156,13 +1254,14 @@ class _EnergyWellBeingCardState extends State<EnergyWellBeingCard> {
             ),
             SizedBox(height: 8.h),
             TextFormField(
+              controller: _bodyTempCtrl,
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w400,
               ),
               decoration: InputDecoration(
-                hintText: 'Type..',
+                hintText: 'Enter Temp',
                 hintStyle: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 14.sp,
