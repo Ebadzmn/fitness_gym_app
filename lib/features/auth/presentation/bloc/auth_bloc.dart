@@ -84,8 +84,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
     try {
+      final fcmToken = tokenStorage.getFcmToken();
       final result = await loginUseCase(
-        LoginParams(email: event.email, password: event.password),
+        LoginParams(
+          email: event.email,
+          password: event.password,
+          fcmToken: fcmToken,
+        ),
       );
       await tokenStorage.saveAccessToken(result.token);
 
