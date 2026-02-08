@@ -27,6 +27,17 @@ class ExerciseRemoteDataSourceImpl implements ExerciseRemoteDataSource {
 
     if (response.data['success'] == true) {
       final List<dynamic> data = response.data['data']['exercises'];
+      
+      for (final item in data) {
+        if (item is Map<String, dynamic>) {
+          // Temporary debug: inspect video-related fields from API
+          print('Exercise API item raw: ${item.keys}');
+          print('Exercise API video: ${item['video']}');
+          print('Exercise API media: ${item['media']}');
+          print('Exercise API videoUrl: ${item['videoUrl']}');
+        }
+      }
+
       return data.map((e) => ExerciseModel.fromJson(e)).toList();
     } else {
       throw DioException(
