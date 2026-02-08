@@ -22,7 +22,7 @@ class ExerciseModel extends ExerciseEntity {
       tags: List<String>.from(json['subCategory'] ?? []),
       description: json['description'] ?? '',
       imageUrl: json['image'] ?? '',
-      videoUrl: json['video'] ?? '',
+      videoUrl: (json['vedio'] ?? json['video'] ?? json['media'] ?? json['videoUrl'] ?? '').toString(),
       difficulty: json['difficulty'] ?? '',
     );
   }

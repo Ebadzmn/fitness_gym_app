@@ -36,9 +36,20 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
 
     final baseUrl = Uri.parse(ApiUrls.baseUrl).origin;
     var finalPath = path;
+
+     if (finalPath.startsWith('/vedio/')) {
+       final fileName = finalPath.split('/').last;
+       finalPath = '/media/$fileName';
+     }
+
     if (!finalPath.startsWith('/')) {
-      finalPath = '/$finalPath';
+      if (!finalPath.contains('/')) {
+        finalPath = '/media/$finalPath';
+      } else {
+        finalPath = '/$finalPath';
+      }
     }
+
     return '$baseUrl$finalPath';
   }
 
@@ -49,6 +60,9 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
 
     try {
       final videoUrl = _getAbsoluteUrl(widget.exercise.videoUrl);
+
+      print('Exercise video original: ${widget.exercise.videoUrl}');
+      print('Exercise video final: $videoUrl');
 
       _videoPlayerController = VideoPlayerController.networkUrl(
         Uri.parse(videoUrl),
@@ -78,6 +92,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
         });
       }
     } catch (e) {
+      print('Exercise video error: $e');
       if (mounted) {
         setState(() {
           _isLoading = false;
