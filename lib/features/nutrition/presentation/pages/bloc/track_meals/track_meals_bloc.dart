@@ -5,6 +5,7 @@ import 'package:fitness_app/features/nutrition/domain/usecases/save_track_meal_u
 import 'package:fitness_app/features/nutrition/domain/usecases/delete_tracked_food_item_usecase.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_plan_entity.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_daily_tracking_entity.dart';
+import 'package:fitness_app/features/profile/domain/usecases/get_profile_usecase.dart';
 import 'track_meals_event.dart';
 import 'track_meals_state.dart';
 
@@ -13,6 +14,7 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
   final GetNutritionPlanUseCase getPlan;
   final SaveTrackMealUseCase saveMeal;
   final DeleteTrackedFoodItemUseCase deleteFoodItem;
+  final GetProfileUseCase getProfile;
 
   TrackMealsBloc({
     required DateTime initialDate,
@@ -20,6 +22,7 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
     required this.getPlan,
     required this.saveMeal,
     required this.deleteFoodItem,
+    required this.getProfile,
   }) : super(TrackMealsState(date: initialDate)) {
     on<TrackMealsLoadRequested>(_onLoad);
     on<TrackMealsDateChanged>(_onDateChanged);
@@ -34,7 +37,17 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
     emit(state.copyWith(status: TrackMealsStatus.loading));
 
     final mealsResult = await getMeals(event.date);
-    final planResult = await getPlan('69482a6a6557e1feae3fc446');
+
+    dynamic planResult;
+    final profileResult = await getProfile();
+    await profileResult.fold(
+      (failure) async {
+        // Ignore plan failure; tracking data can still load
+      },
+      (profile) async {
+        planResult = await getPlan(profile.athlete.id);
+      },
+    );
 
     NutritionDailyTrackingEntity? trackingData;
     String? errorMessage;
@@ -69,23 +82,25 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
     }
 
     NutritionPlanEntity? planEntity;
-    planResult.fold(
-      (failure) {
-        // Ignore plan failure for now logic as before
-      },
-      (response) {
-        planEntity = NutritionPlanEntity(
-          title: 'Daily Goal',
-          mealsCount: response.meals.length,
-          waterLiters: 4.0,
-          calories: response.totals.totalCalories,
-          proteinG: response.totals.totalProtein,
-          carbsG: response.totals.totalCarbs,
-          fatsG: response.totals.totalFats,
-          meals: response.meals,
-        );
-      },
-    );
+    if (planResult != null) {
+      planResult.fold(
+        (failure) {
+          // Ignore plan failure for now logic as before
+        },
+        (response) {
+          planEntity = NutritionPlanEntity(
+            title: 'Daily Goal',
+            mealsCount: response.meals.length,
+            waterLiters: 4.0,
+            calories: response.totals.totalCalories,
+            proteinG: response.totals.totalProtein,
+            carbsG: response.totals.totalCarbs,
+            fatsG: response.totals.totalFats,
+            meals: response.meals,
+          );
+        },
+      );
+    }
 
     emit(
       state.copyWith(

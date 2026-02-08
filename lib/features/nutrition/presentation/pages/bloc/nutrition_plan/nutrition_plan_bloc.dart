@@ -2,14 +2,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_plan_entity.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_response_entity.dart';
 import 'package:fitness_app/features/nutrition/domain/usecases/get_nutrition_plan_usecase.dart';
+import 'package:fitness_app/features/profile/domain/usecases/get_profile_usecase.dart';
 import 'nutrition_plan_event.dart';
 import 'nutrition_plan_state.dart';
 
 class NutritionPlanBloc extends Bloc<NutritionPlanEvent, NutritionPlanState> {
   final GetNutritionPlanUseCase getPlan;
+  final GetProfileUseCase getProfile;
 
-  NutritionPlanBloc({required this.getPlan})
-    : super(const NutritionPlanState()) {
+  NutritionPlanBloc({
+    required this.getPlan,
+    required this.getProfile,
+  }) : super(const NutritionPlanState()) {
     on<NutritionPlanLoadRequested>(_onLoad);
     on<NutritionPlanTabChanged>(_onTabChanged);
   }
@@ -19,26 +23,38 @@ class NutritionPlanBloc extends Bloc<NutritionPlanEvent, NutritionPlanState> {
     Emitter<NutritionPlanState> emit,
   ) async {
     emit(state.copyWith(status: NutritionPlanStatus.loading));
-    // Hardcoded User ID as per instruction
-    final result = await getPlan('69482a6a6557e1feae3fc446');
 
-    result.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: NutritionPlanStatus.failure,
-          errorMessage: failure.message,
-        ),
-      ),
-      (response) {
-        // Initial tab is 0 -> Training Days
-        final initialPlan = _filterPlan(response, 0);
+    final profileResult = await getProfile();
+    await profileResult.fold(
+      (failure) async {
         emit(
           state.copyWith(
-            status: NutritionPlanStatus.success,
-            fullData: response,
-            data: initialPlan,
-            selectedTabIndex: 0,
+            status: NutritionPlanStatus.failure,
+            errorMessage: failure.message,
           ),
+        );
+      },
+      (profile) async {
+        final result = await getPlan(profile.athlete.id);
+
+        result.fold(
+          (failure) => emit(
+            state.copyWith(
+              status: NutritionPlanStatus.failure,
+              errorMessage: failure.message,
+            ),
+          ),
+          (response) {
+            final initialPlan = _filterPlan(response, 0);
+            emit(
+              state.copyWith(
+                status: NutritionPlanStatus.success,
+                fullData: response,
+                data: initialPlan,
+                selectedTabIndex: 0,
+              ),
+            );
+          },
         );
       },
     );

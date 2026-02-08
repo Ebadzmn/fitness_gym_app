@@ -1,24 +1,35 @@
 import 'package:dartz/dartz.dart';
-import 'package:fitness_app/core/network/api_client.dart'; // Often needed, but maybe not here, remoteDataSource handles it.
+import 'package:fitness_app/core/network/api_client.dart';
 import 'package:fitness_app/core/network/api_exception.dart';
 import 'package:fitness_app/domain/entities/training_entities/training_plan_entity.dart';
 import 'package:fitness_app/domain/repositories/training_history/training_plan_repository.dart';
+import 'package:fitness_app/features/profile/domain/usecases/get_profile_usecase.dart';
 import 'package:fitness_app/features/training/data/datasources/training_remote_datasource.dart';
 import 'package:fitness_app/features/training/data/models/training_history_request_model.dart';
 
 class TrainingRepositoryImpl implements TrainingPlanRepository {
   final TrainingRemoteDataSource remoteDataSource;
+  final GetProfileUseCase getProfile;
 
-  TrainingRepositoryImpl({required this.remoteDataSource});
+  TrainingRepositoryImpl({
+    required this.remoteDataSource,
+    required this.getProfile,
+  });
 
   @override
   Future<Either<ApiException, List<TrainingPlanEntity>>>
   getTrainingPlans() async {
     try {
-      final result = await remoteDataSource.getTrainingPlans(
-        '693ddd32418ae5411e5359d4', // Hardcoded user ID
+      final profileResult = await getProfile();
+      return await profileResult.fold(
+        (failure) => Left(failure),
+        (profile) async {
+          final result = await remoteDataSource.getTrainingPlans(
+            profile.athlete.id,
+          );
+          return Right(result);
+        },
       );
-      return Right(result);
     } catch (e) {
       return Left(ApiException(message: e.toString()));
     }
