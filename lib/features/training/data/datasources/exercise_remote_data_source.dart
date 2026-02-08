@@ -5,6 +5,7 @@ import '../models/exercise_model.dart';
 
 abstract class ExerciseRemoteDataSource {
   Future<List<ExerciseModel>> fetchExercises(String? muscleCategory);
+  Future<ExerciseModel> fetchExerciseById(String id);
 }
 
 class ExerciseRemoteDataSourceImpl implements ExerciseRemoteDataSource {
@@ -20,7 +21,7 @@ class ExerciseRemoteDataSourceImpl implements ExerciseRemoteDataSource {
     }
 
     final response = await apiClient.get(
-      ApiUrls.exerciseCoachAthlete,
+      ApiUrls.exercise,
       queryParameters: queryParams,
     );
 
@@ -33,5 +34,28 @@ class ExerciseRemoteDataSourceImpl implements ExerciseRemoteDataSource {
         error: response.data['message'],
       );
     }
+  }
+
+  @override
+  Future<ExerciseModel> fetchExerciseById(String id) async {
+    final response = await apiClient.get(ApiUrls.exerciseById(id));
+
+    if (response.data is Map<String, dynamic>) {
+      final body = response.data as Map<String, dynamic>;
+      if (body['success'] == true && body['data'] != null) {
+        return ExerciseModel.fromJson(body['data'] as Map<String, dynamic>);
+      }
+      if (body['data'] is Map<String, dynamic>) {
+        return ExerciseModel.fromJson(body['data'] as Map<String, dynamic>);
+      }
+      if (body['exercise'] is Map<String, dynamic>) {
+        return ExerciseModel.fromJson(body['exercise'] as Map<String, dynamic>);
+      }
+    }
+
+    throw DioException(
+      requestOptions: response.requestOptions,
+      error: 'Failed to load exercise details',
+    );
   }
 }

@@ -72,39 +72,39 @@ class _TrainingView extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
             child: Column(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: _statCard(
-                        icon: Icons.emoji_events_outlined,
-                        iconColor: const Color(0xFFFFC107),
-                        title: '${data.prsThisWeek}',
-                        subtitle: localizations.trainingStatsPrsThisWeek,
-                        borderColor: const Color(0xFF936E19),
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: _statCard(
-                        icon: Icons.fitness_center_outlined,
-                        iconColor: Colors.blueGrey.shade200,
-                        title: '${data.weeklyVolumeKg} kg',
-                        subtitle: localizations.trainingStatsWeeklyVolume,
-                        borderColor: const Color(0xFF09579A),
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: _statCard(
-                        icon: Icons.local_fire_department_outlined,
-                        iconColor: const Color(0xFFFF6D00),
-                        title: '${data.trainingsCount}',
-                        subtitle: localizations.trainingStatsTrainings,
-                        borderColor: const Color(0xFF936E19),
-                      ),
-                    ),
-                  ],
-                ),
+                // Row(
+                //   children: [
+                //     Expanded(
+                //       child: _statCard(
+                //         icon: Icons.emoji_events_outlined,
+                //         iconColor: const Color(0xFFFFC107),
+                //         title: '${data.prsThisWeek}',
+                //         subtitle: localizations.trainingStatsPrsThisWeek,
+                //         borderColor: const Color(0xFF936E19),
+                //       ),
+                //     ),
+                //     SizedBox(width: 12.w),
+                //     Expanded(
+                //       child: _statCard(
+                //         icon: Icons.fitness_center_outlined,
+                //         iconColor: Colors.blueGrey.shade200,
+                //         title: '${data.weeklyVolumeKg} kg',
+                //         subtitle: localizations.trainingStatsWeeklyVolume,
+                //         borderColor: const Color(0xFF09579A),
+                //       ),
+                //     ),
+                //     SizedBox(width: 12.w),
+                //     Expanded(
+                //       child: _statCard(
+                //         icon: Icons.local_fire_department_outlined,
+                //         iconColor: const Color(0xFFFF6D00),
+                //         title: '${data.trainingsCount}',
+                //         subtitle: localizations.trainingStatsTrainings,
+                //         borderColor: const Color(0xFF936E19),
+                //       ),
+                //     ),
+                //   ],
+                // ),
                 SizedBox(height: 20.h),
                 Row(
                   children: [

@@ -6,4 +6,5 @@ abstract class ExerciseRepository {
   Future<Either<ApiException, List<ExerciseEntity>>> getExercises({
     String? muscleCategory,
   });
+  Future<Either<ApiException, ExerciseEntity>> getExerciseById(String id);
 }

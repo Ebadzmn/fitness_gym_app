@@ -54,18 +54,6 @@ class _FoodItemsView extends StatelessWidget {
             ),
           ),
         ),
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 12.w),
-            child: CircleAvatar(
-              backgroundColor: Colors.white10,
-              child: IconButton(
-                icon: const Icon(Icons.add, color: Colors.white),
-                onPressed: () {},
-              ),
-            ),
-          ),
-        ],
       ),
       body: BlocBuilder<FoodItemsBloc, FoodItemsState>(
         builder: (context, state) {

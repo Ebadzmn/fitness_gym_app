@@ -119,10 +119,21 @@ class _ExerciseView extends StatelessWidget {
 
   Widget _filters(BuildContext context, String current, AppLocalizations localizations) {
     final filters = [
-      localizations.trainingExerciseFilterAll,
-      localizations.trainingExerciseFilterChest,
-      localizations.trainingExerciseFilterBack,
-      localizations.trainingExerciseFilterLegs,
+      'All',
+      'Neck',
+      'Beck',
+      'Core',
+      'Legs',
+      'Shoulders',
+      'Chest',
+      'Triceps',
+      'Biceps',
+      "Lower Back",
+      "Glutes",
+      "Quadriceps",
+      "Hamstrings",
+      "Calves",
+      "Other",
     ];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,

@@ -156,7 +156,7 @@ Future<void> init() async {
 
   // Repository
   sl.registerLazySingleton<TrainingPlanRepository>(
-    () => TrainingRepositoryImpl(remoteDataSource: sl()),
+    () => TrainingRepositoryImpl(remoteDataSource: sl(), getProfile: sl()),
   );
   sl.registerLazySingleton<TrainingHistoryRepository>(
     () => TrainingHistoryRepositoryImpl(remoteDataSource: sl()),
@@ -178,7 +178,12 @@ Future<void> init() async {
   );
 
   // Training Split Feature
-  sl.registerFactory(() => TrainingSplitBloc(getSplit: sl()));
+  sl.registerFactory(
+    () => TrainingSplitBloc(
+      getSplit: sl(),
+      getProfile: sl(),
+    ),
+  );
   sl.registerLazySingleton(() => GetTrainingSplitUseCase(sl()));
   sl.registerLazySingleton<TrainingSplitRepository>(
     () => TrainingSplitRepositoryImpl(remoteDataSource: sl()),
@@ -188,7 +193,12 @@ Future<void> init() async {
   );
 
   // Nutrition Feature
-  sl.registerFactory(() => NutritionPlanBloc(getPlan: sl()));
+  sl.registerFactory(
+    () => NutritionPlanBloc(
+      getPlan: sl(),
+      getProfile: sl(),
+    ),
+  );
   sl.registerFactory(
     () => NutritionBloc(
       getProfile: sl(),
@@ -218,6 +228,7 @@ Future<void> init() async {
       getPlan: sl(),
       saveMeal: sl(),
       deleteFoodItem: sl(),
+      getProfile: sl(),
     ),
   );
   sl.registerFactory(() => NutritionSupplementBloc(getSupplements: sl()));

@@ -23,4 +23,18 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
       return Left(ApiException(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<ApiException, ExerciseEntity>> getExerciseById(
+    String id,
+  ) async {
+    try {
+      final model = await remoteDataSource.fetchExerciseById(id);
+      return Right(model);
+    } on ApiException catch (e) {
+      return Left(e);
+    } catch (e) {
+      return Left(ApiException(message: e.toString()));
+    }
+  }
 }
