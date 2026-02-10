@@ -2,7 +2,11 @@ import 'package:fitness_app/presentation/checkIn/bloc/checkin_bloc.dart';
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_event.dart';
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_state.dart';
 import 'package:fitness_app/presentation/daily/daily_tracking/presentation/pages/bloc/daily_event.dart'
-    hide NutritionTextChanged, WellBeingChanged, DailyNotesChanged, TrainingToggleChanged;
+    hide
+        NutritionTextChanged,
+        WellBeingChanged,
+        DailyNotesChanged,
+        TrainingToggleChanged;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_app/core/coreWidget/full_width_slider.dart';
@@ -33,12 +37,12 @@ class QuestionsTab extends StatelessWidget {
   }
 
   Widget _filledField(
-    TextEditingController ctrl, {
+    String initialValue, {
     required String hint,
     required ValueChanged<String> onChanged,
   }) {
     return TextFormField(
-      controller: ctrl,
+      initialValue: initialValue,
       style: TextStyle(
         color: Colors.white,
         fontSize: 14.sp,
@@ -72,12 +76,12 @@ class QuestionsTab extends StatelessWidget {
   }
 
   Widget _answerInput(
-    TextEditingController ctrl, {
+    String initialValue, {
     required String hint,
     required ValueChanged<String> onChanged,
   }) {
     return TextFormField(
-      controller: ctrl,
+      initialValue: initialValue,
       style: TextStyle(
         color: Colors.white,
         fontSize: 14.sp,
@@ -147,12 +151,12 @@ class QuestionsTab extends StatelessWidget {
   }
 
   Widget _textArea(
-    TextEditingController ctrl, {
+    String initialValue, {
     required String hint,
     ValueChanged<String>? onChanged,
   }) {
     return TextFormField(
-      controller: ctrl,
+      initialValue: initialValue,
       maxLines: 4,
       style: TextStyle(
         color: Colors.white,
@@ -233,9 +237,17 @@ class QuestionsTab extends StatelessWidget {
         SizedBox(height: 6.h),
         Column(
           children: [
-            _ynOption(localizations.commonYes, value == true, () => onChanged(true)),
+            _ynOption(
+              localizations.commonYes,
+              value == true,
+              () => onChanged(true),
+            ),
             SizedBox(width: 16.w),
-            _ynOption(localizations.commonNo, value == false, () => onChanged(false)),
+            _ynOption(
+              localizations.commonNo,
+              value == false,
+              () => onChanged(false),
+            ),
           ],
         ),
       ],
@@ -248,15 +260,6 @@ class QuestionsTab extends StatelessWidget {
         final localizations = AppLocalizations.of(context)!;
         final data = state.data;
         if (data == null) return const SizedBox.shrink();
-        final answerCtrl = TextEditingController(text: data.answer1);
-        final answer2Ctrl = TextEditingController(text: data.answer2);
-        final challengeCtrl = TextEditingController(
-          text: data.nutrition.challenge,
-        );
-        final feedbackCtrl = TextEditingController(
-          text: data.training.feedback,
-        );
-        final athleteNoteCtrl = TextEditingController(text: data.athleteNote);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,7 +274,7 @@ class QuestionsTab extends StatelessWidget {
             ),
             SizedBox(height: 12.h),
             _answerInput(
-              answerCtrl,
+              data.answer1,
               hint: localizations.commonAnswer,
               onChanged: (v) =>
                   context.read<CheckInBloc>().add(AnswerChanged(1, v)),
@@ -288,7 +291,7 @@ class QuestionsTab extends StatelessWidget {
             ),
             SizedBox(height: 12.h),
             _answerInput(
-              answer2Ctrl,
+              data.answer2,
               hint: localizations.commonTypeHint,
               onChanged: (v) =>
                   context.read<CheckInBloc>().add(AnswerChanged(2, v)),
@@ -431,7 +434,7 @@ class QuestionsTab extends StatelessWidget {
                   ),
                   SizedBox(height: 8.h),
                   _filledField(
-                    challengeCtrl,
+                    data.nutrition.challenge,
                     hint: localizations.commonTypeHint,
                     onChanged: (v) => context.read<CheckInBloc>().add(
                       NutritionTextChanged('challenge', v),
@@ -517,7 +520,7 @@ class QuestionsTab extends StatelessWidget {
                   ),
                   SizedBox(height: 8.h),
                   _filledField(
-                    feedbackCtrl,
+                    data.training.feedback,
                     hint: localizations.commonTypeHint,
                     onChanged: (v) => context.read<CheckInBloc>().add(
                       TrainingTextChanged('feedback', v),
@@ -547,7 +550,7 @@ class QuestionsTab extends StatelessWidget {
                   ),
                   SizedBox(height: 8.h),
                   _textArea(
-                    athleteNoteCtrl,
+                    data.athleteNote,
                     hint: localizations.commonTypeHint,
                     onChanged: (v) =>
                         context.read<CheckInBloc>().add(AthleteNoteChanged(v)),

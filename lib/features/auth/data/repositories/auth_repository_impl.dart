@@ -8,7 +8,11 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<AuthEntity> login(String email, String password, {String? fcmToken}) async {
+  Future<AuthEntity> login(
+    String email,
+    String password, {
+    String? fcmToken,
+  }) async {
     try {
       final authModel = await remoteDataSource.login(
         email,
@@ -31,9 +35,19 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> verifyOtp(String email, String otp) async {
+  Future<String> verifyOtp(String email, String otp) async {
     try {
-      await remoteDataSource.verifyOtp(email, otp);
+      final token = await remoteDataSource.verifyOtp(email, otp);
+      return token;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> resetPassword(String newPassword, String confirmPassword) async {
+    try {
+      await remoteDataSource.resetPassword(newPassword, confirmPassword);
     } catch (e) {
       rethrow;
     }

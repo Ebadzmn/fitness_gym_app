@@ -25,11 +25,17 @@ class CustomFloatingNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       // ফ্লোটিং ইফেক্ট দেওয়ার জন্য মার্জিন
-      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
+      margin: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        bottom: 20 + MediaQuery.of(context).viewPadding.bottom,
+      ),
       padding: const EdgeInsets.all(5),
       height: 70, // বার-এর উচ্চতা
       decoration: BoxDecoration(
-        color: Color(0xFF8e8e8e),// পুরো বার-এর ব্যাকগ্রাউন্ড (ট্রান্সপারেন্ট গ্রে)
+        color: Color(
+          0xFF8e8e8e,
+        ), // পুরো বার-এর ব্যাকগ্রাউন্ড (ট্রান্সপারেন্ট গ্রে)
         borderRadius: BorderRadius.circular(50), // ক্যাপসুল শেইপ
       ),
       child: Row(

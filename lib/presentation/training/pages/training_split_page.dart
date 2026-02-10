@@ -43,13 +43,31 @@ class _TrainingSplitView extends StatelessWidget {
             ),
           ),
         ),
-        title: Text(localizations.trainingSplitAppBarTitle, style: AppTextStyle.appbarHeading),
+        title: Text(
+          localizations.trainingSplitAppBarTitle,
+          style: AppTextStyle.appbarHeading,
+        ),
         centerTitle: true,
       ),
       body: BlocBuilder<TrainingSplitBloc, TrainingSplitState>(
         builder: (context, state) {
           if (state.status == TrainingSplitStatus.loading) {
             return const Center(child: CircularProgressIndicator());
+          }
+          if (state.items.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
+                child: Text(
+                  localizations.coachAddedShortly,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 16.sp,
+                  ),
+                ),
+              ),
+            );
           }
           return SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),

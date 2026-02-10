@@ -13,7 +13,9 @@ import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/domain/usecases/login_usecase.dart';
 import 'features/auth/domain/usecases/forget_password_usecase.dart';
+
 import 'features/auth/domain/usecases/verify_otp_usecase.dart';
+import 'features/auth/domain/usecases/reset_password_usecase.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/daily_tracking/data/datasources/daily_tracking_remote_datasource.dart';
 import 'features/daily_tracking/data/repositories/daily_repository_impl.dart';
@@ -98,6 +100,7 @@ Future<void> init() async {
       verifyOtpUseCase: sl(),
       tokenStorage: sl(),
       syncNutritionDataUseCase: sl(),
+      resetPasswordUseCase: sl(),
     ),
   );
 
@@ -105,6 +108,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => ForgetPasswordUseCase(sl()));
   sl.registerLazySingleton(() => VerifyOtpUseCase(sl()));
+  sl.registerLazySingleton(() => ResetPasswordUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(
@@ -113,7 +117,7 @@ Future<void> init() async {
 
   // Data sources
   sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(apiClient: sl()),
+    () => AuthRemoteDataSourceImpl(apiClient: sl(), tokenStorage: sl()),
   );
 
   //! Features - Daily Tracking
@@ -178,12 +182,7 @@ Future<void> init() async {
   );
 
   // Training Split Feature
-  sl.registerFactory(
-    () => TrainingSplitBloc(
-      getSplit: sl(),
-      getProfile: sl(),
-    ),
-  );
+  sl.registerFactory(() => TrainingSplitBloc(getSplit: sl(), getProfile: sl()));
   sl.registerLazySingleton(() => GetTrainingSplitUseCase(sl()));
   sl.registerLazySingleton<TrainingSplitRepository>(
     () => TrainingSplitRepositoryImpl(remoteDataSource: sl()),
@@ -193,12 +192,7 @@ Future<void> init() async {
   );
 
   // Nutrition Feature
-  sl.registerFactory(
-    () => NutritionPlanBloc(
-      getPlan: sl(),
-      getProfile: sl(),
-    ),
-  );
+  sl.registerFactory(() => NutritionPlanBloc(getPlan: sl(), getProfile: sl()));
   sl.registerFactory(
     () => NutritionBloc(
       getProfile: sl(),

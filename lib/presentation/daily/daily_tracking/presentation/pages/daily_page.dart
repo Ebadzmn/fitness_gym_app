@@ -65,12 +65,8 @@ class _DailyView extends StatelessWidget {
             );
           }
           if (state.status == DailyStatus.saved) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(
-              SnackBar(
-                content: Text(localizations.dailyTrackingSaved),
-              ),
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(localizations.dailyTrackingSaved)),
             );
           }
         },
@@ -211,7 +207,6 @@ class _DailyView extends StatelessWidget {
 
   Widget _weightCard(BuildContext context, String initial) {
     final localizations = AppLocalizations.of(context)!;
-    final ctrl = TextEditingController(text: initial);
     return Container(
       height: 110.h,
       width: double.infinity,
@@ -239,7 +234,7 @@ class _DailyView extends StatelessWidget {
             ),
             SizedBox(height: 12.h),
             TextFormField(
-              controller: ctrl,
+              initialValue: initial,
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 14.sp,
@@ -279,7 +274,6 @@ class _DailyView extends StatelessWidget {
 
   Widget _sleepCard(BuildContext context, String durationText, double quality) {
     final localizations = AppLocalizations.of(context)!;
-    final ctrl = TextEditingController(text: durationText);
     return Container(
       height: 170.h,
       width: double.infinity,
@@ -307,7 +301,7 @@ class _DailyView extends StatelessWidget {
             ),
             SizedBox(height: 12.h),
             TextFormField(
-              controller: ctrl,
+              initialValue: durationText,
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 14.sp,
@@ -453,7 +447,6 @@ class _DailyView extends StatelessWidget {
 
   Widget _waterCard(BuildContext context, String initial) {
     final localizations = AppLocalizations.of(context)!;
-    final ctrl = TextEditingController(text: initial);
     return Container(
       height: 120.h,
       width: double.infinity,
@@ -482,7 +475,7 @@ class _DailyView extends StatelessWidget {
             ),
             SizedBox(height: 12.h),
             TextFormField(
-              controller: ctrl,
+              initialValue: initial,
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 14.sp,
@@ -531,7 +524,6 @@ class _DailyView extends StatelessWidget {
 
   Widget _energyWellBeingCard(BuildContext context, DailyTrackingEntity data) {
     final localizations = AppLocalizations.of(context)!;
-    final bodyTempCtrl = TextEditingController(text: data.vital.bodyTempText);
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -701,7 +693,7 @@ class _DailyView extends StatelessWidget {
             ),
             SizedBox(height: 8.h),
             TextFormField(
-              controller: bodyTempCtrl,
+              initialValue: data.vital.bodyTempText,
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 14.sp,
@@ -989,14 +981,13 @@ class _DailyView extends StatelessWidget {
 
   Widget _durationField(BuildContext context, String initial) {
     final localizations = AppLocalizations.of(context)!;
-    final ctrl = TextEditingController(text: initial);
     return Container(
       decoration: BoxDecoration(
         color: const Color(0XFF0A0A1F),
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: TextFormField(
-        controller: ctrl,
+        initialValue: initial,
         keyboardType: TextInputType.number,
         style: GoogleFonts.poppins(
           color: Colors.white,
@@ -1035,7 +1026,6 @@ class _DailyView extends StatelessWidget {
 
   Widget _activityTimeCard(BuildContext context, String initial) {
     final localizations = AppLocalizations.of(context)!;
-    final ctrl = TextEditingController(text: initial);
     return Container(
       height: 120.h,
       width: double.infinity,
@@ -1064,7 +1054,7 @@ class _DailyView extends StatelessWidget {
             ),
             SizedBox(height: 12.h),
             TextFormField(
-              controller: ctrl,
+              initialValue: initial,
               keyboardType: TextInputType.number,
               style: GoogleFonts.poppins(
                 color: Colors.white,
@@ -1105,13 +1095,6 @@ class _DailyView extends StatelessWidget {
 
   Widget _nutritionCard(BuildContext context, DailyTrackingEntity data) {
     final localizations = AppLocalizations.of(context)!;
-    final caloriesCtrl = TextEditingController(
-      text: data.nutrition.caloriesText,
-    );
-    final carbsCtrl = TextEditingController(text: data.nutrition.carbsText);
-    final proteinCtrl = TextEditingController(text: data.nutrition.proteinText);
-    final fatsCtrl = TextEditingController(text: data.nutrition.fatsText);
-    final saltCtrl = TextEditingController(text: data.nutrition.saltText);
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -1154,7 +1137,7 @@ class _DailyView extends StatelessWidget {
                       ),
                       SizedBox(height: 8.h),
                       _filledInput(
-                        caloriesCtrl,
+                        data.nutrition.caloriesText,
                         localizations.dailyGenericTypeHint,
                         (v) => context.read<DailyBloc>().add(
                           NutritionTextChanged('caloriesText', v),
@@ -1178,7 +1161,7 @@ class _DailyView extends StatelessWidget {
                       ),
                       SizedBox(height: 8.h),
                       _filledInput(
-                        carbsCtrl,
+                        data.nutrition.carbsText,
                         localizations.dailyGenericTypeHint,
                         (v) => context.read<DailyBloc>().add(
                           NutritionTextChanged('carbsText', v),
@@ -1206,7 +1189,7 @@ class _DailyView extends StatelessWidget {
                       ),
                       SizedBox(height: 8.h),
                       _filledInput(
-                        proteinCtrl,
+                        data.nutrition.proteinText,
                         localizations.dailyGenericTypeHint,
                         (v) => context.read<DailyBloc>().add(
                           NutritionTextChanged('proteinText', v),
@@ -1230,7 +1213,7 @@ class _DailyView extends StatelessWidget {
                       ),
                       SizedBox(height: 8.h),
                       _filledInput(
-                        fatsCtrl,
+                        data.nutrition.fatsText,
                         localizations.dailyGenericTypeHint,
                         (v) => context.read<DailyBloc>().add(
                           NutritionTextChanged('fatsText', v),
@@ -1307,7 +1290,7 @@ class _DailyView extends StatelessWidget {
             ),
             SizedBox(height: 8.h),
             _filledInput(
-              saltCtrl,
+              data.nutrition.saltText,
               localizations.dailyGenericTypeHint,
               (v) => context.read<DailyBloc>().add(
                 NutritionTextChanged('saltText', v),
@@ -1320,12 +1303,12 @@ class _DailyView extends StatelessWidget {
   }
 
   Widget _filledInput(
-    TextEditingController ctrl,
+    String initialValue,
     String hint,
     ValueChanged<String> onChanged,
   ) {
     return TextFormField(
-      controller: ctrl,
+      initialValue: initialValue,
       style: GoogleFonts.poppins(
         color: Colors.white,
         fontSize: 14.sp,
@@ -1360,7 +1343,7 @@ class _DailyView extends StatelessWidget {
 
   Widget _labeledField(
     String label,
-    TextEditingController ctrl,
+    String initialValue,
     ValueChanged<String> onChanged, {
     String? hint,
   }) {
@@ -1376,7 +1359,7 @@ class _DailyView extends StatelessWidget {
           ),
         ),
         SizedBox(height: 8.h),
-        _filledInput(ctrl, hint ?? 'Type..', onChanged),
+        _filledInput(initialValue, hint ?? 'Type..', onChanged),
       ],
     );
   }
@@ -1489,9 +1472,6 @@ class _DailyView extends StatelessWidget {
 
   Widget _pedCard(BuildContext context, DailyTrackingEntity data) {
     final localizations = AppLocalizations.of(context)!;
-    final sideEffectsCtrl = TextEditingController(
-      text: data.pedHealth.sideEffects,
-    );
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -1535,7 +1515,7 @@ class _DailyView extends StatelessWidget {
             ),
             SizedBox(height: 8.h),
             _textArea(
-              sideEffectsCtrl,
+              data.pedHealth.sideEffects,
               hint: localizations.dailyGenericTypeHint,
               onChanged: (v) =>
                   context.read<DailyBloc>().add(PedSideEffectsChanged(v)),
@@ -1548,16 +1528,6 @@ class _DailyView extends StatelessWidget {
 
   Widget _bloodPressureCard(BuildContext context, DailyTrackingEntity data) {
     final localizations = AppLocalizations.of(context)!;
-    final systolicCtrl = TextEditingController(
-      text: data.pedHealth.systolicText,
-    );
-    final diastolicCtrl = TextEditingController(
-      text: data.pedHealth.diastolicText,
-    );
-    final restingHrCtrl = TextEditingController(
-      text: data.pedHealth.restingHrText,
-    );
-    final glucoseCtrl = TextEditingController(text: data.pedHealth.glucoseText);
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -1589,7 +1559,7 @@ class _DailyView extends StatelessWidget {
                 Expanded(
                   child: _labeledField(
                     localizations.dailyBpSystolicLabel,
-                    systolicCtrl,
+                    data.pedHealth.systolicText,
                     (v) => context.read<DailyBloc>().add(
                       PedBpChanged('systolicText', v),
                     ),
@@ -1600,7 +1570,7 @@ class _DailyView extends StatelessWidget {
                 Expanded(
                   child: _labeledField(
                     localizations.dailyBpDiastolicLabel,
-                    diastolicCtrl,
+                    data.pedHealth.diastolicText,
                     (v) => context.read<DailyBloc>().add(
                       PedBpChanged('diastolicText', v),
                     ),
@@ -1612,7 +1582,7 @@ class _DailyView extends StatelessWidget {
             SizedBox(height: 12.h),
             _labeledField(
               localizations.dailyBpRestingHrLabel,
-              restingHrCtrl,
+              data.pedHealth.restingHrText,
               (v) => context.read<DailyBloc>().add(
                 PedBpChanged('restingHrText', v),
               ),
@@ -1621,7 +1591,7 @@ class _DailyView extends StatelessWidget {
             SizedBox(height: 12.h),
             _labeledField(
               localizations.dailyBpGlucoseLabel,
-              glucoseCtrl,
+              data.pedHealth.glucoseText,
               (v) =>
                   context.read<DailyBloc>().add(PedBpChanged('glucoseText', v)),
               hint: localizations.dailyGenericTypeHint,
@@ -1634,7 +1604,6 @@ class _DailyView extends StatelessWidget {
 
   Widget _dailyNotesCard(BuildContext context, String notes) {
     final localizations = AppLocalizations.of(context)!;
-    final notesCtrl = TextEditingController(text: notes);
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -1662,7 +1631,7 @@ class _DailyView extends StatelessWidget {
             ),
             SizedBox(height: 8.h),
             _textArea(
-              notesCtrl,
+              notes,
               hint: localizations.dailyGenericTypeHint,
               onChanged: (v) =>
                   context.read<DailyBloc>().add(DailyNotesChanged(v)),
@@ -1697,12 +1666,12 @@ class _DailyView extends StatelessWidget {
   }
 
   Widget _textArea(
-    TextEditingController ctrl, {
+    String initialValue, {
     required String hint,
     required ValueChanged<String> onChanged,
   }) {
     return TextFormField(
-      controller: ctrl,
+      initialValue: initialValue,
       maxLines: 4,
       style: GoogleFonts.poppins(
         color: Colors.white,

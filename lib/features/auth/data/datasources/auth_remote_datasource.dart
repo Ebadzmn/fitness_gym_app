@@ -1,20 +1,31 @@
 import '../../../../core/network/api_client.dart';
 import '../../../../core/apiUrls/api_urls.dart';
 import '../models/auth_model.dart';
+import '../../../../core/storage/token_storage.dart';
+import 'package:dio/dio.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthModel> login(String email, String password, {String? fcmToken});
   Future<void> forgetPassword(String email);
-  Future<void> verifyOtp(String email, String otp);
+  Future<String> verifyOtp(String email, String otp);
+  Future<void> resetPassword(String newPassword, String confirmPassword);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final ApiClient apiClient;
+  final TokenStorage tokenStorage;
 
-  AuthRemoteDataSourceImpl({required this.apiClient});
+  AuthRemoteDataSourceImpl({
+    required this.apiClient,
+    required this.tokenStorage,
+  });
 
   @override
-  Future<AuthModel> login(String email, String password, {String? fcmToken}) async {
+  Future<AuthModel> login(
+    String email,
+    String password, {
+    String? fcmToken,
+  }) async {
     final response = await apiClient.post(
       ApiUrls.loginUrl,
       data: {
@@ -33,10 +44,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> verifyOtp(String email, String otp) async {
-    await apiClient.post(
+  Future<String> verifyOtp(String email, String otp) async {
+    final response = await apiClient.post(
       ApiUrls.verifyEmailUrl,
       data: {'email': email, 'oneTimeCode': otp},
+    );
+    return response.data['data'];
+  }
+
+  @override
+  Future<void> resetPassword(String newPassword, String confirmPassword) async {
+    final token = tokenStorage.getResetToken();
+    await apiClient.post(
+      ApiUrls.resetPasswordUrl,
+      data: {'newPassword': newPassword, 'confirmPassword': confirmPassword},
+      options: Options(headers: {'Authorization': '$token'}),
     );
   }
 }

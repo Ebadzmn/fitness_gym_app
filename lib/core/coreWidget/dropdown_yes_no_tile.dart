@@ -7,27 +7,44 @@ class DropdownYesNoTile extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
 
-  const DropdownYesNoTile({super.key, required this.title, required this.value, required this.onChanged});
+  const DropdownYesNoTile({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.onChanged,
+  });
 
   void _openSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0XFF101021),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16.r))),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      ),
+      useSafeArea: true,
       builder: (_) {
-        return Padding(
-          padding: EdgeInsets.all(16.sp),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
-              SizedBox(height: 12.h),
-              _optionRow(context, 'Yes', true),
-              SizedBox(height: 12.h),
-              _optionRow(context, 'No', false),
-              SizedBox(height: 8.h),
-            ],
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(16.sp),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 12.h),
+                _optionRow(context, 'Yes', true),
+                SizedBox(height: 12.h),
+                _optionRow(context, 'No', false),
+                SizedBox(height: 8.h),
+              ],
+            ),
           ),
         );
       },
@@ -55,7 +72,14 @@ class DropdownYesNoTile extends StatelessWidget {
             ),
           ),
           SizedBox(width: 8.w),
-          Text(text, style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500)),
+          Text(
+            text,
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
@@ -75,15 +99,30 @@ class DropdownYesNoTile extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: Text(title, style: GoogleFonts.poppins(color: Colors.white, fontSize: 13.sp, fontWeight: FontWeight.w500)),
+              child: Text(
+                title,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
               decoration: BoxDecoration(
-                color: value ? Colors.green.withOpacity(0.2) : Colors.grey.withOpacity(0.2),
+                color: value
+                    ? Colors.green.withOpacity(0.2)
+                    : Colors.grey.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(8.r),
               ),
-              child: Text(value ? 'Yes' : 'No', style: GoogleFonts.poppins(color: Colors.white, fontSize: 12.sp)),
+              child: Text(
+                value ? 'Yes' : 'No',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 12.sp,
+                ),
+              ),
             ),
             SizedBox(width: 8.w),
             Icon(Icons.chevron_right, color: Colors.white70, size: 20.sp),
