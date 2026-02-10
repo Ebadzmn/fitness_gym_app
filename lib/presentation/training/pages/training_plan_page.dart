@@ -37,7 +37,10 @@ class _TrainingPlanView extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
-        title: Text(localizations.trainingPlanAppBarTitle, style: AppTextStyle.appbarHeading),
+        title: Text(
+          localizations.trainingPlanAppBarTitle,
+          style: AppTextStyle.appbarHeading,
+        ),
         centerTitle: true,
         backgroundColor: AppColor.primaryColor,
         elevation: 0,
@@ -62,6 +65,22 @@ class _TrainingPlanView extends StatelessWidget {
               child: Text(
                 '${localizations.dailyTrackingError}: ${state.errorMessage}',
                 style: GoogleFonts.poppins(color: Colors.white),
+              ),
+            );
+          }
+
+          if (state.plans.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
+                child: Text(
+                  localizations.coachAddedShortly,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 16.sp,
+                  ),
+                ),
               ),
             );
           }

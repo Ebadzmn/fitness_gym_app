@@ -15,5 +15,6 @@ class ApiUrls {
   static String pedByAthlete(String athleteId) => '$baseUrl/ped/$athleteId';
   static const String forgetPasswordUrl =
       '$baseUrl/auth/athlete/forget-password';
+  static const String resetPasswordUrl = '$baseUrl/auth/athlete/reset-password';
   static const String verifyEmailUrl = '$baseUrl/auth/athlete/verify-email';
 }

@@ -4,6 +4,7 @@ class TokenStorage {
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
   static const String _fcmTokenKey = 'fcm_token';
+  static const String _resetTokenKey = 'reset_token';
 
   final SharedPreferences _prefs;
 
@@ -31,6 +32,14 @@ class TokenStorage {
 
   String? getFcmToken() {
     return _prefs.getString(_fcmTokenKey);
+  }
+
+  Future<void> saveResetToken(String token) async {
+    await _prefs.setString(_resetTokenKey, token);
+  }
+
+  String? getResetToken() {
+    return _prefs.getString(_resetTokenKey);
   }
 
   Future<void> clearTokens() async {

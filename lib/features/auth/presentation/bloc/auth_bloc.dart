@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/forget_password_usecase.dart';
 import '../../domain/usecases/verify_otp_usecase.dart';
+import '../../domain/usecases/reset_password_usecase.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -13,6 +14,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final VerifyOtpUseCase verifyOtpUseCase;
   final TokenStorage tokenStorage;
   final SyncNutritionDataUseCase syncNutritionDataUseCase;
+  final ResetPasswordUseCase resetPasswordUseCase;
 
   AuthBloc({
     required this.loginUseCase,
@@ -20,12 +22,32 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.verifyOtpUseCase,
     required this.tokenStorage,
     required this.syncNutritionDataUseCase,
+    required this.resetPasswordUseCase,
   }) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<LogoutRequested>(_onLogoutRequested);
     on<ForgetPasswordRequested>(_onForgetPasswordRequested);
     on<VerifyOtpRequested>(_onVerifyOtpRequested);
+    on<AuthResetPasswordRequested>(_onResetPasswordRequested);
+  }
+
+  Future<void> _onResetPasswordRequested(
+    AuthResetPasswordRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    try {
+      await resetPasswordUseCase(
+        ResetPasswordParams(
+          newPassword: event.newPassword,
+          confirmPassword: event.confirmPassword,
+        ),
+      );
+      emit(ResetPasswordSuccess());
+    } catch (e) {
+      emit(AuthFailure(e.toString()));
+    }
   }
 
   Future<void> _onVerifyOtpRequested(
@@ -34,9 +56,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
     try {
-      await verifyOtpUseCase(
+      final token = await verifyOtpUseCase(
         VerifyOtpParams(email: event.email, otp: event.otp),
       );
+      await tokenStorage.saveResetToken(token);
       emit(OtpVerificationSuccess());
     } catch (e) {
       emit(AuthFailure(e.toString()));

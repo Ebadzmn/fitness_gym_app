@@ -14,6 +14,7 @@ import 'package:fitness_app/features/nutrition/presentation/pages/bloc/track_mea
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/track_meals/track_meals_state.dart';
 import 'package:fitness_app/injection_container.dart';
 import 'package:fitness_app/l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 
 class NutritionTrackMealsPage extends StatelessWidget {
   const NutritionTrackMealsPage({super.key});
@@ -140,9 +141,10 @@ class _TrackMealsView extends StatelessWidget {
       final now = DateTime.now();
       if (date.year == now.year &&
           date.month == now.month &&
-          date.day == now.day)
+          date.day == now.day) {
         return localizations.dailyDateToday;
-      return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      }
+      return DateFormat('dd.MM.yyyy').format(date);
     }
 
     void changeBy(int days) {
@@ -818,11 +820,14 @@ class _AddMealDialogState extends State<_AddMealDialog> {
                         );
                       }
                       if (mealName.isEmpty || items.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(
-                            localizations.nutritionTrackValidationMealRequired,
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              localizations
+                                  .nutritionTrackValidationMealRequired,
+                            ),
                           ),
-                        ));
+                        );
                         return;
                       }
                       final meal = NutritionMealEntity(
@@ -834,7 +839,8 @@ class _AddMealDialogState extends State<_AddMealDialog> {
                         carbsG: 0,
                         fatsG: 0,
                         items: items,
-                        trainingDay: localizations.nutritionTrackTrainingDayLabel,
+                        trainingDay:
+                            localizations.nutritionTrackTrainingDayLabel,
                       );
                       context.read<TrackMealsBloc>().add(
                         TrackMealsAddMeal(widget.date, meal),

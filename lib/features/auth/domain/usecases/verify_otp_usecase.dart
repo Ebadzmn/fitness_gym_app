@@ -18,7 +18,7 @@ class VerifyOtpUseCase extends UseCase<void, VerifyOtpParams> {
   VerifyOtpUseCase(this.repository);
 
   @override
-  Future<void> call(VerifyOtpParams params) async {
+  Future<String> call(VerifyOtpParams params) async {
     return await repository.verifyOtp(params.email, params.otp);
   }
 }

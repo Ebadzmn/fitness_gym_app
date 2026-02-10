@@ -36,4 +36,6 @@ class AuthUnauthenticated extends AuthState {}
 
 class ForgetPasswordSuccess extends AuthState {}
 
+class ResetPasswordSuccess extends AuthState {}
+
 class OtpVerificationSuccess extends AuthState {}
