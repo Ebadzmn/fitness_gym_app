@@ -562,6 +562,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nutritionSupplementsTableDosage => 'Dosage';
 
   @override
+  String get nutritionSupplementsTableFrequency => 'Frequency';
+
+  @override
   String get nutritionSupplementsTableTime => 'Time';
 
   @override

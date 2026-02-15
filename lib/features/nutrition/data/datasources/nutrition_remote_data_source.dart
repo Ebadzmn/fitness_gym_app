@@ -20,7 +20,7 @@ abstract class NutritionRemoteDataSource {
   );
   Future<void> saveTrackedMeal(String date, Map<String, dynamic> mealData);
   Future<NutritionStatisticsModel> fetchNutritionStatistics(String date);
-  Future<SupplementResponseModel> fetchSupplements();
+  Future<SupplementResponseModel> fetchSupplements(String userId);
 }
 
 class NutritionRemoteDataSourceImpl implements NutritionRemoteDataSource {
@@ -139,13 +139,24 @@ class NutritionRemoteDataSourceImpl implements NutritionRemoteDataSource {
   }
 
   @override
-  Future<SupplementResponseModel> fetchSupplements() async {
+  Future<SupplementResponseModel> fetchSupplements(String userId) async {
     final response = await apiClient.get(
-      '${ApiUrls.baseUrl}/supplement/nutrition',
+      '${ApiUrls.baseUrl}/supplement/nutrition/$userId',
     );
 
     if (response.data['success'] == true) {
-      return SupplementResponseModel.fromJson(response.data['data']);
+      final data = response.data['data'];
+      // API returns array directly, not paginated response
+      if (data is List) {
+        return SupplementResponseModel(
+          items: data.map((e) => SupplementModel.fromJson(e)).toList(),
+          total: data.length,
+          page: 1,
+          limit: data.length,
+        );
+      } else {
+        return SupplementResponseModel.fromJson(data);
+      }
     } else {
       throw DioException(
         requestOptions: response.requestOptions,

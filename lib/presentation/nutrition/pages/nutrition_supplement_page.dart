@@ -109,11 +109,12 @@ class _NutritionSupplementView extends StatelessWidget {
                         child: Table(
                           columnWidths: const {
                             0: FlexColumnWidth(1.2), // Name
-                            1: FlexColumnWidth(1.2), // Dosage
-                            2: FlexColumnWidth(0.8), // Time
-                            3: FlexColumnWidth(0.8), // Purpose
-                            4: FlexColumnWidth(1.2), // Brand
-                            5: FlexColumnWidth(1.6), // Comment
+                            1: FlexColumnWidth(1.2), // Brand
+                            2: FlexColumnWidth(1.0), // Dosage
+                            3: FlexColumnWidth(1.0), // Frequency
+                            4: FlexColumnWidth(0.8), // Time
+                            5: FlexColumnWidth(1.0), // Purpose
+                            6: FlexColumnWidth(1.6), // Note
                           },
                           defaultVerticalAlignment:
                               TableCellVerticalAlignment.middle,
@@ -129,8 +130,15 @@ class _NutritionSupplementView extends StatelessWidget {
                                   localizations.nutritionSupplementsTableName,
                                 ),
                                 _headerCell(
+                                  localizations.nutritionSupplementsTableBrand,
+                                ),
+                                _headerCell(
                                   localizations
                                       .nutritionSupplementsTableDosage,
+                                ),
+                                _headerCell(
+                                  localizations
+                                      .nutritionSupplementsTableFrequency,
                                 ),
                                 _headerCell(
                                   localizations.nutritionSupplementsTableTime,
@@ -138,9 +146,6 @@ class _NutritionSupplementView extends StatelessWidget {
                                 _headerCell(
                                   localizations
                                       .nutritionSupplementsTablePurpose,
-                                ),
-                                _headerCell(
-                                  localizations.nutritionSupplementsTableBrand,
                                 ),
                                 _headerCell(
                                   localizations
@@ -151,11 +156,12 @@ class _NutritionSupplementView extends StatelessWidget {
                             ...supplements.map(
                               (supplement) => _dataRow(
                                 supplement.name,
+                                supplement.brand,
                                 supplement.dosage,
+                                supplement.frequency,
                                 supplement.time,
                                 supplement.purpose,
-                                supplement.brand,
-                                supplement.note, // Note mapped to Comment
+                                supplement.note,
                               ),
                             ),
                           ],
@@ -195,11 +201,12 @@ class _NutritionSupplementView extends StatelessWidget {
 
   TableRow _dataRow(
     String name,
+    String brand,
     String dosage,
+    String frequency,
     String time,
     String purpose,
-    String brand,
-    String comment,
+    String note,
   ) {
     return TableRow(
       decoration: const BoxDecoration(
@@ -207,11 +214,12 @@ class _NutritionSupplementView extends StatelessWidget {
       ),
       children: [
         _dataCell(name),
+        _dataCell(brand),
         _dataCell(dosage),
+        _dataCell(frequency),
         _dataCell(time),
         _dataCell(purpose),
-        _dataCell(brand),
-        _dataCell(comment),
+        _dataCell(note),
       ],
     );
   }

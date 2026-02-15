@@ -137,9 +137,9 @@ class NutritionRepositoryImpl implements NutritionRepository {
 
   @override
   Future<Either<ApiException, SupplementResponseEntity>>
-  getSupplements() async {
+  getSupplements(String userId) async {
     try {
-      final result = await remoteDataSource.fetchSupplements();
+      final result = await remoteDataSource.fetchSupplements(userId);
       return Right(result);
     } on DioException catch (e) {
       return Left(

@@ -8,6 +8,6 @@ class GetSupplementsUseCase {
 
   GetSupplementsUseCase(this.repo);
 
-  Future<Either<ApiException, SupplementResponseEntity>> call() =>
-      repo.getSupplements();
+  Future<Either<ApiException, SupplementResponseEntity>> call(String userId) =>
+      repo.getSupplements(userId);
 }

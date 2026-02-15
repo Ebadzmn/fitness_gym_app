@@ -225,7 +225,12 @@ Future<void> init() async {
       getProfile: sl(),
     ),
   );
-  sl.registerFactory(() => NutritionSupplementBloc(getSupplements: sl()));
+  sl.registerFactory(
+    () => NutritionSupplementBloc(
+      getSupplements: sl(),
+      getProfile: sl(),
+    ),
+  );
   sl.registerLazySingleton(() => GetTrackMealsUseCase(sl()));
   sl.registerLazySingleton(() => SaveTrackMealUseCase(sl()));
   sl.registerLazySingleton(() => DeleteTrackedFoodItemUseCase(sl()));

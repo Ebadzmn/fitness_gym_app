@@ -1193,6 +1193,12 @@ abstract class AppLocalizations {
   /// **'Dosage'**
   String get nutritionSupplementsTableDosage;
 
+  /// No description provided for @nutritionSupplementsTableFrequency.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequency'**
+  String get nutritionSupplementsTableFrequency;
+
   /// No description provided for @nutritionSupplementsTableTime.
   ///
   /// In en, this message translates to:

@@ -194,6 +194,7 @@
   "nutritionSupplementsHeaderTitle": "Your Supplements",
   "nutritionSupplementsTableName": "Name",
   "nutritionSupplementsTableDosage": "Dosage",
+  "nutritionSupplementsTableFrequency": "Frequency",
   "nutritionSupplementsTableTime": "Time",
   "nutritionSupplementsTablePurpose": "Purpose",
   "nutritionSupplementsTableBrand": "Brand",

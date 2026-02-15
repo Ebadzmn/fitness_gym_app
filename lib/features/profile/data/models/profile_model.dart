@@ -15,7 +15,7 @@ class ProfileModel extends ProfileEntity {
       coachName: json['coachName'] as String? ?? '',
       timeline: TimelineModel.fromJson(json['timeline'] ?? {}),
       show: ShowModel.fromJson(json['show'] ?? {}),
-      countDown: json['countDown'] as int? ?? 0,
+      countDown: (json['countDown'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -72,11 +72,11 @@ class AthleteModel extends AthleteEntity {
       height: json['height'] as num? ?? 0,
       image: json['image'] as String? ?? '',
       notifiedThisWeek: json['notifiedThisWeek'] as bool? ?? false,
-      age: json['age'] as int? ?? 0,
-      waterQuantity: json['waterQuantity'] as int? ?? 0,
+      age: (json['age'] as num?)?.toInt() ?? 0,
+      waterQuantity: (json['waterQuantity'] as num?)?.toInt() ?? 0,
       status: json['status'] as String? ?? '',
-      trainingDaySteps: json['trainingDaySteps'] as int? ?? 0,
-      restDaySteps: json['restDaySteps'] as int? ?? 0,
+      trainingDaySteps: (json['trainingDaySteps'] as num?)?.toInt() ?? 0,
+      restDaySteps: (json['restDaySteps'] as num?)?.toInt() ?? 0,
       checkInDay: json['checkInDay'] as String? ?? '',
       goal: json['goal'] as String? ?? '',
       verified: json['verified'] as bool? ?? false,

@@ -31,5 +31,7 @@ abstract class NutritionRepository {
     NutritionMealEntity meal,
   );
   Future<NutritionStatisticsEntity> getNutritionStatistics(DateTime date);
-  Future<Either<ApiException, SupplementResponseEntity>> getSupplements();
+  Future<Either<ApiException, SupplementResponseEntity>> getSupplements(
+    String userId,
+  );
 }
