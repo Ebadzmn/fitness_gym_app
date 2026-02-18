@@ -34,6 +34,17 @@ class _DailyView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
+    DateTime parseDateLabel(String? label) {
+      if (label == null || label.trim().isEmpty) return DateTime.now();
+      final parts = label.split('.');
+      if (parts.length != 3) return DateTime.now();
+      final y = int.tryParse(parts[0]);
+      final m = int.tryParse(parts[1]);
+      final d = int.tryParse(parts[2]);
+      if (y == null || m == null || d == null) return DateTime.now();
+      return DateTime(y, m, d);
+    }
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -42,13 +53,45 @@ class _DailyView extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12),
-            child: GestureDetector(
-              onTap: () {},
-              child: CircleAvatar(
-                radius: 18,
-                backgroundColor: const Color(0XFF1211E),
-                child: SvgPicture.asset(AssetsPath.AbCalender),
-              ),
+            child: BlocBuilder<DailyBloc, DailyState>(
+              builder: (context, state) {
+                return GestureDetector(
+                  onTap: () async {
+                    final initial = parseDateLabel(state.data?.vital.dateLabel);
+                    final selected = await showDatePicker(
+                      context: context,
+                      initialDate: initial,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                      builder: (context, child) {
+                        final theme = Theme.of(context);
+                        return Theme(
+                          data: theme.copyWith(
+                            colorScheme: const ColorScheme.dark(
+                              primary: Color(0xFF82C941),
+                              onPrimary: Colors.black,
+                              surface: Color(0xFF0F0F15),
+                              onSurface: Colors.white,
+                            ),
+                            dialogTheme: const DialogThemeData(
+                              backgroundColor: Color(0xFF0F0F15),
+                            ),
+                          ),
+                          child: child ?? const SizedBox.shrink(),
+                        );
+                      },
+                    );
+                    if (selected == null) return;
+                    if (!context.mounted) return;
+                    context.read<DailyBloc>().add(DailyDateChanged(selected));
+                  },
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: const Color(0xFF0F0F15),
+                    child: SvgPicture.asset(AssetsPath.AbCalender),
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -78,51 +121,57 @@ class _DailyView extends StatelessWidget {
           final data = state.data!;
           return Padding(
             padding: EdgeInsets.all(10.h),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  SizedBox(height: 12.h),
-                  _dateTodayHeader(context, data.vital.dateLabel),
-                  SizedBox(height: 12.h),
-                  _weightCard(context, data.vital.weightText),
-                  SizedBox(height: 12.h),
-                  _sleepCard(
-                    context,
-                    data.sleep.durationText,
-                    data.sleep.quality,
+            child: KeyedSubtree(
+              key: ValueKey(data.vital.dateLabel),
+              child: SingleChildScrollView(
+                child: AbsorbPointer(
+                  absorbing: state.isReadOnly,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 12.h),
+                      _dateTodayHeader(context, data.vital.dateLabel),
+                      SizedBox(height: 12.h),
+                      _weightCard(context, data.vital.weightText),
+                      SizedBox(height: 12.h),
+                      _sleepCard(
+                        context,
+                        data.sleep.durationText,
+                        data.sleep.quality,
+                      ),
+                      SizedBox(height: 12.h),
+                      _sickCard(context, data.isSick),
+                      SizedBox(height: 12.h),
+                      _waterCard(context, data.vital.waterText),
+                      SizedBox(height: 12.h),
+                      _bloodPressureCard(context, data),
+                      SizedBox(height: 12.h),
+                      _energyWellBeingCard(context, data),
+                      SizedBox(height: 12.h),
+                      _trainingCard(context, data),
+                      SizedBox(height: 12.h),
+                      _activityTimeCard(context, data.vital.activityStepCount),
+                      SizedBox(height: 20.h),
+                      _nutritionCard(context, data),
+                      SizedBox(height: 12.h),
+                      if (((di.sl<TokenStorage>().getUserGender() ?? '')
+                                  .trim()
+                                  .toLowerCase() ==
+                              'female') ||
+                          ((di.sl<TokenStorage>().getUserGender() ?? '')
+                                  .trim()
+                                  .toLowerCase() ==
+                              'f')) ...[
+                        _womenCard(context, data),
+                        SizedBox(height: 12.h),
+                      ],
+                      _pedCard(context, data),
+                      SizedBox(height: 12.h),
+                      _dailyNotesCard(context, data.notes),
+                      SizedBox(height: 16.h),
+                      _submitButton(context),
+                    ],
                   ),
-                  SizedBox(height: 12.h),
-                  _sickCard(context, data.isSick),
-                  SizedBox(height: 12.h),
-                  _waterCard(context, data.vital.waterText),
-                  SizedBox(height: 12.h),
-                  _bloodPressureCard(context, data),
-                  SizedBox(height: 12.h),
-                  _energyWellBeingCard(context, data),
-                  SizedBox(height: 12.h),
-                  _trainingCard(context, data),
-                  SizedBox(height: 12.h),
-                  _activityTimeCard(context, data.vital.activityStepCount),
-                  SizedBox(height: 20.h),
-                  _nutritionCard(context, data),
-                  SizedBox(height: 12.h),
-                  if (((di.sl<TokenStorage>().getUserGender() ?? '')
-                              .trim()
-                              .toLowerCase() ==
-                          'female') ||
-                      ((di.sl<TokenStorage>().getUserGender() ?? '')
-                              .trim()
-                              .toLowerCase() ==
-                          'f')) ...[
-                    _womenCard(context, data),
-                    SizedBox(height: 12.h),
-                  ],
-                  _pedCard(context, data),
-                  SizedBox(height: 12.h),
-                  _dailyNotesCard(context, data.notes),
-                  SizedBox(height: 16.h),
-                  _submitButton(context),
-                ],
+                ),
               ),
             ),
           );

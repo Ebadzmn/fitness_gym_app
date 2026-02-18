@@ -21,6 +21,7 @@ import 'features/daily_tracking/data/datasources/daily_tracking_remote_datasourc
 import 'features/daily_tracking/data/repositories/daily_repository_impl.dart';
 import 'domain/repositories/daily/daily_repository.dart';
 import 'domain/usecases/daily/get_daily_initial_usecase.dart';
+import 'domain/usecases/daily/get_daily_by_date_usecase.dart';
 import 'domain/usecases/daily/save_daily_usecase.dart';
 import 'presentation/daily/daily_tracking/presentation/pages/bloc/daily_bloc.dart';
 import 'features/training/data/datasources/training_remote_datasource.dart';
@@ -53,9 +54,11 @@ import 'features/nutrition/presentation/pages/bloc/nutrition_plan/nutrition_plan
 import 'features/nutrition/presentation/pages/bloc/nutrition_bloc/nutrition_bloc.dart';
 import 'features/nutrition/presentation/pages/bloc/track_meals/track_meals_bloc.dart';
 import 'features/nutrition/domain/usecases/get_track_meals_usecase.dart';
+import 'features/nutrition/domain/usecases/get_track_meal_suggestions_usecase.dart';
 import 'features/nutrition/domain/usecases/save_track_meal_usecase.dart';
 import 'features/nutrition/domain/usecases/delete_tracked_food_item_usecase.dart';
 import 'features/nutrition/domain/usecases/add_food_item_to_meal_usecase.dart';
+import 'features/nutrition/domain/usecases/add_food_items_to_meal_usecase.dart';
 import 'features/nutrition/domain/usecases/get_nutrition_statistics_usecase.dart';
 import 'features/nutrition/domain/usecases/sync_nutrition_data_usecase.dart';
 import 'features/nutrition/presentation/pages/bloc/nutrition_statistics/nutrition_statistics_bloc.dart';
@@ -123,11 +126,17 @@ Future<void> init() async {
   //! Features - Daily Tracking
   // Bloc
   sl.registerFactory(
-    () => DailyBloc(getInitial: sl(), saveDaily: sl(), sharedPreferences: sl()),
+    () => DailyBloc(
+      getInitial: sl(),
+      getByDate: sl(),
+      saveDaily: sl(),
+      sharedPreferences: sl(),
+    ),
   );
 
   // Use cases
   sl.registerLazySingleton(() => GetDailyInitialUseCase(sl()));
+  sl.registerLazySingleton(() => GetDailyByDateUseCase(sl()));
   sl.registerLazySingleton(() => SaveDailyUseCase(sl()));
 
   // Repository
@@ -222,6 +231,8 @@ Future<void> init() async {
       getPlan: sl(),
       saveMeal: sl(),
       deleteFoodItem: sl(),
+      addFoodItemsToMeal: sl(),
+      getSuggestions: sl(),
       getProfile: sl(),
     ),
   );
@@ -232,10 +243,12 @@ Future<void> init() async {
     ),
   );
   sl.registerLazySingleton(() => GetTrackMealsUseCase(sl()));
+  sl.registerLazySingleton(() => GetTrackMealSuggestionsUseCase(sl()));
   sl.registerLazySingleton(() => SaveTrackMealUseCase(sl()));
   sl.registerLazySingleton(() => DeleteTrackedFoodItemUseCase(sl()));
   // AddFoodToMeal
   sl.registerLazySingleton(() => AddFoodItemToMealUseCase(sl()));
+  sl.registerLazySingleton(() => AddFoodItemsToMealUseCase(sl()));
 
   // Nutrition Statistics
   sl.registerFactory(() => NutritionStatisticsBloc(getStatistics: sl()));

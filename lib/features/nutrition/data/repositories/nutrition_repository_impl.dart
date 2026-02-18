@@ -10,6 +10,7 @@ import '../datasources/nutrition_remote_data_source.dart';
 import '../../../../domain/entities/nutrition_entities/nutrition_statistics_entity.dart';
 import '../../../../domain/entities/nutrition_entities/nutrition_daily_tracking_entity.dart';
 import '../../../../domain/entities/nutrition_entities/supplement_entity.dart';
+import '../../../../domain/entities/nutrition_entities/meal_suggestion_entity.dart';
 
 class NutritionRepositoryImpl implements NutritionRepository {
   final NutritionRemoteDataSource remoteDataSource;
@@ -38,6 +39,22 @@ class NutritionRepositoryImpl implements NutritionRepository {
       throw ApiException(message: e.message ?? 'Failed to fetch food items');
     } catch (e) {
       throw ApiException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<Either<ApiException, List<MealSuggestionEntity>>> getTrackMealSuggestions(
+    String search,
+  ) async {
+    try {
+      final result = await remoteDataSource.fetchTrackMealSuggestions(search);
+      return Right(result);
+    } on DioException catch (e) {
+      return Left(
+        ApiException(message: e.message ?? 'Failed to fetch suggestions'),
+      );
+    } catch (e) {
+      return Left(ApiException(message: e.toString()));
     }
   }
 
@@ -73,6 +90,30 @@ class NutritionRepositoryImpl implements NutritionRepository {
         'name': foodItem.name,
         'quantity': foodItem.quantity,
       });
+      return const Right(null);
+    } catch (e) {
+      return Left(ApiException(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<ApiException, void>> addFoodItemsToMeal(
+    DateTime date,
+    String mealId,
+    List<MealFoodItemEntity> food,
+  ) async {
+    try {
+      final dateStr =
+          '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      await remoteDataSource.addFoodItemsToMeal(
+        dateStr,
+        mealId,
+        food.map((item) {
+          final qtyStr = item.quantity.replaceAll(RegExp(r'[^0-9]'), '');
+          final qty = int.tryParse(qtyStr) ?? 0;
+          return {'foodNme': item.name, 'quantity': qty};
+        }).toList(),
+      );
       return const Right(null);
     } catch (e) {
       return Left(ApiException(message: e.toString()));

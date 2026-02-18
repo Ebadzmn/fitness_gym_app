@@ -7,12 +7,16 @@ import '../../../../domain/entities/nutrition_entities/meal_food_item_entity.dar
 import '../../../../domain/entities/nutrition_entities/nutrition_statistics_entity.dart';
 import '../../../../domain/entities/nutrition_entities/nutrition_daily_tracking_entity.dart';
 import '../../../../domain/entities/nutrition_entities/supplement_entity.dart';
+import '../../../../domain/entities/nutrition_entities/meal_suggestion_entity.dart';
 
 abstract class NutritionRepository {
   Future<Either<ApiException, NutritionPlanResponseEntity>> getNutritionPlan(
     String userId,
   );
   Future<List<FoodItemEntity>> getFoodItems();
+  Future<Either<ApiException, List<MealSuggestionEntity>>> getTrackMealSuggestions(
+    String search,
+  );
   Future<Either<ApiException, NutritionDailyTrackingEntity>> getTrackedMeals(
     DateTime date,
   );
@@ -25,6 +29,11 @@ abstract class NutritionRepository {
     DateTime date,
     String mealId,
     MealFoodItemEntity foodItem,
+  );
+  Future<Either<ApiException, void>> addFoodItemsToMeal(
+    DateTime date,
+    String mealId,
+    List<MealFoodItemEntity> food,
   );
   Future<Either<ApiException, void>> saveTrackMeal(
     DateTime date,

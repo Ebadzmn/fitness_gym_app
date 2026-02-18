@@ -50,6 +50,8 @@ class FullWidthSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final safeValue =
+        (value.isFinite ? value : min).clamp(min, max).toDouble();
     return SliderTheme(
       data: SliderTheme.of(context).copyWith(
         trackHeight: trackHeight,
@@ -63,7 +65,7 @@ class FullWidthSlider extends StatelessWidget {
         overlayColor: overlayColor,
       ),
       child: Slider(
-        value: value,
+        value: safeValue,
         min: min,
         max: max,
         divisions: divisions,

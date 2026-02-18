@@ -16,6 +16,13 @@ class DailyRepositoryImpl implements DailyRepository {
 
   DailyRepositoryImpl({required this.remoteDataSource});
 
+  String _formatDate(DateTime d) {
+    final y = d.year.toString().padLeft(4, '0');
+    final m = d.month.toString().padLeft(2, '0');
+    final day = d.day.toString().padLeft(2, '0');
+    return '$y-$m-$day';
+  }
+
   @override
   Future<DailyTrackingEntity> loadInitial() async {
     // Keeping local load for initial state logic for now, or could fetch from API if needed.
@@ -91,6 +98,11 @@ class DailyRepositoryImpl implements DailyRepository {
       ),
       notes: '',
     );
+  }
+
+  @override
+  Future<DailyTrackingEntity> loadByDate(DateTime date) {
+    return remoteDataSource.fetchDailyTrackingByDate(_formatDate(date));
   }
 
   @override

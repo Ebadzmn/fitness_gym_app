@@ -1,12 +1,10 @@
 import 'package:fitness_app/usecase/usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../../domain/entities/daily_entities/daily_tracking_entity.dart';
 import '../../../../../../domain/entities/daily_entities/nutrition_entity.dart';
-import '../../../../../../domain/entities/daily_entities/training_entity.dart';
-import '../../../../../../domain/entities/daily_entities/well_being_entity.dart';
 import '../../../../../../domain/entities/daily_entities/vital_entity.dart';
 import '../../../../../../domain/entities/daily_entities/ped_health_entity.dart';
 import '../../../../../../domain/usecases/daily/get_daily_initial_usecase.dart';
+import '../../../../../../domain/usecases/daily/get_daily_by_date_usecase.dart';
 import '../../../../../../domain/usecases/daily/save_daily_usecase.dart';
 import 'daily_event.dart';
 import 'daily_state.dart';
@@ -15,15 +13,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class DailyBloc extends Bloc<DailyEvent, DailyState> {
   final GetDailyInitialUseCase getInitial;
+  final GetDailyByDateUseCase getByDate;
   final SaveDailyUseCase saveDaily;
   final SharedPreferences sharedPreferences;
 
   DailyBloc({
     required this.getInitial,
+    required this.getByDate,
     required this.saveDaily,
     required this.sharedPreferences,
   }) : super(const DailyState()) {
     on<DailyInitRequested>(_onInit);
+    on<DailyDateChanged>(_onDateChanged);
     on<WellBeingChanged>(_onWellBeingChanged);
     on<TrainingToggleChanged>(_onTrainingToggleChanged);
     on<TrainingFeedbackChanged>(_onTrainingFeedbackChanged);
@@ -55,7 +56,26 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
     emit(state.copyWith(status: DailyStatus.loading));
     try {
       final data = await getInitial(NoParams());
-      emit(state.copyWith(status: DailyStatus.success, data: data));
+      emit(
+        state.copyWith(status: DailyStatus.success, data: data, isReadOnly: false),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(status: DailyStatus.error, errorMessage: e.toString()),
+      );
+    }
+  }
+
+  Future<void> _onDateChanged(
+    DailyDateChanged event,
+    Emitter<DailyState> emit,
+  ) async {
+    emit(state.copyWith(status: DailyStatus.loading));
+    try {
+      final data = await getByDate(event.date);
+      emit(
+        state.copyWith(status: DailyStatus.success, data: data, isReadOnly: true),
+      );
     } catch (e) {
       emit(
         state.copyWith(status: DailyStatus.error, errorMessage: e.toString()),

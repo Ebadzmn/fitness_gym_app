@@ -7,16 +7,23 @@ import '../../../../domain/entities/nutrition_entities/food_item_entity.dart';
 import '../models/nutrition_statistics_model.dart';
 import '../models/nutrition_daily_tracking_model.dart';
 import '../models/supplement_model.dart';
+import '../../../../domain/entities/nutrition_entities/meal_suggestion_entity.dart';
 
 abstract class NutritionRemoteDataSource {
   Future<NutritionPlanResponseEntity> fetchNutritionPlan(String userId);
   Future<List<FoodItemEntity>> fetchFoodItems();
+  Future<List<MealSuggestionEntity>> fetchTrackMealSuggestions(String search);
   Future<NutritionDailyTrackingModel> fetchTrackedMeals(String date);
   Future<void> deleteTrackedFoodItem(String date, String mealId, String foodId);
   Future<void> addFoodItemToMeal(
     String date,
     String mealId,
     Map<String, dynamic> foodItem,
+  );
+  Future<void> addFoodItemsToMeal(
+    String date,
+    String mealId,
+    List<Map<String, dynamic>> food,
   );
   Future<void> saveTrackedMeal(String date, Map<String, dynamic> mealData);
   Future<NutritionStatisticsModel> fetchNutritionStatistics(String date);
@@ -55,6 +62,33 @@ class NutritionRemoteDataSourceImpl implements NutritionRemoteDataSource {
       final dataObj = response.data['data'];
       final List items = dataObj['items'] ?? [];
       return items.map((e) => FoodItemEntity.fromJson(e)).toList();
+    } else {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        error: response.data['message'],
+      );
+    }
+  }
+
+  @override
+  Future<List<MealSuggestionEntity>> fetchTrackMealSuggestions(
+    String search,
+  ) async {
+    final response = await apiClient.get(
+      ApiUrls.trackMealSuggestions,
+      queryParameters: {'search': search},
+    );
+
+    if (response.data['success'] == true) {
+      final data = response.data['data'];
+      if (data is List) {
+        return data
+            .map((e) => MealSuggestionEntity.fromJson(
+                  Map<String, dynamic>.from(e as Map),
+                ))
+            .toList();
+      }
+      return const [];
     } else {
       throw DioException(
         requestOptions: response.requestOptions,
@@ -111,6 +145,25 @@ class NutritionRemoteDataSourceImpl implements NutritionRemoteDataSource {
       '${ApiUrls.trackMeal}/$mealId/food', // Assumption based on pattern, adjusted to match server
       data: {...foodItem, 'date': date},
     );
+  }
+
+  @override
+  Future<void> addFoodItemsToMeal(
+    String date,
+    String mealId,
+    List<Map<String, dynamic>> food,
+  ) async {
+    final response = await apiClient.patch(
+      '${ApiUrls.trackMeal}/$date/$mealId',
+      data: {'food': food},
+    );
+
+    if (response.data['success'] != true) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        error: response.data['message'],
+      );
+    }
   }
 
   @override

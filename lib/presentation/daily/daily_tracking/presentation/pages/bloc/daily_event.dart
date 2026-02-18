@@ -10,6 +10,13 @@ class DailyInitRequested extends DailyEvent {
   const DailyInitRequested();
 }
 
+class DailyDateChanged extends DailyEvent {
+  final DateTime date;
+  const DailyDateChanged(this.date);
+  @override
+  List<Object?> get props => [date];
+}
+
 class WellBeingChanged extends DailyEvent {
   final String
   field; // 'energy', 'stress', 'muscleSoreness', 'mood', 'motivation'

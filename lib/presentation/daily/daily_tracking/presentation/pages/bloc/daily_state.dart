@@ -7,13 +7,27 @@ class DailyState extends Equatable {
   final DailyStatus status;
   final DailyTrackingEntity? data;
   final String? errorMessage;
+  final bool isReadOnly;
 
-  const DailyState({this.status = DailyStatus.initial, this.data, this.errorMessage});
+  const DailyState({
+    this.status = DailyStatus.initial,
+    this.data,
+    this.errorMessage,
+    this.isReadOnly = false,
+  });
 
-  DailyState copyWith({DailyStatus? status, DailyTrackingEntity? data, String? errorMessage}) =>
-      DailyState(status: status ?? this.status, data: data ?? this.data, errorMessage: errorMessage ?? this.errorMessage);
+  DailyState copyWith({
+    DailyStatus? status,
+    DailyTrackingEntity? data,
+    String? errorMessage,
+    bool? isReadOnly,
+  }) => DailyState(
+    status: status ?? this.status,
+    data: data ?? this.data,
+    errorMessage: errorMessage ?? this.errorMessage,
+    isReadOnly: isReadOnly ?? this.isReadOnly,
+  );
 
   @override
-  List<Object?> get props => [status, data, errorMessage];
+  List<Object?> get props => [status, data, errorMessage, isReadOnly];
 }
-

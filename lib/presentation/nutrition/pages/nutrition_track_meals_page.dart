@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/meal_food_item_entity.dart';
+import 'package:fitness_app/domain/entities/nutrition_entities/meal_suggestion_entity.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_plan_entity.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_daily_tracking_entity.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_response_entity.dart';
@@ -125,8 +126,7 @@ class _TrackMealsView extends StatelessWidget {
                 if (state.trackingData != null &&
                     state.trackingData!.data.isNotEmpty)
                   ...state.trackingData!.data.first.meals
-                      .map((m) => _MealTile(meal: m))
-                      .toList(),
+                      .map((m) => _MealTile(meal: m)),
               ],
             ),
           );
@@ -253,50 +253,18 @@ class _TrackMealsView extends StatelessWidget {
             ],
           ),
           SizedBox(height: 12.h),
+          // Water and Calories
           Container(
             decoration: BoxDecoration(
               color: const Color(0xFF182418),
               borderRadius: BorderRadius.circular(12.r),
             ),
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 14.h),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.water_drop,
-                      color: const Color(0xFF4A6CF7),
-                      size: 18.sp,
-                    ),
-                    SizedBox(width: 6.w),
-                    Text(
-                      '${water}ml\n${localizations.dailyWaterLabel}',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 13.sp,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.local_fire_department,
-                      color: const Color(0xFF82C941),
-                      size: 18.sp,
-                    ),
-                    SizedBox(width: 6.w),
-                    Text(
-                      '${totals.totalCalories}\n${localizations.dailyNutritionCaloriesLabel}',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 13.sp,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+            child: _WaterCaloriesAndDrinksRow(
+              baseWaterMl: water,
+              calories: totals.totalCalories,
+              waterLabel: localizations.dailyWaterLabel,
+              caloriesLabel: localizations.dailyNutritionCaloriesLabel,
             ),
           ),
         ],
@@ -375,6 +343,219 @@ class _TrackMealsView extends StatelessWidget {
   }
 }
 
+class _WaterCaloriesAndDrinksRow extends StatefulWidget {
+  final int baseWaterMl;
+  final int calories;
+  final String waterLabel;
+  final String caloriesLabel;
+
+  const _WaterCaloriesAndDrinksRow({
+    required this.baseWaterMl,
+    required this.calories,
+    required this.waterLabel,
+    required this.caloriesLabel,
+  });
+
+  @override
+  State<_WaterCaloriesAndDrinksRow> createState() =>
+      _WaterCaloriesAndDrinksRowState();
+}
+
+class _WaterCaloriesAndDrinksRowState extends State<_WaterCaloriesAndDrinksRow> {
+  int? _bottleMl;
+  int? _glassMl;
+
+  Future<void> _showInput({
+    required String title,
+    required int? initialMl,
+    required ValueChanged<int?> onSaved,
+  }) async {
+    final localizations = AppLocalizations.of(context)!;
+    final controller = TextEditingController(
+      text: initialMl == null ? '' : initialMl.toString(),
+    );
+    final saved = await showDialog<int?>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF0F0F15),
+          title: Text(
+            title,
+            style: GoogleFonts.poppins(color: Colors.white),
+          ),
+          content: TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            style: GoogleFonts.poppins(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: 'ml',
+              hintStyle: GoogleFonts.poppins(color: Colors.white54),
+              enabledBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF2E2E5D)),
+              ),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF82C941)),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, null),
+              child: Text(
+                localizations.nutritionTrackCancel,
+                style: GoogleFonts.poppins(color: Colors.white70),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                final raw = controller.text.trim();
+                if (raw.isEmpty) {
+                  Navigator.pop(context, null);
+                  return;
+                }
+                final parsed = int.tryParse(raw);
+                if (parsed == null || parsed <= 0) {
+                  Navigator.pop(context, null);
+                  return;
+                }
+                Navigator.pop(context, parsed);
+              },
+              child: Text(
+                localizations.nutritionTrackAddItem,
+                style: GoogleFonts.poppins(color: const Color(0xFF82C941)),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    onSaved(saved);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final displayedWater =
+        widget.baseWaterMl + (_bottleMl ?? 0) + (_glassMl ?? 0);
+
+    Widget toggleIcon({
+      required int? ml,
+      required IconData emptyIcon,
+      required IconData filledIcon,
+      required VoidCallback onPressed,
+    }) {
+      final iconSize = 22.sp;
+      return InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(10.r),
+        child: SizedBox(
+          height: 28.h,
+          width: 28.h,
+          child: Center(
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(
+                  (ml ?? 0) > 0 ? filledIcon : emptyIcon,
+                  color: (ml ?? 0) > 0
+                      ? const Color(0xFF4A6CF7)
+                      : Colors.white70,
+                  size: iconSize,
+                ),
+                if ((ml ?? 0) <= 0)
+                  Positioned(
+                    right: -4.w,
+                    top: -4.h,
+                    child: Icon(
+                      Icons.add_circle,
+                      color: const Color(0xFF82C941),
+                      size: 12.sp,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(
+          child: Row(
+            children: [
+              Icon(
+                Icons.water_drop,
+                color: const Color(0xFF4A6CF7),
+                size: 18.sp,
+              ),
+              SizedBox(width: 6.w),
+              Text(
+                '${displayedWater}ml\n${widget.waterLabel}',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 13.sp,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.local_fire_department,
+                color: const Color(0xFF82C941),
+                size: 18.sp,
+              ),
+              SizedBox(width: 6.w),
+              Text(
+                '${widget.calories}\n${widget.caloriesLabel}',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 13.sp,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            toggleIcon(
+              ml: _bottleMl,
+              emptyIcon: Icons.liquor_outlined,
+              filledIcon: Icons.liquor,
+              onPressed: () => _showInput(
+                title: 'Bottle',
+                initialMl: null,
+                onSaved: (v) {
+                  if (v == null) return;
+                  setState(() => _bottleMl = v);
+                },
+              ),
+            ),
+            SizedBox(width: 10.w),
+            toggleIcon(
+              ml: _glassMl,
+              emptyIcon: Icons.local_drink_outlined,
+              filledIcon: Icons.local_drink,
+              onPressed: () => _showInput(
+                title: 'Glass',
+                initialMl: null,
+                onSaved: (v) {
+                  if (v == null) return;
+                  setState(() => _glassMl = v);
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
 class _MealTile extends StatefulWidget {
   final TrackingMealEntity meal;
   const _MealTile({required this.meal});
@@ -405,13 +586,40 @@ class _MealTileState extends State<_MealTile> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                m.mealNumber, // changed from title
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w500,
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    m.mealNumber, // changed from title
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(width: 10.w),
+                  InkWell(
+                    onTap: () {
+                      final bloc = context.read<TrackMealsBloc>();
+                      showDialog(
+                        context: context,
+                        builder: (dialogCtx) => BlocProvider.value(
+                          value: bloc,
+                          child: _AddFoodItemsToMealDialog(
+                            date: bloc.state.date,
+                            mealId: m.id,
+                            mealTitle: m.mealNumber,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Icon(
+                      Icons.add_circle_outline,
+                      color: const Color(0xFF82C941),
+                      size: 20.sp,
+                    ),
+                  ),
+                ],
               ),
               IconButton(
                 onPressed: () {
@@ -674,7 +882,7 @@ class _MealTileState extends State<_MealTile> {
 
 class _AddMealDialog extends StatefulWidget {
   final DateTime date;
-  const _AddMealDialog({super.key, required this.date});
+  const _AddMealDialog({required this.date});
   @override
   State<_AddMealDialog> createState() => _AddMealDialogState();
 }
@@ -733,22 +941,33 @@ class _AddMealDialogState extends State<_AddMealDialog> {
             Column(
               children: [
                 for (int i = 0; i < _foodCtrls.length; i++) ...[
-                  Row(
+                  Column(
                     children: [
-                      Expanded(
-                        child: _inputField(
-                          localizations.nutritionTrackFoodNameLabel,
-                          localizations.nutritionTrackFoodNameHint,
-                          controller: _foodCtrls[i],
-                        ),
-                      ),
-                      SizedBox(width: 16.w),
-                      Expanded(
-                        child: _inputField(
-                          localizations.nutritionTrackFoodQuantityLabel,
-                          localizations.nutritionTrackFoodQuantityHint,
-                          controller: _qtyCtrls[i],
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _foodNameWithSuggestions(
+                              context,
+                              rowIndex: i,
+                              label: localizations.nutritionTrackFoodNameLabel,
+                              hint: localizations.nutritionTrackFoodNameHint,
+                              controller: _foodCtrls[i],
+                            ),
+                          ),
+                          SizedBox(width: 16.w),
+                          Expanded(
+                            child: _inputField(
+                              localizations.nutritionTrackFoodQuantityLabel,
+                              localizations.nutritionTrackFoodQuantityHint,
+                              controller: _qtyCtrls[i],
+                              onChanged: (_) {
+                                context.read<TrackMealsBloc>().add(
+                                  TrackMealsSuggestionsCleared(rowIndex: i),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -862,6 +1081,7 @@ class _AddMealDialogState extends State<_AddMealDialog> {
     String label,
     String hint, {
     TextEditingController? controller,
+    ValueChanged<String>? onChanged,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -873,6 +1093,7 @@ class _AddMealDialogState extends State<_AddMealDialog> {
         SizedBox(height: 8.h),
         TextField(
           controller: controller,
+          onChanged: onChanged,
           style: GoogleFonts.poppins(color: Colors.white, fontSize: 13.sp),
           decoration: InputDecoration(
             hintText: hint,
@@ -904,6 +1125,114 @@ class _AddMealDialogState extends State<_AddMealDialog> {
     );
   }
 
+  Widget _foodNameWithSuggestions(
+    BuildContext context, {
+    required int rowIndex,
+    required String label,
+    required String hint,
+    required TextEditingController controller,
+  }) {
+    return BlocBuilder<TrackMealsBloc, TrackMealsState>(
+      buildWhen: (prev, curr) =>
+          prev.suggestionsRowIndex != curr.suggestionsRowIndex ||
+          prev.suggestionsLoading != curr.suggestionsLoading ||
+          prev.suggestionsByRow[rowIndex] != curr.suggestionsByRow[rowIndex],
+      builder: (context, state) {
+        final suggestions =
+            state.suggestionsByRow[rowIndex] ?? const <MealSuggestionEntity>[];
+        final isActiveRow = state.suggestionsRowIndex == rowIndex;
+        final showSuggestions = isActiveRow && suggestions.isNotEmpty;
+        final showLoading = isActiveRow && state.suggestionsLoading;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _inputField(
+              label,
+              hint,
+              controller: controller,
+              onChanged: (v) {
+                context.read<TrackMealsBloc>().add(
+                      TrackMealsSuggestionQueryChanged(
+                        rowIndex: rowIndex,
+                        query: v,
+                      ),
+                    );
+              },
+            ),
+            if (showLoading || showSuggestions) ...[
+              SizedBox(height: 8.h),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF13131F),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(color: Colors.white10),
+                ),
+                child: Column(
+                  children: [
+                    if (showLoading)
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 10.h,
+                        ),
+                        child: const LinearProgressIndicator(
+                          minHeight: 2,
+                          color: Color(0xFF82C941),
+                          backgroundColor: Color(0xFF2C2C3E),
+                        ),
+                      ),
+                    if (showSuggestions)
+                      ConstrainedBox(
+                        constraints: BoxConstraints(maxHeight: 180.h),
+                        child: ListView.separated(
+                          padding: EdgeInsets.zero,
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) {
+                            final item = suggestions[index];
+                            return InkWell(
+                              onTap: () {
+                                controller.text = item.name;
+                                controller.selection = TextSelection.collapsed(
+                                  offset: controller.text.length,
+                                );
+                                context.read<TrackMealsBloc>().add(
+                                      TrackMealsSuggestionsCleared(
+                                        rowIndex: rowIndex,
+                                      ),
+                                    );
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 14.w,
+                                  vertical: 10.h,
+                                ),
+                                child: Text(
+                                  item.name,
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontSize: 13.sp,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                          separatorBuilder: (_, __) =>
+                              Divider(height: 1, color: Colors.white10),
+                          itemCount: suggestions.length > 6 ? 6 : suggestions.length,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        );
+      },
+    );
+  }
+
   Widget _button(
     String text,
     Color bgColor,
@@ -930,6 +1259,389 @@ class _AddMealDialogState extends State<_AddMealDialog> {
             fontSize: 14.sp,
             fontWeight: FontWeight.w600,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AddFoodItemsToMealDialog extends StatefulWidget {
+  final DateTime date;
+  final String mealId;
+  final String mealTitle;
+  const _AddFoodItemsToMealDialog({
+    required this.date,
+    required this.mealId,
+    required this.mealTitle,
+  });
+
+  @override
+  State<_AddFoodItemsToMealDialog> createState() =>
+      _AddFoodItemsToMealDialogState();
+}
+
+class _AddFoodItemsToMealDialogState extends State<_AddFoodItemsToMealDialog> {
+  final List<TextEditingController> _foodCtrls = [];
+  final List<TextEditingController> _qtyCtrls = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _addRow();
+  }
+
+  void _addRow() {
+    _foodCtrls.add(TextEditingController());
+    _qtyCtrls.add(TextEditingController());
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    for (final c in _foodCtrls) {
+      c.dispose();
+    }
+    for (final c in _qtyCtrls) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  Widget inputField({
+    required String label,
+    required String hint,
+    required TextEditingController controller,
+    TextInputType? keyboardType,
+    ValueChanged<String>? onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(color: Colors.white, fontSize: 13.sp),
+        ),
+        SizedBox(height: 8.h),
+        TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          onChanged: onChanged,
+          style: GoogleFonts.poppins(color: Colors.white, fontSize: 13.sp),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: GoogleFonts.poppins(
+              color: Colors.white38,
+              fontSize: 13.sp,
+            ),
+            filled: true,
+            fillColor: const Color(0xFF13131F),
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 16.w,
+              vertical: 12.h,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.r),
+              borderSide: BorderSide(color: Colors.white10),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.r),
+              borderSide: BorderSide(color: Colors.white10),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.r),
+              borderSide: BorderSide(color: const Color(0xFF82C941)),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget actionButton({
+    required String text,
+    required Color bgColor,
+    required Color textColor,
+    required VoidCallback onTap,
+    Color? borderColor,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 12.h),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(12.r),
+          border: borderColor != null
+              ? Border.all(color: borderColor)
+              : Border.all(color: Colors.transparent),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          text,
+          style: GoogleFonts.poppins(
+            color: textColor,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget foodNameWithSuggestions({
+    required int rowIndex,
+    required String label,
+    required String hint,
+    required TextEditingController controller,
+  }) {
+    return BlocBuilder<TrackMealsBloc, TrackMealsState>(
+      buildWhen: (prev, curr) =>
+          prev.suggestionsRowIndex != curr.suggestionsRowIndex ||
+          prev.suggestionsLoading != curr.suggestionsLoading ||
+          prev.suggestionsByRow[rowIndex] != curr.suggestionsByRow[rowIndex],
+      builder: (context, state) {
+        final suggestions =
+            state.suggestionsByRow[rowIndex] ?? const <MealSuggestionEntity>[];
+        final isActiveRow = state.suggestionsRowIndex == rowIndex;
+        final showSuggestions = isActiveRow && suggestions.isNotEmpty;
+        final showLoading = isActiveRow && state.suggestionsLoading;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            inputField(
+              label: label,
+              hint: hint,
+              controller: controller,
+              onChanged: (v) {
+                context.read<TrackMealsBloc>().add(
+                      TrackMealsSuggestionQueryChanged(
+                        rowIndex: rowIndex,
+                        query: v,
+                      ),
+                    );
+              },
+            ),
+            if (showLoading || showSuggestions) ...[
+              SizedBox(height: 8.h),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF13131F),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(color: Colors.white10),
+                ),
+                child: Column(
+                  children: [
+                    if (showLoading)
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 10.h,
+                        ),
+                        child: const LinearProgressIndicator(
+                          minHeight: 2,
+                          color: Color(0xFF82C941),
+                          backgroundColor: Color(0xFF2C2C3E),
+                        ),
+                      ),
+                    if (showSuggestions)
+                      ConstrainedBox(
+                        constraints: BoxConstraints(maxHeight: 180.h),
+                        child: ListView.separated(
+                          padding: EdgeInsets.zero,
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) {
+                            final item = suggestions[index];
+                            return InkWell(
+                              onTap: () {
+                                controller.text = item.name;
+                                controller.selection = TextSelection.collapsed(
+                                  offset: controller.text.length,
+                                );
+                                context.read<TrackMealsBloc>().add(
+                                      TrackMealsSuggestionsCleared(
+                                        rowIndex: rowIndex,
+                                      ),
+                                    );
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 14.w,
+                                  vertical: 10.h,
+                                ),
+                                child: Text(
+                                  item.name,
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontSize: 13.sp,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                          separatorBuilder: (_, __) =>
+                              Divider(height: 1, color: Colors.white10),
+                          itemCount:
+                              suggestions.length > 6 ? 6 : suggestions.length,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    return Dialog(
+      backgroundColor: const Color(0xFF0F0F15),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+      insetPadding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Container(
+        padding: EdgeInsets.all(20.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Icon(Icons.close, color: Colors.white, size: 20.sp),
+              ),
+            ),
+            SizedBox(height: 10.h),
+            Text(
+              widget.mealTitle,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Column(
+              children: [
+                for (int i = 0; i < _foodCtrls.length; i++) ...[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: foodNameWithSuggestions(
+                          rowIndex: i,
+                          label: localizations.nutritionTrackFoodNameLabel,
+                          hint: localizations.nutritionTrackFoodNameHint,
+                          controller: _foodCtrls[i],
+                        ),
+                      ),
+                      SizedBox(width: 16.w),
+                      Expanded(
+                        child: inputField(
+                          label: localizations.nutritionTrackFoodQuantityLabel,
+                          hint: localizations.nutritionTrackFoodQuantityHint,
+                          controller: _qtyCtrls[i],
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12.h),
+                ],
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: GestureDetector(
+                    onTap: _addRow,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(14.r),
+                        border: Border.all(color: const Color(0xFF82C941)),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10.w,
+                        vertical: 6.h,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.add, color: Colors.white),
+                          SizedBox(width: 6.w),
+                          Text(
+                            localizations.nutritionTrackAddItem,
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 24.h),
+            Row(
+              children: [
+                Expanded(
+                  child: actionButton(
+                    text: localizations.nutritionTrackCancel,
+                    bgColor: const Color(0xFF1C222E),
+                    textColor: Colors.white,
+                    onTap: () => Navigator.pop(context),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: actionButton(
+                    text: localizations.nutritionTrackAddItem,
+                    bgColor: const Color(0xFF1A1A50),
+                    textColor: Colors.white,
+                    borderColor: const Color(0xFF3F3F9F),
+                    onTap: () {
+                      final items = <MealFoodItemEntity>[];
+                      for (int i = 0; i < _foodCtrls.length; i++) {
+                        final food = _foodCtrls[i].text.trim();
+                        final qtyRaw = _qtyCtrls[i].text.trim();
+                        if (food.isEmpty || qtyRaw.isEmpty) continue;
+                        final qtyStr = qtyRaw.replaceAll(RegExp(r'[^0-9]'), '');
+                        final qty = int.tryParse(qtyStr);
+                        if (qty == null || qty <= 0) continue;
+                        items.add(
+                          MealFoodItemEntity(name: food, quantity: qtyStr),
+                        );
+                      }
+                      if (items.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              localizations.nutritionTrackNoItemsLogged,
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+
+                      context.read<TrackMealsBloc>().add(
+                            TrackMealsAddFoodItemsToMeal(
+                              date: widget.date,
+                              mealId: widget.mealId,
+                              food: items,
+                            ),
+                          );
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
