@@ -247,6 +247,7 @@ Future<void> init() async {
       getNutritionPlanUseCase: sl(),
       getTrackMealsUseCase: sl(),
       nutritionStorage: sl(),
+      tokenStorage: sl(),
     ),
   );
 

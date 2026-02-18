@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:dartz/dartz.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/storage/nutrition_storage.dart';
+import '../../../../core/storage/token_storage.dart';
 import '../../../profile/domain/usecases/get_profile_usecase.dart';
 import './get_nutrition_plan_usecase.dart';
 import './get_track_meals_usecase.dart';
@@ -11,12 +12,14 @@ class SyncNutritionDataUseCase {
   final GetNutritionPlanUseCase getNutritionPlanUseCase;
   final GetTrackMealsUseCase getTrackMealsUseCase;
   final NutritionStorage nutritionStorage;
+  final TokenStorage tokenStorage;
 
   SyncNutritionDataUseCase({
     required this.getProfileUseCase,
     required this.getNutritionPlanUseCase,
     required this.getTrackMealsUseCase,
     required this.nutritionStorage,
+    required this.tokenStorage,
   });
 
   Future<Either<ApiException, void>> call() async {
@@ -35,6 +38,10 @@ class SyncNutritionDataUseCase {
         (profile) async {
           final userId = profile.athlete.id;
           log('SyncNutritionDataUseCase: Fetched userId: $userId');
+          final gender = profile.athlete.gender.trim().toLowerCase();
+          if (gender.isNotEmpty) {
+            await tokenStorage.saveUserGender(gender);
+          }
 
           // 2. Fetch Nutrition Plan
           final planResult = await getNutritionPlanUseCase(userId);

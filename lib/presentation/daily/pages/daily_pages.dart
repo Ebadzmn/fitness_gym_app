@@ -6,6 +6,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fitness_app/core/coreWidget/dropdown_yes_no_tile.dart';
 import 'package:fitness_app/core/coreWidget/dropdown_tile.dart';
+import 'package:fitness_app/core/storage/token_storage.dart';
+import 'package:fitness_app/injection_container.dart';
 
 class DailyPages extends StatefulWidget {
   const DailyPages({super.key});
@@ -267,8 +269,11 @@ body: Padding(
 
         NutritionCard(),
         SizedBox(height: 12.h,),
-        WomenCard(),
-        SizedBox(height: 12.h,),
+        if ((sl<TokenStorage>().getUserGender() ?? '').toLowerCase() ==
+            'female') ...[
+          WomenCard(),
+          SizedBox(height: 12.h,),
+        ],
         PedCard(),
       ],
     ),

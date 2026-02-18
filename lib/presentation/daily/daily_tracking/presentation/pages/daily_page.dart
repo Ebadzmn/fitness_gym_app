@@ -9,6 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fitness_app/core/config/assets_path.dart';
 import 'package:fitness_app/core/coreWidget/dropdown_yes_no_tile.dart';
 import 'package:fitness_app/core/coreWidget/dropdown_tile.dart';
+import 'package:fitness_app/core/storage/token_storage.dart';
 import 'package:fitness_app/injection_container.dart' as di;
 import 'bloc/daily_bloc.dart';
 import 'bloc/daily_event.dart';
@@ -105,8 +106,17 @@ class _DailyView extends StatelessWidget {
                   SizedBox(height: 20.h),
                   _nutritionCard(context, data),
                   SizedBox(height: 12.h),
-                  _womenCard(context, data),
-                  SizedBox(height: 12.h),
+                  if (((di.sl<TokenStorage>().getUserGender() ?? '')
+                              .trim()
+                              .toLowerCase() ==
+                          'female') ||
+                      ((di.sl<TokenStorage>().getUserGender() ?? '')
+                              .trim()
+                              .toLowerCase() ==
+                          'f')) ...[
+                    _womenCard(context, data),
+                    SizedBox(height: 12.h),
+                  ],
                   _pedCard(context, data),
                   SizedBox(height: 12.h),
                   _dailyNotesCard(context, data.notes),

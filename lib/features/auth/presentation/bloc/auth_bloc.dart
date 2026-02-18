@@ -93,9 +93,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     final token = tokenStorage.getAccessToken();
     if (token != null && token.isNotEmpty) {
+      await syncNutritionDataUseCase();
       emit(AuthAuthenticated());
-      // Trigger sync if authenticated
-      syncNutritionDataUseCase();
     } else {
       emit(AuthUnauthenticated());
     }
@@ -117,8 +116,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       await tokenStorage.saveAccessToken(result.token);
 
-      // Trigger sync after successful login
-      syncNutritionDataUseCase();
+      await syncNutritionDataUseCase();
 
       emit(AuthSuccess(result));
     } catch (e) {
