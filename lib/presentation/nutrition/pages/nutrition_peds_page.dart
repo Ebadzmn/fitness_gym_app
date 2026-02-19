@@ -76,10 +76,11 @@ class _NutritionPedsView extends StatelessWidget {
               }
 
               if (state.categories.isEmpty) {
-                return const Center(
+                return Center(
                   child: Text(
-                    'No data',
-                    style: TextStyle(color: Colors.white),
+                    localizations.coachAddedShortly,
+                    style: const TextStyle(color: Colors.white),
+                    textAlign: TextAlign.center,
                   ),
                 );
               }
@@ -270,6 +271,74 @@ class _NutritionPedsState {
   }
 }
 
+class _PedAppDataResponse {
+  final bool success;
+  final String message;
+  final List<_PedWeekData> data;
+
+  const _PedAppDataResponse({
+    required this.success,
+    required this.message,
+    required this.data,
+  });
+
+  factory _PedAppDataResponse.fromJson(Map json) {
+    final success = json['success'] == true;
+    final message = json['message']?.toString() ?? '';
+    final dataRaw = json['data'];
+    final data =
+        (dataRaw is List ? dataRaw : const [])
+            .whereType<Map>()
+            .map(_PedWeekData.fromJson)
+            .toList();
+    return _PedAppDataResponse(success: success, message: message, data: data);
+  }
+}
+
+class _PedWeekData {
+  final String id;
+  final String athleteId;
+  final String coachId;
+  final String week;
+  final List<_PedsCategory> categories;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  const _PedWeekData({
+    required this.id,
+    required this.athleteId,
+    required this.coachId,
+    required this.week,
+    required this.categories,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory _PedWeekData.fromJson(Map json) {
+    final categoriesRaw = json['categories'];
+    final categories =
+        (categoriesRaw is List ? categoriesRaw : const [])
+            .whereType<Map>()
+            .map(_PedsCategory.fromJson)
+            .toList();
+
+    DateTime? parseDate(String? value) {
+      if (value == null || value.isEmpty) return null;
+      return DateTime.tryParse(value);
+    }
+
+    return _PedWeekData(
+      id: json['_id']?.toString() ?? '',
+      athleteId: json['athleteId']?.toString() ?? '',
+      coachId: json['coachId']?.toString() ?? '',
+      week: json['week']?.toString() ?? '',
+      categories: categories,
+      createdAt: parseDate(json['createdAt']?.toString()),
+      updatedAt: parseDate(json['updatedAt']?.toString()),
+    );
+  }
+}
+
 class _NutritionPedsCubit extends Cubit<_NutritionPedsState> {
   final GetProfileUseCase getProfile;
   final ApiClient apiClient;
@@ -291,9 +360,8 @@ class _NutritionPedsCubit extends Cubit<_NutritionPedsState> {
             ),
           );
         },
-        (profile) async {
-          final athleteId = profile.athlete.id;
-          final response = await apiClient.get(ApiUrls.pedByAthlete(athleteId));
+        (_) async {
+          final response = await apiClient.get(ApiUrls.pedAppData);
           final payload = response.data;
           if (payload is! Map) {
             emit(
@@ -305,30 +373,25 @@ class _NutritionPedsCubit extends Cubit<_NutritionPedsState> {
             return;
           }
 
-          final data = payload['data'];
-          if (data is! Map) {
+          final parsed = _PedAppDataResponse.fromJson(payload);
+          if (!parsed.success || parsed.data.isEmpty) {
             emit(
               state.copyWith(
-                status: _NutritionPedsStatus.failure,
-                errorMessage: 'Missing data',
+                status: _NutritionPedsStatus.success,
+                weekLabel: '',
+                categories: const [],
               ),
             );
             return;
           }
 
-          final weekRaw = data['week']?.toString() ?? '';
-          final categoriesRaw = data['categories'];
-          final categories =
-              (categoriesRaw is List ? categoriesRaw : const [])
-                  .whereType<Map>()
-                  .map(_PedsCategory.fromJson)
-                  .toList();
+          final latest = parsed.data.last;
 
           emit(
             state.copyWith(
               status: _NutritionPedsStatus.success,
-              weekLabel: _formatWeekLabel(weekRaw),
-              categories: categories,
+              weekLabel: _formatWeekLabel(latest.week),
+              categories: latest.categories,
             ),
           );
         },

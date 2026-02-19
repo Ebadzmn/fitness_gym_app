@@ -142,8 +142,8 @@ class NutritionRemoteDataSourceImpl implements NutritionRemoteDataSource {
     Map<String, dynamic> foodItem,
   ) async {
     await apiClient.post(
-      '${ApiUrls.trackMeal}/$mealId/food', // Assumption based on pattern, adjusted to match server
-      data: {...foodItem, 'date': date},
+      '${ApiUrls.trackMeal}/$mealId',
+      data: foodItem,
     );
   }
 
@@ -153,15 +153,10 @@ class NutritionRemoteDataSourceImpl implements NutritionRemoteDataSource {
     String mealId,
     List<Map<String, dynamic>> food,
   ) async {
-    final response = await apiClient.patch(
-      '${ApiUrls.trackMeal}/$date/$mealId',
-      data: {'food': food},
-    );
-
-    if (response.data['success'] != true) {
-      throw DioException(
-        requestOptions: response.requestOptions,
-        error: response.data['message'],
+    for (final item in food) {
+      await apiClient.post(
+        '${ApiUrls.trackMeal}/$mealId',
+        data: item,
       );
     }
   }

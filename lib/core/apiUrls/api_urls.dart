@@ -1,6 +1,6 @@
 class ApiUrls {
-  static const String baseUrl = 'http://10.10.7.101:5005/api/v1';
-  // static const String baseUrl = 'https://api.evolveapp.fit/api/v1';
+  // static const String baseUrl = 'http://10.10.7.101:5005/api/v1';
+  static const String baseUrl = 'https://api.evolveapp.fit/api/v1';
   static const String loginUrl = '$baseUrl/auth/athlete/login';
   static const String updateFcmTokenUrl = '$baseUrl/auth/athlete/fcm-token';
   static const String dailyTrackingPost = '$baseUrl/daily/tracking';
@@ -14,6 +14,7 @@ class ApiUrls {
   static const String trainingSplit = '$baseUrl/training/splite';
   static const String trackMeal = '$baseUrl/track/meal';
   static const String trackMealSuggestions = '$baseUrl/track/meal/suggestions';
+  static const String pedAppData = '$baseUrl/ped/app-data';
   static String pedByAthlete(String athleteId) => '$baseUrl/ped/$athleteId';
   static const String forgetPasswordUrl =
       '$baseUrl/auth/athlete/forget-password';

@@ -86,10 +86,16 @@ class NutritionRepositoryImpl implements NutritionRepository {
     try {
       final dateStr =
           '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-      await remoteDataSource.addFoodItemToMeal(dateStr, mealId, {
-        'name': foodItem.name,
-        'quantity': foodItem.quantity,
-      });
+      final qtyStr = foodItem.quantity.replaceAll(RegExp(r'[^0-9]'), '');
+      final qty = int.tryParse(qtyStr) ?? 0;
+      await remoteDataSource.addFoodItemToMeal(
+        dateStr,
+        mealId,
+        {
+          'foodNme': foodItem.name,
+          'quantity': qty,
+        },
+      );
       return const Right(null);
     } catch (e) {
       return Left(ApiException(message: e.toString()));

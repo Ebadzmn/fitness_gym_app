@@ -5,7 +5,7 @@ import '../../../../core/storage/token_storage.dart';
 import 'package:dio/dio.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<AuthModel> login(String email, String password, {String? fcmToken});
+  Future<AuthModel> login(String email, String password,);
   Future<void> forgetPassword(String email);
   Future<String> verifyOtp(String email, String otp);
   Future<void> resetPassword(String newPassword, String confirmPassword);

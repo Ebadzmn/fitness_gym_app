@@ -6,12 +6,11 @@ import 'package:equatable/equatable.dart';
 class LoginParams extends Equatable {
   final String email;
   final String password;
-  final String? fcmToken;
 
-  const LoginParams({required this.email, required this.password, this.fcmToken});
+  const LoginParams({required this.email, required this.password});
 
   @override
-  List<Object?> get props => [email, password, fcmToken];
+  List<Object?> get props => [email, password];
 }
 
 class LoginUseCase extends UseCase<AuthEntity, LoginParams> {
@@ -24,7 +23,6 @@ class LoginUseCase extends UseCase<AuthEntity, LoginParams> {
     return await repository.login(
       params.email,
       params.password,
-      fcmToken: params.fcmToken,
     );
   }
 }

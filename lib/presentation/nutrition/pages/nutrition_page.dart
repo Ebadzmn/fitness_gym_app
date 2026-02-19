@@ -3,6 +3,7 @@ import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_dashboard_entity.dart';
 import 'package:fitness_app/injection_container.dart';
+import 'package:fitness_app/core/storage/token_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -33,6 +34,9 @@ class _NutritionView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
+    final tokenStorage = sl<TokenStorage>();
+    final gender = tokenStorage.getUserGender()?.trim().toLowerCase() ?? '';
+    final showPeds = gender == 'female';
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
@@ -146,17 +150,20 @@ class _NutritionView extends StatelessWidget {
                             context.push(AppRoutes.nutritionSupplementPage),
                       ),
                     ),
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: _menuTile(
-                        icon: Icons.science_outlined,
-                        iconColor: const Color(0xFFFF6D00),
-                        title: localizations.nutritionMenuPedTitle,
-                        subtitle: localizations.nutritionMenuPedSubtitle,
-                        borderColor: const Color(0xFFFC9502).withOpacity(0.4),
-                        onTap: () => context.push(AppRoutes.nutritionPEDsPage),
+                    if (showPeds) ...[
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: _menuTile(
+                          icon: Icons.science_outlined,
+                          iconColor: const Color(0xFFFF6D00),
+                          title: localizations.nutritionMenuPedTitle,
+                          subtitle: localizations.nutritionMenuPedSubtitle,
+                          borderColor: const Color(0xFFFC9502).withOpacity(0.4),
+                          onTap: () =>
+                              context.push(AppRoutes.nutritionPEDsPage),
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ],

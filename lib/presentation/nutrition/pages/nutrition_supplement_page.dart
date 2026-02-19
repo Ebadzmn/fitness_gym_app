@@ -69,6 +69,15 @@ class _NutritionSupplementView extends StatelessWidget {
           if (state.status == NutritionSupplementStatus.success &&
               state.data != null) {
             final supplements = state.data!.items;
+            if (supplements.isEmpty) {
+              return Center(
+                child: Text(
+                  localizations.coachAddedShortly,
+                  style: const TextStyle(color: Colors.white),
+                  textAlign: TextAlign.center,
+                ),
+              );
+            }
             return SingleChildScrollView(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
               child: Container(
@@ -175,8 +184,9 @@ class _NutritionSupplementView extends StatelessWidget {
           }
           return Center(
             child: Text(
-              localizations.nutritionSupplementsEmpty,
+              localizations.coachAddedShortly,
               style: const TextStyle(color: Colors.white),
+              textAlign: TextAlign.center,
             ),
           );
         },

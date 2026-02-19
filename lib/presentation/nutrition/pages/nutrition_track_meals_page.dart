@@ -362,8 +362,10 @@ class _WaterCaloriesAndDrinksRow extends StatefulWidget {
 }
 
 class _WaterCaloriesAndDrinksRowState extends State<_WaterCaloriesAndDrinksRow> {
-  int? _bottleMl;
-  int? _glassMl;
+  static const int _bottleSizeMl = 500;
+  int _bottleCount = 1;
+  int? _glassSizeMl;
+  int _glassCount = 0;
 
   Future<void> _showInput({
     required String title,
@@ -432,11 +434,27 @@ class _WaterCaloriesAndDrinksRowState extends State<_WaterCaloriesAndDrinksRow> 
     onSaved(saved);
   }
 
+  void _showWaterMessage(String text) {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          text,
+          style: GoogleFonts.poppins(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF1E1E2C),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  int get _glassTotalMl => (_glassSizeMl ?? 0) * _glassCount;
+  int get _bottleTotalMl => _bottleSizeMl * _bottleCount;
+
   @override
   Widget build(BuildContext context) {
-    final displayedWater =
-        widget.baseWaterMl + (_bottleMl ?? 0) + (_glassMl ?? 0);
-
     Widget toggleIcon({
       required int? ml,
       required IconData emptyIcon,
@@ -478,30 +496,60 @@ class _WaterCaloriesAndDrinksRowState extends State<_WaterCaloriesAndDrinksRow> 
       );
     }
 
-    return Row(
-      children: [
-        Expanded(
-          child: Row(
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        children: [
+          Row(
             children: [
               Icon(
                 Icons.water_drop,
                 color: const Color(0xFF4A6CF7),
                 size: 18.sp,
               ),
-              SizedBox(width: 6.w),
-              Text(
-                '${displayedWater}ml\n${widget.waterLabel}',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 13.sp,
-                ),
+              SizedBox(width: 8.w),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.waterLabel,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    'Goal: ${widget.baseWaterMl}ml',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white70,
+                      fontSize: 11.sp,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    'Bottle: $_bottleTotalMl ml',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 11.sp,
+                    ),
+                  ),
+                  Text(
+                    _glassCount > 0
+                        ? 'Glass: $_glassTotalMl ml '
+                        : 'Glass: 0ml',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 11.sp,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ),
-        Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          SizedBox(width: 24.w),
+          Row(
             children: [
               Icon(
                 Icons.local_fire_department,
@@ -518,40 +566,59 @@ class _WaterCaloriesAndDrinksRowState extends State<_WaterCaloriesAndDrinksRow> 
               ),
             ],
           ),
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            toggleIcon(
-              ml: _bottleMl,
-              emptyIcon: Icons.liquor_outlined,
-              filledIcon: Icons.liquor,
-              onPressed: () => _showInput(
-                title: 'Bottle',
-                initialMl: null,
-                onSaved: (v) {
-                  if (v == null) return;
-                  setState(() => _bottleMl = v);
+          SizedBox(width: 24.w),
+          Row(
+            children: [
+              toggleIcon(
+                ml: _bottleTotalMl,
+                emptyIcon: Icons.liquor_outlined,
+                filledIcon: Icons.liquor,
+                onPressed: () {
+                  setState(() {
+                    _bottleCount += 1;
+                  });
+                  _showWaterMessage(
+                    '$_bottleSizeMl ml of water has been added successfully.',
+                  );
                 },
               ),
-            ),
-            SizedBox(width: 10.w),
-            toggleIcon(
-              ml: _glassMl,
-              emptyIcon: Icons.local_drink_outlined,
-              filledIcon: Icons.local_drink,
-              onPressed: () => _showInput(
-                title: 'Glass',
-                initialMl: null,
-                onSaved: (v) {
-                  if (v == null) return;
-                  setState(() => _glassMl = v);
+              SizedBox(width: 10.w),
+              toggleIcon(
+                ml: _glassTotalMl,
+                emptyIcon: Icons.local_drink_outlined,
+                filledIcon: Icons.local_drink,
+                onPressed: () {
+                  if (_glassSizeMl == null) {
+                    _showInput(
+                      title: 'Glass',
+                      initialMl: null,
+                      onSaved: (v) {
+                        if (v == null) return;
+                        setState(() {
+                          _glassSizeMl = v;
+                          _glassCount = 1;
+                        });
+                        _showWaterMessage(
+                          '$v ml of water has been added.',
+                        );
+                      },
+                    );
+                  } else {
+                    setState(() {
+                      _glassCount += 1;
+                    });
+                    if (_glassSizeMl != null && _glassSizeMl! > 0) {
+                      _showWaterMessage(
+                        '$_glassSizeMl ml of water has been added.',
+                      );
+                    }
+                  }
                 },
               ),
-            ),
-          ],
-        ),
-      ],
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

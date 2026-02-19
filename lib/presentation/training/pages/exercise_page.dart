@@ -121,7 +121,8 @@ class _ExerciseView extends StatelessWidget {
     final filters = [
       'All',
       'Neck',
-      'Beck',
+      'Back',
+      "Arms",
       'Core',
       'Legs',
       'Shoulders',

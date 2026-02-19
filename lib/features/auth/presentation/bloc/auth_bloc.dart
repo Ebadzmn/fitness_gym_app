@@ -1,6 +1,7 @@
 import 'package:fitness_app/core/storage/token_storage.dart';
 import 'package:fitness_app/features/nutrition/domain/usecases/sync_nutrition_data_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dio/dio.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/forget_password_usecase.dart';
 import '../../domain/usecases/verify_otp_usecase.dart';
@@ -106,12 +107,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
     try {
-      final fcmToken = tokenStorage.getFcmToken();
+      // final fcmToken = tokenStorage.getFcmToken();
       final result = await loginUseCase(
         LoginParams(
           email: event.email,
           password: event.password,
-          fcmToken: fcmToken,
+          // fcmToken: fcmToken,
         ),
       );
       await tokenStorage.saveAccessToken(result.token);
@@ -120,7 +121,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       emit(AuthSuccess(result));
     } catch (e) {
-      emit(AuthFailure(e.toString()));
+      String message = 'Login failed';
+
+      if (e is DioException) {
+        final data = e.response?.data;
+        if (data is Map && data['message'] is String) {
+          final serverMessage = (data['message'] as String).trim();
+          if (serverMessage.toLowerCase() == 'email already exists!'.toLowerCase()) {
+            message = 'Invalid email or password';
+          } else {
+            message = serverMessage;
+          }
+        }
+      } else {
+        message = e.toString();
+      }
+
+      emit(AuthFailure(message));
     }
   }
 }

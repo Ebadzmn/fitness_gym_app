@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fitness_app/core/apiUrls/api_urls.dart';
 import 'package:fitness_app/domain/entities/checkin_entities/old_check_in_entity.dart';
 
 /// Read-only widget displaying old check-in data with the same design as CheckingTab.
@@ -7,6 +8,35 @@ class OldCheckingTab extends StatelessWidget {
   final OldCheckInEntity data;
 
   const OldCheckingTab({super.key, required this.data});
+
+  String _normalizedMediaUrl(String url) {
+    var u = url.trim();
+    if (u.isEmpty) return u;
+
+    const apiSegment = '/api/v1';
+
+    if (u.startsWith('http://') || u.startsWith('https://')) {
+      if (u.contains(apiSegment)) {
+        u = u.replaceFirst(apiSegment, '');
+      }
+      return u;
+    }
+
+    var base = ApiUrls.baseUrl;
+    if (base.contains(apiSegment)) {
+      base = base.replaceFirst(apiSegment, '');
+    }
+
+    if (u.startsWith(apiSegment)) {
+      u = u.substring(apiSegment.length);
+    }
+
+    if (!u.startsWith('/')) {
+      u = '/$u';
+    }
+
+    return '$base$u';
+  }
 
   Widget _summaryCard({
     required IconData icon,
@@ -269,7 +299,7 @@ class OldCheckingTab extends StatelessWidget {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(12.r),
                               child: Image.network(
-                                url,
+                                _normalizedMediaUrl(url),
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) =>
                                     const Center(
@@ -291,6 +321,7 @@ class OldCheckingTab extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: data.media.map((url) {
+                      final fullUrl = _normalizedMediaUrl(url);
                       return Container(
                         margin: EdgeInsets.only(bottom: 8.h),
                         padding: EdgeInsets.all(8.sp),
@@ -309,7 +340,7 @@ class OldCheckingTab extends StatelessWidget {
                             SizedBox(width: 8.w),
                             Expanded(
                               child: Text(
-                                'Video: ${url.split('/').last}',
+                                'Video: $fullUrl',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 12.sp,
@@ -378,7 +409,7 @@ class OldCheckingTab extends StatelessWidget {
                     SizedBox(height: 12.h),
                   ],
                 );
-              }).toList(),
+              }),
             ],
           ),
         ),
