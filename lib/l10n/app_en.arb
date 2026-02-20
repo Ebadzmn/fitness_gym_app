@@ -47,7 +47,7 @@
   "dailyGenericTypeHint": "Type...",
   "trainingHistoryAppBarTitle": "Training History",
   "trainingHistoryEmpty": "Please complete a training first. After that, the history will be added.",
-  "coachAddedShortly": "Please wait, the coach will be added shortly.",
+  "coachAddedShortly": "No customized plan has been created for you yet.",
   "trainingSplitAppBarTitle": "Training Split",
   "dailyTrainingSectionTitle": "Training",
   "dailyTrainingCompletedTitle": "Training Completed?",

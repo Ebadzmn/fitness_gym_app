@@ -23,6 +23,7 @@ class WorkoutSessionPage extends StatefulWidget {
 class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
   final Map<int, List<Map<String, TextEditingController>>> _exerciseControllers =
       {};
+  final Map<int, List<Map<String, bool>>> _fieldErrors = {};
   final TextEditingController _noteController = TextEditingController();
 
   @override
@@ -34,6 +35,7 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
         }
       }
     }
+    _fieldErrors.clear();
     _noteController.dispose();
     super.dispose();
   }
@@ -59,19 +61,18 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
       }
 
       _exerciseControllers[i] = List.generate(setsCount, (setIndex) {
-        final setModel =
-            setsDetail.isNotEmpty ? setsDetail[setIndex] : null;
-        final repTemplate = setModel != null
-            ? (setModel.repRange?.toString() ?? '')
-            : (exercise.rep ?? exercise.range ?? '');
-        final rirTemplate = setModel != null
-            ? (setModel.rir?.toString() ?? '')
-            : (exercise.rir ?? '');
-
         return {
           'weight': TextEditingController(),
-          'reps': TextEditingController(text: repTemplate),
-          'rir': TextEditingController(text: rirTemplate),
+          'reps': TextEditingController(),
+          'rir': TextEditingController(),
+        };
+      });
+
+      _fieldErrors[i] = List.generate(setsCount, (_) {
+        return {
+          'weight': false,
+          'reps': false,
+          'rir': false,
         };
       });
     }
@@ -148,6 +149,71 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
       pushData: pushData,
       note: _noteController.text,
     );
+  }
+
+  bool _validateAllFields(List<dynamic> exercises, BuildContext context) {
+    bool hasError = false;
+
+    for (int i = 0; i < exercises.length; i++) {
+      final controllersList = _exerciseControllers[i];
+      if (controllersList == null || controllersList.isEmpty) {
+        hasError = true;
+        continue;
+      }
+
+      final errorList = _fieldErrors[i] ??
+          List.generate(controllersList.length, (_) {
+            return {
+              'weight': false,
+              'reps': false,
+              'rir': false,
+            };
+          });
+
+      if (errorList.length != controllersList.length) {
+        _fieldErrors[i] = List.generate(controllersList.length, (_) {
+          return {
+            'weight': false,
+            'reps': false,
+            'rir': false,
+          };
+        });
+      }
+
+      for (int s = 0; s < controllersList.length; s++) {
+        final map = controllersList[s];
+        final errorsForSet = _fieldErrors[i]![s];
+
+        final weight = map['weight']?.text.trim() ?? '';
+        final reps = map['reps']?.text.trim() ?? '';
+        final rir = map['rir']?.text.trim() ?? '';
+
+        final weightError = weight.isEmpty;
+        final repsError = reps.isEmpty;
+        final rirError = rir.isEmpty;
+
+        errorsForSet['weight'] = weightError;
+        errorsForSet['reps'] = repsError;
+        errorsForSet['rir'] = rirError;
+
+        if (weightError || repsError || rirError) {
+          hasError = true;
+        }
+      }
+    }
+
+    if (hasError) {
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please complete all sets before submitting.'),
+        ),
+      );
+      return false;
+    }
+
+    setState(() {});
+    return true;
   }
 
   @override
@@ -279,6 +345,8 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
                                             index: index + 1,
                                             controllers:
                                                 _exerciseControllers[index]!,
+                                            errorFlags:
+                                                _fieldErrors[index] ?? const [],
                                           ),
 
                                           if (index ==
@@ -290,6 +358,13 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
                                             SizedBox(height: 24.h),
                                             _BottomButtons(
                                               onComplete: () {
+                                                final isValid = _validateAllFields(
+                                                  exercises,
+                                                  context,
+                                                );
+                                                if (!isValid) {
+                                                  return;
+                                                }
                                                 final duration = context
                                                     .read<WorkoutTimerCubit>()
                                                     .state
@@ -425,11 +500,13 @@ class _ExerciseRow extends StatefulWidget {
   final dynamic exercise;
   final int index;
   final List<Map<String, TextEditingController>> controllers;
+  final List<Map<String, bool>> errorFlags;
 
   const _ExerciseRow({
     required this.exercise,
     required this.index,
     required this.controllers,
+    required this.errorFlags,
   });
 
   @override
@@ -556,10 +633,22 @@ class _ExerciseRowState extends State<_ExerciseRow> {
                         (widget.exercise.exerciseSets as List?) ?? const [];
                     final setModel =
                         setsDetail.length > index ? setsDetail[index] : null;
-                    final setLabel = setModel != null &&
-                            (setModel.sets?.toString().isNotEmpty ?? false)
+                    final setLabel = setModel != null
                         ? setModel.sets.toString()
                         : '${index + 1}';
+                    final repsHint = setModel != null
+                        ? setModel.repRange.toString()
+                        : (widget.exercise.range ?? '');
+                    final rirHint = setModel != null
+                        ? setModel.rir.toString()
+                        : (widget.exercise.rir ?? '');
+
+                    final errorList = widget.errorFlags;
+                    final errorMap =
+                        errorList.length > index ? errorList[index] : const {};
+                    final weightError = errorMap['weight'] ?? false;
+                    final repsError = errorMap['reps'] ?? false;
+                    final rirError = errorMap['rir'] ?? false;
 
                     return Padding(
                       padding: EdgeInsets.symmetric(vertical: 4.h),
@@ -577,21 +666,21 @@ class _ExerciseRowState extends State<_ExerciseRow> {
                           ),
                           SizedBox(width: 8.w),
                           _inputBox(
-                            '',
                             setControllers['weight'],
-                            isEditable: true,
+                            hintText: '',
+                            isError: weightError,
                           ),
                           SizedBox(width: 8.w),
                           _inputBox(
-                            '',
                             setControllers['reps'],
-                            isEditable: true,
+                            hintText: repsHint,
+                            isError: repsError,
                           ),
                           SizedBox(width: 8.w),
                           _inputBox(
-                            '',
                             setControllers['rir'],
-                            isEditable: true,
+                            hintText: rirHint,
+                            isError: rirError,
                           ),
                         ],
                       ),
@@ -607,10 +696,9 @@ class _ExerciseRowState extends State<_ExerciseRow> {
   }
 
   Widget _inputBox(
-    String label,
     TextEditingController? controller, {
-    String value = '',
-    bool isEditable = false,
+    String hintText = '',
+    bool isError = false,
   }) {
     return Expanded(
       child: Container(
@@ -618,47 +706,28 @@ class _ExerciseRowState extends State<_ExerciseRow> {
         decoration: BoxDecoration(
           color: const Color(0XFF101021),
           borderRadius: BorderRadius.circular(8.r),
-          border: Border.all(color: const Color(0xFF2E2E5D)),
+          border: Border.all(
+            color: isError ? Colors.red : const Color(0xFF2E2E5D),
+          ),
         ),
-        child: isEditable
-            ? TextFormField(
-                controller: controller,
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-                decoration: InputDecoration(
-                  labelText: label,
-                  labelStyle: GoogleFonts.poppins(
-                    color: Colors.white70,
-                    fontSize: 10.sp,
-                  ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 8.w),
-                  border: InputBorder.none,
-                ),
-                keyboardType: TextInputType.number,
-              )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    label,
-                    style: GoogleFonts.poppins(
-                      color: Colors.white70,
-                      fontSize: 10.sp,
-                    ),
-                  ),
-                  Text(
-                    value,
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+        child: TextFormField(
+          controller: controller,
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w600,
+          ),
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: GoogleFonts.poppins(
+              color: Colors.white38,
+              fontSize: 10.sp,
+            ),
+            contentPadding: EdgeInsets.symmetric(horizontal: 8.w),
+            border: InputBorder.none,
+          ),
+          keyboardType: TextInputType.number,
+        ),
       ),
     );
   }

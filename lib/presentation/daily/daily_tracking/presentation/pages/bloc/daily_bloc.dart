@@ -170,37 +170,6 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
   ) async {
     final data = state.data;
     if (data == null) return;
-    final t = data.training;
-    if (t.cardioCompleted) {
-      final durOk = RegExp(r'^[0-9]+$').hasMatch(t.duration.trim());
-      if (!durOk || t.duration.trim().isEmpty) {
-        emit(
-          state.copyWith(
-            status: DailyStatus.error,
-            errorMessage: 'Please enter cardio duration (minutes) as a number',
-          ),
-        );
-        return;
-      }
-      if (t.cardioType.trim().isEmpty) {
-        emit(
-          state.copyWith(
-            status: DailyStatus.error,
-            errorMessage: 'Please select a cardio type',
-          ),
-        );
-        return;
-      }
-      if (t.intensity < 1 || t.intensity > 10) {
-        emit(
-          state.copyWith(
-            status: DailyStatus.error,
-            errorMessage: 'Cardio intensity must be between 1 and 10',
-          ),
-        );
-        return;
-      }
-    }
     emit(state.copyWith(status: DailyStatus.saving));
     try {
       await saveDaily(data);

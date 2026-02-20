@@ -153,7 +153,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get trainingHistoryEmpty => 'Please complete a training first. After that, the history will be added.';
 
   @override
-  String get coachAddedShortly => 'Please wait, the coach will be added shortly.';
+  String get coachAddedShortly =>
+      'No customized plan has been created for you yet.';
 
   @override
   String get trainingSplitAppBarTitle => 'Training Split';
