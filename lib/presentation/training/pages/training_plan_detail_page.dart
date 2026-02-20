@@ -71,55 +71,43 @@ class _PlanDetailContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final exercises = plan.exercises;
+    final exerciseCount = exercises.length;
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: EdgeInsets.all(16.w),
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: const Color(0xFF13131F), // Dark card background
-              borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(color: const Color(0xFF2E2E5D)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  plan.title,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                Text(
-                  plan.subtitle,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white70,
-                    fontSize: 14.sp,
-                  ),
-                ),
-                SizedBox(height: 20.h),
-                if (plan.exercises.isEmpty)
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20.h),
-                    child: Center(
-                      child: Text(
-                        "No exercises in this plan",
-                        style: GoogleFonts.poppins(color: Colors.white54),
+          _PlanHeaderCard(
+            plan: plan,
+            exerciseCount: exerciseCount,
+          ),
+          SizedBox(height: 16.h),
+          Expanded(
+            child: exerciseCount == 0
+                ? Center(
+                    child: Text(
+                      'No exercises found for this training plan.',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white54,
+                        fontSize: 14.sp,
                       ),
+                      textAlign: TextAlign.center,
                     ),
                   )
-                else
-                  ...plan.exercises.map((e) => _ExerciseItem(exercise: e)),
-              ],
-            ),
+                : ListView.builder(
+                    itemCount: exerciseCount,
+                    padding: EdgeInsets.only(top: 4.h, bottom: 4.h),
+                    itemBuilder: (context, index) {
+                      final exercise = exercises[index];
+                      return _ExerciseCard(
+                        index: index,
+                        exercise: exercise,
+                      );
+                    },
+                  ),
           ),
-          const Spacer(),
+          SizedBox(height: 12.h),
           SizedBox(
             width: double.infinity,
             height: 50.h,
@@ -128,14 +116,14 @@ class _PlanDetailContent extends StatelessWidget {
                 context.push(AppRoutes.WorkoutSessionPage, extra: plan.id);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F123B), // Dark blue button
+                backgroundColor: const Color(0xFF0F123B),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
                   side: BorderSide(color: const Color(0xFF2E2E8D)),
                 ),
               ),
               child: Text(
-                'Workout Beginner',
+                'Start Workout',
                 style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 16.sp,
@@ -151,57 +139,219 @@ class _PlanDetailContent extends StatelessWidget {
   }
 }
 
-class _ExerciseItem extends StatelessWidget {
-  final TrainingPlanExerciseEntity exercise;
+class _PlanHeaderCard extends StatelessWidget {
+  final TrainingPlanEntity plan;
+  final int exerciseCount;
 
-  const _ExerciseItem({required this.exercise});
+  const _PlanHeaderCard({
+    required this.plan,
+    required this.exerciseCount,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 16.h),
-      child: Row(
+    final difficulty = (plan.difficulty ?? '').trim();
+    final coachComment = (plan.comment ?? '').trim().isNotEmpty
+        ? (plan.comment ?? '').trim()
+        : plan.subtitle.trim();
+
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0xFF13131F),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: const Color(0xFF2E2E5D)),
+      ),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            radius: 16.r,
-            backgroundColor: const Color(0xFFEFA9A9), // Light Pink color
-            child: Text(
-              exercise.name.isNotEmpty
-                  ? exercise.name.substring(0, 1).toUpperCase()
-                  : '?',
-              style: TextStyle(
-                color: Colors.black54,
-                fontSize: 14.sp,
-                fontWeight: FontWeight.bold,
-              ),
+          Text(
+            plan.title,
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${exercise.sets} x ${exercise.name}',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
+          SizedBox(height: 8.h),
+          if (difficulty.isNotEmpty)
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E2538),
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: Text(
+                difficulty,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w500,
                 ),
-                SizedBox(height: 4.h),
-                Text(
-                  exercise.muscle ?? '',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white70,
-                    fontSize: 12.sp,
-                  ),
-                ),
-              ],
+              ),
+            ),
+          if (difficulty.isNotEmpty) SizedBox(height: 12.h),
+          if (coachComment.isNotEmpty)
+            Text(
+              coachComment,
+              style: GoogleFonts.poppins(
+                color: Colors.white70,
+                fontSize: 14.sp,
+              ),
+            ),
+          SizedBox(height: 12.h),
+          Text(
+            '$exerciseCount Exercise${exerciseCount == 1 ? '' : 's'}',
+            style: GoogleFonts.poppins(
+              color: Colors.white70,
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ExerciseCard extends StatelessWidget {
+  final TrainingPlanExerciseEntity exercise;
+  final int index;
+
+  const _ExerciseCard({
+    required this.exercise,
+    required this.index,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final setsDetail = exercise.exerciseSets;
+    final subtitleText = (exercise.comment ?? '').trim().isNotEmpty
+        ? exercise.comment!.trim()
+        : (exercise.muscle ?? '').trim();
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: 16.h),
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF13131F),
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(color: const Color(0xFF2E2E5D)),
+        ),
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            dividerColor: Colors.transparent,
+          ),
+          child: ExpansionTile(
+            tilePadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+            iconColor: Colors.white,
+            collapsedIconColor: Colors.white,
+            leading: CircleAvatar(
+              radius: 16.r,
+              backgroundColor: const Color(0xFFEFA9A9),
+              child: Text(
+                exercise.name.isNotEmpty
+                    ? exercise.name.substring(0, 1).toUpperCase()
+                    : '?',
+                style: TextStyle(
+                  color: Colors.black54,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            title: Text(
+              exercise.name,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            subtitle: subtitleText.isNotEmpty
+                ? Text(
+                    subtitleText,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white70,
+                      fontSize: 12.sp,
+                    ),
+                  )
+                : null,
+            childrenPadding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Set    Reps    RIR',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white70,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              SizedBox(height: 8.h),
+              if (setsDetail.isEmpty)
+                Text(
+                  'No sets defined for this exercise.',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white54,
+                    fontSize: 12.sp,
+                  ),
+                )
+              else
+                Column(
+                  children: List.generate(setsDetail.length, (index) {
+                    final setGroup = setsDetail[index];
+                    return Padding(
+                      padding: EdgeInsets.symmetric(vertical: 4.h),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                            width: 40.w,
+                            child: Text(
+                              setGroup.sets.isNotEmpty
+                                  ? setGroup.sets
+                                  : '${index + 1}',
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 12.sp,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              setGroup.repRange.isNotEmpty
+                                  ? setGroup.repRange
+                                  : '-',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 12.sp,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 40.w,
+                            child: Text(
+                              setGroup.rir.isNotEmpty ? setGroup.rir : '-',
+                              textAlign: TextAlign.right,
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 12.sp,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

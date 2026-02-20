@@ -1,3 +1,15 @@
+class TrainingPlanExerciseSetEntity {
+  final String sets;
+  final String repRange;
+  final String rir;
+
+  const TrainingPlanExerciseSetEntity({
+    required this.sets,
+    required this.repRange,
+    required this.rir,
+  });
+}
+
 class TrainingPlanExerciseEntity {
   final String name;
   final String? muscle;
@@ -7,6 +19,7 @@ class TrainingPlanExerciseEntity {
   final String? comment;
   final String? type; // e.g., "Machine", "Cable"
   final String? rir;
+  final List<TrainingPlanExerciseSetEntity> exerciseSets;
 
   const TrainingPlanExerciseEntity({
     required this.name,
@@ -17,6 +30,7 @@ class TrainingPlanExerciseEntity {
     this.comment,
     this.type,
     this.rir,
+    this.exerciseSets = const [],
   });
 }
 
@@ -27,6 +41,7 @@ class TrainingPlanEntity {
   final String date; // createdAt
   final String? difficulty; // dificulty
   final String? type;
+  final String? comment;
   final List<TrainingPlanExerciseEntity> exercises;
 
   const TrainingPlanEntity({
@@ -36,6 +51,7 @@ class TrainingPlanEntity {
     required this.date,
     this.difficulty,
     this.type,
+    this.comment,
     this.exercises = const [],
   });
 }

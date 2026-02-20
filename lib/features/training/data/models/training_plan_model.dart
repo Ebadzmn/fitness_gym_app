@@ -8,6 +8,7 @@ class TrainingPlanModel extends TrainingPlanEntity {
     required super.date,
     super.difficulty,
     super.type,
+    super.comment,
     super.exercises,
   });
 
@@ -34,6 +35,7 @@ class TrainingPlanModel extends TrainingPlanEntity {
       difficulty:
           json['dificulty']?.toString() ?? json['difficulty']?.toString(),
       type: json['type']?.toString(),
+      comment: json['comment']?.toString(),
       exercises: exercises,
     );
   }
@@ -49,35 +51,64 @@ class TrainingPlanExerciseModel extends TrainingPlanExerciseEntity {
     super.comment,
     super.type,
     super.rir,
+    super.exerciseSets,
   });
 
   factory TrainingPlanExerciseModel.fromJson(Map<String, dynamic> json) {
     // Handle exerciseSets array if present
-    String? sets;
+    final List<TrainingPlanExerciseSetEntity> setsEntities =
+        (json['exerciseSets'] as List<dynamic>?)
+                ?.whereType<Map<String, dynamic>>()
+                .map(TrainingPlanExerciseSetModel.fromJson)
+                .toList() ??
+            const [];
+
+    String setsValue;
     String? range;
     String? rir;
-    
-    if (json['exerciseSets'] != null && json['exerciseSets'] is List) {
-      final exerciseSets = json['exerciseSets'] as List<dynamic>;
-      if (exerciseSets.isNotEmpty) {
-        final firstSet = exerciseSets[0] as Map<String, dynamic>;
-        sets = firstSet['sets']?.toString();
-        range = firstSet['repRange']?.toString();
-        rir = firstSet['rir']?.toString();
-      }
+
+    if (setsEntities.isNotEmpty) {
+      final totalSets = setsEntities
+          .map((e) => int.tryParse(e.sets) ?? 0)
+          .fold<int>(0, (a, b) => a + b);
+      setsValue = (totalSets > 0 ? totalSets : 0).toString();
+      final first = setsEntities.first;
+      range = first.repRange;
+      rir = first.rir;
+    } else {
+      setsValue = json['sets']?.toString() ?? '0';
+      range = (json['repRange'] ?? json['range'])?.toString();
+      rir = json['rir']?.toString();
     }
-    
+
     return TrainingPlanExerciseModel(
       name:
           (json['exerciseName'] ?? json['name'])?.toString() ??
           'Unknown Exercise',
-      sets: sets ?? json['sets']?.toString() ?? '0',
+      sets: setsValue,
       rep: (json['rep'] ?? json['reps'])?.toString(),
-      range: range ?? (json['repRange'] ?? json['range'])?.toString(),
+      range: range,
       comment: (json['excerciseNote'] ?? json['comment'])?.toString(),
       muscle: json['muscle']?.toString(),
       type: json['type']?.toString(),
       rir: rir ?? json['rir']?.toString(),
+      exerciseSets: setsEntities,
+    );
+  }
+}
+
+class TrainingPlanExerciseSetModel extends TrainingPlanExerciseSetEntity {
+  const TrainingPlanExerciseSetModel({
+    required super.sets,
+    required super.repRange,
+    required super.rir,
+  });
+
+  factory TrainingPlanExerciseSetModel.fromJson(Map<String, dynamic> json) {
+    return TrainingPlanExerciseSetModel(
+      sets: json['sets']?.toString() ?? '1',
+      repRange: json['repRange']?.toString() ?? '',
+      rir: json['rir']?.toString() ?? '',
     );
   }
 }

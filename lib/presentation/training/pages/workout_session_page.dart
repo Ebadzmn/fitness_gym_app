@@ -21,14 +21,18 @@ class WorkoutSessionPage extends StatefulWidget {
 }
 
 class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
-  // Map to store controllers for each exercise: index -> { 'weight': c, 'reps': c, 'rir': c }
-  final Map<int, Map<String, TextEditingController>> _exerciseControllers = {};
+  final Map<int, List<Map<String, TextEditingController>>> _exerciseControllers =
+      {};
   final TextEditingController _noteController = TextEditingController();
 
   @override
   void dispose() {
-    for (var controllers in _exerciseControllers.values) {
-      controllers.values.forEach((c) => c.dispose());
+    for (var list in _exerciseControllers.values) {
+      for (var controllers in list) {
+        for (var c in controllers.values) {
+          c.dispose();
+        }
+      }
     }
     _noteController.dispose();
     super.dispose();
@@ -36,16 +40,40 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
 
   void _initializeControllers(List<dynamic> exercises) {
     for (int i = 0; i < exercises.length; i++) {
-      if (!_exerciseControllers.containsKey(i)) {
-        final exercise = exercises[i];
-        _exerciseControllers[i] = {
-          'weight': TextEditingController(),
-          'reps': TextEditingController(
-            text: exercise.rep ?? exercise.range ?? '',
-          ),
-          'rir': TextEditingController(text: exercise.rir ?? ''),
-        };
+      final exercise = exercises[i];
+      final setsDetail = (exercise.exerciseSets as List?) ?? const [];
+      final setsCount = setsDetail.isNotEmpty ? setsDetail.length : 1;
+
+      final existing = _exerciseControllers[i];
+      if (existing != null && existing.length == setsCount) {
+        continue;
       }
+
+      final oldList = _exerciseControllers[i];
+      if (oldList != null) {
+        for (var map in oldList) {
+          for (var c in map.values) {
+            c.dispose();
+          }
+        }
+      }
+
+      _exerciseControllers[i] = List.generate(setsCount, (setIndex) {
+        final setModel =
+            setsDetail.isNotEmpty ? setsDetail[setIndex] : null;
+        final repTemplate = setModel != null
+            ? (setModel.repRange?.toString() ?? '')
+            : (exercise.rep ?? exercise.range ?? '');
+        final rirTemplate = setModel != null
+            ? (setModel.rir?.toString() ?? '')
+            : (exercise.rir ?? '');
+
+        return {
+          'weight': TextEditingController(),
+          'reps': TextEditingController(text: repTemplate),
+          'rir': TextEditingController(text: rirTemplate),
+        };
+      });
     }
   }
 
@@ -54,36 +82,60 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
     final exercises = plan.exercises;
 
     for (int i = 0; i < exercises.length; i++) {
-      final controllers = _exerciseControllers[i];
-      if (controllers != null) {
-        // Parse values. If empty, maybe defaults? Or strict parsing?
-        // User request JSON had numbers for weight/set/reps? No, "repRange", "rir" are strings. "weight" is number. "set" is number.
-        final weight = num.tryParse(controllers['weight']?.text ?? '0') ?? 0;
+      final exercise = exercises[i];
+      final setsDetail = (exercise.exerciseSets as List?) ?? const [];
+      final controllersList = _exerciseControllers[i];
+
+      if (controllersList == null || controllersList.isEmpty) {
+        continue;
+      }
+
+      if (setsDetail.isEmpty) {
+        final controllers = controllersList.first;
+        final weight =
+            num.tryParse(controllers['weight']?.text ?? '0') ?? 0;
         final repRange = controllers['reps']?.text ?? '';
         final rir = controllers['rir']?.text ?? '';
-
-        // Note: 'set' in PushData seems to be 'sets' count? Or the set number?
-        // JSON example showed "set": 4. And it was inside an array.
-        // Assuming it matches the plan's set count.
-        // The plan entity has 'sets' as String "4 Sets" or "2 X". Need to parse or just use 0.
-        // Let's use 0 or try to parse the string "4 Sets".
-        int set = 0;
-        final setsStr = exercises[i].sets ?? '';
-        final setsMatch = RegExp(r'\d+').firstMatch(setsStr);
-        if (setsMatch != null) {
-          set = int.tryParse(setsMatch.group(0)!) ?? 0;
-        }
 
         pushData.add(
           PushData(
             weight: weight,
-            repRange:
-                repRange, // Using 'repRange' field for user-entered Reps as per usage
+            repRange: repRange,
             rir: rir,
-            set: set,
-            exerciseName: exercises[i].name,
+            set: 1,
+            exerciseName: exercise.name,
           ),
         );
+      } else {
+        final count = setsDetail.length;
+        for (int s = 0; s < count; s++) {
+          final controllers = controllersList.length > s
+              ? controllersList[s]
+              : controllersList.last;
+          final setModel = setsDetail[s];
+          final weight =
+              num.tryParse(controllers['weight']?.text ?? '0') ?? 0;
+          final userRep = controllers['reps']?.text ?? '';
+          final userRir = controllers['rir']?.text ?? '';
+          final repRange = userRep.isNotEmpty
+              ? userRep
+              : (setModel.repRange?.toString() ?? '');
+          final rir = userRir.isNotEmpty
+              ? userRir
+              : (setModel.rir?.toString() ?? '');
+          final setNumber =
+              int.tryParse(setModel.sets?.toString() ?? '') ?? (s + 1);
+
+          pushData.add(
+            PushData(
+              weight: weight,
+              repRange: repRange,
+              rir: rir,
+              set: setNumber,
+              exerciseName: exercise.name,
+            ),
+          );
+        }
       }
     }
 
@@ -372,7 +424,7 @@ class _TimerSection extends StatelessWidget {
 class _ExerciseRow extends StatefulWidget {
   final dynamic exercise;
   final int index;
-  final Map<String, TextEditingController> controllers;
+  final List<Map<String, TextEditingController>> controllers;
 
   const _ExerciseRow({
     required this.exercise,
@@ -426,52 +478,128 @@ class _ExerciseRowState extends State<_ExerciseRow> {
             ],
           ),
           SizedBox(height: 8.h),
-          Row(
-            children: [
-              // Badge showing Range
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
-                decoration: BoxDecoration(
-                  color: isCompleted
-                      ? const Color(0x4D2E5B24)
-                      : const Color(0xFF1A1A2E),
-                  borderRadius: BorderRadius.circular(20.r),
-                  border: Border.all(color: const Color(0xFF2E5B24)),
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 4.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 40.w,
+                      child: Text(
+                        'Set',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white70,
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        'Weight',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white70,
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        'Reps',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white70,
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        'RIR',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white70,
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isCompleted = !isCompleted;
+                        });
+                      },
+                      child: Icon(
+                        isCompleted
+                            ? Icons.check_circle
+                            : Icons.check_circle_outline,
+                        color: isCompleted
+                            ? const Color(0xFF4CAF50)
+                            : Colors.white24,
+                        size: 22.sp,
+                      ),
+                    ),
+                  ],
                 ),
-                child: Text(
-                  '${widget.exercise.range ?? '8-10'} WDH',
-                  style: GoogleFonts.poppins(
-                    color: const Color(0xFF4CAF50),
+                SizedBox(height: 8.h),
+                Column(
+                  children: List.generate(widget.controllers.length, (index) {
+                    final setControllers = widget.controllers[index];
+                    final setsDetail =
+                        (widget.exercise.exerciseSets as List?) ?? const [];
+                    final setModel =
+                        setsDetail.length > index ? setsDetail[index] : null;
+                    final setLabel = setModel != null &&
+                            (setModel.sets?.toString().isNotEmpty ?? false)
+                        ? setModel.sets.toString()
+                        : '${index + 1}';
 
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
+                    return Padding(
+                      padding: EdgeInsets.symmetric(vertical: 4.h),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 40.w,
+                            child: Text(
+                              setLabel,
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 12.sp,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 8.w),
+                          _inputBox(
+                            '',
+                            setControllers['weight'],
+                            isEditable: true,
+                          ),
+                          SizedBox(width: 8.w),
+                          _inputBox(
+                            '',
+                            setControllers['reps'],
+                            isEditable: true,
+                          ),
+                          SizedBox(width: 8.w),
+                          _inputBox(
+                            '',
+                            setControllers['rir'],
+                            isEditable: true,
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
                 ),
-              ),
-              SizedBox(width: 8.w),
-              _inputBox(
-                'Weight',
-                widget.controllers['weight'],
-                isEditable: true,
-              ),
-              SizedBox(width: 8.w),
-              _inputBox('Reps', widget.controllers['reps'], isEditable: true),
-              SizedBox(width: 8.w),
-              _inputBox('RIR', widget.controllers['rir'], isEditable: true),
-              SizedBox(width: 8.w),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    isCompleted = !isCompleted;
-                  });
-                },
-                child: Icon(
-                  isCompleted ? Icons.check_circle : Icons.check_circle_outline,
-                  color: isCompleted ? const Color(0xFF4CAF50) : Colors.white24,
-                  size: 26.sp,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
