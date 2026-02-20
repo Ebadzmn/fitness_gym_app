@@ -280,16 +280,46 @@ class _ExerciseCard extends StatelessWidget {
                 : null,
             childrenPadding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Set    Reps    RIR',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white70,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
+              Row(
+                children: [
+                  SizedBox(
+                    width: 40.w,
+                    child: Text(
+                      'Set',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white70,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                ),
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: Text(
+                      'Reps',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white70,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  SizedBox(
+                    width: 40.w,
+                    child: Text(
+                      'RIR',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white70,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 8.h),
               if (setsDetail.isEmpty)
@@ -319,8 +349,10 @@ class _ExerciseCard extends StatelessWidget {
                                 color: Colors.white,
                                 fontSize: 12.sp,
                               ),
+                              textAlign: TextAlign.center,
                             ),
                           ),
+                          SizedBox(width: 8.w),
                           Expanded(
                             child: Text(
                               setGroup.repRange.isNotEmpty
@@ -333,11 +365,12 @@ class _ExerciseCard extends StatelessWidget {
                               ),
                             ),
                           ),
+                          SizedBox(width: 8.w),
                           SizedBox(
                             width: 40.w,
                             child: Text(
                               setGroup.rir.isNotEmpty ? setGroup.rir : '-',
-                              textAlign: TextAlign.right,
+                              textAlign: TextAlign.center,
                               style: GoogleFonts.poppins(
                                 color: Colors.white,
                                 fontSize: 12.sp,
