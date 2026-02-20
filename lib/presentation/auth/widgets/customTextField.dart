@@ -7,6 +7,7 @@ class CustomTextField extends StatelessWidget {
   final bool isPassword;
   final TextEditingController? controller;
   final Widget? suffixIcon;
+  final String? Function(String?)? validator;
 
   const CustomTextField({
     super.key,
@@ -16,6 +17,7 @@ class CustomTextField extends StatelessWidget {
     this.isPassword = false,
     this.controller,
     this.suffixIcon,
+    this.validator,
   });
 
   @override
@@ -33,25 +35,25 @@ class CustomTextField extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8), // লেবেল এবং ইনপুটের মাঝের গ্যাপ
-        
         // টেক্সট ফিল্ড
-        TextField(
+        TextFormField(
           controller: controller,
           obscureText: isPassword,
-          style: const TextStyle(color: Colors.white), // টাইপ করা টেক্সটের কালার
+          validator: validator,
+          style: const TextStyle(
+            color: Colors.white,
+          ), // টাইপ করা টেক্সটের কালার
           decoration: InputDecoration(
             filled: true,
-            fillColor: const Color(0xFF101020), // টেক্সটফিল্ডের ব্যাকগ্রাউন্ড কালার (ডার্ক)
+            fillColor: const Color(
+              0xFF101020,
+            ), // টেক্সটফিল্ডের ব্যাকগ্রাউন্ড কালার (ডার্ক)
             hintText: hintText,
             hintStyle: TextStyle(color: Colors.white, fontSize: 14),
-            
+
             // বাম পাশের আইকন
-            prefixIcon: Icon(
-              prefixIcon,
-              color: Colors.grey[500],
-              size: 20,
-            ),
-            
+            prefixIcon: Icon(prefixIcon, color: Colors.grey[500], size: 20),
+
             // ডান পাশের আইকন (পাসওয়ার্ডের চোখের আইকনের জন্য)
             suffixIcon: suffixIcon,
 
@@ -63,7 +65,17 @@ class CustomTextField extends StatelessWidget {
             ),
             focusedBorder: const OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(12)),
-              borderSide: BorderSide(color: Colors.blueAccent), // ফোকাস করলে বর্ডার কালার
+              borderSide: BorderSide(
+                color: Colors.blueAccent,
+              ), // ফোকাস করলে বর্ডার কালার
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red),
             ),
           ),
         ),

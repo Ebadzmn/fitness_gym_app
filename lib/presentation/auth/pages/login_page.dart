@@ -23,6 +23,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
 
   @override
@@ -49,92 +50,118 @@ class _LoginPageState extends State<LoginPage> {
           return SingleChildScrollView(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 32.h),
-              child: Column(
-                children: [
-                  SizedBox(height: 10.h),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    SizedBox(height: 10.h),
 
-                  CustomAppBar(title: AppLocalizations.of(context)!.loginAppBarTitle),
+                    CustomAppBar(
+                      title: AppLocalizations.of(context)!.loginAppBarTitle,
+                    ),
 
-                  SizedBox(height: 70.h),
+                    SizedBox(height: 70.h),
 
-                  Text(
-                    AppLocalizations.of(context)!.loginHeadline,
-                    style: AppTextStyle.authHeading1,
-                    textAlign: TextAlign.center,
-                  ),
+                    Text(
+                      AppLocalizations.of(context)!.loginHeadline,
+                      style: AppTextStyle.authHeading1,
+                      textAlign: TextAlign.center,
+                    ),
 
-                  SizedBox(height: 11.h),
+                    SizedBox(height: 11.h),
 
-                  SizedBox(height: 52.h),
+                    SizedBox(height: 52.h),
 
-                  CustomTextField(
-                    controller: emailController,
-                    hintText: AppLocalizations.of(context)!.loginEmailHint,
-                    label: AppLocalizations.of(context)!.loginEmailLabel,
-                    prefixIcon: Icons.email,
-                  ),
-
-                  SizedBox(height: 24.h),
-
-                  CustomTextField(
-                    controller: passwordController,
-                    hintText: AppLocalizations.of(context)!.loginPasswordHint,
-                    label: AppLocalizations.of(context)!.loginPasswordLabel,
-                    prefixIcon: Icons.lock,
-                    isPassword: _obscurePassword,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                        color: Colors.grey,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
+                    CustomTextField(
+                      controller: emailController,
+                      hintText: AppLocalizations.of(context)!.loginEmailHint,
+                      label: AppLocalizations.of(context)!.loginEmailLabel,
+                      prefixIcon: Icons.email,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!RegExp(
+                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                        ).hasMatch(value)) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
                       },
                     ),
-                  ),
 
-                  SizedBox(height: 24.h),
+                    SizedBox(height: 24.h),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          context.push(AppRoutes.forgetPassPage);
-                        },
-                        child: Text(
-                          AppLocalizations.of(context)!.loginForgotPassword,
-                          style: AppTextStyle.authHeading3,
-                          textAlign: TextAlign.right,
+                    CustomTextField(
+                      controller: passwordController,
+                      hintText: AppLocalizations.of(context)!.loginPasswordHint,
+                      label: AppLocalizations.of(context)!.loginPasswordLabel,
+                      prefixIcon: Icons.lock,
+                      isPassword: _obscurePassword,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        return null;
+                      },
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: Colors.grey,
                         ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
                       ),
-                    ],
-                  ),
+                    ),
 
-                  SizedBox(height: 24.h),
+                    SizedBox(height: 24.h),
 
-                  state is AuthLoading
-                      ? const CircularProgressIndicator()
-                      : Column(
-                          children: [
-                            CustomButton(
-                              text: AppLocalizations.of(context)!.loginButton,
-                              onPressed: () {
-                                context.read<AuthBloc>().add(
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            context.push(AppRoutes.forgetPassPage);
+                          },
+                          child: Text(
+                            AppLocalizations.of(context)!.loginForgotPassword,
+                            style: AppTextStyle.authHeading3,
+                            textAlign: TextAlign.right,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 24.h),
+
+                    state is AuthLoading
+                        ? const CircularProgressIndicator()
+                        : Column(
+                            children: [
+                              CustomButton(
+                                text: AppLocalizations.of(context)!.loginButton,
+                                onPressed: () {
+                                  if (_formKey.currentState!.validate()) {
+                                    context.read<AuthBloc>().add(
                                       LoginRequested(
                                         email: emailController.text,
                                         password: passwordController.text,
                                       ),
                                     );
-                              },
-                            ),
-                            SizedBox(height: 16.h),
-                            _LanguageToggleButton(),
-                          ],
-                        ),
-                ],
+                                  }
+                                },
+                              ),
+                              SizedBox(height: 16.h),
+                              _LanguageToggleButton(),
+                            ],
+                          ),
+                  ],
+                ),
               ),
             ),
           );
@@ -166,17 +193,11 @@ class _LanguageToggleButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.language,
-              size: 18,
-            ),
+            const Icon(Icons.language, size: 18),
             const SizedBox(width: 6),
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ],
         ),
