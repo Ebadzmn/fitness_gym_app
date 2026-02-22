@@ -147,17 +147,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String get dailyGenericTypeHint => 'Eingeben...';
 
   @override
-  String get trainingHistoryAppBarTitle => 'Training History';
+  String get trainingHistoryAppBarTitle => 'Training-Verlauf';
 
   @override
-  String get trainingHistoryEmpty => 'Please complete a training first. After that, the history will be added.';
+  String get trainingHistoryEmpty =>
+      'Bitte zuerst ein Training abschließen. Danach wird der Verlauf hinzugefügt.';
 
   @override
   String get coachAddedShortly =>
-      'No customized plan has been created for you yet.';
+      'Es wurde noch kein individueller Plan für dich erstellt.';
 
   @override
-  String get trainingSplitAppBarTitle => 'Training Split';
+  String get trainingSplitAppBarTitle => 'Trainings-Split';
 
   @override
   String get dailyTrainingSectionTitle => 'Training';
@@ -294,123 +295,123 @@ class AppLocalizationsDe extends AppLocalizations {
   String get trainingExerciseGenericError => 'Error loading items';
 
   @override
-  String get nutritionFoodItemsCategoryAll => 'All';
+  String get nutritionFoodItemsCategoryAll => 'Alle';
 
   @override
   String get nutritionFoodItemsCategoryProtein => 'Protein';
 
   @override
-  String get nutritionFoodItemsCategoryCarbs => 'Carbs';
+  String get nutritionFoodItemsCategoryCarbs => 'Kohlenhydrate';
 
   @override
-  String get nutritionFoodItemsCategoryFats => 'Fats';
+  String get nutritionFoodItemsCategoryFats => 'Fette';
 
   @override
-  String get nutritionFoodItemsCategoryFruits => 'Fruits';
+  String get nutritionFoodItemsCategoryFruits => 'Obst';
 
   @override
-  String get nutritionFoodItemsCategorySupplements => 'Supplements';
+  String get nutritionFoodItemsCategorySupplements => 'Supplemente';
 
   @override
-  String get nutritionFoodItemsCategoryVegetables => 'Vegetables';
+  String get nutritionFoodItemsCategoryVegetables => 'Gemüse';
 
   @override
   String nutritionFoodItemsEnergyLabel(String quantity) {
-    return 'Energy ($quantity)';
+    return 'Energie ($quantity)';
   }
 
   @override
-  String get nutritionFoodItemsSatFatsLabel => 'Sat. Fats';
+  String get nutritionFoodItemsSatFatsLabel => 'Ges. Fette';
 
   @override
-  String get nutritionFoodItemsUnsatFatsLabel => 'Unsat. Fats';
+  String get nutritionFoodItemsUnsatFatsLabel => 'Unges. Fette';
 
   @override
-  String get nutritionFoodItemsSugarLabel => 'Sugar';
+  String get nutritionFoodItemsSugarLabel => 'Zucker';
 
   @override
-  String get trainingExerciseAppBarTitle => 'Exercises';
+  String get trainingExerciseAppBarTitle => 'Übungen';
 
   @override
-  String get trainingExerciseSearchHint => 'Search exercises...';
+  String get trainingExerciseSearchHint => 'Übungen suchen...';
 
   @override
   String get trainingAppBarTitle => 'Training';
 
   @override
-  String get trainingMenuExercisesTitle => 'Exercises';
+  String get trainingMenuExercisesTitle => 'Übungen';
 
   @override
-  String get trainingMenuExercisesSubtitle => 'View all exercises';
+  String get trainingMenuExercisesSubtitle => 'Alle Übungen anzeigen';
 
   @override
-  String get trainingMenuPlanTitle => 'Training Plan';
+  String get trainingMenuPlanTitle => 'Trainingsplan';
 
   @override
-  String get trainingMenuPlanSubtitle => 'View your plan';
+  String get trainingMenuPlanSubtitle => 'Deinen Plan ansehen';
 
   @override
-  String get trainingMenuHistoryTitle => 'History';
+  String get trainingMenuHistoryTitle => 'Verlauf';
 
   @override
-  String get trainingMenuHistorySubtitle => 'View history';
+  String get trainingMenuHistorySubtitle => 'Verlauf ansehen';
 
   @override
   String get trainingMenuSplitTitle => 'Split';
 
   @override
-  String get trainingMenuSplitSubtitle => 'View split';
+  String get trainingMenuSplitSubtitle => 'Split ansehen';
 
   @override
-  String get profileAppBarTitle => 'Profile';
+  String get profileAppBarTitle => 'Profil';
 
   @override
-  String get profileSectionStats => 'Stats';
+  String get profileSectionStats => 'Statistiken';
 
   @override
-  String get profileLabelWeight => 'Weight';
+  String get profileLabelWeight => 'Gewicht';
 
   @override
-  String get profileLabelHeight => 'Height';
+  String get profileLabelHeight => 'Größe';
 
   @override
-  String get profileLabelFat => 'Body Fat';
+  String get profileLabelFat => 'Körperfett';
 
   @override
-  String get profileLabelMuscle => 'Muscle Mass';
+  String get profileLabelMuscle => 'Muskelmasse';
 
   @override
-  String get profileLabelTrainingDaySteps => 'Training Steps';
+  String get profileLabelTrainingDaySteps => 'Schritte an Trainingstagen';
 
   @override
-  String get profileLabelRestDaySteps => 'Rest Steps';
+  String get profileLabelRestDaySteps => 'Schritte an Ruhetagen';
 
   @override
-  String get profileLabelStepsSuffix => 'steps';
+  String get profileLabelStepsSuffix => 'Schritte';
 
   @override
-  String get profileSectionAccount => 'Account';
+  String get profileSectionAccount => 'Konto';
 
   @override
-  String get profileLabelRole => 'Role';
+  String get profileLabelRole => 'Rolle';
 
   @override
   String get profileLabelCoach => 'Coach';
 
   @override
-  String get profileLabelMemberSince => 'Member Since';
+  String get profileLabelMemberSince => 'Mitglied seit';
 
   @override
-  String get profileSectionShowInfo => 'Show Info';
+  String get profileSectionShowInfo => 'Infos anzeigen';
 
   @override
-  String get profileLabelShowName => 'Show Name';
+  String get profileLabelShowName => 'Namen anzeigen';
 
   @override
-  String get profileLabelShowDate => 'Show Date';
+  String get profileLabelShowDate => 'Datum anzeigen';
 
   @override
-  String get profileLabelLocation => 'Location';
+  String get profileLabelLocation => 'Ort';
 
   @override
   String get profileLabelDivision => 'Division';
@@ -419,190 +420,192 @@ class AppLocalizationsDe extends AppLocalizations {
   String get profileLabelCountdown => 'Countdown';
 
   @override
-  String get profileLabelDaysSuffix => 'days';
+  String get profileLabelDaysSuffix => 'Tage';
 
   @override
-  String get profileTimelineHeaderWeek => 'Week';
+  String get profileTimelineHeaderWeek => 'Woche';
 
   @override
-  String get profileTimelineHeaderDate => 'Date';
+  String get profileTimelineHeaderDate => 'Datum';
 
   @override
   String get profileTimelineHeaderPhase => 'Phase';
 
   @override
-  String get profileEmpty => 'No Data';
+  String get profileEmpty => 'Keine Daten';
 
   @override
-  String get nutritionTrackPageTitle => 'Track Meal';
+  String get nutritionTrackPageTitle => 'Mahlzeit erfassen';
 
   @override
-  String get nutritionTrackMealNameLabel => 'Meal Name';
+  String get nutritionTrackMealNameLabel => 'Mahlzeitenname';
 
   @override
-  String get nutritionTrackMealNameHint => 'e.g., Breakfast';
+  String get nutritionTrackMealNameHint => 'z. B. Frühstück';
 
   @override
-  String get nutritionTrackFoodNameLabel => 'Food Name';
+  String get nutritionTrackFoodNameLabel => 'Lebensmittelname';
 
   @override
-  String get nutritionTrackFoodNameHint => 'e.g., Chicken Breast';
+  String get nutritionTrackFoodNameHint => 'z. B. Hähnchenbrust';
 
   @override
-  String get nutritionTrackFoodQuantityLabel => 'Quantity';
+  String get nutritionTrackFoodQuantityLabel => 'Menge';
 
   @override
-  String get nutritionTrackFoodQuantityHint => 'e.g., 100g';
+  String get nutritionTrackFoodQuantityHint => 'z. B. 100 g';
 
   @override
-  String get nutritionTrackTableFoodHeader => 'Food';
+  String get nutritionTrackTableFoodHeader => 'Lebensmittel';
 
   @override
-  String get nutritionTrackTableQtyHeader => 'Qty';
+  String get nutritionTrackTableQtyHeader => 'Menge';
 
   @override
-  String get nutritionTrackTableCaloriesHeader => 'Kcal';
+  String get nutritionTrackTableCaloriesHeader => 'kcal';
 
   @override
-  String get nutritionTrackTableActionLabel => 'Action';
+  String get nutritionTrackTableActionLabel => 'Aktion';
 
   @override
-  String get nutritionTrackNoItemsLogged => 'No items logged';
+  String get nutritionTrackNoItemsLogged => 'Keine Einträge erfasst';
 
   @override
-  String get nutritionTrackAddItem => 'Add Item';
+  String get nutritionTrackAddItem => 'Eintrag hinzufügen';
 
   @override
-  String get nutritionTrackCancel => 'Cancel';
+  String get nutritionTrackCancel => 'Abbrechen';
 
   @override
-  String get nutritionTrackAddMeal => 'Save Meal';
+  String get nutritionTrackAddMeal => 'Mahlzeit speichern';
 
   @override
-  String get nutritionTrackValidationMealRequired => 'Meal name is required';
+  String get nutritionTrackValidationMealRequired =>
+      'Mahlzeitenname ist erforderlich';
 
   @override
-  String get nutritionTrackTrainingDayLabel => 'Training Day';
+  String get nutritionTrackTrainingDayLabel => 'Trainingstag';
 
   @override
-  String get profileLogoutTitle => 'Logout';
+  String get profileLogoutTitle => 'Abmelden';
 
   @override
-  String get profileLogoutMessage => 'Are you sure you want to logout?';
+  String get profileLogoutMessage =>
+      'Möchtest du dich wirklich abmelden?';
 
   @override
-  String get profileLogoutCancel => 'Cancel';
+  String get profileLogoutCancel => 'Abbrechen';
 
   @override
-  String get profileLogoutConfirm => 'Logout';
+  String get profileLogoutConfirm => 'Abmelden';
 
   @override
-  String get profileSectionPersonalData => 'Personal Data';
+  String get profileSectionPersonalData => 'Persönliche Daten';
 
   @override
-  String get profileLabelFullName => 'Full Name';
+  String get profileLabelFullName => 'Vollständiger Name';
 
   @override
-  String get profileLabelEmail => 'Email';
+  String get profileLabelEmail => 'E-Mail';
 
   @override
-  String get profileLabelGender => 'Gender';
+  String get profileLabelGender => 'Geschlecht';
 
   @override
-  String get profileSectionAthleteInfo => 'Athlete Info';
+  String get profileSectionAthleteInfo => 'Athleteninformationen';
 
   @override
   String get profileLabelStatus => 'Status';
 
   @override
-  String get profileLabelCategory => 'Category';
+  String get profileLabelCategory => 'Kategorie';
 
   @override
-  String get profileLabelCheckInDay => 'Check-in Day';
+  String get profileLabelCheckInDay => 'Check-in-Tag';
 
   @override
-  String get profileLabelAge => 'Age';
+  String get profileLabelAge => 'Alter';
 
   @override
-  String get profileLabelAgeYearsSuffix => 'years';
+  String get profileLabelAgeYearsSuffix => 'Jahre';
 
   @override
-  String get profileLabelGoal => 'Goal';
+  String get profileLabelGoal => 'Ziel';
 
   @override
-  String get nutritionMenuSupplementTitle => 'Supplements';
+  String get nutritionMenuSupplementTitle => 'Supplemente';
 
   @override
   String get nutritionMenuPedTitle => 'PEDs';
 
   @override
-  String get nutritionMenuPedSubtitle => 'Performance Enhancers';
+  String get nutritionMenuPedSubtitle => 'Leistungssteigernde Mittel';
 
   @override
-  String get nutritionTodayMacrosTitle => 'Today\'s Macros';
+  String get nutritionTodayMacrosTitle => 'Heutige Makros';
 
   @override
   String get nutritionMacroProteinLabel => 'Protein';
 
   @override
-  String get nutritionMacroCarbsLabel => 'Carbs';
+  String get nutritionMacroCarbsLabel => 'Kohlenhydrate';
 
   @override
-  String get nutritionMacroFatsLabel => 'Fats';
+  String get nutritionMacroFatsLabel => 'Fette';
 
   @override
-  String get nutritionMenuStatisticsTitle => 'Statistics';
+  String get nutritionMenuStatisticsTitle => 'Statistiken';
 
   @override
-  String get nutritionSupplementsHeaderTitle => 'Your Supplements';
+  String get nutritionSupplementsHeaderTitle => 'Deine Supplemente';
 
   @override
   String get nutritionSupplementsTableName => 'Name';
 
   @override
-  String get nutritionSupplementsTableDosage => 'Dosage';
+  String get nutritionSupplementsTableDosage => 'Dosierung';
 
   @override
-  String get nutritionSupplementsTableFrequency => 'Frequency';
+  String get nutritionSupplementsTableFrequency => 'Häufigkeit';
 
   @override
-  String get nutritionSupplementsTableTime => 'Time';
+  String get nutritionSupplementsTableTime => 'Zeit';
 
   @override
-  String get nutritionSupplementsTablePurpose => 'Purpose';
+  String get nutritionSupplementsTablePurpose => 'Zweck';
 
   @override
-  String get nutritionSupplementsTableBrand => 'Brand';
+  String get nutritionSupplementsTableBrand => 'Marke';
 
   @override
-  String get nutritionSupplementsTableComment => 'Comment';
+  String get nutritionSupplementsTableComment => 'Kommentar';
 
   @override
-  String get nutritionSupplementsEmpty => 'No supplements added';
+  String get nutritionSupplementsEmpty => 'Keine Supplemente hinzugefügt';
 
   @override
-  String get nutritionMenuTrackMealsTitle => 'Track Meals';
+  String get nutritionMenuTrackMealsTitle => 'Mahlzeiten erfassen';
 
   @override
-  String get nutritionTrackDailyGoalTitle => 'Daily Goal';
+  String get nutritionTrackDailyGoalTitle => 'Tagesziel';
 
   @override
-  String get nutritionTrackDailyGoalSubtitle => 'Calories and Macros';
+  String get nutritionTrackDailyGoalSubtitle => 'Kalorien und Makros';
 
   @override
-  String get nutritionAppBarTitle => 'Nutrition';
+  String get nutritionAppBarTitle => 'Ernährung';
 
   @override
-  String get nutritionMenuFoodItemsSubtitle => 'Search database';
+  String get nutritionMenuFoodItemsSubtitle => 'Datenbank durchsuchen';
 
   @override
-  String get nutritionMenuPlanSubtitle => 'View meal plan';
+  String get nutritionMenuPlanSubtitle => 'Ernährungsplan ansehen';
 
   @override
-  String get nutritionMenuTrackMealsSubtitle => 'Log your daily meals';
+  String get nutritionMenuTrackMealsSubtitle => 'Deine täglichen Mahlzeiten erfassen';
 
   @override
-  String get nutritionMenuStatisticsSubtitle => 'View progress';
+  String get nutritionMenuStatisticsSubtitle => 'Fortschritt ansehen';
 
   @override
   String get checkInAppBarTitle => 'Check-In';
@@ -638,128 +641,128 @@ class AppLocalizationsDe extends AppLocalizations {
   String get checkInLabel => 'Check-In';
 
   @override
-  String get checkInDateLabel => 'Date';
+  String get checkInDateLabel => 'Datum';
 
   @override
-  String get checkInDayLabel => 'Day';
+  String get checkInDayLabel => 'Tag';
 
   @override
-  String get checkInProfileCurrentWeightTitle => 'Current Weight';
+  String get checkInProfileCurrentWeightTitle => 'Aktuelles Gewicht';
 
   @override
-  String get checkInProfileAverageWeightTitle => 'Average Weight';
+  String get checkInProfileAverageWeightTitle => 'Durchschnittsgewicht';
 
   @override
-  String get checkInPhotosMultiFileInfo => 'Select multiple photos';
+  String get checkInPhotosMultiFileInfo => 'Mehrere Fotos auswählen';
 
   @override
-  String get checkInPhotosSelectFileLabel => 'Select Photos';
+  String get checkInPhotosSelectFileLabel => 'Fotos auswählen';
 
   @override
-  String get checkInPhotosSingleVideoInfo => 'Select a single video';
+  String get checkInPhotosSingleVideoInfo => 'Ein einzelnes Video auswählen';
 
   @override
-  String get checkInPhotosVideoDropLabel => 'Upload Video';
+  String get checkInPhotosVideoDropLabel => 'Video hochladen';
 
   @override
-  String get checkInPhotosUploadSuccess => 'Uploaded Successfully';
+  String get checkInPhotosUploadSuccess => 'Erfolgreich hochgeladen';
 
   @override
-  String get commonUpload => 'Upload';
+  String get commonUpload => 'Hochladen';
 
   @override
-  String get commonBack => 'Back';
+  String get commonBack => 'Zurück';
 
   @override
-  String get checkInSinceLastBadge => 'Since Last Check-in';
+  String get checkInSinceLastBadge => 'Seit dem letzten Check-in';
 
   @override
-  String get checkInCheckingBasicDataTitle => 'Basic Data';
+  String get checkInCheckingBasicDataTitle => 'Basisdaten';
 
   @override
-  String get checkInCheckingPicturesUploadedLabel => 'Photos Uploaded';
+  String get checkInCheckingPicturesUploadedLabel => 'Fotos hochgeladen';
 
   @override
-  String get checkInCheckingVideoUploadedLabel => 'Video Uploaded';
+  String get checkInCheckingVideoUploadedLabel => 'Video hochgeladen';
 
   @override
   String get checkInCheckingVideoPlaceholderTitle => 'Video';
 
   @override
-  String get checkInCheckingVideoUploadedSubtitle => 'Video uploaded';
+  String get checkInCheckingVideoUploadedSubtitle => 'Video hochgeladen';
 
   @override
-  String get checkInCheckingVideoDefaultSubtitle => 'No video uploaded';
+  String get checkInCheckingVideoDefaultSubtitle => 'Kein Video hochgeladen';
 
   @override
-  String get checkInCheckingQuestionCountDescription => 'Questions Answered';
+  String get checkInCheckingQuestionCountDescription => 'Beantwortete Fragen';
 
   @override
-  String get checkInQuestion1Title => 'How was your week?';
+  String get checkInQuestion1Title => 'Wie war deine Woche?';
 
   @override
-  String get commonNoAnswer => 'No Answer';
+  String get commonNoAnswer => 'Keine Antwort';
 
   @override
-  String get checkInQuestion2Title => 'Any issues?';
+  String get checkInQuestion2Title => 'Gab es Probleme?';
 
   @override
-  String get checkInWellBeingSectionTitle => 'Well-Being';
+  String get checkInWellBeingSectionTitle => 'Wohlbefinden';
 
   @override
-  String get checkInWellBeingEnergyLabel => 'Energy';
+  String get checkInWellBeingEnergyLabel => 'Energie';
 
   @override
   String get checkInWellBeingStressLabel => 'Stress';
 
   @override
-  String get checkInWellBeingMoodLabel => 'Mood';
+  String get checkInWellBeingMoodLabel => 'Stimmung';
 
   @override
-  String get checkInWellBeingSleepLabel => 'Sleep';
+  String get checkInWellBeingSleepLabel => 'Schlaf';
 
   @override
-  String get checkInNutritionSectionTitle => 'Nutrition';
+  String get checkInNutritionSectionTitle => 'Ernährung';
 
   @override
-  String get checkInNutritionDietLevelLabel => 'Diet Adherence';
+  String get checkInNutritionDietLevelLabel => 'Diät-Einhaltung';
 
   @override
-  String get checkInNutritionDigestionLabel => 'Digestion';
+  String get checkInNutritionDigestionLabel => 'Verdauung';
 
   @override
-  String get checkInNutritionChallengeTitle => 'Challenges';
+  String get checkInNutritionChallengeTitle => 'Herausforderungen';
 
   @override
-  String get commonTypeHint => 'Type here...';
+  String get commonTypeHint => 'Hier eingeben...';
 
   @override
   String get checkInTrainingSectionTitle => 'Training';
 
   @override
-  String get checkInTrainingFeelStrengthLabel => 'Strength';
+  String get checkInTrainingFeelStrengthLabel => 'Kraft';
 
   @override
   String get checkInTrainingPumpsLabel => 'Pump';
 
   @override
-  String get checkInTrainingCompletedLabel => 'Training Completed';
+  String get checkInTrainingCompletedLabel => 'Training abgeschlossen';
 
   @override
-  String get checkInTrainingCardioCompletedLabel => 'Cardio Completed';
+  String get checkInTrainingCardioCompletedLabel => 'Cardio abgeschlossen';
 
   @override
   String get checkInTrainingFeedbackTitle => 'Feedback';
 
   @override
-  String get checkInAthleteNoteTitle => 'Athlete Note';
+  String get checkInAthleteNoteTitle => 'Notiz des Athleten';
 
   @override
-  String get commonAnswer => 'Answer';
+  String get commonAnswer => 'Antwort';
 
   @override
-  String get checkInCheckingCurrentWeightTitle => 'Current Weight';
+  String get checkInCheckingCurrentWeightTitle => 'Aktuelles Gewicht';
 
   @override
-  String get checkInCheckingAverageWeightTitle => 'Avg Weight';
+  String get checkInCheckingAverageWeightTitle => 'Durchschnittsgewicht';
 }

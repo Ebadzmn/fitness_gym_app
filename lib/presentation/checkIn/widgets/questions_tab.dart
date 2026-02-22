@@ -13,8 +13,15 @@ import 'package:fitness_app/core/coreWidget/full_width_slider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_app/l10n/app_localizations.dart';
 
-class QuestionsTab extends StatelessWidget {
+class QuestionsTab extends StatefulWidget {
   const QuestionsTab({super.key});
+
+  @override
+  State<QuestionsTab> createState() => _QuestionsTabState();
+}
+
+class _QuestionsTabState extends State<QuestionsTab> {
+  bool _showValidationErrors = false;
 
   Widget _boxedLabel(String title) {
     return Container(
@@ -40,7 +47,9 @@ class QuestionsTab extends StatelessWidget {
     String initialValue, {
     required String hint,
     required ValueChanged<String> onChanged,
+    bool isError = false,
   }) {
+    final borderColor = isError ? Colors.red : Colors.grey;
     return TextFormField(
       initialValue: initialValue,
       style: TextStyle(
@@ -59,15 +68,15 @@ class QuestionsTab extends StatelessWidget {
         fillColor: const Color(0XFF0A0A1F),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Colors.grey, width: 1.w),
+          borderSide: BorderSide(color: borderColor, width: 1.w),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Colors.grey, width: 1.w),
+          borderSide: BorderSide(color: borderColor, width: 1.w),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Colors.grey, width: 1.w),
+          borderSide: BorderSide(color: borderColor, width: 1.w),
         ),
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       ),
@@ -79,7 +88,9 @@ class QuestionsTab extends StatelessWidget {
     String initialValue, {
     required String hint,
     required ValueChanged<String> onChanged,
+    bool isError = false,
   }) {
+    final borderColor = isError ? Colors.red : Colors.grey;
     return TextFormField(
       initialValue: initialValue,
       style: TextStyle(
@@ -98,15 +109,15 @@ class QuestionsTab extends StatelessWidget {
         fillColor: const Color(0XFF101021),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),
-          borderSide: BorderSide(color: Colors.grey, width: 1.w),
+          borderSide: BorderSide(color: borderColor, width: 1.w),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),
-          borderSide: BorderSide(color: Colors.grey, width: 1.w),
+          borderSide: BorderSide(color: borderColor, width: 1.w),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),
-          borderSide: BorderSide(color: Colors.grey, width: 1.w),
+          borderSide: BorderSide(color: borderColor, width: 1.w),
         ),
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       ),
@@ -154,7 +165,9 @@ class QuestionsTab extends StatelessWidget {
     String initialValue, {
     required String hint,
     ValueChanged<String>? onChanged,
+    bool isError = false,
   }) {
+    final borderColor = isError ? Colors.red : Colors.grey;
     return TextFormField(
       initialValue: initialValue,
       maxLines: 4,
@@ -174,15 +187,15 @@ class QuestionsTab extends StatelessWidget {
         fillColor: const Color(0XFF0A0A1F),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Colors.grey, width: 1.w),
+          borderSide: BorderSide(color: borderColor, width: 1.w),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Colors.grey, width: 1.w),
+          borderSide: BorderSide(color: borderColor, width: 1.w),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Colors.grey, width: 1.w),
+          borderSide: BorderSide(color: borderColor, width: 1.w),
         ),
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       ),
@@ -254,6 +267,7 @@ class QuestionsTab extends StatelessWidget {
     );
   }
 
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder<CheckInBloc, CheckInState>(
       builder: (context, state) {
@@ -278,6 +292,8 @@ class QuestionsTab extends StatelessWidget {
               hint: localizations.commonAnswer,
               onChanged: (v) =>
                   context.read<CheckInBloc>().add(AnswerChanged(1, v)),
+              isError:
+                  _showValidationErrors && data.answer1.trim().isEmpty,
             ),
             SizedBox(height: 12.h),
             SizedBox(height: 12.h),
@@ -295,6 +311,8 @@ class QuestionsTab extends StatelessWidget {
               hint: localizations.commonTypeHint,
               onChanged: (v) =>
                   context.read<CheckInBloc>().add(AnswerChanged(2, v)),
+              isError:
+                  _showValidationErrors && data.answer2.trim().isEmpty,
             ),
             SizedBox(height: 12.h),
 
@@ -439,6 +457,8 @@ class QuestionsTab extends StatelessWidget {
                     onChanged: (v) => context.read<CheckInBloc>().add(
                       NutritionTextChanged('challenge', v),
                     ),
+                    isError: _showValidationErrors &&
+                        data.nutrition.challenge.trim().isEmpty,
                   ),
                 ],
               ),
@@ -525,6 +545,8 @@ class QuestionsTab extends StatelessWidget {
                     onChanged: (v) => context.read<CheckInBloc>().add(
                       TrainingTextChanged('feedback', v),
                     ),
+                    isError:
+                        _showValidationErrors && data.training.feedback.trim().isEmpty,
                   ),
                 ],
               ),
@@ -554,6 +576,8 @@ class QuestionsTab extends StatelessWidget {
                     hint: localizations.commonTypeHint,
                     onChanged: (v) =>
                         context.read<CheckInBloc>().add(AthleteNoteChanged(v)),
+                    isError: _showValidationErrors &&
+                        data.athleteNote.trim().isEmpty,
                   ),
                 ],
               ),
@@ -588,9 +612,45 @@ class QuestionsTab extends StatelessWidget {
                 SizedBox(width: 12.w),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => context.read<CheckInBloc>().add(
-                      const CheckInStepSet(3),
-                    ),
+                    onPressed: () {
+                      final bloc = context.read<CheckInBloc>();
+                      final data = bloc.state.data;
+                      if (data == null) return;
+
+                      final answer1Empty = data.answer1.trim().isEmpty;
+                      final answer2Empty = data.answer2.trim().isEmpty;
+                      final challengeEmpty =
+                          data.nutrition.challenge.trim().isEmpty;
+                      final feedbackEmpty =
+                          data.training.feedback.trim().isEmpty;
+                      final noteEmpty = data.athleteNote.trim().isEmpty;
+
+                      final hasEmpty = answer1Empty ||
+                          answer2Empty ||
+                          challengeEmpty ||
+                          feedbackEmpty ||
+                          noteEmpty;
+
+                      if (hasEmpty) {
+                        setState(() {
+                          _showValidationErrors = true;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Please answer all questions before continuing.',
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+
+                      setState(() {
+                        _showValidationErrors = false;
+                      });
+
+                      bloc.add(const CheckInStepSet(3));
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF0D1448),
                       padding: EdgeInsets.symmetric(vertical: 16.h),

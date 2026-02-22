@@ -10,6 +10,7 @@ import 'package:fitness_app/domain/entities/nutrition_entities/meal_suggestion_e
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_plan_entity.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_daily_tracking_entity.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_response_entity.dart';
+import 'package:fitness_app/core/network/api_client.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/track_meals/track_meals_bloc.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/track_meals/track_meals_event.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/track_meals/track_meals_state.dart';
@@ -118,6 +119,7 @@ class _TrackMealsView extends StatelessWidget {
                     context,
                     state.trackingData!.totals,
                     state.trackingData!.water,
+                    state.date,
                   ),
                 if (state.trackingData != null) SizedBox(height: 12.h),
                 if (state.trackingData != null)
@@ -202,6 +204,7 @@ class _TrackMealsView extends StatelessWidget {
     BuildContext context,
     NutritionTotalsEntity totals,
     int water,
+    DateTime date,
   ) {
     final localizations = AppLocalizations.of(context)!;
     return Container(
@@ -265,6 +268,7 @@ class _TrackMealsView extends StatelessWidget {
               calories: totals.totalCalories,
               waterLabel: localizations.dailyWaterLabel,
               caloriesLabel: localizations.dailyNutritionCaloriesLabel,
+              date: date,
             ),
           ),
         ],
@@ -348,12 +352,14 @@ class _WaterCaloriesAndDrinksRow extends StatefulWidget {
   final int calories;
   final String waterLabel;
   final String caloriesLabel;
+  final DateTime date;
 
   const _WaterCaloriesAndDrinksRow({
     required this.baseWaterMl,
     required this.calories,
     required this.waterLabel,
     required this.caloriesLabel,
+    required this.date,
   });
 
   @override
@@ -363,9 +369,72 @@ class _WaterCaloriesAndDrinksRow extends StatefulWidget {
 
 class _WaterCaloriesAndDrinksRowState extends State<_WaterCaloriesAndDrinksRow> {
   static const int _bottleSizeMl = 500;
-  int _bottleCount = 1;
+  int _bottleTotalMl = 0;
   int? _glassSizeMl;
-  int _glassCount = 0;
+  int _glassTotalMl = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInitialWater();
+  }
+
+  @override
+  void didUpdateWidget(covariant _WaterCaloriesAndDrinksRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.date != widget.date) {
+      _loadInitialWater();
+    }
+  }
+
+  Future<void> _loadInitialWater() async {
+    try {
+      final apiClient = sl<ApiClient>();
+      final d = widget.date;
+      final dateStr =
+          '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+      final response = await apiClient.get(
+        '/water',
+        queryParameters: {'date': dateStr},
+      );
+      final payload = response.data;
+      if (payload is Map && payload['data'] is List) {
+        int bottle = 0;
+        int glass = 0;
+        for (final item in payload['data'] as List) {
+          if (item is! Map) continue;
+          final unit = item['unit']?.toString();
+          final amount = (item['amount'] as num?)?.toInt() ?? 0;
+          if (unit == 'bottle') {
+            bottle += amount;
+          } else if (unit == 'glass') {
+            glass += amount;
+          }
+        }
+        setState(() {
+          _bottleTotalMl = bottle;
+          _glassTotalMl = glass;
+        });
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _postWaterIntake({
+    required String unit,
+    required int amount,
+  }) async {
+    try {
+      final apiClient = sl<ApiClient>();
+      await apiClient.post(
+        '/water',
+        data: {
+          'unit': unit,
+          'amount': amount,
+        },
+      );
+      await _loadInitialWater();
+    } catch (_) {}
+  }
 
   Future<void> _showInput({
     required String title,
@@ -450,9 +519,6 @@ class _WaterCaloriesAndDrinksRowState extends State<_WaterCaloriesAndDrinksRow> 
     );
   }
 
-  int get _glassTotalMl => (_glassSizeMl ?? 0) * _glassCount;
-  int get _bottleTotalMl => _bottleSizeMl * _bottleCount;
-
   @override
   Widget build(BuildContext context) {
     Widget toggleIcon({
@@ -536,9 +602,7 @@ class _WaterCaloriesAndDrinksRowState extends State<_WaterCaloriesAndDrinksRow> 
                     ),
                   ),
                   Text(
-                    _glassCount > 0
-                        ? 'Glass: $_glassTotalMl ml '
-                        : 'Glass: 0ml',
+                    _glassTotalMl > 0 ? 'Glass: $_glassTotalMl ml ' : 'Glass: 0ml',
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 11.sp,
@@ -575,10 +639,14 @@ class _WaterCaloriesAndDrinksRowState extends State<_WaterCaloriesAndDrinksRow> 
                 filledIcon: Icons.liquor,
                 onPressed: () {
                   setState(() {
-                    _bottleCount += 1;
+                    _bottleTotalMl += _bottleSizeMl;
                   });
                   _showWaterMessage(
                     '$_bottleSizeMl ml of water has been added successfully.',
+                  );
+                  _postWaterIntake(
+                    unit: 'bottle',
+                    amount: _bottleSizeMl,
                   );
                 },
               ),
@@ -596,20 +664,30 @@ class _WaterCaloriesAndDrinksRowState extends State<_WaterCaloriesAndDrinksRow> 
                         if (v == null) return;
                         setState(() {
                           _glassSizeMl = v;
-                          _glassCount = 1;
+                          _glassTotalMl += v;
                         });
                         _showWaterMessage(
                           '$v ml of water has been added.',
+                        );
+                        _postWaterIntake(
+                          unit: 'glass',
+                          amount: v,
                         );
                       },
                     );
                   } else {
                     setState(() {
-                      _glassCount += 1;
+                      if (_glassSizeMl != null && _glassSizeMl! > 0) {
+                        _glassTotalMl += _glassSizeMl!;
+                      }
                     });
                     if (_glassSizeMl != null && _glassSizeMl! > 0) {
                       _showWaterMessage(
                         '$_glassSizeMl ml of water has been added.',
+                      );
+                      _postWaterIntake(
+                        unit: 'glass',
+                        amount: _glassSizeMl!,
                       );
                     }
                   }
