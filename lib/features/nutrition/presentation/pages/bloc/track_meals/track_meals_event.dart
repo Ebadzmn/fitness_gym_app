@@ -84,3 +84,16 @@ class TrackMealsAddFoodItemsToMeal extends TrackMealsEvent {
   @override
   List<Object?> get props => [date, mealId, food];
 }
+
+class TrackMealsLogWater extends TrackMealsEvent {
+  final DateTime date;
+  final String unit;
+  final int amount;
+  const TrackMealsLogWater({
+    required this.date,
+    required this.unit,
+    required this.amount,
+  });
+  @override
+  List<Object?> get props => [date, unit, amount];
+}

@@ -6,7 +6,18 @@ class DailyTrackingConstants {
     'TRAINING_PLAN_1',
   ];
 
-  static const List<String> cardioTypeValues = ['WALKING', 'CYCLING'];
+  static const List<String> cardioTypeValues = [
+    'WALKING',
+    'CYCLING',
+    'RUNNING',
+    'SWIMMING',
+    'ROWING',
+    'HIKING',
+    'JUMP_ROPE',
+    'CROSSTRAINER',
+    'STAIRMASTER',
+    'OTHER',
+  ];
 
   static const List<String> cyclePhaseValues = [
     'FOLLICULAR',

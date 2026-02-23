@@ -14,6 +14,7 @@ class ApiUrls {
   static const String trainingSplit = '$baseUrl/training/splite';
   static const String trackMeal = '$baseUrl/track/meal';
   static const String trackMealSuggestions = '$baseUrl/track/meal/suggestions';
+  static const String water = '$baseUrl/water';
   static const String pedAppData = '$baseUrl/ped/app-data';
   static String pedByAthlete(String athleteId) => '$baseUrl/ped/$athleteId';
   static const String forgetPasswordUrl =

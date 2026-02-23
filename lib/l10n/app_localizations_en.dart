@@ -57,7 +57,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forgetPasswordTitle => 'Forgot Password';
 
   @override
-  String get forgetPasswordDescription => 'Enter the email or phone your account and we’ll send a code to reset your password';
+  String get forgetPasswordDescription =>
+      'Enter the email or phone your account and we’ll send a code to reset your password';
 
   @override
   String get forgetPasswordEmailLabel => 'Email';
@@ -90,6 +91,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailyDateToday => 'Today';
 
   @override
+  String get dailyTrackingNoDataForDate => 'No entry for this date.';
+
+  @override
   String get dailyWeightLabel => 'Weight:';
 
   @override
@@ -102,7 +106,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailySleepDurationHint => '08 : 30';
 
   @override
-  String get dailySleepQualityLabel => 'Sleep Quantity';
+  String get dailySleepQualityLabel => 'Sleep Quality';
 
   @override
   String get dailySickLabel => 'Sick:';
@@ -150,7 +154,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trainingHistoryAppBarTitle => 'Training History';
 
   @override
-  String get trainingHistoryEmpty => 'Please complete a training first. After that, the history will be added.';
+  String get trainingHistoryEmpty =>
+      'Please complete a training first. After that, the history will be added.';
 
   @override
   String get coachAddedShortly =>
@@ -191,6 +196,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dailyCardioCycling => 'Cycling';
+
+  @override
+  String get dailyCardioRunning => 'Running';
+
+  @override
+  String get dailyCardioSwimming => 'Swimming';
+
+  @override
+  String get dailyCardioRowing => 'Rowing';
+
+  @override
+  String get dailyCardioHiking => 'Hiking';
+
+  @override
+  String get dailyCardioJumpRope => 'Jump Rope';
+
+  @override
+  String get dailyCardioCrosstrainer => 'Crosstrainer';
+
+  @override
+  String get dailyCardioStairmaster => 'Stairmaster';
+
+  @override
+  String get dailyCardioOther => 'Other';
 
   @override
   String get dailyDurationHint => 'Duration  (Minutes)';

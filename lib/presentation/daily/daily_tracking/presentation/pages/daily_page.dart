@@ -15,6 +15,7 @@ import 'bloc/daily_bloc.dart';
 import 'bloc/daily_event.dart';
 import 'bloc/daily_state.dart';
 import 'package:fitness_app/core/constants/daily_tracking_constants.dart';
+import 'package:intl/intl.dart';
 
 class DailyPage extends StatelessWidget {
   const DailyPage({super.key});
@@ -34,16 +35,6 @@ class _DailyView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    DateTime parseDateLabel(String? label) {
-      if (label == null || label.trim().isEmpty) return DateTime.now();
-      final parts = label.split('.');
-      if (parts.length != 3) return DateTime.now();
-      final y = int.tryParse(parts[0]);
-      final m = int.tryParse(parts[1]);
-      final d = int.tryParse(parts[2]);
-      if (y == null || m == null || d == null) return DateTime.now();
-      return DateTime(y, m, d);
-    }
 
     return Scaffold(
       appBar: AppBar(
@@ -57,7 +48,9 @@ class _DailyView extends StatelessWidget {
               builder: (context, state) {
                 return GestureDetector(
                   onTap: () async {
-                    final initial = parseDateLabel(state.data?.vital.dateLabel);
+                    final initial = _parseDateLabel(
+                      state.data?.vital.dateLabel,
+                    );
                     final selected = await showDatePicker(
                       context: context,
                       initialDate: initial,
@@ -119,6 +112,13 @@ class _DailyView extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           final data = state.data!;
+          final tokenStorage = di.sl<TokenStorage>();
+          final gender = (tokenStorage.getUserGender() ?? '')
+              .trim()
+              .toLowerCase();
+          final status = (tokenStorage.getUserStatus() ?? '')
+              .trim()
+              .toLowerCase();
           return Padding(
             padding: EdgeInsets.all(10.h),
             child: KeyedSubtree(
@@ -129,7 +129,11 @@ class _DailyView extends StatelessWidget {
                   child: Column(
                     children: [
                       SizedBox(height: 12.h),
-                      _dateTodayHeader(context, data.vital.dateLabel),
+                      _dateTodayHeader(
+                        context,
+                        data.vital.dateLabel,
+                        state.isReadOnly,
+                      ),
                       SizedBox(height: 12.h),
                       _weightCard(context, data.vital.weightText),
                       SizedBox(height: 12.h),
@@ -153,19 +157,14 @@ class _DailyView extends StatelessWidget {
                       SizedBox(height: 20.h),
                       _nutritionCard(context, data),
                       SizedBox(height: 12.h),
-                      if (((di.sl<TokenStorage>().getUserGender() ?? '')
-                                  .trim()
-                                  .toLowerCase() ==
-                              'female') ||
-                          ((di.sl<TokenStorage>().getUserGender() ?? '')
-                                  .trim()
-                                  .toLowerCase() ==
-                              'f')) ...[
+                      if (gender == 'female' || gender == 'f') ...[
                         _womenCard(context, data),
                         SizedBox(height: 12.h),
                       ],
-                      _pedCard(context, data),
-                      SizedBox(height: 12.h),
+                      if (status != 'natural') ...[
+                        _pedCard(context, data),
+                        SizedBox(height: 12.h),
+                      ],
                       _dailyNotesCard(context, data.notes),
                       SizedBox(height: 16.h),
                       _submitButton(context),
@@ -178,6 +177,54 @@ class _DailyView extends StatelessWidget {
         },
       ),
     );
+  }
+
+  DateTime _parseDateLabel(String? label) {
+    if (label == null || label.trim().isEmpty) return DateTime.now();
+    final parts = label.split('.');
+    if (parts.length != 3) return DateTime.now();
+    final y = int.tryParse(parts[0]);
+    final m = int.tryParse(parts[1]);
+    final d = int.tryParse(parts[2]);
+    if (y == null || m == null || d == null) return DateTime.now();
+    return DateTime(y, m, d);
+  }
+
+  String? _relativeDateChipLabel(
+    BuildContext context,
+    String dateLabel,
+    bool isReadOnly,
+  ) {
+    final localizations = AppLocalizations.of(context)!;
+    final selected = _parseDateLabel(dateLabel);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final selectedDay = DateTime(selected.year, selected.month, selected.day);
+    final diff = selectedDay.difference(today).inDays;
+
+    // Current date selected -> always show "Today"
+    if (diff == 0) {
+      return localizations.dailyDateToday;
+    }
+
+    // Non-today date with no data loaded -> show "no tracking" message
+    if (!isReadOnly) {
+      return localizations.dailyTrackingNoDataForDate;
+    }
+
+    if (diff == -1) {
+      return 'Yesterday';
+    }
+    if (diff == 1) {
+      return 'Tomorrow';
+    }
+    if (diff < 0 && diff >= -6) {
+      return DateFormat('EEEE').format(selectedDay);
+    }
+    if (diff > 0 && diff <= 6) {
+      return DateFormat('EEEE').format(selectedDay);
+    }
+    return null;
   }
 
   Widget _pillValue(int v) {
@@ -202,8 +249,13 @@ class _DailyView extends StatelessWidget {
     );
   }
 
-  Widget _dateTodayHeader(BuildContext context, String dateLabel) {
+  Widget _dateTodayHeader(
+    BuildContext context,
+    String dateLabel,
+    bool isReadOnly,
+  ) {
     final localizations = AppLocalizations.of(context)!;
+    final chipLabel = _relativeDateChipLabel(context, dateLabel, isReadOnly);
     return Container(
       height: 60.h,
       width: double.infinity,
@@ -239,25 +291,29 @@ class _DailyView extends StatelessWidget {
               ],
             ),
             const Spacer(),
-            Container(
-              height: 27.h,
-              width: 74.w,
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(89, 76, 154, 79),
-                borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(color: Colors.white, width: 1.w),
-              ),
-              child: Center(
-                child: Text(
-                  localizations.dailyDateToday,
-                  style: GoogleFonts.poppins(
-                    color: Colors.green,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
+            if (chipLabel != null)
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 4.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(89, 76, 154, 79),
+                    borderRadius: BorderRadius.circular(20.r),
+                    border: Border.all(color: Colors.white, width: 1.w),
+                  ),
+                  child: Text(
+                    chipLabel,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      color: Colors.green,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),
@@ -891,13 +947,15 @@ class _DailyView extends StatelessWidget {
                 TrainingToggleChanged('cardioCompleted', v),
               ),
             ),
-            SizedBox(height: 12.h),
-            _titledBox(localizations.dailyCardioTypeTitle),
-            SizedBox(height: 12.h),
-            _cardioOptionsRow(context, data.training.cardioType),
-            SizedBox(height: 12.h),
-            _durationField(context, data.training.duration),
-            SizedBox(height: 12.h),
+            if (data.training.cardioCompleted == true) ...[
+              SizedBox(height: 12.h),
+              _titledBox(localizations.dailyCardioTypeTitle),
+              SizedBox(height: 12.h),
+              _cardioOptionsRow(context, data.training.cardioType),
+              SizedBox(height: 12.h),
+              _durationField(context, data.training.duration),
+              SizedBox(height: 12.h),
+            ],
           ],
         ),
       ),
@@ -937,6 +995,22 @@ class _DailyView extends StatelessWidget {
           displayLabel = localizations.dailyCardioWalking;
         } else if (label == 'CYCLING') {
           displayLabel = localizations.dailyCardioCycling;
+        } else if (label == 'RUNNING') {
+          displayLabel = localizations.dailyCardioRunning;
+        } else if (label == 'SWIMMING') {
+          displayLabel = localizations.dailyCardioSwimming;
+        } else if (label == 'ROWING') {
+          displayLabel = localizations.dailyCardioRowing;
+        } else if (label == 'HIKING') {
+          displayLabel = localizations.dailyCardioHiking;
+        } else if (label == 'JUMP_ROPE') {
+          displayLabel = localizations.dailyCardioJumpRope;
+        } else if (label == 'CROSSTRAINER') {
+          displayLabel = localizations.dailyCardioCrosstrainer;
+        } else if (label == 'STAIRMASTER') {
+          displayLabel = localizations.dailyCardioStairmaster;
+        } else if (label == 'OTHER') {
+          displayLabel = localizations.dailyCardioOther;
         } else {
           displayLabel = label[0] + label.substring(1).toLowerCase();
         }

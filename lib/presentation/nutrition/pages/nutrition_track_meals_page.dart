@@ -3,6 +3,7 @@ import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/meal_food_item_entity.dart';
@@ -10,7 +11,6 @@ import 'package:fitness_app/domain/entities/nutrition_entities/meal_suggestion_e
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_plan_entity.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_daily_tracking_entity.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_response_entity.dart';
-import 'package:fitness_app/core/network/api_client.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/track_meals/track_meals_bloc.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/track_meals/track_meals_event.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/track_meals/track_meals_state.dart';
@@ -115,20 +115,16 @@ class _TrackMealsView extends StatelessWidget {
                 _datePicker(context, state.date),
                 SizedBox(height: 12.h),
                 if (state.trackingData != null)
-                  _planHeader(
-                    context,
-                    state.trackingData!.totals,
-                    state.trackingData!.water,
-                    state.date,
-                  ),
+                  _planHeader(context, state.trackingData!, state.plan),
                 if (state.trackingData != null) SizedBox(height: 12.h),
                 if (state.trackingData != null)
                   _macroCircles(context, state.trackingData!.totals),
                 SizedBox(height: 12.h),
                 if (state.trackingData != null &&
                     state.trackingData!.data.isNotEmpty)
-                  ...state.trackingData!.data.first.meals
-                      .map((m) => _MealTile(meal: m)),
+                  ...state.trackingData!.data.first.meals.map(
+                    (m) => _MealTile(meal: m),
+                  ),
               ],
             ),
           );
@@ -202,77 +198,19 @@ class _TrackMealsView extends StatelessWidget {
 
   Widget _planHeader(
     BuildContext context,
-    NutritionTotalsEntity totals,
-    int water,
-    DateTime date,
+    NutritionDailyTrackingEntity trackingData,
+    NutritionPlanEntity? plan,
   ) {
-    final localizations = AppLocalizations.of(context)!;
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF274128),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFF3C7D3D)),
-      ),
-      padding: EdgeInsets.all(12.sp),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(10.r),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF224225),
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Icon(
-                  Icons.restaurant,
-                  color: const Color(0xFF82C941),
-                  size: 20.sp,
-                ),
-              ),
-              SizedBox(width: 12.w),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    localizations.nutritionTrackDailyGoalTitle,
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    localizations.nutritionTrackDailyGoalSubtitle,
-                    style: GoogleFonts.poppins(
-                      color: Colors.white70,
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(height: 12.h),
-          // Water and Calories
-          Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFF182418),
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 14.h),
-            child: _WaterCaloriesAndDrinksRow(
-              baseWaterMl: water,
-              calories: totals.totalCalories,
-              waterLabel: localizations.dailyWaterLabel,
-              caloriesLabel: localizations.dailyNutritionCaloriesLabel,
-              date: date,
-            ),
-          ),
-        ],
-      ),
+    final currentWater = trackingData.water;
+    final goalWater = ((plan?.waterLiters ?? 4.0) * 1000).toInt();
+    final currentCalories = trackingData.totals.totalCalories;
+    final goalCalories = plan?.calories ?? 2500;
+
+    return _DailyGoalSection(
+      currentWaterMl: currentWater,
+      goalWaterMl: goalWater,
+      currentCalories: currentCalories,
+      goalCalories: goalCalories,
     );
   }
 
@@ -347,355 +285,494 @@ class _TrackMealsView extends StatelessWidget {
   }
 }
 
-class _WaterCaloriesAndDrinksRow extends StatefulWidget {
-  final int baseWaterMl;
-  final int calories;
-  final String waterLabel;
-  final String caloriesLabel;
-  final DateTime date;
+class _DailyGoalSection extends StatelessWidget {
+  final int currentWaterMl;
+  final int goalWaterMl;
+  final int currentCalories;
+  final int goalCalories;
 
-  const _WaterCaloriesAndDrinksRow({
-    required this.baseWaterMl,
-    required this.calories,
-    required this.waterLabel,
-    required this.caloriesLabel,
-    required this.date,
+  const _DailyGoalSection({
+    required this.currentWaterMl,
+    required this.goalWaterMl,
+    required this.currentCalories,
+    required this.goalCalories,
   });
 
   @override
-  State<_WaterCaloriesAndDrinksRow> createState() =>
-      _WaterCaloriesAndDrinksRowState();
-}
+  Widget build(BuildContext context) {
+    final waterPercentage = goalWaterMl > 0
+        ? ((currentWaterMl / goalWaterMl) * 100).clamp(0, 100).toInt()
+        : 0;
 
-class _WaterCaloriesAndDrinksRowState extends State<_WaterCaloriesAndDrinksRow> {
-  static const int _bottleSizeMl = 500;
-  int _bottleTotalMl = 0;
-  int? _glassSizeMl;
-  int _glassTotalMl = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadInitialWater();
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C1C1E), // Main card background
+        borderRadius: BorderRadius.circular(24.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'DAILY GOAL',
+            style: GoogleFonts.poppins(
+              color: Colors.white54,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
+            ),
+          ),
+          SizedBox(height: 16.h),
+          Row(
+            children: [
+              Expanded(
+                child: _statCard(
+                  title: 'Calories',
+                  value: '$currentCalories kcal',
+                  icon: Icons.local_fire_department_outlined,
+                  iconColor: const Color(0xFF00D180),
+                  backgroundColor: const Color(0xFF2C2C2E),
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: _statCard(
+                  title: 'Water Goal',
+                  value: '$waterPercentage%',
+                  icon: Icons.water_drop_outlined,
+                  iconColor: const Color(0xFF4A90E2),
+                  backgroundColor: const Color(0xFF2C2C2E),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 24.h),
+          Text(
+            'Water Intake',
+            style: GoogleFonts.poppins(
+              color: Colors.white54,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          Row(
+            children: [
+              Expanded(
+                child: _waterIntakeCard(
+                  context,
+                  unit: 'bottle',
+                  amount: 500,
+                  label: '500ml',
+                  icon: FontAwesomeIcons.bottleWater, // Bottle icon
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: _waterIntakeCard(
+                  context,
+                  unit: 'glass',
+                  amount: 250,
+                  label: '250ml',
+                  icon: FontAwesomeIcons.glassWater, // Glass icon
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
-  @override
-  void didUpdateWidget(covariant _WaterCaloriesAndDrinksRow oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.date != widget.date) {
-      _loadInitialWater();
-    }
+  Widget _statCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color iconColor,
+    required Color backgroundColor,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(8.w),
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+            child: Icon(icon, color: iconColor, size: 20.sp),
+          ),
+          SizedBox(width: 12.w),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.poppins(
+                  color: Colors.white54,
+                  fontSize: 12.sp,
+                ),
+              ),
+              Text(
+                value,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
-  Future<void> _loadInitialWater() async {
-    try {
-      final apiClient = sl<ApiClient>();
-      final d = widget.date;
-      final dateStr =
-          '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-      final response = await apiClient.get(
-        '/water',
-        queryParameters: {'date': dateStr},
-      );
-      final payload = response.data;
-      if (payload is Map && payload['data'] is List) {
-        int bottle = 0;
-        int glass = 0;
-        for (final item in payload['data'] as List) {
-          if (item is! Map) continue;
-          final unit = item['unit']?.toString();
-          final amount = (item['amount'] as num?)?.toInt() ?? 0;
-          if (unit == 'bottle') {
-            bottle += amount;
-          } else if (unit == 'glass') {
-            glass += amount;
-          }
-        }
-        setState(() {
-          _bottleTotalMl = bottle;
-          _glassTotalMl = glass;
-        });
-      }
-    } catch (_) {}
-  }
-
-  Future<void> _postWaterIntake({
+  Widget _waterIntakeCard(
+    BuildContext context, {
     required String unit,
     required int amount,
-  }) async {
-    try {
-      final apiClient = sl<ApiClient>();
-      await apiClient.post(
-        '/water',
-        data: {
-          'unit': unit,
-          'amount': amount,
-        },
-      );
-      await _loadInitialWater();
-    } catch (_) {}
+    required String label,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2C2C2E),
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(icon, color: const Color(0xFF00D180), size: 20.sp),
+                    SizedBox(width: 8.w),
+                    Text(
+                      label,
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  if (unit == 'glass') {
+                    _showCustomWaterDeleteDialog(
+                      context,
+                      unit: unit,
+                      initialAmount: amount,
+                    );
+                    return;
+                  }
+
+                  final bloc = context.read<TrackMealsBloc>();
+                  bloc.add(
+                    TrackMealsLogWater(
+                      date: bloc.state.date,
+                      unit: unit,
+                      amount: -amount,
+                    ),
+                  );
+
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        '$amount ml removed',
+                        style: GoogleFonts.poppins(color: Colors.white),
+                      ),
+                      backgroundColor: const Color(0xFF1E1E2C),
+                      behavior: SnackBarBehavior.floating,
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
+                },
+                child: Icon(
+                  Icons.delete_outline,
+                  color: Colors.white54,
+                  size: 20.sp,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12.h),
+          GestureDetector(
+            onTap: () {
+              if (unit == 'glass') {
+                _showCustomWaterDialog(
+                  context,
+                  unit: unit,
+                  initialAmount: amount,
+                );
+                return;
+              }
+
+              final bloc = context.read<TrackMealsBloc>();
+              bloc.add(
+                TrackMealsLogWater(
+                  date: bloc.state.date,
+                  unit: unit,
+                  amount: amount,
+                ),
+              );
+
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    '$amount ml logged',
+                    style: GoogleFonts.poppins(color: Colors.white),
+                  ),
+                  backgroundColor: const Color(0xFF1E1E2C),
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 1),
+                ),
+              );
+            },
+            child: Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 8.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFF00D180),
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: Center(
+                child: Text(
+                  '+ LOG',
+                  style: GoogleFonts.poppins(
+                    color: Colors.black,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  Future<void> _showInput({
-    required String title,
-    required int? initialMl,
-    required ValueChanged<int?> onSaved,
+  Future<void> _showCustomWaterDialog(
+    BuildContext context, {
+    required String unit,
+    required int initialAmount,
   }) async {
-    final localizations = AppLocalizations.of(context)!;
-    final controller = TextEditingController(
-      text: initialMl == null ? '' : initialMl.toString(),
-    );
-    final saved = await showDialog<int?>(
+    final controller = TextEditingController(text: initialAmount.toString());
+    final amount = await showDialog<int>(
       context: context,
-      builder: (context) {
+      builder: (dialogCtx) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF0F0F15),
+          backgroundColor: const Color(0xFF2C2C2E),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.r),
+          ),
           title: Text(
-            title,
-            style: GoogleFonts.poppins(color: Colors.white),
+            'Water (ml)',
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           content: TextField(
             controller: controller,
             keyboardType: TextInputType.number,
             style: GoogleFonts.poppins(color: Colors.white),
             decoration: InputDecoration(
-              hintText: 'ml',
+              hintText: 'Enter amount',
               hintStyle: GoogleFonts.poppins(color: Colors.white54),
-              enabledBorder: const UnderlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF2E2E5D)),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: const BorderSide(color: Colors.white24),
               ),
-              focusedBorder: const UnderlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF82C941)),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: const BorderSide(color: Color(0xFF00D180)),
               ),
             ),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context, null),
+              onPressed: () => Navigator.of(dialogCtx).pop(),
               child: Text(
-                localizations.nutritionTrackCancel,
-                style: GoogleFonts.poppins(color: Colors.white70),
+                'Cancel',
+                style: GoogleFonts.poppins(color: Colors.white54),
               ),
             ),
             TextButton(
               onPressed: () {
-                final raw = controller.text.trim();
-                if (raw.isEmpty) {
-                  Navigator.pop(context, null);
-                  return;
-                }
-                final parsed = int.tryParse(raw);
+                final parsed = int.tryParse(controller.text.trim());
                 if (parsed == null || parsed <= 0) {
-                  Navigator.pop(context, null);
+                  Navigator.of(dialogCtx).pop(-1);
                   return;
                 }
-                Navigator.pop(context, parsed);
+                Navigator.of(dialogCtx).pop(parsed);
               },
               child: Text(
-                localizations.nutritionTrackAddItem,
-                style: GoogleFonts.poppins(color: const Color(0xFF82C941)),
+                'Log',
+                style: GoogleFonts.poppins(
+                  color: const Color(0xFF00D180),
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],
         );
       },
     );
-    onSaved(saved);
-  }
 
-  void _showWaterMessage(String text) {
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(
+    if (!context.mounted) return;
+    if (amount == null) return;
+    if (amount <= 0) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Invalid amount',
+            style: GoogleFonts.poppins(color: Colors.white),
+          ),
+          backgroundColor: const Color(0xFF1E1E2C),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 1),
+        ),
+      );
+      return;
+    }
+
+    final bloc = context.read<TrackMealsBloc>();
+    bloc.add(
+      TrackMealsLogWater(date: bloc.state.date, unit: unit, amount: amount),
+    );
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          text,
+          '$amount ml logged',
           style: GoogleFonts.poppins(color: Colors.white),
         ),
         backgroundColor: const Color(0xFF1E1E2C),
         behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 1),
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    Widget toggleIcon({
-      required int? ml,
-      required IconData emptyIcon,
-      required IconData filledIcon,
-      required VoidCallback onPressed,
-    }) {
-      final iconSize = 22.sp;
-      return InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(10.r),
-        child: SizedBox(
-          height: 28.h,
-          width: 28.h,
-          child: Center(
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(
-                  (ml ?? 0) > 0 ? filledIcon : emptyIcon,
-                  color: (ml ?? 0) > 0
-                      ? const Color(0xFF4A6CF7)
-                      : Colors.white70,
-                  size: iconSize,
-                ),
-                if ((ml ?? 0) <= 0)
-                  Positioned(
-                    right: -4.w,
-                    top: -4.h,
-                    child: Icon(
-                      Icons.add_circle,
-                      color: const Color(0xFF82C941),
-                      size: 12.sp,
-                    ),
-                  ),
-              ],
+  Future<void> _showCustomWaterDeleteDialog(
+    BuildContext context, {
+    required String unit,
+    required int initialAmount,
+  }) async {
+    final controller = TextEditingController(text: initialAmount.toString());
+    final amount = await showDialog<int>(
+      context: context,
+      builder: (dialogCtx) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF2C2C2E),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.r),
+          ),
+          title: Text(
+            'Remove Water (ml)',
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
             ),
           ),
-        ),
-      );
-    }
-
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      child: Row(
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.water_drop,
-                color: const Color(0xFF4A6CF7),
-                size: 18.sp,
+          content: TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            style: GoogleFonts.poppins(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: 'Enter amount',
+              hintStyle: GoogleFonts.poppins(color: Colors.white54),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: const BorderSide(color: Colors.white24),
               ),
-              SizedBox(width: 8.w),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.waterLabel,
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    'Goal: ${widget.baseWaterMl}ml',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white70,
-                      fontSize: 11.sp,
-                    ),
-                  ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    'Bottle: $_bottleTotalMl ml',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 11.sp,
-                    ),
-                  ),
-                  Text(
-                    _glassTotalMl > 0 ? 'Glass: $_glassTotalMl ml ' : 'Glass: 0ml',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 11.sp,
-                    ),
-                  ),
-                ],
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: const BorderSide(color: Color(0xFF00D180)),
               ),
-            ],
+            ),
           ),
-          SizedBox(width: 24.w),
-          Row(
-            children: [
-              Icon(
-                Icons.local_fire_department,
-                color: const Color(0xFF82C941),
-                size: 18.sp,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogCtx).pop(),
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.poppins(color: Colors.white54),
               ),
-              SizedBox(width: 6.w),
-              Text(
-                '${widget.calories}\n${widget.caloriesLabel}',
+            ),
+            TextButton(
+              onPressed: () {
+                final parsed = int.tryParse(controller.text.trim());
+                if (parsed == null || parsed <= 0) {
+                  Navigator.of(dialogCtx).pop(-1);
+                  return;
+                }
+                Navigator.of(dialogCtx).pop(parsed);
+              },
+              child: Text(
+                'Remove',
                 style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 13.sp,
+                  color: const Color(0xFF00D180),
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-            ],
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!context.mounted) return;
+    if (amount == null) return;
+    if (amount <= 0) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Invalid amount',
+            style: GoogleFonts.poppins(color: Colors.white),
           ),
-          SizedBox(width: 24.w),
-          Row(
-            children: [
-              toggleIcon(
-                ml: _bottleTotalMl,
-                emptyIcon: Icons.liquor_outlined,
-                filledIcon: Icons.liquor,
-                onPressed: () {
-                  setState(() {
-                    _bottleTotalMl += _bottleSizeMl;
-                  });
-                  _showWaterMessage(
-                    '$_bottleSizeMl ml of water has been added successfully.',
-                  );
-                  _postWaterIntake(
-                    unit: 'bottle',
-                    amount: _bottleSizeMl,
-                  );
-                },
-              ),
-              SizedBox(width: 10.w),
-              toggleIcon(
-                ml: _glassTotalMl,
-                emptyIcon: Icons.local_drink_outlined,
-                filledIcon: Icons.local_drink,
-                onPressed: () {
-                  if (_glassSizeMl == null) {
-                    _showInput(
-                      title: 'Glass',
-                      initialMl: null,
-                      onSaved: (v) {
-                        if (v == null) return;
-                        setState(() {
-                          _glassSizeMl = v;
-                          _glassTotalMl += v;
-                        });
-                        _showWaterMessage(
-                          '$v ml of water has been added.',
-                        );
-                        _postWaterIntake(
-                          unit: 'glass',
-                          amount: v,
-                        );
-                      },
-                    );
-                  } else {
-                    setState(() {
-                      if (_glassSizeMl != null && _glassSizeMl! > 0) {
-                        _glassTotalMl += _glassSizeMl!;
-                      }
-                    });
-                    if (_glassSizeMl != null && _glassSizeMl! > 0) {
-                      _showWaterMessage(
-                        '$_glassSizeMl ml of water has been added.',
-                      );
-                      _postWaterIntake(
-                        unit: 'glass',
-                        amount: _glassSizeMl!,
-                      );
-                    }
-                  }
-                },
-              ),
-            ],
-          ),
-        ],
+          backgroundColor: const Color(0xFF1E1E2C),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 1),
+        ),
+      );
+      return;
+    }
+
+    final bloc = context.read<TrackMealsBloc>();
+    bloc.add(
+      TrackMealsLogWater(date: bloc.state.date, unit: unit, amount: -amount),
+    );
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '$amount ml removed',
+          style: GoogleFonts.poppins(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF1E1E2C),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 1),
       ),
     );
   }
@@ -1298,11 +1375,11 @@ class _AddMealDialogState extends State<_AddMealDialog> {
               controller: controller,
               onChanged: (v) {
                 context.read<TrackMealsBloc>().add(
-                      TrackMealsSuggestionQueryChanged(
-                        rowIndex: rowIndex,
-                        query: v,
-                      ),
-                    );
+                  TrackMealsSuggestionQueryChanged(
+                    rowIndex: rowIndex,
+                    query: v,
+                  ),
+                );
               },
             ),
             if (showLoading || showSuggestions) ...[
@@ -1342,10 +1419,10 @@ class _AddMealDialogState extends State<_AddMealDialog> {
                                   offset: controller.text.length,
                                 );
                                 context.read<TrackMealsBloc>().add(
-                                      TrackMealsSuggestionsCleared(
-                                        rowIndex: rowIndex,
-                                      ),
-                                    );
+                                  TrackMealsSuggestionsCleared(
+                                    rowIndex: rowIndex,
+                                  ),
+                                );
                               },
                               child: Padding(
                                 padding: EdgeInsets.symmetric(
@@ -1365,7 +1442,9 @@ class _AddMealDialogState extends State<_AddMealDialog> {
                           },
                           separatorBuilder: (_, __) =>
                               Divider(height: 1, color: Colors.white10),
-                          itemCount: suggestions.length > 6 ? 6 : suggestions.length,
+                          itemCount: suggestions.length > 6
+                              ? 6
+                              : suggestions.length,
                         ),
                       ),
                   ],
@@ -1560,11 +1639,11 @@ class _AddFoodItemsToMealDialogState extends State<_AddFoodItemsToMealDialog> {
               controller: controller,
               onChanged: (v) {
                 context.read<TrackMealsBloc>().add(
-                      TrackMealsSuggestionQueryChanged(
-                        rowIndex: rowIndex,
-                        query: v,
-                      ),
-                    );
+                  TrackMealsSuggestionQueryChanged(
+                    rowIndex: rowIndex,
+                    query: v,
+                  ),
+                );
               },
             ),
             if (showLoading || showSuggestions) ...[
@@ -1604,10 +1683,10 @@ class _AddFoodItemsToMealDialogState extends State<_AddFoodItemsToMealDialog> {
                                   offset: controller.text.length,
                                 );
                                 context.read<TrackMealsBloc>().add(
-                                      TrackMealsSuggestionsCleared(
-                                        rowIndex: rowIndex,
-                                      ),
-                                    );
+                                  TrackMealsSuggestionsCleared(
+                                    rowIndex: rowIndex,
+                                  ),
+                                );
                               },
                               child: Padding(
                                 padding: EdgeInsets.symmetric(
@@ -1627,8 +1706,9 @@ class _AddFoodItemsToMealDialogState extends State<_AddFoodItemsToMealDialog> {
                           },
                           separatorBuilder: (_, __) =>
                               Divider(height: 1, color: Colors.white10),
-                          itemCount:
-                              suggestions.length > 6 ? 6 : suggestions.length,
+                          itemCount: suggestions.length > 6
+                              ? 6
+                              : suggestions.length,
                         ),
                       ),
                   ],
@@ -1774,12 +1854,12 @@ class _AddFoodItemsToMealDialogState extends State<_AddFoodItemsToMealDialog> {
                       }
 
                       context.read<TrackMealsBloc>().add(
-                            TrackMealsAddFoodItemsToMeal(
-                              date: widget.date,
-                              mealId: widget.mealId,
-                              food: items,
-                            ),
-                          );
+                        TrackMealsAddFoodItemsToMeal(
+                          date: widget.date,
+                          mealId: widget.mealId,
+                          food: items,
+                        ),
+                      );
                       Navigator.pop(context);
                     },
                   ),

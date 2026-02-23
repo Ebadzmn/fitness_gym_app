@@ -14,9 +14,8 @@ abstract class NutritionRepository {
     String userId,
   );
   Future<List<FoodItemEntity>> getFoodItems();
-  Future<Either<ApiException, List<MealSuggestionEntity>>> getTrackMealSuggestions(
-    String search,
-  );
+  Future<Either<ApiException, List<MealSuggestionEntity>>>
+  getTrackMealSuggestions(String search);
   Future<Either<ApiException, NutritionDailyTrackingEntity>> getTrackedMeals(
     DateTime date,
   );
@@ -39,6 +38,7 @@ abstract class NutritionRepository {
     DateTime date,
     NutritionMealEntity meal,
   );
+  Future<Either<ApiException, void>> updateWater(String unit, int amount);
   Future<NutritionStatisticsEntity> getNutritionStatistics(DateTime date);
   Future<Either<ApiException, SupplementResponseEntity>> getSupplements(
     String userId,

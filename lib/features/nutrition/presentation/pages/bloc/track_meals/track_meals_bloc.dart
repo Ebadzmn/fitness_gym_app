@@ -6,6 +6,7 @@ import 'package:fitness_app/features/nutrition/domain/usecases/save_track_meal_u
 import 'package:fitness_app/features/nutrition/domain/usecases/delete_tracked_food_item_usecase.dart';
 import 'package:fitness_app/features/nutrition/domain/usecases/add_food_items_to_meal_usecase.dart';
 import 'package:fitness_app/features/nutrition/domain/usecases/get_track_meal_suggestions_usecase.dart';
+import 'package:fitness_app/features/nutrition/domain/usecases/update_water_usecase.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_plan_entity.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_daily_tracking_entity.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/meal_suggestion_entity.dart';
@@ -21,6 +22,7 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
   final AddFoodItemsToMealUseCase addFoodItemsToMeal;
   final GetTrackMealSuggestionsUseCase getSuggestions;
   final GetProfileUseCase getProfile;
+  final UpdateWaterUseCase updateWater;
   Timer? _suggestionsDebounce;
 
   TrackMealsBloc({
@@ -32,6 +34,7 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
     required this.addFoodItemsToMeal,
     required this.getSuggestions,
     required this.getProfile,
+    required this.updateWater,
   }) : super(TrackMealsState(date: initialDate)) {
     on<TrackMealsLoadRequested>(_onLoad);
     on<TrackMealsDateChanged>(_onDateChanged);
@@ -41,6 +44,7 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
     on<TrackMealsSuggestionQueryChanged>(_onSuggestionQueryChanged);
     on<TrackMealsSuggestionRequested>(_onSuggestionRequested);
     on<TrackMealsSuggestionsCleared>(_onSuggestionsCleared);
+    on<TrackMealsLogWater>(_onLogWater);
   }
 
   Future<void> _onLoad(
@@ -179,7 +183,31 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
     TrackMealsAddFoodItemsToMeal event,
     Emitter<TrackMealsState> emit,
   ) async {
-    final result = await addFoodItemsToMeal(event.date, event.mealId, event.food);
+    final result = await addFoodItemsToMeal(
+      event.date,
+      event.mealId,
+      event.food,
+    );
+    result.fold(
+      (failure) {
+        emit(
+          state.copyWith(
+            status: TrackMealsStatus.failure,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (_) {
+        add(TrackMealsLoadRequested(event.date));
+      },
+    );
+  }
+
+  Future<void> _onLogWater(
+    TrackMealsLogWater event,
+    Emitter<TrackMealsState> emit,
+  ) async {
+    final result = await updateWater(event.unit, event.amount);
     result.fold(
       (failure) {
         emit(
@@ -204,8 +232,9 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
     updatedQueryByRow[event.rowIndex] = query;
 
     if (query.length < 2) {
-      final updatedSuggestionsByRow =
-          Map<int, List<MealSuggestionEntity>>.from(state.suggestionsByRow);
+      final updatedSuggestionsByRow = Map<int, List<MealSuggestionEntity>>.from(
+        state.suggestionsByRow,
+      );
       updatedSuggestionsByRow.remove(event.rowIndex);
       emit(
         state.copyWith(
@@ -254,7 +283,8 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
       (_) {
         final updatedSuggestionsByRow =
             Map<int, List<MealSuggestionEntity>>.from(state.suggestionsByRow);
-        updatedSuggestionsByRow[event.rowIndex] = const <MealSuggestionEntity>[];
+        updatedSuggestionsByRow[event.rowIndex] =
+            const <MealSuggestionEntity>[];
         emit(
           state.copyWith(
             suggestionsByRow: updatedSuggestionsByRow,
@@ -282,8 +312,9 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
     TrackMealsSuggestionsCleared event,
     Emitter<TrackMealsState> emit,
   ) {
-    final updatedSuggestionsByRow =
-        Map<int, List<MealSuggestionEntity>>.from(state.suggestionsByRow);
+    final updatedSuggestionsByRow = Map<int, List<MealSuggestionEntity>>.from(
+      state.suggestionsByRow,
+    );
     updatedSuggestionsByRow.remove(event.rowIndex);
     final updatedQueryByRow = Map<int, String>.from(state.suggestionQueryByRow);
     updatedQueryByRow.remove(event.rowIndex);
@@ -291,10 +322,9 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
       state.copyWith(
         suggestionsByRow: updatedSuggestionsByRow,
         suggestionQueryByRow: updatedQueryByRow,
-        suggestionsRowIndex:
-            state.suggestionsRowIndex == event.rowIndex
-                ? null
-                : state.suggestionsRowIndex,
+        suggestionsRowIndex: state.suggestionsRowIndex == event.rowIndex
+            ? null
+            : state.suggestionsRowIndex,
         suggestionsLoading: false,
       ),
     );

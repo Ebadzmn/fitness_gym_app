@@ -43,6 +43,11 @@ class SyncNutritionDataUseCase {
             await tokenStorage.saveUserGender(gender);
           }
 
+          final status = profile.athlete.status.trim();
+          if (status.isNotEmpty) {
+            await tokenStorage.saveUserStatus(status);
+          }
+
           // 2. Fetch Nutrition Plan
           final planResult = await getNutritionPlanUseCase(userId);
           await planResult.fold(

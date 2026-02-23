@@ -43,9 +43,8 @@ class NutritionRepositoryImpl implements NutritionRepository {
   }
 
   @override
-  Future<Either<ApiException, List<MealSuggestionEntity>>> getTrackMealSuggestions(
-    String search,
-  ) async {
+  Future<Either<ApiException, List<MealSuggestionEntity>>>
+  getTrackMealSuggestions(String search) async {
     try {
       final result = await remoteDataSource.fetchTrackMealSuggestions(search);
       return Right(result);
@@ -88,14 +87,10 @@ class NutritionRepositoryImpl implements NutritionRepository {
           '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
       final qtyStr = foodItem.quantity.replaceAll(RegExp(r'[^0-9]'), '');
       final qty = int.tryParse(qtyStr) ?? 0;
-      await remoteDataSource.addFoodItemToMeal(
-        dateStr,
-        mealId,
-        {
-          'foodNme': foodItem.name,
-          'quantity': qty,
-        },
-      );
+      await remoteDataSource.addFoodItemToMeal(dateStr, mealId, {
+        'foodNme': foodItem.name,
+        'quantity': qty,
+      });
       return const Right(null);
     } catch (e) {
       return Left(ApiException(message: e.toString()));
@@ -168,6 +163,19 @@ class NutritionRepositoryImpl implements NutritionRepository {
   }
 
   @override
+  Future<Either<ApiException, void>> updateWater(
+    String unit,
+    int amount,
+  ) async {
+    try {
+      await remoteDataSource.updateWater(unit, amount);
+      return const Right(null);
+    } catch (e) {
+      return Left(ApiException(message: e.toString()));
+    }
+  }
+
+  @override
   Future<NutritionStatisticsEntity> getNutritionStatistics(
     DateTime date,
   ) async {
@@ -183,8 +191,9 @@ class NutritionRepositoryImpl implements NutritionRepository {
   }
 
   @override
-  Future<Either<ApiException, SupplementResponseEntity>>
-  getSupplements(String userId) async {
+  Future<Either<ApiException, SupplementResponseEntity>> getSupplements(
+    String userId,
+  ) async {
     try {
       final result = await remoteDataSource.fetchSupplements(userId);
       return Right(result);

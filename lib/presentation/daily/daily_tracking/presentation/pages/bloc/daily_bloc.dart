@@ -1,5 +1,7 @@
 import 'package:fitness_app/usecase/usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../../../core/network/api_exception.dart';
 import '../../../../../../domain/entities/daily_entities/nutrition_entity.dart';
 import '../../../../../../domain/entities/daily_entities/vital_entity.dart';
 import '../../../../../../domain/entities/daily_entities/ped_health_entity.dart';
@@ -8,8 +10,6 @@ import '../../../../../../domain/usecases/daily/get_daily_by_date_usecase.dart';
 import '../../../../../../domain/usecases/daily/save_daily_usecase.dart';
 import 'daily_event.dart';
 import 'daily_state.dart';
-
-import 'package:shared_preferences/shared_preferences.dart';
 
 class DailyBloc extends Bloc<DailyEvent, DailyState> {
   final GetDailyInitialUseCase getInitial;
@@ -57,7 +57,11 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
     try {
       final data = await getInitial(NoParams());
       emit(
-        state.copyWith(status: DailyStatus.success, data: data, isReadOnly: false),
+        state.copyWith(
+          status: DailyStatus.success,
+          data: data,
+          isReadOnly: false,
+        ),
       );
     } catch (e) {
       emit(
@@ -73,10 +77,80 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
     emit(state.copyWith(status: DailyStatus.loading));
     try {
       final data = await getByDate(event.date);
+
+      // Some backend responses may encode "no daily tracking" as an empty payload
+      // that still parses into an entity with an empty date label.
+      final rawLabel = data.vital.dateLabel.trim();
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final selectedDay = DateTime(
+        event.date.year,
+        event.date.month,
+        event.date.day,
+      );
+      final isToday = selectedDay == today;
+
+      if (rawLabel.isEmpty && !isToday) {
+        try {
+          final initial = await getInitial(NoParams());
+          final y = event.date.year;
+          final m = event.date.month.toString().padLeft(2, '0');
+          final d = event.date.day.toString().padLeft(2, '0');
+          final label = '$y.$m.$d';
+          final updated = initial.copyWith(
+            vital: initial.vital.copyWith(dateLabel: label),
+          );
+          emit(
+            state.copyWith(
+              status: DailyStatus.success,
+              data: updated,
+              isReadOnly: false,
+            ),
+          );
+          return;
+        } catch (_) {
+          // Fall through to normal success handling below
+        }
+      }
+
       emit(
-        state.copyWith(status: DailyStatus.success, data: data, isReadOnly: true),
+        state.copyWith(
+          status: DailyStatus.success,
+          data: data,
+          isReadOnly: true,
+        ),
       );
     } catch (e) {
+      if (e is ApiException) {
+        final msg = e.message.toLowerCase();
+        final isNotFound =
+            (e.statusCode == 404) ||
+            msg.contains('no daily tracking') ||
+            msg.contains('not found') ||
+            msg.contains('invalid daily tracking response');
+        if (isNotFound) {
+          try {
+            final initial = await getInitial(NoParams());
+            final y = event.date.year;
+            final m = event.date.month.toString().padLeft(2, '0');
+            final d = event.date.day.toString().padLeft(2, '0');
+            final label = '$y.$m.$d';
+            final updated = initial.copyWith(
+              vital: initial.vital.copyWith(dateLabel: label),
+            );
+            emit(
+              state.copyWith(
+                status: DailyStatus.success,
+                data: updated,
+                isReadOnly: false,
+              ),
+            );
+            return;
+          } catch (_) {
+            // Fall through to generic error handling below
+          }
+        }
+      }
       emit(
         state.copyWith(status: DailyStatus.error, errorMessage: e.toString()),
       );

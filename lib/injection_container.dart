@@ -61,6 +61,7 @@ import 'features/nutrition/domain/usecases/add_food_item_to_meal_usecase.dart';
 import 'features/nutrition/domain/usecases/add_food_items_to_meal_usecase.dart';
 import 'features/nutrition/domain/usecases/get_nutrition_statistics_usecase.dart';
 import 'features/nutrition/domain/usecases/sync_nutrition_data_usecase.dart';
+import 'features/nutrition/domain/usecases/update_water_usecase.dart';
 import 'features/nutrition/presentation/pages/bloc/nutrition_statistics/nutrition_statistics_bloc.dart';
 import 'package:fitness_app/features/nutrition/domain/usecases/get_supplements_usecase.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_supplement/nutrition_supplement_bloc.dart';
@@ -234,13 +235,11 @@ Future<void> init() async {
       addFoodItemsToMeal: sl(),
       getSuggestions: sl(),
       getProfile: sl(),
+      updateWater: sl(),
     ),
   );
   sl.registerFactory(
-    () => NutritionSupplementBloc(
-      getSupplements: sl(),
-      getProfile: sl(),
-    ),
+    () => NutritionSupplementBloc(getSupplements: sl(), getProfile: sl()),
   );
   sl.registerLazySingleton(() => GetTrackMealsUseCase(sl()));
   sl.registerLazySingleton(() => GetTrackMealSuggestionsUseCase(sl()));
@@ -249,6 +248,7 @@ Future<void> init() async {
   // AddFoodToMeal
   sl.registerLazySingleton(() => AddFoodItemToMealUseCase(sl()));
   sl.registerLazySingleton(() => AddFoodItemsToMealUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateWaterUseCase(sl()));
 
   // Nutrition Statistics
   sl.registerFactory(() => NutritionStatisticsBloc(getStatistics: sl()));

@@ -26,6 +26,7 @@ abstract class NutritionRemoteDataSource {
     List<Map<String, dynamic>> food,
   );
   Future<void> saveTrackedMeal(String date, Map<String, dynamic> mealData);
+  Future<void> updateWater(String unit, int amount);
   Future<NutritionStatisticsModel> fetchNutritionStatistics(String date);
   Future<SupplementResponseModel> fetchSupplements(String userId);
 }
@@ -83,9 +84,11 @@ class NutritionRemoteDataSourceImpl implements NutritionRemoteDataSource {
       final data = response.data['data'];
       if (data is List) {
         return data
-            .map((e) => MealSuggestionEntity.fromJson(
-                  Map<String, dynamic>.from(e as Map),
-                ))
+            .map(
+              (e) => MealSuggestionEntity.fromJson(
+                Map<String, dynamic>.from(e as Map),
+              ),
+            )
             .toList();
       }
       return const [];
@@ -141,10 +144,7 @@ class NutritionRemoteDataSourceImpl implements NutritionRemoteDataSource {
     String mealId,
     Map<String, dynamic> foodItem,
   ) async {
-    await apiClient.post(
-      '${ApiUrls.trackMeal}/$mealId',
-      data: foodItem,
-    );
+    await apiClient.post('${ApiUrls.trackMeal}/$mealId', data: foodItem);
   }
 
   @override
@@ -154,10 +154,7 @@ class NutritionRemoteDataSourceImpl implements NutritionRemoteDataSource {
     List<Map<String, dynamic>> food,
   ) async {
     for (final item in food) {
-      await apiClient.post(
-        '${ApiUrls.trackMeal}/$mealId',
-        data: item,
-      );
+      await apiClient.post('${ApiUrls.trackMeal}/$mealId', data: item);
     }
   }
 
@@ -167,6 +164,11 @@ class NutritionRemoteDataSourceImpl implements NutritionRemoteDataSource {
     Map<String, dynamic> mealData,
   ) async {
     await apiClient.post(ApiUrls.trackMeal, data: {...mealData, 'date': date});
+  }
+
+  @override
+  Future<void> updateWater(String unit, int amount) async {
+    await apiClient.post(ApiUrls.water, data: {'unit': unit, 'amount': amount});
   }
 
   @override
