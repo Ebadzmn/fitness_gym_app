@@ -7,6 +7,7 @@ import 'package:fitness_app/features/nutrition/domain/usecases/delete_tracked_fo
 import 'package:fitness_app/features/nutrition/domain/usecases/add_food_items_to_meal_usecase.dart';
 import 'package:fitness_app/features/nutrition/domain/usecases/get_track_meal_suggestions_usecase.dart';
 import 'package:fitness_app/features/nutrition/domain/usecases/update_water_usecase.dart';
+import 'package:fitness_app/features/nutrition/domain/usecases/get_water_config_usecase.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_plan_entity.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_daily_tracking_entity.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/meal_suggestion_entity.dart';
@@ -23,6 +24,7 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
   final GetTrackMealSuggestionsUseCase getSuggestions;
   final GetProfileUseCase getProfile;
   final UpdateWaterUseCase updateWater;
+  final GetWaterConfigUseCase getWaterConfig;
   Timer? _suggestionsDebounce;
 
   TrackMealsBloc({
@@ -35,6 +37,7 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
     required this.getSuggestions,
     required this.getProfile,
     required this.updateWater,
+    required this.getWaterConfig,
   }) : super(TrackMealsState(date: initialDate)) {
     on<TrackMealsLoadRequested>(_onLoad);
     on<TrackMealsDateChanged>(_onDateChanged);
@@ -58,6 +61,9 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
         suggestionQueryByRow: const {},
         suggestionsRowIndex: null,
         suggestionsLoading: false,
+        trackingData: null,
+        bottleAmountMl: 0,
+        glassAmountMl: 0,
       ),
     );
 
@@ -99,8 +105,11 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
     if (errorMessage != null) {
       emit(
         state.copyWith(
-          status: TrackMealsStatus.failure,
+          status: TrackMealsStatus.success,
           errorMessage: errorMessage,
+          trackingData: null,
+          bottleAmountMl: 0,
+          glassAmountMl: 0,
         ),
       );
       return;
@@ -127,12 +136,28 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
       );
     }
 
+    int? bottleAmount;
+    int? glassAmount;
+
+    final waterResult = await getWaterConfig(event.date);
+    waterResult.fold(
+      (failure) {
+        // Ignore and keep defaults
+      },
+      (config) {
+        bottleAmount = config['bottle'];
+        glassAmount = config['glass'];
+      },
+    );
+
     emit(
       state.copyWith(
         status: TrackMealsStatus.success,
         meals: [], // Clearing legacy meals list as we move to trackingData
         plan: planEntity,
         trackingData: trackingData,
+        bottleAmountMl: bottleAmount,
+        glassAmountMl: glassAmount,
       ),
     );
   }
@@ -141,7 +166,14 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
     TrackMealsDateChanged event,
     Emitter<TrackMealsState> emit,
   ) async {
-    emit(state.copyWith(date: event.date));
+    emit(
+      state.copyWith(
+        date: event.date,
+        trackingData: null,
+        bottleAmountMl: 0,
+        glassAmountMl: 0,
+      ),
+    );
     add(TrackMealsLoadRequested(event.date));
   }
 

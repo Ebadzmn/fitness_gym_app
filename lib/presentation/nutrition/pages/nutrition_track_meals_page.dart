@@ -61,9 +61,6 @@ class _TrackMealsView extends StatelessWidget {
       ),
       body: BlocBuilder<TrackMealsBloc, TrackMealsState>(
         builder: (context, state) {
-          if (state.status == TrackMealsStatus.loading) {
-            return const Center(child: CircularProgressIndicator());
-          }
           if (state.status == TrackMealsStatus.failure) {
             return Center(
               child: Text(
@@ -114,13 +111,27 @@ class _TrackMealsView extends StatelessWidget {
                 SizedBox(height: 12.h),
                 _datePicker(context, state.date),
                 SizedBox(height: 12.h),
-                if (state.trackingData != null)
-                  _planHeader(context, state.trackingData!, state.plan),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  child: state.status == TrackMealsStatus.loading &&
+                          state.trackingData == null
+                      ? _PlanHeaderSkeleton()
+                      : (state.trackingData != null
+                          ? _planHeader(
+                              context,
+                              state.trackingData!,
+                              state.plan,
+                            )
+                          : const SizedBox()),
+                ),
                 if (state.trackingData != null) SizedBox(height: 12.h),
                 if (state.trackingData != null)
                   _macroCircles(context, state.trackingData!.totals),
                 SizedBox(height: 12.h),
-                if (state.trackingData != null &&
+                if (state.status == TrackMealsStatus.loading &&
+                    state.trackingData == null)
+                  const _MealsSkeletonList()
+                else if (state.trackingData != null &&
                     state.trackingData!.data.isNotEmpty)
                   ...state.trackingData!.data.first.meals.map(
                     (m) => _MealTile(meal: m),
@@ -206,11 +217,15 @@ class _TrackMealsView extends StatelessWidget {
     final currentCalories = trackingData.totals.totalCalories;
     final goalCalories = plan?.calories ?? 2500;
 
+    final trackMealsState = context.read<TrackMealsBloc>().state;
+
     return _DailyGoalSection(
       currentWaterMl: currentWater,
       goalWaterMl: goalWater,
       currentCalories: currentCalories,
       goalCalories: goalCalories,
+      bottleAmountMl: trackMealsState.bottleAmountMl,
+      glassAmountMl: trackMealsState.glassAmountMl,
     );
   }
 
@@ -285,17 +300,226 @@ class _TrackMealsView extends StatelessWidget {
   }
 }
 
+class _PlanHeaderSkeleton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C1C1E),
+        borderRadius: BorderRadius.circular(24.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 80.w,
+            height: 14.h,
+            decoration: BoxDecoration(
+              color: Colors.white10,
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+          ),
+          SizedBox(height: 16.h),
+          Row(
+            children: [
+              Expanded(
+                child: _skeletonStatCard(),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: _skeletonStatCard(),
+              ),
+            ],
+          ),
+          SizedBox(height: 24.h),
+          Container(
+            width: 120.w,
+            height: 14.h,
+            decoration: BoxDecoration(
+              color: Colors.white10,
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+          ),
+          SizedBox(height: 12.h),
+          Row(
+            children: [
+              Expanded(
+                child: _skeletonWaterCard(),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: _skeletonWaterCard(),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _skeletonStatCard() {
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2C2C2E),
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 32.r,
+            height: 32.r,
+            decoration: BoxDecoration(
+              color: Colors.white10,
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: 10.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white10,
+                    borderRadius: BorderRadius.circular(6.r),
+                  ),
+                ),
+                SizedBox(height: 6.h),
+                Container(
+                  width: double.infinity,
+                  height: 12.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white10,
+                    borderRadius: BorderRadius.circular(6.r),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _skeletonWaterCard() {
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2C2C2E),
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 80.w,
+            height: 14.h,
+            decoration: BoxDecoration(
+              color: Colors.white10,
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+          ),
+          SizedBox(height: 12.h),
+          Container(
+            width: double.infinity,
+            height: 32.h,
+            decoration: BoxDecoration(
+              color: Colors.white10,
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MealsSkeletonList extends StatelessWidget {
+  const _MealsSkeletonList();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List.generate(3, (index) => _item(context)),
+    );
+  }
+
+  Widget _item(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 16.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F0F15),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: const Color(0xFF2E2E5D)),
+      ),
+      padding: EdgeInsets.all(16.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 100.w,
+                height: 16.h,
+                decoration: BoxDecoration(
+                  color: Colors.white10,
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+              ),
+              SizedBox(width: 10.w),
+              Container(
+                width: 60.w,
+                height: 14.h,
+                decoration: BoxDecoration(
+                  color: Colors.white10,
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12.h),
+          Container(
+            width: double.infinity,
+            height: 12.h,
+            decoration: BoxDecoration(
+              color: Colors.white10,
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Container(
+            width: double.infinity,
+            height: 12.h,
+            decoration: BoxDecoration(
+              color: Colors.white10,
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _DailyGoalSection extends StatelessWidget {
   final int currentWaterMl;
   final int goalWaterMl;
   final int currentCalories;
   final int goalCalories;
+  final int bottleAmountMl;
+  final int glassAmountMl;
 
   const _DailyGoalSection({
     required this.currentWaterMl,
     required this.goalWaterMl,
     required this.currentCalories,
     required this.goalCalories,
+    required this.bottleAmountMl,
+    required this.glassAmountMl,
   });
 
   @override
@@ -362,9 +586,9 @@ class _DailyGoalSection extends StatelessWidget {
                 child: _waterIntakeCard(
                   context,
                   unit: 'bottle',
-                  amount: 500,
-                  label: '500ml',
-                  icon: FontAwesomeIcons.bottleWater, // Bottle icon
+                  totalAmount: bottleAmountMl,
+                  stepAmount: 500,
+                  icon: FontAwesomeIcons.bottleWater,
                 ),
               ),
               SizedBox(width: 12.w),
@@ -372,9 +596,9 @@ class _DailyGoalSection extends StatelessWidget {
                 child: _waterIntakeCard(
                   context,
                   unit: 'glass',
-                  amount: 250,
-                  label: '250ml',
-                  icon: FontAwesomeIcons.glassWater, // Glass icon
+                  totalAmount: glassAmountMl,
+                  stepAmount: 2000,
+                  icon: FontAwesomeIcons.glassWater,
                 ),
               ),
             ],
@@ -436,8 +660,8 @@ class _DailyGoalSection extends StatelessWidget {
   Widget _waterIntakeCard(
     BuildContext context, {
     required String unit,
-    required int amount,
-    required String label,
+    required int totalAmount,
+    required int stepAmount,
     required IconData icon,
   }) {
     return Container(
@@ -456,7 +680,7 @@ class _DailyGoalSection extends StatelessWidget {
                     Icon(icon, color: const Color(0xFF00D180), size: 20.sp),
                     SizedBox(width: 8.w),
                     Text(
-                      label,
+                      '$totalAmount ml',
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 14.sp,
@@ -472,7 +696,7 @@ class _DailyGoalSection extends StatelessWidget {
                     _showCustomWaterDeleteDialog(
                       context,
                       unit: unit,
-                      initialAmount: amount,
+                      initialAmount: stepAmount,
                     );
                     return;
                   }
@@ -482,7 +706,7 @@ class _DailyGoalSection extends StatelessWidget {
                     TrackMealsLogWater(
                       date: bloc.state.date,
                       unit: unit,
-                      amount: -amount,
+                      amount: -stepAmount,
                     ),
                   );
 
@@ -490,7 +714,7 @@ class _DailyGoalSection extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        '$amount ml removed',
+                        '$stepAmount ml removed',
                         style: GoogleFonts.poppins(color: Colors.white),
                       ),
                       backgroundColor: const Color(0xFF1E1E2C),
@@ -514,7 +738,7 @@ class _DailyGoalSection extends StatelessWidget {
                 _showCustomWaterDialog(
                   context,
                   unit: unit,
-                  initialAmount: amount,
+                  initialAmount: stepAmount,
                 );
                 return;
               }
@@ -524,7 +748,7 @@ class _DailyGoalSection extends StatelessWidget {
                 TrackMealsLogWater(
                   date: bloc.state.date,
                   unit: unit,
-                  amount: amount,
+                  amount: stepAmount,
                 ),
               );
 
@@ -532,7 +756,7 @@ class _DailyGoalSection extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    '$amount ml logged',
+                    '$stepAmount ml logged',
                     style: GoogleFonts.poppins(color: Colors.white),
                   ),
                   backgroundColor: const Color(0xFF1E1E2C),

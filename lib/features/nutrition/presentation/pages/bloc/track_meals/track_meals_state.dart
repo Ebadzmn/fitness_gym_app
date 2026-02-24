@@ -16,6 +16,8 @@ class TrackMealsState extends Equatable {
   final Map<int, String> suggestionQueryByRow;
   final int? suggestionsRowIndex;
   final bool suggestionsLoading;
+  final int bottleAmountMl;
+  final int glassAmountMl;
 
   const TrackMealsState({
     this.status = TrackMealsStatus.initial,
@@ -28,6 +30,8 @@ class TrackMealsState extends Equatable {
     this.suggestionQueryByRow = const {},
     this.suggestionsRowIndex,
     this.suggestionsLoading = false,
+    this.bottleAmountMl = 500,
+    this.glassAmountMl = 250,
   });
 
   TrackMealsState copyWith({
@@ -41,6 +45,8 @@ class TrackMealsState extends Equatable {
     Map<int, String>? suggestionQueryByRow,
     int? suggestionsRowIndex,
     bool? suggestionsLoading,
+    int? bottleAmountMl,
+    int? glassAmountMl,
   }) => TrackMealsState(
     status: status ?? this.status,
     date: date ?? this.date,
@@ -52,6 +58,8 @@ class TrackMealsState extends Equatable {
     suggestionQueryByRow: suggestionQueryByRow ?? this.suggestionQueryByRow,
     suggestionsRowIndex: suggestionsRowIndex ?? this.suggestionsRowIndex,
     suggestionsLoading: suggestionsLoading ?? this.suggestionsLoading,
+    bottleAmountMl: bottleAmountMl ?? this.bottleAmountMl,
+    glassAmountMl: glassAmountMl ?? this.glassAmountMl,
   );
 
   @override
@@ -66,5 +74,7 @@ class TrackMealsState extends Equatable {
     suggestionQueryByRow,
     suggestionsRowIndex,
     suggestionsLoading,
+    bottleAmountMl,
+    glassAmountMl,
   ];
 }

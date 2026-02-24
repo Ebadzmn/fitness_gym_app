@@ -176,6 +176,24 @@ class NutritionRepositoryImpl implements NutritionRepository {
   }
 
   @override
+  Future<Either<ApiException, Map<String, int>>> getWaterConfig(
+    DateTime date,
+  ) async {
+    try {
+      final dateStr =
+          '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      final result = await remoteDataSource.fetchWaterConfig(dateStr);
+      return Right(result);
+    } on DioException catch (e) {
+      return Left(
+        ApiException(message: e.message ?? 'Failed to fetch water config'),
+      );
+    } catch (e) {
+      return Left(ApiException(message: e.toString()));
+    }
+  }
+
+  @override
   Future<NutritionStatisticsEntity> getNutritionStatistics(
     DateTime date,
   ) async {

@@ -27,6 +27,7 @@ abstract class NutritionRemoteDataSource {
   );
   Future<void> saveTrackedMeal(String date, Map<String, dynamic> mealData);
   Future<void> updateWater(String unit, int amount);
+  Future<Map<String, int>> fetchWaterConfig(String date);
   Future<NutritionStatisticsModel> fetchNutritionStatistics(String date);
   Future<SupplementResponseModel> fetchSupplements(String userId);
 }
@@ -169,6 +170,35 @@ class NutritionRemoteDataSourceImpl implements NutritionRemoteDataSource {
   @override
   Future<void> updateWater(String unit, int amount) async {
     await apiClient.post(ApiUrls.water, data: {'unit': unit, 'amount': amount});
+  }
+
+  @override
+  Future<Map<String, int>> fetchWaterConfig(String date) async {
+    final response = await apiClient.get(
+      ApiUrls.water,
+      queryParameters: {'date': date},
+    );
+
+    if (response.data['success'] == true) {
+      final List<dynamic> raw = response.data['data'] as List<dynamic>? ?? [];
+      final Map<String, int> totalsByUnit = {};
+
+      for (final item in raw) {
+        if (item is! Map<String, dynamic>) continue;
+        final unit = item['unit']?.toString();
+        final amount = (item['amount'] as num?)?.toInt();
+        if (unit != null && amount != null) {
+          totalsByUnit[unit] = (totalsByUnit[unit] ?? 0) + amount;
+        }
+      }
+
+      return totalsByUnit;
+    } else {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        error: response.data['message'],
+      );
+    }
   }
 
   @override
