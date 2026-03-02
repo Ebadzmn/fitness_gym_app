@@ -637,26 +637,55 @@ class _TrainingCardState extends State<TrainingCard> {
               value: _trainingCompleted,
               onChanged: (v) => setState(() => _trainingCompleted = v),
             ),
-            SizedBox(height: 12.h),
-
-            _titledBox('Training Plan?'),
-            SizedBox(height: 12.h),
-
-            Row(
-              children: [
-                Expanded(child: _checkboxTile('Pull Workout', _planPullWorkout, (v) => setState(() => _planPullWorkout = v ?? false))),
-                SizedBox(width: 12.w),
-                Expanded(child: _checkboxTile('Push Fullbody', _planPushFullbody, (v) => setState(() => _planPushFullbody = v ?? false))),
-              ],
-            ),
-            SizedBox(height: 12.h),
-            Row(
-              children: [
-                Expanded(child: _checkboxTile('Leg Day Advanced', _planLegDayAdvanced, (v) => setState(() => _planLegDayAdvanced = v ?? false))),
-                SizedBox(width: 12.w),
-                Expanded(child: _checkboxTile('Upper Body', _planUpperBody, (v) => setState(() => _planUpperBody = v ?? false))),
-              ],
-            ),
+            if (_trainingCompleted) ...[
+              SizedBox(height: 12.h),
+              _titledBox('Training Plan?'),
+              SizedBox(height: 12.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: _checkboxTile(
+                      'Pull Workout',
+                      _planPullWorkout,
+                      (v) =>
+                          setState(() => _planPullWorkout = v ?? false),
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: _checkboxTile(
+                      'Push Fullbody',
+                      _planPushFullbody,
+                      (v) =>
+                          setState(() => _planPushFullbody = v ?? false),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 12.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: _checkboxTile(
+                      'Leg Day Advanced',
+                      _planLegDayAdvanced,
+                      (v) => setState(
+                        () => _planLegDayAdvanced = v ?? false,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: _checkboxTile(
+                      'Upper Body',
+                      _planUpperBody,
+                      (v) =>
+                          setState(() => _planUpperBody = v ?? false),
+                    ),
+                  ),
+                ],
+              ),
+            ],
 
             SizedBox(height: 12.h),
             DropdownYesNoTile(

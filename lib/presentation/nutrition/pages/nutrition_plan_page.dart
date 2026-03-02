@@ -297,19 +297,19 @@ class _NutritionPlanViewState extends State<_NutritionPlanView> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           macroItem(
-            '${plan.proteinG}g',
+            '${plan.proteinG.toStringAsFixed(2)}g',
             AppLocalizations.of(context)!.dailyNutritionProteinLabel,
             const Color(0xFF2287DD),
             const Color(0xFF1B3043),
           ),
           macroItem(
-            '${plan.carbsG}g',
+            '${plan.carbsG.toStringAsFixed(2)}g',
             AppLocalizations.of(context)!.dailyNutritionCarbsLabel,
             const Color(0xFF43A047),
             const Color(0xFF224225),
           ),
           macroItem(
-            '${plan.fatsG}g',
+            '${plan.fatsG.toStringAsFixed(2)}g',
             AppLocalizations.of(context)!.dailyNutritionFatsLabel,
             const Color(0xFFFF6D00),
             const Color(0xFF42291A),

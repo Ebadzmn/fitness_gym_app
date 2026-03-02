@@ -133,6 +133,7 @@ Future<void> init() async {
       getByDate: sl(),
       saveDaily: sl(),
       sharedPreferences: sl(),
+      getTrainingPlans: sl(),
     ),
   );
 

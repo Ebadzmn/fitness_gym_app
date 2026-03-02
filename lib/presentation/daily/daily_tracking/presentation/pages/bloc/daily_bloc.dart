@@ -1,6 +1,8 @@
 import 'package:fitness_app/usecase/usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fitness_app/features/training/domain/usecases/get_training_plans_usecase.dart';
+import 'package:fitness_app/domain/entities/training_entities/training_plan_entity.dart';
 import '../../../../../../core/network/api_exception.dart';
 import '../../../../../../domain/entities/daily_entities/nutrition_entity.dart';
 import '../../../../../../domain/entities/daily_entities/vital_entity.dart';
@@ -16,12 +18,14 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
   final GetDailyByDateUseCase getByDate;
   final SaveDailyUseCase saveDaily;
   final SharedPreferences sharedPreferences;
+  final GetTrainingPlansUseCase getTrainingPlans;
 
   DailyBloc({
     required this.getInitial,
     required this.getByDate,
     required this.saveDaily,
     required this.sharedPreferences,
+    required this.getTrainingPlans,
   }) : super(const DailyState()) {
     on<DailyInitRequested>(_onInit);
     on<DailyDateChanged>(_onDateChanged);
@@ -56,11 +60,18 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
     emit(state.copyWith(status: DailyStatus.loading));
     try {
       final data = await getInitial(NoParams());
+      var plans = <TrainingPlanEntity>[];
+      final result = await getTrainingPlans();
+      result.fold(
+        (_) {},
+        (list) => plans = list,
+      );
       emit(
         state.copyWith(
           status: DailyStatus.success,
           data: data,
           isReadOnly: false,
+          trainingPlans: plans,
         ),
       );
     } catch (e) {
@@ -322,12 +333,7 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
   ) {
     final data = state.data;
     if (data == null) return;
-    final plans = Set<String>.from(data.training.plans);
-    if (event.selected) {
-      plans.add(event.plan);
-    } else {
-      plans.remove(event.plan);
-    }
+    final plans = event.selected ? <String>{event.plan} : <String>{};
     emit(
       state.copyWith(
         data: data.copyWith(training: data.training.copyWith(plans: plans)),

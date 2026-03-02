@@ -178,6 +178,19 @@ class _FoodItemsView extends StatelessWidget {
             localizations.nutritionFoodItemsCategoryFruits,
             FoodCategory.fruits,
           ),
+          chip(
+            localizations.nutritionFoodItemsCategoryVegetables,
+            FoodCategory.vegetables,
+          ),
+          chip(
+            'Dairy',
+            FoodCategory.dairy,
+          ),
+          chip(
+            localizations.nutritionFoodItemsCategorySupplements,
+            FoodCategory.supplements,
+          ),
+          
         ],
       ),
     );
@@ -207,6 +220,8 @@ class _FoodItemTile extends StatelessWidget {
           return const Color(0xFF4CAF50);
         case FoodCategory.all:
           return Colors.white70;
+        case FoodCategory.dairy:
+          return const Color(0xFF82C941);
       }
     }
 
@@ -282,32 +297,31 @@ class _FoodItemTile extends StatelessWidget {
               child: Row(
                 children: [
                   _macroChip(
-                    '${localizations.dailyNutritionProteinLabel}: ${item.protein}g',
+                    '${localizations.dailyNutritionProteinLabel}: ${item.protein.toStringAsFixed(2)}g',
                     const Color(0xFF4A6CF7),
                   ),
-                  SizedBox(width: 8.w),
                   _macroChip(
-                    '${localizations.dailyNutritionCarbsLabel}: ${item.carbs}g',
+                    '${localizations.dailyNutritionCarbsLabel}: ${item.carbs.toStringAsFixed(2)}g',
                     const Color(0xFF82C941),
                   ),
                   SizedBox(width: 8.w),
                   _macroChip(
-                    '${localizations.dailyNutritionFatsLabel}: ${item.fats}g',
+                    '${localizations.dailyNutritionFatsLabel}: ${item.fats.toStringAsFixed(2)}g',
                     const Color(0xFFFF6D00),
                   ),
                   SizedBox(width: 8.w),
                   _macroChip(
-                    '${localizations.nutritionFoodItemsSatFatsLabel}: ${item.saturatedFats}g',
+                    '${localizations.nutritionFoodItemsSatFatsLabel}: ${item.saturatedFats.toStringAsFixed(2)}g',
                     const Color(0xFF2E2E5D),
                   ),
                   SizedBox(width: 8.w),
                   _macroChip(
-                    '${localizations.nutritionFoodItemsUnsatFatsLabel}: ${item.unsaturatedFats}g',
+                    '${localizations.nutritionFoodItemsUnsatFatsLabel}: ${item.unsaturatedFats.toStringAsFixed(2)}g',
                     const Color(0xFF82C941),
                   ),
                   SizedBox(width: 8.w),
                   _macroChip(
-                    '${localizations.nutritionFoodItemsSugarLabel}: ${item.sugar}g',
+                    '${localizations.nutritionFoodItemsSugarLabel}: ${item.sugar.toStringAsFixed(2)}g',
                     const Color(0xFFE04F5F),
                   ),
                 ],
@@ -335,6 +349,8 @@ class _FoodItemTile extends StatelessWidget {
         return localizations.nutritionFoodItemsCategoryVegetables;
       case FoodCategory.all:
         return localizations.nutritionFoodItemsCategoryAll;
+      case FoodCategory.dairy:
+        return 'Dairy';
     }
   }
 

@@ -1,5 +1,6 @@
 import 'package:fitness_app/domain/entities/daily_entities/daily_tracking_entity.dart';
 import 'package:fitness_app/core/coreWidget/full_width_slider.dart';
+import 'package:fitness_app/domain/entities/training_entities/training_plan_entity.dart';
 import 'package:fitness_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -848,6 +849,8 @@ class _DailyView extends StatelessWidget {
 
   Widget _trainingCard(BuildContext context, DailyTrackingEntity data) {
     final localizations = AppLocalizations.of(context)!;
+    final trainingPlans =
+        context.read<DailyBloc>().state.trainingPlans;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -881,64 +884,16 @@ class _DailyView extends StatelessWidget {
                 TrainingToggleChanged('trainingCompleted', v),
               ),
             ),
-            SizedBox(height: 12.h),
-            _titledBox(localizations.dailyTrainingPlanTitle),
-            SizedBox(height: 12.h),
-            Row(
-              children: [
-                Expanded(
-                  child: _checkboxTile(
-                    context,
-                    localizations.dailyTrainingPlanPlaceholder,
-                    data.training.plans.contains(
-                      DailyTrackingConstants.trainingPlanValues[0],
-                    ),
-                    valueToDispatch:
-                        DailyTrackingConstants.trainingPlanValues[0],
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: _checkboxTile(
-                    context,
-                    localizations.dailyTrainingPlanPushFullbody,
-                    data.training.plans.contains(
-                      DailyTrackingConstants.trainingPlanValues[1],
-                    ),
-                    valueToDispatch:
-                        DailyTrackingConstants.trainingPlanValues[1],
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 12.h),
-            Row(
-              children: [
-                Expanded(
-                  child: _checkboxTile(
-                    context,
-                    localizations.dailyTrainingPlanLegDayAdvanced,
-                    data.training.plans.contains(
-                      DailyTrackingConstants.trainingPlanValues[2],
-                    ),
-                    valueToDispatch:
-                        DailyTrackingConstants.trainingPlanValues[2],
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: _checkboxTile(
-                    context,
-                    localizations.dailyTrainingPlanPlan1,
-                    data.training.plans.contains(
-                      DailyTrackingConstants.trainingPlanValues[3],
-                    ),
-                    valueToDispatch:
-                        DailyTrackingConstants.trainingPlanValues[3],
-                  ),
-                ),
-              ],
-            ),
+            if (data.training.trainingCompleted == true) ...[
+              SizedBox(height: 12.h),
+              _titledBox(localizations.dailyTrainingPlanTitle),
+              SizedBox(height: 12.h),
+              _trainingPlanOptions(
+                context,
+                data,
+                trainingPlans,
+              ),
+            ],
             SizedBox(height: 12.h),
             DropdownYesNoTile(
               title: localizations.dailyCardioCompletedTitle,
@@ -959,6 +914,91 @@ class _DailyView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _trainingPlanOptions(
+    BuildContext context,
+    DailyTrackingEntity data,
+    List<TrainingPlanEntity> plans,
+  ) {
+    final selectedName =
+        data.training.plans.isNotEmpty ? data.training.plans.first : null;
+
+    TrainingPlanEntity? selectedPlan;
+    if (selectedName != null) {
+      for (final p in plans) {
+        if (p.title == selectedName) {
+          selectedPlan = p;
+          break;
+        }
+      }
+    }
+
+    String? formattedDate;
+    if (selectedPlan != null && selectedPlan.date.isNotEmpty) {
+      try {
+        final parsed = DateTime.parse(selectedPlan.date);
+        formattedDate = DateFormat('d MMMM yyyy').format(parsed);
+      } catch (_) {
+        formattedDate = null;
+      }
+    }
+
+    if (plans.isEmpty) {
+      return Text(
+        AppLocalizations.of(context)!.trainingExerciseGenericError,
+        style: GoogleFonts.poppins(color: Colors.white54, fontSize: 12.sp),
+      );
+    }
+
+    final tiles = plans.map((plan) {
+      final title = plan.title;
+      final isSelected = selectedName == title;
+      return Expanded(
+        child: _checkboxTile(
+          context,
+          title,
+          isSelected,
+          valueToDispatch: title,
+        ),
+      );
+    }).toList();
+
+    final rows = <Widget>[];
+    for (int i = 0; i < tiles.length; i += 2) {
+      rows.add(
+        Row(
+          children: [
+            tiles[i],
+            if (i + 1 < tiles.length) ...[
+              SizedBox(width: 12.w),
+              tiles[i + 1],
+            ],
+          ],
+        ),
+      );
+      if (i + 2 < tiles.length) {
+        rows.add(SizedBox(height: 12.h));
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (formattedDate != null) ...[
+          Text(
+            formattedDate,
+            style: GoogleFonts.poppins(
+              color: Colors.white70,
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          SizedBox(height: 8.h),
+        ],
+        ...rows,
+      ],
     );
   }
 

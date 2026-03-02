@@ -277,19 +277,19 @@ class _TrackMealsView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           macroItem(
-            '${totalProtein.toInt()}g',
+            '${totalProtein.toStringAsFixed(2)}g',
             AppLocalizations.of(context)!.dailyNutritionProteinLabel,
             const Color(0xFF2287DD),
             const Color(0xFF1B3043),
           ),
           macroItem(
-            '${totalCarbs.toInt()}g',
+            '${totalCarbs.toStringAsFixed(2)}g',
             AppLocalizations.of(context)!.dailyNutritionCarbsLabel,
             const Color(0xFF43A047),
             const Color(0xFF224225),
           ),
           macroItem(
-            '${totalFats.toInt()}g',
+            '${totalFats.toStringAsFixed(2)}g',
             AppLocalizations.of(context)!.dailyNutritionFatsLabel,
             const Color(0xFFFF6D00),
             const Color(0xFF42291A),

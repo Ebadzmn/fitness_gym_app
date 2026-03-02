@@ -550,7 +550,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileLabelCheckInDay => 'Check-in Day';
 
   @override
-  String get profileLabelAge => 'Age';
+  String get profileLabelAge => 'Birth date and Calculate age.';
 
   @override
   String get profileLabelAgeYearsSuffix => 'years';

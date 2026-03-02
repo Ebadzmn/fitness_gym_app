@@ -180,7 +180,7 @@
   "profileLabelStatus": "Status",
   "profileLabelCategory": "Category",
   "profileLabelCheckInDay": "Check-in Day",
-  "profileLabelAge": "Age",
+  "profileLabelAge": "Birth date and Calculate age.",
   "profileLabelAgeYearsSuffix": "years",
   "profileLabelGoal": "Goal",
   "nutritionMenuSupplementTitle": "Supplements",

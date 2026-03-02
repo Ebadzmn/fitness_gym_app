@@ -46,9 +46,7 @@ class DailyTrackingRequestModel {
 
       "training": {
         "trainingCompleted": entity.training.trainingCompleted,
-        "trainingPlan": entity.training.plans
-            .map((e) => e.toUpperCase().replaceAll(' ', '_'))
-            .toList(),
+        "trainingPlan": entity.training.plans.toList(),
         "cardioCompleted": entity.training.cardioCompleted,
         "cardioType": entity.training.cardioType.toUpperCase().replaceAll(
           ' ',

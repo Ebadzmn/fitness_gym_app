@@ -13,6 +13,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fitness_app/l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 
 class TrainingPlanPage extends StatelessWidget {
   const TrainingPlanPage({super.key});
@@ -120,6 +121,15 @@ class _TrainingPlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String displayDate = plan.date;
+    try {
+      if (plan.date.isNotEmpty) {
+        final parsed = DateTime.parse(plan.date);
+        displayDate = DateFormat('d MMMM yyyy').format(parsed);
+      }
+    } catch (_) {
+      displayDate = plan.date;
+    }
     return InkWell(
       onTap: () {
         context.push(AppRoutes.trainingPlanDetailPage, extra: plan.id);
@@ -170,10 +180,10 @@ class _TrainingPlanCard extends StatelessWidget {
                 SizedBox(width: 6.w),
                 Expanded(
                   child: Text(
-                    plan.date,
+                    displayDate,
                     style: GoogleFonts.poppins(
                       color: Colors.white,
-                      fontSize: 12.sp,
+                      fontSize: 10.sp,
                       fontWeight: FontWeight.w500,
                     ),
                     overflow: TextOverflow.ellipsis,

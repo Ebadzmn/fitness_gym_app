@@ -179,6 +179,10 @@ class _NutritionView extends StatelessWidget {
     required stats.NutritionTotalsEntity totals,
     required NutritionDashboardEntity goals,
   }) {
+    final proteinStr = totals.totalProtein.toStringAsFixed(2);
+    final carbsStr = totals.totalCarbs.toStringAsFixed(2);
+    final fatsStr = totals.totalFats.toStringAsFixed(2);
+
     return Container(
       padding: EdgeInsets.all(12.sp),
       decoration: BoxDecoration(
@@ -213,21 +217,21 @@ class _NutritionView extends StatelessWidget {
           SizedBox(height: 12.h),
           _macroRow(
             label: localizations.nutritionMacroProteinLabel,
-            valueText: '${totals.totalProtein.toInt()}g/ ${goals.proteinGoal}g',
+            valueText: '${proteinStr}g / ${goals.proteinGoal}g',
             color: const Color(0xFF4A6CF7),
             progress: totals.totalProtein / goals.proteinGoal,
           ),
           SizedBox(height: 8.h),
           _macroRow(
             label: localizations.nutritionMacroCarbsLabel,
-            valueText: '${totals.totalCarbs.toInt()}g/ ${goals.carbsGoal}g',
+            valueText: '${carbsStr}g / ${goals.carbsGoal}g',
             color: const Color(0xFF82C941),
             progress: totals.totalCarbs / goals.carbsGoal,
           ),
           SizedBox(height: 8.h),
           _macroRow(
             label: localizations.nutritionMacroFatsLabel,
-            valueText: '${totals.totalFats.toInt()}g/ ${goals.fatGoal}g',
+            valueText: '${fatsStr}g / ${goals.fatGoal}g',
             color: const Color(0xFFFF6D00),
             progress: totals.totalFats / goals.fatGoal,
           ),

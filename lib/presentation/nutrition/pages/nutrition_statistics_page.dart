@@ -130,9 +130,9 @@ class _NutritionStatisticsView extends StatelessWidget {
     final carbs = stats.percentages.carbsPercent;
     final fats = stats.percentages.fatsPercent;
 
-    final proteinG = '${stats.totals.totalProtein.toStringAsFixed(1)}g';
-    final carbsG = '${stats.totals.totalCarbs.toStringAsFixed(1)}g';
-    final fatsG = '${stats.totals.totalFats.toStringAsFixed(1)}g';
+    final proteinG = '${stats.totals.totalProtein.toStringAsFixed(2)}g';
+    final carbsG = '${stats.totals.totalCarbs.toStringAsFixed(2)}g';
+    final fatsG = '${stats.totals.totalFats.toStringAsFixed(2)}g';
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

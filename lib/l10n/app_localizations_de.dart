@@ -553,7 +553,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get profileLabelCheckInDay => 'Check-in-Tag';
 
   @override
-  String get profileLabelAge => 'Alter';
+  String get profileLabelAge => 'Geburtsdatum und Berechnung des Alters.';
 
   @override
   String get profileLabelAgeYearsSuffix => 'Jahre';
