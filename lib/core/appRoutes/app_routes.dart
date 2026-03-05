@@ -25,6 +25,7 @@ import 'package:fitness_app/domain/entities/training_entities/training_history_e
 import 'package:flutter/material.dart';
 import 'package:fitness_app/presentation/auth/pages/login_page.dart';
 import 'package:fitness_app/presentation/auth/pages/splash_page.dart';
+import 'package:fitness_app/presentation/auth/pages/webview_screen.dart';
 
 import 'package:go_router/go_router.dart';
 
@@ -54,6 +55,7 @@ class AppRoutes {
   static const String trainingHistoryPage = '/training_history';
   static const String trainingHistoryDetailPage = '/training_history_detail';
   static const String trainingPlanDetailPage = '/training_plan_detail';
+  static const String webViewScreen = '/webview';
   static const String rusuiPage = '/rusui';
 
   static Page<dynamic> fadeTransitionPage({
@@ -97,6 +99,20 @@ final GoRouter AppRouter = GoRouter(
         state: state,
         child: const ForgetpassPage(),
       ),
+    ),
+    GoRoute(
+      path: AppRoutes.webViewScreen,
+      pageBuilder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final url =
+            extra?['url'] as String? ?? 'https://form.typeform.com/to/hSeMPXph';
+        final title = extra?['title'] as String? ?? '';
+        return AppRoutes.fadeTransitionPage(
+          context: context,
+          state: state,
+          child: WebViewScreen(url: url, title: title),
+        );
+      },
     ),
 
     GoRoute(

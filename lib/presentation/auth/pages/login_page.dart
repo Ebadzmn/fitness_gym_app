@@ -122,8 +122,32 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(height: 24.h),
 
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        Flexible(
+                          child: GestureDetector(
+                            onTap: () {
+                              context.push(
+                                AppRoutes.webViewScreen,
+                                extra: {
+                                  'url':
+                                      'https://form.typeform.com/to/hSeMPXph',
+                                },
+                              );
+                            },
+                            child: Text(
+                              AppLocalizations.of(context)!.applyHereText,
+                              style: AppTextStyle.authHeading3.copyWith(
+                                decoration: TextDecoration.underline,
+                                color: Colors.red,
+                              ),
+                              textAlign: TextAlign.left,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
                         GestureDetector(
                           onTap: () {
                             context.push(AppRoutes.forgetPassPage);

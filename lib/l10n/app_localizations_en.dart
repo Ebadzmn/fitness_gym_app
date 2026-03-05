@@ -85,13 +85,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailyTrackingSaved => 'Saved';
 
   @override
+  String get dailyTrackingNoDataForDate => 'No data found for this date';
+
+  @override
   String get dailyDateLabel => 'Date:';
 
   @override
   String get dailyDateToday => 'Today';
-
-  @override
-  String get dailyTrackingNoDataForDate => 'No entry for this date.';
 
   @override
   String get dailyWeightLabel => 'Weight:';
@@ -106,7 +106,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailySleepDurationHint => '08 : 30';
 
   @override
-  String get dailySleepQualityLabel => 'Sleep Quality';
+  String get dailySleepQualityLabel => 'Sleep Quantity';
 
   @override
   String get dailySickLabel => 'Sick:';
@@ -724,7 +724,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get checkInCheckingQuestionCountDescription => 'Questions Answered';
 
   @override
-  String get checkInQuestion1Title => 'How was your week?';
+  String get checkInQuestion1Title => 'What went well this week?';
 
   @override
   String get commonNoAnswer => 'No Answer';
@@ -736,10 +736,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get checkInWellBeingSectionTitle => 'Well-Being';
 
   @override
-  String get checkInWellBeingEnergyLabel => 'Energy';
+  String get checkInWellBeingEnergyLabel => 'Energy Level ';
 
   @override
-  String get checkInWellBeingStressLabel => 'Stress';
+  String get checkInWellBeingStressLabel => 'Stress Level';
 
   @override
   String get checkInWellBeingMoodLabel => 'Mood';
@@ -751,7 +751,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get checkInNutritionSectionTitle => 'Nutrition';
 
   @override
-  String get checkInNutritionDietLevelLabel => 'Diet Adherence';
+  String get checkInNutritionDietLevelLabel => 'Nutrition Plan adherence ';
 
   @override
   String get checkInNutritionDigestionLabel => 'Digestion';
@@ -778,7 +778,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get checkInTrainingCardioCompletedLabel => 'Cardio Completed';
 
   @override
-  String get checkInTrainingFeedbackTitle => 'Feedback';
+  String get checkInTrainingFeedbackTitle =>
+      'What do we need to change, so you can achieve your goals EVEN better?';
 
   @override
   String get checkInAthleteNoteTitle => 'Athlete Note';
@@ -791,4 +792,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkInCheckingAverageWeightTitle => 'Avg Weight';
+
+  @override
+  String get applyHereText => 'Not part of coaching program? Apply Here';
 }

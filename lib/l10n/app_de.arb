@@ -24,6 +24,7 @@
   "dailyTrackingAppBarTitle": "Tägliches Tracking",
   "dailyTrackingError": "Fehler",
   "dailyTrackingSaved": "Gespeichert",
+  "dailyTrackingNoDataForDate": "Keine Daten für dieses Datum",
   "dailyDateLabel": "Datum:",
   "dailyDateToday": "Heute",
   "dailyWeightLabel": "Gewicht:",
@@ -56,6 +57,14 @@
   "dailyCardioTypeTitle": "Cardio-Typ?",
   "dailyCardioWalking": "Gehen",
   "dailyCardioCycling": "Radfahren",
+  "dailyCardioRunning": "Laufen",
+  "dailyCardioSwimming": "Schwimmen",
+  "dailyCardioRowing": "Rudern",
+  "dailyCardioHiking": "Wandern",
+  "dailyCardioJumpRope": "Seilspringen",
+  "dailyCardioCrosstrainer": "Crosstrainer",
+  "dailyCardioStairmaster": "Stairmaster",
+  "dailyCardioOther": "Andere",
   "dailyDurationHint": "Dauer (Minuten)",
   "dailyActivityStepsLabel": "Aktivitätsschritte:",
   "dailyActivityStepsHint": "10000",
@@ -87,5 +96,6 @@
   "dailyBpRestingHrLabel": "Ruhepuls",
   "dailyBpGlucoseLabel": "Blutzucker",
   "dailyNotesSectionTitle": "Tägliche Notizen",
-  "dailySubmitButton": "Speichern"
+  "dailySubmitButton": "Speichern",
+  "applyHereText": "Nicht Teil des Coaching-Programms? Hier bewerben"
 }

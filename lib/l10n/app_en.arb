@@ -24,6 +24,7 @@
   "dailyTrackingAppBarTitle": "Daily Tracking",
   "dailyTrackingError": "Error",
   "dailyTrackingSaved": "Saved",
+  "dailyTrackingNoDataForDate": "No data found for this date",
   "dailyDateLabel": "Date:",
   "dailyDateToday": "Today",
   "dailyWeightLabel": "Weight:",
@@ -60,6 +61,14 @@
   "dailyCardioTypeTitle": "Cardio Type ?",
   "dailyCardioWalking": "Walking",
   "dailyCardioCycling": "Cycling",
+  "dailyCardioRunning": "Running",
+  "dailyCardioSwimming": "Swimming",
+  "dailyCardioRowing": "Rowing",
+  "dailyCardioHiking": "Hiking",
+  "dailyCardioJumpRope": "Jump Rope",
+  "dailyCardioCrosstrainer": "Crosstrainer",
+  "dailyCardioStairmaster": "Stairmaster",
+  "dailyCardioOther": "Other",
   "dailyDurationHint": "Duration  (Minutes)",
   "dailyActivityStepsLabel": "Activity Steps:",
   "dailyActivityStepsHint": "10000",
@@ -260,5 +269,6 @@
   "checkInAthleteNoteTitle": "Athlete Note",
   "commonAnswer": "Answer",
   "checkInCheckingCurrentWeightTitle": "Current Weight",
-  "checkInCheckingAverageWeightTitle": "Avg Weight"
+  "checkInCheckingAverageWeightTitle": "Avg Weight",
+  "applyHereText": "Not part of coaching program? Apply Here"
 }
