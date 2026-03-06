@@ -221,7 +221,7 @@ class _CheckInView extends StatelessWidget {
                 if (state.tab == CheckInViewTab.old) ...[
                   _oldCheckInView(context, state.oldCheckIn, state.skip),
                 ] else ...[
-                  _checkInDateView(localizations),
+                  _checkInDateView(localizations, state),
                 ],
                 SizedBox(height: 30.h),
 
@@ -429,19 +429,24 @@ class _CheckInView extends StatelessWidget {
     );
   }
 
-  Widget _checkInDateView(AppLocalizations localizations) {
-    final now = DateTime.now();
-    final formattedDate = '${now.day}/${now.month}/${now.year}';
-    const days = [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday',
-    ];
-    final dayName = days[now.weekday - 1];
+  Widget _checkInDateView(AppLocalizations localizations, CheckInState state) {
+    String formattedDate = state.checkInDate?.nextCheckInDate ?? '';
+    String dayName = state.checkInDate?.checkInDay ?? '';
+
+    if (formattedDate.isEmpty) {
+      final now = DateTime.now();
+      formattedDate = '${now.day}/${now.month}/${now.year}';
+      const days = [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday',
+      ];
+      dayName = days[now.weekday - 1];
+    }
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 20.w),

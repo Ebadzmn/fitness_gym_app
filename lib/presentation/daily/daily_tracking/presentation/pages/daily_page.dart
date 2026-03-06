@@ -282,7 +282,7 @@ class _DailyView extends StatelessWidget {
                 ),
                 SizedBox(height: 4.h),
                 Text(
-                  dateLabel,
+                  DateFormat('dd MMMM yyyy').format(_parseDateLabel(dateLabel)),
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 14.sp,

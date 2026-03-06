@@ -14,6 +14,7 @@ import 'package:fitness_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:fitness_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:fitness_app/l10n/app_localizations.dart';
 import 'package:fitness_app/core/bloc/nav_bloc.dart';
+import 'package:intl/intl.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -71,7 +72,7 @@ class _ProfileView extends StatelessWidget {
     if (dateString.isEmpty) return '';
     try {
       final date = DateTime.parse(dateString);
-      return '${date.day} / ${date.month} / ${date.year}';
+      return DateFormat('dd MMMM yyyy').format(date);
     } catch (e) {
       return dateString;
     }
@@ -161,21 +162,28 @@ class _ProfileView extends StatelessWidget {
   Widget _infoRow(String label, String value, {Color? valueColor}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w400,
+        Flexible(
+          child: Text(
+            label,
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w400,
+            ),
           ),
         ),
-        Text(
-          value,
-          style: GoogleFonts.poppins(
-            color: valueColor ?? Colors.white,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w500,
+        SizedBox(width: 16.w),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: GoogleFonts.poppins(
+              color: valueColor ?? Colors.white,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ],
