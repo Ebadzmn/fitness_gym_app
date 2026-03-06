@@ -113,16 +113,17 @@ class _TrackMealsView extends StatelessWidget {
                 SizedBox(height: 12.h),
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 250),
-                  child: state.status == TrackMealsStatus.loading &&
+                  child:
+                      state.status == TrackMealsStatus.loading &&
                           state.trackingData == null
                       ? _PlanHeaderSkeleton()
                       : (state.trackingData != null
-                          ? _planHeader(
-                              context,
-                              state.trackingData!,
-                              state.plan,
-                            )
-                          : const SizedBox()),
+                            ? _planHeader(
+                                context,
+                                state.trackingData!,
+                                state.plan,
+                              )
+                            : const SizedBox()),
                 ),
                 if (state.trackingData != null) SizedBox(height: 12.h),
                 if (state.trackingData != null)
@@ -323,13 +324,9 @@ class _PlanHeaderSkeleton extends StatelessWidget {
           SizedBox(height: 16.h),
           Row(
             children: [
-              Expanded(
-                child: _skeletonStatCard(),
-              ),
+              Expanded(child: _skeletonStatCard()),
               SizedBox(width: 12.w),
-              Expanded(
-                child: _skeletonStatCard(),
-              ),
+              Expanded(child: _skeletonStatCard()),
             ],
           ),
           SizedBox(height: 24.h),
@@ -344,13 +341,9 @@ class _PlanHeaderSkeleton extends StatelessWidget {
           SizedBox(height: 12.h),
           Row(
             children: [
-              Expanded(
-                child: _skeletonWaterCard(),
-              ),
+              Expanded(child: _skeletonWaterCard()),
               SizedBox(width: 12.w),
-              Expanded(
-                child: _skeletonWaterCard(),
-              ),
+              Expanded(child: _skeletonWaterCard()),
             ],
           ),
         ],
@@ -443,9 +436,7 @@ class _MealsSkeletonList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: List.generate(3, (index) => _item(context)),
-    );
+    return Column(children: List.generate(3, (index) => _item(context)));
   }
 
   Widget _item(BuildContext context) {
@@ -1359,165 +1350,168 @@ class _AddMealDialogState extends State<_AddMealDialog> {
       insetPadding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Container(
         padding: EdgeInsets.all(20.w),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Icon(Icons.close, color: Colors.white, size: 20.sp),
-              ),
-            ),
-            SizedBox(height: 10.h),
-            Row(
-              children: [
-                Expanded(
-                  child: _inputField(
-                    localizations.nutritionTrackMealNameLabel,
-                    localizations.nutritionTrackFoodNameHint,
-                    controller: _mealCtrl,
-                  ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Icon(Icons.close, color: Colors.white, size: 20.sp),
                 ),
-                SizedBox(width: 16.w),
-              ],
-            ),
-            SizedBox(height: 16.h),
-            Column(
-              children: [
-                for (int i = 0; i < _foodCtrls.length; i++) ...[
-                  Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _foodNameWithSuggestions(
-                              context,
-                              rowIndex: i,
-                              label: localizations.nutritionTrackFoodNameLabel,
-                              hint: localizations.nutritionTrackFoodNameHint,
-                              controller: _foodCtrls[i],
-                            ),
-                          ),
-                          SizedBox(width: 16.w),
-                          Expanded(
-                            child: _inputField(
-                              localizations.nutritionTrackFoodQuantityLabel,
-                              localizations.nutritionTrackFoodQuantityHint,
-                              controller: _qtyCtrls[i],
-                              onChanged: (_) {
-                                context.read<TrackMealsBloc>().add(
-                                  TrackMealsSuggestionsCleared(rowIndex: i),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+              ),
+              SizedBox(height: 10.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: _inputField(
+                      localizations.nutritionTrackMealNameLabel,
+                      localizations.nutritionTrackFoodNameHint,
+                      controller: _mealCtrl,
+                    ),
                   ),
-                  SizedBox(height: 12.h),
+                  SizedBox(width: 16.w),
                 ],
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: GestureDetector(
-                    onTap: _addRow,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(14.r),
-                        border: Border.all(color: const Color(0xFF82C941)),
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 10.w,
-                        vertical: 6.h,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.add, color: Colors.white),
-                          SizedBox(width: 6.w),
-                          Text(
-                            localizations.nutritionTrackAddItem,
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w600,
+              ),
+              SizedBox(height: 16.h),
+              Column(
+                children: [
+                  for (int i = 0; i < _foodCtrls.length; i++) ...[
+                    Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _foodNameWithSuggestions(
+                                context,
+                                rowIndex: i,
+                                label:
+                                    localizations.nutritionTrackFoodNameLabel,
+                                hint: localizations.nutritionTrackFoodNameHint,
+                                controller: _foodCtrls[i],
+                              ),
                             ),
-                          ),
-                        ],
+                            SizedBox(width: 16.w),
+                            Expanded(
+                              child: _inputField(
+                                localizations.nutritionTrackFoodQuantityLabel,
+                                localizations.nutritionTrackFoodQuantityHint,
+                                controller: _qtyCtrls[i],
+                                onChanged: (_) {
+                                  context.read<TrackMealsBloc>().add(
+                                    TrackMealsSuggestionsCleared(rowIndex: i),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 12.h),
+                  ],
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: GestureDetector(
+                      onTap: _addRow,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(14.r),
+                          border: Border.all(color: const Color(0xFF82C941)),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10.w,
+                          vertical: 6.h,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.add, color: Colors.white),
+                            SizedBox(width: 6.w),
+                            Text(
+                              localizations.nutritionTrackAddItem,
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            SizedBox(height: 24.h),
-            Row(
-              children: [
-                Expanded(
-                  child: _button(
-                    localizations.nutritionTrackCancel,
-                    const Color(0xFF1C222E),
-                    Colors.white,
-                    () => Navigator.pop(context),
+                ],
+              ),
+              SizedBox(height: 24.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: _button(
+                      localizations.nutritionTrackCancel,
+                      const Color(0xFF1C222E),
+                      Colors.white,
+                      () => Navigator.pop(context),
+                    ),
                   ),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: _button(
-                    localizations.nutritionTrackAddMeal,
-                    const Color(0xFF1A1A50),
-                    Colors.white,
-                    () {
-                      final mealName = _mealCtrl.text.trim();
-                      final timeLabel = _timeCtrl.text.trim().isEmpty
-                          ? 'Custom'
-                          : _timeCtrl.text.trim();
-                      final items = <MealFoodItemEntity>[];
-                      for (int i = 0; i < _foodCtrls.length; i++) {
-                        final food = _foodCtrls[i].text.trim();
-                        final qty = _qtyCtrls[i].text.trim();
-                        if (food.isEmpty || qty.isEmpty) continue;
-                        items.add(
-                          MealFoodItemEntity(name: food, quantity: qty),
-                        );
-                      }
-                      if (mealName.isEmpty || items.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              localizations
-                                  .nutritionTrackValidationMealRequired,
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: _button(
+                      localizations.nutritionTrackAddMeal,
+                      const Color(0xFF1A1A50),
+                      Colors.white,
+                      () {
+                        final mealName = _mealCtrl.text.trim();
+                        final timeLabel = _timeCtrl.text.trim().isEmpty
+                            ? 'Custom'
+                            : _timeCtrl.text.trim();
+                        final items = <MealFoodItemEntity>[];
+                        for (int i = 0; i < _foodCtrls.length; i++) {
+                          final food = _foodCtrls[i].text.trim();
+                          final qty = _qtyCtrls[i].text.trim();
+                          if (food.isEmpty || qty.isEmpty) continue;
+                          items.add(
+                            MealFoodItemEntity(name: food, quantity: qty),
+                          );
+                        }
+                        if (mealName.isEmpty || items.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                localizations
+                                    .nutritionTrackValidationMealRequired,
+                              ),
                             ),
-                          ),
+                          );
+                          return;
+                        }
+                        final meal = NutritionMealEntity(
+                          id: DateTime.now().millisecondsSinceEpoch.toString(),
+                          timeLabel: timeLabel,
+                          title: mealName,
+                          calories: 0,
+                          proteinG: 0,
+                          carbsG: 0,
+                          fatsG: 0,
+                          items: items,
+                          trainingDay:
+                              localizations.nutritionTrackTrainingDayLabel,
                         );
-                        return;
-                      }
-                      final meal = NutritionMealEntity(
-                        id: DateTime.now().millisecondsSinceEpoch.toString(),
-                        timeLabel: timeLabel,
-                        title: mealName,
-                        calories: 0,
-                        proteinG: 0,
-                        carbsG: 0,
-                        fatsG: 0,
-                        items: items,
-                        trainingDay:
-                            localizations.nutritionTrackTrainingDayLabel,
-                      );
-                      context.read<TrackMealsBloc>().add(
-                        TrackMealsAddMeal(widget.date, meal),
-                      );
-                      Navigator.pop(context);
-                    },
-                    borderColor: const Color(0xFF3F3F9F),
+                        context.read<TrackMealsBloc>().add(
+                          TrackMealsAddMeal(widget.date, meal),
+                        );
+                        Navigator.pop(context);
+                      },
+                      borderColor: const Color(0xFF3F3F9F),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1954,143 +1948,149 @@ class _AddFoodItemsToMealDialogState extends State<_AddFoodItemsToMealDialog> {
       insetPadding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Container(
         padding: EdgeInsets.all(20.w),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Icon(Icons.close, color: Colors.white, size: 20.sp),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Icon(Icons.close, color: Colors.white, size: 20.sp),
+                ),
               ),
-            ),
-            SizedBox(height: 10.h),
-            Text(
-              widget.mealTitle,
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
+              SizedBox(height: 10.h),
+              Text(
+                widget.mealTitle,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-            SizedBox(height: 16.h),
-            Column(
-              children: [
-                for (int i = 0; i < _foodCtrls.length; i++) ...[
-                  Row(
-                    children: [
-                      Expanded(
-                        child: foodNameWithSuggestions(
-                          rowIndex: i,
-                          label: localizations.nutritionTrackFoodNameLabel,
-                          hint: localizations.nutritionTrackFoodNameHint,
-                          controller: _foodCtrls[i],
-                        ),
-                      ),
-                      SizedBox(width: 16.w),
-                      Expanded(
-                        child: inputField(
-                          label: localizations.nutritionTrackFoodQuantityLabel,
-                          hint: localizations.nutritionTrackFoodQuantityHint,
-                          controller: _qtyCtrls[i],
-                          keyboardType: TextInputType.number,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 12.h),
-                ],
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: GestureDetector(
-                    onTap: _addRow,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(14.r),
-                        border: Border.all(color: const Color(0xFF82C941)),
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 10.w,
-                        vertical: 6.h,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.add, color: Colors.white),
-                          SizedBox(width: 6.w),
-                          Text(
-                            localizations.nutritionTrackAddItem,
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
+              SizedBox(height: 16.h),
+              Column(
+                children: [
+                  for (int i = 0; i < _foodCtrls.length; i++) ...[
+                    Row(
+                      children: [
+                        Expanded(
+                          child: foodNameWithSuggestions(
+                            rowIndex: i,
+                            label: localizations.nutritionTrackFoodNameLabel,
+                            hint: localizations.nutritionTrackFoodNameHint,
+                            controller: _foodCtrls[i],
                           ),
-                        ],
+                        ),
+                        SizedBox(width: 16.w),
+                        Expanded(
+                          child: inputField(
+                            label:
+                                localizations.nutritionTrackFoodQuantityLabel,
+                            hint: localizations.nutritionTrackFoodQuantityHint,
+                            controller: _qtyCtrls[i],
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 12.h),
+                  ],
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: GestureDetector(
+                      onTap: _addRow,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(14.r),
+                          border: Border.all(color: const Color(0xFF82C941)),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10.w,
+                          vertical: 6.h,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.add, color: Colors.white),
+                            SizedBox(width: 6.w),
+                            Text(
+                              localizations.nutritionTrackAddItem,
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            SizedBox(height: 24.h),
-            Row(
-              children: [
-                Expanded(
-                  child: actionButton(
-                    text: localizations.nutritionTrackCancel,
-                    bgColor: const Color(0xFF1C222E),
-                    textColor: Colors.white,
-                    onTap: () => Navigator.pop(context),
+                ],
+              ),
+              SizedBox(height: 24.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: actionButton(
+                      text: localizations.nutritionTrackCancel,
+                      bgColor: const Color(0xFF1C222E),
+                      textColor: Colors.white,
+                      onTap: () => Navigator.pop(context),
+                    ),
                   ),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: actionButton(
-                    text: localizations.nutritionTrackAddItem,
-                    bgColor: const Color(0xFF1A1A50),
-                    textColor: Colors.white,
-                    borderColor: const Color(0xFF3F3F9F),
-                    onTap: () {
-                      final items = <MealFoodItemEntity>[];
-                      for (int i = 0; i < _foodCtrls.length; i++) {
-                        final food = _foodCtrls[i].text.trim();
-                        final qtyRaw = _qtyCtrls[i].text.trim();
-                        if (food.isEmpty || qtyRaw.isEmpty) continue;
-                        final qtyStr = qtyRaw.replaceAll(RegExp(r'[^0-9]'), '');
-                        final qty = int.tryParse(qtyStr);
-                        if (qty == null || qty <= 0) continue;
-                        items.add(
-                          MealFoodItemEntity(name: food, quantity: qtyStr),
-                        );
-                      }
-                      if (items.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              localizations.nutritionTrackNoItemsLogged,
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: actionButton(
+                      text: localizations.nutritionTrackAddItem,
+                      bgColor: const Color(0xFF1A1A50),
+                      textColor: Colors.white,
+                      borderColor: const Color(0xFF3F3F9F),
+                      onTap: () {
+                        final items = <MealFoodItemEntity>[];
+                        for (int i = 0; i < _foodCtrls.length; i++) {
+                          final food = _foodCtrls[i].text.trim();
+                          final qtyRaw = _qtyCtrls[i].text.trim();
+                          if (food.isEmpty || qtyRaw.isEmpty) continue;
+                          final qtyStr = qtyRaw.replaceAll(
+                            RegExp(r'[^0-9]'),
+                            '',
+                          );
+                          final qty = int.tryParse(qtyStr);
+                          if (qty == null || qty <= 0) continue;
+                          items.add(
+                            MealFoodItemEntity(name: food, quantity: qtyStr),
+                          );
+                        }
+                        if (items.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                localizations.nutritionTrackNoItemsLogged,
+                              ),
                             ),
+                          );
+                          return;
+                        }
+
+                        context.read<TrackMealsBloc>().add(
+                          TrackMealsAddFoodItemsToMeal(
+                            date: widget.date,
+                            mealId: widget.mealId,
+                            food: items,
                           ),
                         );
-                        return;
-                      }
-
-                      context.read<TrackMealsBloc>().add(
-                        TrackMealsAddFoodItemsToMeal(
-                          date: widget.date,
-                          mealId: widget.mealId,
-                          food: items,
-                        ),
-                      );
-                      Navigator.pop(context);
-                    },
+                        Navigator.pop(context);
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

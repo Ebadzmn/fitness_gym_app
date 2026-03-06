@@ -11,4 +11,3 @@ class GetDailyInitialUseCase implements UseCase<DailyTrackingEntity, NoParams> {
     return repository.loadInitial();
   }
 }
-

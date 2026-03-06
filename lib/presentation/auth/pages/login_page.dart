@@ -139,7 +139,7 @@ class _LoginPageState extends State<LoginPage> {
                               AppLocalizations.of(context)!.applyHereText,
                               style: AppTextStyle.authHeading3.copyWith(
                                 decoration: TextDecoration.underline,
-                                color: Colors.red,
+                                color: Color(0xFF8080EE),
                               ),
                               textAlign: TextAlign.left,
                               maxLines: 2,

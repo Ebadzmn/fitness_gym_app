@@ -17,7 +17,8 @@ class NutritionPEDsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => _NutritionPedsCubit(getProfile: sl(), apiClient: sl())..load(),
+      create: (_) =>
+          _NutritionPedsCubit(getProfile: sl(), apiClient: sl())..load(),
       child: const _NutritionPedsView(),
     );
   }
@@ -52,7 +53,12 @@ class _NutritionPedsView extends StatelessWidget {
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.only(top: 20.h, left: 16.w, right: 16.w, bottom: 20.h),
+        padding: EdgeInsets.only(
+          top: 20.h,
+          left: 16.w,
+          right: 16.w,
+          bottom: 20.h,
+        ),
         child: Container(
           decoration: BoxDecoration(
             color: const Color(0XFF101021),
@@ -176,18 +182,17 @@ class _NutritionPedsView extends StatelessWidget {
             alignment: Alignment.center,
             padding: EdgeInsets.symmetric(horizontal: 4.w),
             color: const Color(0xFF5A4565),
-            child:
-                index == midIndex
-                    ? Text(
-                      category.name,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                    : null,
+            child: index == midIndex
+                ? Text(
+                    category.name,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                : null,
           ),
           Container(
             height: 35.h,
@@ -195,10 +200,7 @@ class _NutritionPedsView extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 4.w),
             child: Text(
               sub.name,
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 10.sp,
-              ),
+              style: GoogleFonts.poppins(color: Colors.white, fontSize: 10.sp),
               textAlign: TextAlign.center,
             ),
           ),
@@ -236,7 +238,10 @@ class _NutritionPedsView extends StatelessWidget {
     return Container(
       height: 35.h,
       alignment: Alignment.center,
-      child: Text(text, style: GoogleFonts.poppins(color: Colors.white, fontSize: 10.sp)),
+      child: Text(
+        text,
+        style: GoogleFonts.poppins(color: Colors.white, fontSize: 10.sp),
+      ),
     );
   }
 }
@@ -286,11 +291,10 @@ class _PedAppDataResponse {
     final success = json['success'] == true;
     final message = json['message']?.toString() ?? '';
     final dataRaw = json['data'];
-    final data =
-        (dataRaw is List ? dataRaw : const [])
-            .whereType<Map>()
-            .map(_PedWeekData.fromJson)
-            .toList();
+    final data = (dataRaw is List ? dataRaw : const [])
+        .whereType<Map>()
+        .map(_PedWeekData.fromJson)
+        .toList();
     return _PedAppDataResponse(success: success, message: message, data: data);
   }
 }
@@ -316,11 +320,10 @@ class _PedWeekData {
 
   factory _PedWeekData.fromJson(Map json) {
     final categoriesRaw = json['categories'];
-    final categories =
-        (categoriesRaw is List ? categoriesRaw : const [])
-            .whereType<Map>()
-            .map(_PedsCategory.fromJson)
-            .toList();
+    final categories = (categoriesRaw is List ? categoriesRaw : const [])
+        .whereType<Map>()
+        .map(_PedsCategory.fromJson)
+        .toList();
 
     DateTime? parseDate(String? value) {
       if (value == null || value.isEmpty) return null;
@@ -347,7 +350,9 @@ class _NutritionPedsCubit extends Cubit<_NutritionPedsState> {
     : super(const _NutritionPedsState());
 
   Future<void> load() async {
-    emit(state.copyWith(status: _NutritionPedsStatus.loading, errorMessage: null));
+    emit(
+      state.copyWith(status: _NutritionPedsStatus.loading, errorMessage: null),
+    );
 
     try {
       final profileResult = await getProfile();
@@ -409,7 +414,10 @@ class _NutritionPedsCubit extends Cubit<_NutritionPedsState> {
 
 String _formatWeekLabel(String raw) {
   if (raw.trim().isEmpty) return '';
-  final match = RegExp(r'week[_\\s-]*(\\d+)', caseSensitive: false).firstMatch(raw);
+  final match = RegExp(
+    r'week[_\\s-]*(\\d+)',
+    caseSensitive: false,
+  ).firstMatch(raw);
   if (match != null) {
     return 'WEEK ${match.group(1)}';
   }
@@ -425,11 +433,10 @@ class _PedsCategory {
   static _PedsCategory fromJson(Map json) {
     final name = json['name']?.toString() ?? '';
     final subsRaw = json['subCategory'];
-    final subs =
-        (subsRaw is List ? subsRaw : const [])
-            .whereType<Map>()
-            .map(_PedsSubCategory.fromJson)
-            .toList();
+    final subs = (subsRaw is List ? subsRaw : const [])
+        .whereType<Map>()
+        .map(_PedsSubCategory.fromJson)
+        .toList();
     return _PedsCategory(name: name, subCategories: subs);
   }
 }

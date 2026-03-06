@@ -16,4 +16,3 @@ class AddFoodItemsToMealUseCase {
     return repository.addFoodItemsToMeal(date, mealId, food);
   }
 }
-

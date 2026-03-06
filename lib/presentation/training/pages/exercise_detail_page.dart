@@ -37,10 +37,10 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
     final baseUrl = Uri.parse(ApiUrls.baseUrl).origin;
     var finalPath = path;
 
-     if (finalPath.startsWith('/vedio/')) {
-       final fileName = finalPath.split('/').last;
-       finalPath = '/media/$fileName';
-     }
+    if (finalPath.startsWith('/vedio/')) {
+      final fileName = finalPath.split('/').last;
+      finalPath = '/media/$fileName';
+    }
 
     if (!finalPath.startsWith('/')) {
       if (!finalPath.contains('/')) {

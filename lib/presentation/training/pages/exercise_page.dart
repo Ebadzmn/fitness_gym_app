@@ -46,7 +46,10 @@ class _ExerciseView extends StatelessWidget {
             ),
           ),
         ),
-        title: Text(localizations.trainingExerciseAppBarTitle, style: AppTextStyle.appbarHeading),
+        title: Text(
+          localizations.trainingExerciseAppBarTitle,
+          style: AppTextStyle.appbarHeading,
+        ),
         centerTitle: true,
       ),
       body: BlocBuilder<ExerciseBloc, ExerciseState>(
@@ -68,7 +71,8 @@ class _ExerciseView extends StatelessWidget {
                 else if (state.status == ExerciseStatus.error)
                   Center(
                     child: Text(
-                      state.errorMessage ?? localizations.trainingExerciseGenericError,
+                      state.errorMessage ??
+                          localizations.trainingExerciseGenericError,
                       style: GoogleFonts.poppins(color: Colors.white),
                     ),
                   )
@@ -87,7 +91,11 @@ class _ExerciseView extends StatelessWidget {
     );
   }
 
-  Widget _searchField(BuildContext context, String initial, AppLocalizations localizations) {
+  Widget _searchField(
+    BuildContext context,
+    String initial,
+    AppLocalizations localizations,
+  ) {
     final ctrl = TextEditingController(text: initial);
     return TextFormField(
       controller: ctrl,
@@ -117,7 +125,11 @@ class _ExerciseView extends StatelessWidget {
     );
   }
 
-  Widget _filters(BuildContext context, String current, AppLocalizations localizations) {
+  Widget _filters(
+    BuildContext context,
+    String current,
+    AppLocalizations localizations,
+  ) {
     final filters = [
       'All',
       'Neck',

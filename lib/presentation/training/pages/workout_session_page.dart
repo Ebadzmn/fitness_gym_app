@@ -22,8 +22,8 @@ class WorkoutSessionPage extends StatefulWidget {
 }
 
 class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
-  final Map<int, List<Map<String, TextEditingController>>> _exerciseControllers =
-      {};
+  final Map<int, List<Map<String, TextEditingController>>>
+  _exerciseControllers = {};
   final Map<int, List<Map<String, bool>>> _fieldErrors = {};
   final TextEditingController _noteController = TextEditingController();
   int _currentExerciseIndex = 0;
@@ -53,8 +53,7 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
   void _onExchangeExercise(List<dynamic> exercises) {
     if (exercises.isEmpty) return;
     setState(() {
-      _currentExerciseIndex =
-          (_currentExerciseIndex + 1) % exercises.length;
+      _currentExerciseIndex = (_currentExerciseIndex + 1) % exercises.length;
     });
   }
 
@@ -209,11 +208,7 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
       });
 
       _fieldErrors[i] = List.generate(setsCount, (_) {
-        return {
-          'weight': false,
-          'reps': false,
-          'rir': false,
-        };
+        return {'weight': false, 'reps': false, 'rir': false};
       });
     }
   }
@@ -233,8 +228,7 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
 
       if (setsDetail.isEmpty) {
         final controllers = controllersList.first;
-        final weight =
-            num.tryParse(controllers['weight']?.text ?? '0') ?? 0;
+        final weight = num.tryParse(controllers['weight']?.text ?? '0') ?? 0;
         final repRange = controllers['reps']?.text ?? '';
         final rir = controllers['rir']?.text ?? '';
 
@@ -254,8 +248,7 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
               ? controllersList[s]
               : controllersList.last;
           final setModel = setsDetail[s];
-          final weight =
-              num.tryParse(controllers['weight']?.text ?? '0') ?? 0;
+          final weight = num.tryParse(controllers['weight']?.text ?? '0') ?? 0;
           final userRep = controllers['reps']?.text ?? '';
           final userRir = controllers['rir']?.text ?? '';
           final repRange = userRep.isNotEmpty
@@ -301,22 +294,15 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
         continue;
       }
 
-      final errorList = _fieldErrors[i] ??
+      final errorList =
+          _fieldErrors[i] ??
           List.generate(controllersList.length, (_) {
-            return {
-              'weight': false,
-              'reps': false,
-              'rir': false,
-            };
+            return {'weight': false, 'reps': false, 'rir': false};
           });
 
       if (errorList.length != controllersList.length) {
         _fieldErrors[i] = List.generate(controllersList.length, (_) {
-          return {
-            'weight': false,
-            'reps': false,
-            'rir': false,
-          };
+          return {'weight': false, 'reps': false, 'rir': false};
         });
       }
 
@@ -517,9 +503,9 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
                                             onComplete: () {
                                               final isValid =
                                                   _validateAllFields(
-                                                exercises,
-                                                context,
-                                              );
+                                                    exercises,
+                                                    context,
+                                                  );
                                               if (!isValid) {
                                                 return;
                                               }
@@ -532,9 +518,7 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
                                                 plan,
                                                 duration,
                                               );
-                                              _clearSavedControllers(
-                                                exercises,
-                                              );
+                                              _clearSavedControllers(exercises);
                                             },
                                           ),
                                           SizedBox(height: 20.h),
@@ -884,8 +868,9 @@ class _ExerciseRowState extends State<_ExerciseRow> {
                     final setControllers = widget.controllers[index];
                     final setsDetail =
                         (widget.exercise.exerciseSets as List?) ?? const [];
-                    final setModel =
-                        setsDetail.length > index ? setsDetail[index] : null;
+                    final setModel = setsDetail.length > index
+                        ? setsDetail[index]
+                        : null;
                     final setLabel = setModel != null
                         ? setModel.sets.toString()
                         : '${index + 1}';
@@ -897,8 +882,9 @@ class _ExerciseRowState extends State<_ExerciseRow> {
                         : (widget.exercise.rir ?? '');
 
                     final errorList = widget.errorFlags;
-                    final errorMap =
-                        errorList.length > index ? errorList[index] : const {};
+                    final errorMap = errorList.length > index
+                        ? errorList[index]
+                        : const {};
                     final weightError = errorMap['weight'] ?? false;
                     final repsError = errorMap['reps'] ?? false;
                     final rirError = errorMap['rir'] ?? false;

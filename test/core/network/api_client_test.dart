@@ -22,7 +22,7 @@ void main() {
     mockPrefs = MockSharedPreferences();
     tokenStorage = TokenStorage(mockPrefs);
     config = NetworkConfig(baseUrl: 'https://api.example.com');
-    
+
     // We need to access the internal dio instance to attach the adapter
     // For testing purposes, we can create a subclass or modify ApiClient to allow injecting Dio
     // But since we want to test the actual ApiClient creation, we'll use a slightly different approach
@@ -32,7 +32,7 @@ void main() {
     test('GET request success', () async {
       final dio = Dio(BaseOptions(baseUrl: 'https://api.example.com'));
       dioAdapter = DioAdapter(dio: dio);
-      
+
       // Injecting the mocked dio into ApiClient would be better, but let's test the logic
       final responseData = {'data': 'test'};
       dioAdapter.onGet('/test', (server) => server.reply(200, responseData));
@@ -46,10 +46,10 @@ void main() {
     test('POST request success', () async {
       final dio = Dio(BaseOptions(baseUrl: 'https://api.example.com'));
       dioAdapter = DioAdapter(dio: dio);
-      
+
       final requestData = {'name': 'John'};
       final responseData = {'id': 1, 'name': 'John'};
-      
+
       dioAdapter.onPost(
         '/users',
         (server) => server.reply(201, responseData),
@@ -64,8 +64,11 @@ void main() {
     test('401 Error handling', () async {
       final dio = Dio(BaseOptions(baseUrl: 'https://api.example.com'));
       dioAdapter = DioAdapter(dio: dio);
-      
-      dioAdapter.onGet('/protected', (server) => server.reply(401, {'message': 'Unauthorized'}));
+
+      dioAdapter.onGet(
+        '/protected',
+        (server) => server.reply(401, {'message': 'Unauthorized'}),
+      );
 
       try {
         await dio.get('/protected');
@@ -79,7 +82,7 @@ void main() {
     test('Connection Timeout handling', () async {
       final dio = Dio(BaseOptions(baseUrl: 'https://api.example.com'));
       dioAdapter = DioAdapter(dio: dio);
-      
+
       dioAdapter.onGet(
         '/timeout',
         (server) => server.throws(

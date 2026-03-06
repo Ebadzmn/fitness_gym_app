@@ -168,7 +168,7 @@ class _DailyView extends StatelessWidget {
                       ],
                       _dailyNotesCard(context, data.notes),
                       SizedBox(height: 16.h),
-                      _submitButton(context),
+                      _submitButton(context, state.isUpdate),
                     ],
                   ),
                 ),
@@ -849,8 +849,7 @@ class _DailyView extends StatelessWidget {
 
   Widget _trainingCard(BuildContext context, DailyTrackingEntity data) {
     final localizations = AppLocalizations.of(context)!;
-    final trainingPlans =
-        context.read<DailyBloc>().state.trainingPlans;
+    final trainingPlans = context.read<DailyBloc>().state.trainingPlans;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -888,11 +887,7 @@ class _DailyView extends StatelessWidget {
               SizedBox(height: 12.h),
               _titledBox(localizations.dailyTrainingPlanTitle),
               SizedBox(height: 12.h),
-              _trainingPlanOptions(
-                context,
-                data,
-                trainingPlans,
-              ),
+              _trainingPlanOptions(context, data, trainingPlans),
             ],
             SizedBox(height: 12.h),
             DropdownYesNoTile(
@@ -922,8 +917,9 @@ class _DailyView extends StatelessWidget {
     DailyTrackingEntity data,
     List<TrainingPlanEntity> plans,
   ) {
-    final selectedName =
-        data.training.plans.isNotEmpty ? data.training.plans.first : null;
+    final selectedName = data.training.plans.isNotEmpty
+        ? data.training.plans.first
+        : null;
 
     TrainingPlanEntity? selectedPlan;
     if (selectedName != null) {
@@ -971,10 +967,7 @@ class _DailyView extends StatelessWidget {
         Row(
           children: [
             tiles[i],
-            if (i + 1 < tiles.length) ...[
-              SizedBox(width: 12.w),
-              tiles[i + 1],
-            ],
+            if (i + 1 < tiles.length) ...[SizedBox(width: 12.w), tiles[i + 1]],
           ],
         ),
       );
@@ -1815,7 +1808,7 @@ class _DailyView extends StatelessWidget {
     );
   }
 
-  Widget _submitButton(BuildContext context) {
+  Widget _submitButton(BuildContext context, bool isUpdate) {
     return SizedBox(
       width: double.infinity,
       height: 44.h,
@@ -1828,7 +1821,7 @@ class _DailyView extends StatelessWidget {
         ),
         onPressed: () => context.read<DailyBloc>().add(const SavePressed()),
         child: Text(
-          AppLocalizations.of(context)!.dailySubmitButton,
+          isUpdate ? 'Update' : AppLocalizations.of(context)!.dailySubmitButton,
           style: GoogleFonts.poppins(
             color: Colors.white,
             fontWeight: FontWeight.w600,

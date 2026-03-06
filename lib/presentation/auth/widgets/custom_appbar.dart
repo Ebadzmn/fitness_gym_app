@@ -26,12 +26,8 @@ class CustomAppBar extends StatelessWidget {
               child: Container(
                 width: 32.w,
                 height: 32.w,
-                
-                child: Icon(
-                  Icons.arrow_back,
-                  color: Colors.white,
-                  size: 18.sp,
-                ),
+
+                child: Icon(Icons.arrow_back, color: Colors.white, size: 18.sp),
               ),
             ),
           ),

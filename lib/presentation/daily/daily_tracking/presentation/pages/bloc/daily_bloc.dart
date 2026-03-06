@@ -10,6 +10,7 @@ import '../../../../../../domain/entities/daily_entities/ped_health_entity.dart'
 import '../../../../../../domain/usecases/daily/get_daily_initial_usecase.dart';
 import '../../../../../../domain/usecases/daily/get_daily_by_date_usecase.dart';
 import '../../../../../../domain/usecases/daily/save_daily_usecase.dart';
+import '../../../../../../domain/usecases/daily/update_daily_usecase.dart';
 import 'daily_event.dart';
 import 'daily_state.dart';
 
@@ -17,6 +18,7 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
   final GetDailyInitialUseCase getInitial;
   final GetDailyByDateUseCase getByDate;
   final SaveDailyUseCase saveDaily;
+  final UpdateDailyUseCase updateDaily;
   final SharedPreferences sharedPreferences;
   final GetTrainingPlansUseCase getTrainingPlans;
 
@@ -24,6 +26,7 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
     required this.getInitial,
     required this.getByDate,
     required this.saveDaily,
+    required this.updateDaily,
     required this.sharedPreferences,
     required this.getTrainingPlans,
   }) : super(const DailyState()) {
@@ -62,15 +65,13 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
       final data = await getInitial(NoParams());
       var plans = <TrainingPlanEntity>[];
       final result = await getTrainingPlans();
-      result.fold(
-        (_) {},
-        (list) => plans = list,
-      );
+      result.fold((_) {}, (list) => plans = list);
       emit(
         state.copyWith(
           status: DailyStatus.success,
           data: data,
           isReadOnly: false,
+          isUpdate: false,
           trainingPlans: plans,
         ),
       );
@@ -116,6 +117,7 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
               status: DailyStatus.success,
               data: updated,
               isReadOnly: false,
+              isUpdate: false,
             ),
           );
           return;
@@ -128,7 +130,8 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
         state.copyWith(
           status: DailyStatus.success,
           data: data,
-          isReadOnly: true,
+          isReadOnly: false,
+          isUpdate: true,
         ),
       );
     } catch (e) {
@@ -154,6 +157,7 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
                 status: DailyStatus.success,
                 data: updated,
                 isReadOnly: false,
+                isUpdate: false,
               ),
             );
             return;
@@ -257,7 +261,17 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
     if (data == null) return;
     emit(state.copyWith(status: DailyStatus.saving));
     try {
-      await saveDaily(data);
+      if (state.isUpdate) {
+        final parts = data.vital.dateLabel.split('.');
+        final y = int.parse(parts[0]);
+        final m = int.parse(parts[1]);
+        final d = int.parse(parts[2]);
+        await updateDaily(
+          UpdateDailyParams(entity: data, date: DateTime(y, m, d)),
+        );
+      } else {
+        await saveDaily(data);
+      }
       // Cache the weight if it exists
       if (data.vital.weightText.isNotEmpty) {
         await sharedPreferences.setString(

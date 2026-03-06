@@ -8,10 +8,21 @@ class TrainingState extends Equatable {
   final TrainingDashboardEntity? data;
   final String? errorMessage;
 
-  const TrainingState({this.status = TrainingStatus.initial, this.data, this.errorMessage});
+  const TrainingState({
+    this.status = TrainingStatus.initial,
+    this.data,
+    this.errorMessage,
+  });
 
-  TrainingState copyWith({TrainingStatus? status, TrainingDashboardEntity? data, String? errorMessage}) =>
-      TrainingState(status: status ?? this.status, data: data ?? this.data, errorMessage: errorMessage ?? this.errorMessage);
+  TrainingState copyWith({
+    TrainingStatus? status,
+    TrainingDashboardEntity? data,
+    String? errorMessage,
+  }) => TrainingState(
+    status: status ?? this.status,
+    data: data ?? this.data,
+    errorMessage: errorMessage ?? this.errorMessage,
+  );
 
   @override
   List<Object?> get props => [status, data, errorMessage];

@@ -22,14 +22,13 @@ class WellBeingEntity extends Equatable {
     double? mood,
     double? motivation,
   }) => WellBeingEntity(
-        energy: energy ?? this.energy,
-        stress: stress ?? this.stress,
-        muscleSoreness: muscleSoreness ?? this.muscleSoreness,
-        mood: mood ?? this.mood,
-        motivation: motivation ?? this.motivation,
-      );
+    energy: energy ?? this.energy,
+    stress: stress ?? this.stress,
+    muscleSoreness: muscleSoreness ?? this.muscleSoreness,
+    mood: mood ?? this.mood,
+    motivation: motivation ?? this.motivation,
+  );
 
   @override
   List<Object?> get props => [energy, stress, muscleSoreness, mood, motivation];
 }
-

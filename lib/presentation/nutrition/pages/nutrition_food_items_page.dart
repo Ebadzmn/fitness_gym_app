@@ -170,10 +170,7 @@ class _FoodItemsView extends StatelessWidget {
             localizations.nutritionFoodItemsCategoryCarbs,
             FoodCategory.carbs,
           ),
-          chip(
-            localizations.nutritionFoodItemsCategoryFats,
-            FoodCategory.fats,
-          ),
+          chip(localizations.nutritionFoodItemsCategoryFats, FoodCategory.fats),
           chip(
             localizations.nutritionFoodItemsCategoryFruits,
             FoodCategory.fruits,
@@ -182,15 +179,11 @@ class _FoodItemsView extends StatelessWidget {
             localizations.nutritionFoodItemsCategoryVegetables,
             FoodCategory.vegetables,
           ),
-          chip(
-            'Dairy',
-            FoodCategory.dairy,
-          ),
+          chip('Dairy', FoodCategory.dairy),
           chip(
             localizations.nutritionFoodItemsCategorySupplements,
             FoodCategory.supplements,
           ),
-          
         ],
       ),
     );

@@ -12,4 +12,3 @@ class GetExerciseByIdUseCase {
     return repository.getExerciseById(id);
   }
 }
-

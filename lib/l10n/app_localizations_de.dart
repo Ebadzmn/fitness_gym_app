@@ -57,7 +57,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get forgetPasswordTitle => 'Passwort vergessen';
 
   @override
-  String get forgetPasswordDescription => 'Gib die E-Mail oder Telefonnummer deines Kontos ein, und wir senden dir einen Code, um dein Passwort zurückzusetzen';
+  String get forgetPasswordDescription =>
+      'Gib die E-Mail oder Telefonnummer deines Kontos ein, und wir senden dir einen Code, um dein Passwort zurückzusetzen';
 
   @override
   String get forgetPasswordEmailLabel => 'E-Mail';
@@ -153,10 +154,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get trainingHistoryAppBarTitle => 'Training History';
 
   @override
-  String get trainingHistoryEmpty => 'Please complete a training first. After that, the history will be added.';
+  String get trainingHistoryEmpty =>
+      'Please complete a training first. After that, the history will be added.';
 
   @override
-  String get coachAddedShortly => 'No customized plan has been created for you yet.';
+  String get coachAddedShortly =>
+      'No customized plan has been created for you yet.';
 
   @override
   String get trainingSplitAppBarTitle => 'Training Split';
@@ -790,5 +793,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get checkInCheckingAverageWeightTitle => 'Avg Weight';
 
   @override
-  String get applyHereText => 'Nicht Teil des Coaching-Programms? Hier bewerben';
+  String get applyHereText =>
+      'Nicht Teil des Coaching-Programms? Hier bewerben';
 }

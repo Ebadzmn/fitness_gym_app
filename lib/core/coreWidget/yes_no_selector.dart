@@ -7,20 +7,37 @@ class YesNoSelector extends StatelessWidget {
   final ValueChanged<bool> onChanged;
   final double spacing;
 
-  const YesNoSelector({super.key, required this.value, required this.onChanged, this.spacing = 16});
+  const YesNoSelector({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    this.spacing = 16,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _circleOption(text: 'Yes', selected: value, onTap: () => onChanged(true)),
+        _circleOption(
+          text: 'Yes',
+          selected: value,
+          onTap: () => onChanged(true),
+        ),
         SizedBox(width: spacing.w),
-        _circleOption(text: 'No', selected: !value, onTap: () => onChanged(false)),
+        _circleOption(
+          text: 'No',
+          selected: !value,
+          onTap: () => onChanged(false),
+        ),
       ],
     );
   }
 
-  Widget _circleOption({required String text, required bool selected, required VoidCallback onTap}) {
+  Widget _circleOption({
+    required String text,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
     final Color fillColor = selected ? Colors.green : Colors.grey;
     final Color borderColor = selected ? Colors.white : Colors.grey;
     return InkWell(
@@ -37,7 +54,14 @@ class YesNoSelector extends StatelessWidget {
             ),
           ),
           SizedBox(width: 8.w),
-          Text(text, style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500)),
+          Text(
+            text,
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );

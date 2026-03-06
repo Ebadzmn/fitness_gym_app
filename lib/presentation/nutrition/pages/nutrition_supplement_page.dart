@@ -142,8 +142,7 @@ class _NutritionSupplementView extends StatelessWidget {
                                   localizations.nutritionSupplementsTableBrand,
                                 ),
                                 _headerCell(
-                                  localizations
-                                      .nutritionSupplementsTableDosage,
+                                  localizations.nutritionSupplementsTableDosage,
                                 ),
                                 _headerCell(
                                   localizations

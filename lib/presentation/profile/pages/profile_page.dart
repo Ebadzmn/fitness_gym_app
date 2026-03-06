@@ -55,9 +55,7 @@ class _ProfileView extends StatelessWidget {
           TextButton(
             onPressed: () {
               context.read<AuthBloc>().add(LogoutRequested());
-              context.go(
-                '/login',
-              );
+              context.go('/login');
             },
             child: Text(
               localizations.profileLogoutConfirm,
@@ -363,10 +361,7 @@ class _ProfileView extends StatelessWidget {
                           '${athlete.age} ${localizations.profileLabelAgeYearsSuffix}',
                         ),
                         SizedBox(height: 12.h),
-                        _infoRow(
-                          localizations.profileLabelGoal,
-                          athlete.goal,
-                        ),
+                        _infoRow(localizations.profileLabelGoal, athlete.goal),
                         SizedBox(height: 12.h),
                         _infoRow(
                           localizations.profileLabelTrainingDaySteps,
@@ -582,17 +577,11 @@ class _LanguageToggleButton extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.language,
-            size: 18,
-          ),
+          const Icon(Icons.language, size: 18),
           const SizedBox(width: 6),
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-            ),
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
           ),
         ],
       ),

@@ -23,6 +23,7 @@ import 'domain/repositories/daily/daily_repository.dart';
 import 'domain/usecases/daily/get_daily_initial_usecase.dart';
 import 'domain/usecases/daily/get_daily_by_date_usecase.dart';
 import 'domain/usecases/daily/save_daily_usecase.dart';
+import 'domain/usecases/daily/update_daily_usecase.dart';
 import 'presentation/daily/daily_tracking/presentation/pages/bloc/daily_bloc.dart';
 import 'features/training/data/datasources/training_remote_datasource.dart';
 import 'features/training/data/repositories/training_repository_impl.dart';
@@ -132,6 +133,7 @@ Future<void> init() async {
       getInitial: sl(),
       getByDate: sl(),
       saveDaily: sl(),
+      updateDaily: sl(),
       sharedPreferences: sl(),
       getTrainingPlans: sl(),
     ),
@@ -141,6 +143,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetDailyInitialUseCase(sl()));
   sl.registerLazySingleton(() => GetDailyByDateUseCase(sl()));
   sl.registerLazySingleton(() => SaveDailyUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateDailyUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<DailyRepository>(

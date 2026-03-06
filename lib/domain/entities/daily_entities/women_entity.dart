@@ -22,14 +22,13 @@ class WomenEntity extends Equatable {
     double? cramps,
     Set<String>? symptoms,
   }) => WomenEntity(
-        cyclePhase: cyclePhase ?? this.cyclePhase,
-        cycleDayLabel: cycleDayLabel ?? this.cycleDayLabel,
-        pms: pms ?? this.pms,
-        cramps: cramps ?? this.cramps,
-        symptoms: symptoms ?? this.symptoms,
-      );
+    cyclePhase: cyclePhase ?? this.cyclePhase,
+    cycleDayLabel: cycleDayLabel ?? this.cycleDayLabel,
+    pms: pms ?? this.pms,
+    cramps: cramps ?? this.cramps,
+    symptoms: symptoms ?? this.symptoms,
+  );
 
   @override
   List<Object?> get props => [cyclePhase, cycleDayLabel, pms, cramps, symptoms];
 }
-

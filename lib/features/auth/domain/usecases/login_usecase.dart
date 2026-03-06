@@ -20,9 +20,6 @@ class LoginUseCase extends UseCase<AuthEntity, LoginParams> {
 
   @override
   Future<AuthEntity> call(LoginParams params) async {
-    return await repository.login(
-      params.email,
-      params.password,
-    );
+    return await repository.login(params.email, params.password);
   }
 }

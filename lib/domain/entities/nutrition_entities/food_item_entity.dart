@@ -1,6 +1,15 @@
 import 'package:equatable/equatable.dart';
 
-enum FoodCategory { all, protein, carbs, fats, supplements, fruits, vegetables, dairy }
+enum FoodCategory {
+  all,
+  protein,
+  carbs,
+  fats,
+  supplements,
+  fruits,
+  vegetables,
+  dairy,
+}
 
 class FoodItemEntity extends Equatable {
   final String? id;

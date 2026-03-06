@@ -11,4 +11,3 @@ class SaveDailyUseCase implements UseCase<void, DailyTrackingEntity> {
     return repository.save(params);
   }
 }
-

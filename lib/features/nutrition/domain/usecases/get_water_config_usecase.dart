@@ -11,4 +11,3 @@ class GetWaterConfigUseCase {
     return repo.getWaterConfig(date);
   }
 }
-

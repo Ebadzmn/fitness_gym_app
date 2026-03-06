@@ -292,8 +292,7 @@ class _QuestionsTabState extends State<QuestionsTab> {
               hint: localizations.commonAnswer,
               onChanged: (v) =>
                   context.read<CheckInBloc>().add(AnswerChanged(1, v)),
-              isError:
-                  _showValidationErrors && data.answer1.trim().isEmpty,
+              isError: _showValidationErrors && data.answer1.trim().isEmpty,
             ),
             SizedBox(height: 12.h),
             SizedBox(height: 12.h),
@@ -311,8 +310,7 @@ class _QuestionsTabState extends State<QuestionsTab> {
               hint: localizations.commonTypeHint,
               onChanged: (v) =>
                   context.read<CheckInBloc>().add(AnswerChanged(2, v)),
-              isError:
-                  _showValidationErrors && data.answer2.trim().isEmpty,
+              isError: _showValidationErrors && data.answer2.trim().isEmpty,
             ),
             SizedBox(height: 12.h),
 
@@ -457,7 +455,8 @@ class _QuestionsTabState extends State<QuestionsTab> {
                     onChanged: (v) => context.read<CheckInBloc>().add(
                       NutritionTextChanged('challenge', v),
                     ),
-                    isError: _showValidationErrors &&
+                    isError:
+                        _showValidationErrors &&
                         data.nutrition.challenge.trim().isEmpty,
                   ),
                 ],
@@ -546,7 +545,8 @@ class _QuestionsTabState extends State<QuestionsTab> {
                       TrainingTextChanged('feedback', v),
                     ),
                     isError:
-                        _showValidationErrors && data.training.feedback.trim().isEmpty,
+                        _showValidationErrors &&
+                        data.training.feedback.trim().isEmpty,
                   ),
                 ],
               ),
@@ -576,7 +576,8 @@ class _QuestionsTabState extends State<QuestionsTab> {
                     hint: localizations.commonTypeHint,
                     onChanged: (v) =>
                         context.read<CheckInBloc>().add(AthleteNoteChanged(v)),
-                    isError: _showValidationErrors &&
+                    isError:
+                        _showValidationErrors &&
                         data.athleteNote.trim().isEmpty,
                   ),
                 ],
@@ -619,13 +620,16 @@ class _QuestionsTabState extends State<QuestionsTab> {
 
                       final answer1Empty = data.answer1.trim().isEmpty;
                       final answer2Empty = data.answer2.trim().isEmpty;
-                      final challengeEmpty =
-                          data.nutrition.challenge.trim().isEmpty;
-                      final feedbackEmpty =
-                          data.training.feedback.trim().isEmpty;
+                      final challengeEmpty = data.nutrition.challenge
+                          .trim()
+                          .isEmpty;
+                      final feedbackEmpty = data.training.feedback
+                          .trim()
+                          .isEmpty;
                       final noteEmpty = data.athleteNote.trim().isEmpty;
 
-                      final hasEmpty = answer1Empty ||
+                      final hasEmpty =
+                          answer1Empty ||
                           answer2Empty ||
                           challengeEmpty ||
                           feedbackEmpty ||

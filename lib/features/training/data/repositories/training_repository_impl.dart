@@ -21,15 +21,14 @@ class TrainingRepositoryImpl implements TrainingPlanRepository {
   getTrainingPlans() async {
     try {
       final profileResult = await getProfile();
-      return await profileResult.fold(
-        (failure) => Left(failure),
-        (profile) async {
-          final result = await remoteDataSource.getTrainingPlans(
-            profile.athlete.id,
-          );
-          return Right(result);
-        },
-      );
+      return await profileResult.fold((failure) => Left(failure), (
+        profile,
+      ) async {
+        final result = await remoteDataSource.getTrainingPlans(
+          profile.athlete.id,
+        );
+        return Right(result);
+      });
     } catch (e) {
       return Left(ApiException(message: e.toString()));
     }

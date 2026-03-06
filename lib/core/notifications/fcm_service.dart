@@ -13,9 +13,7 @@ import '../../firebase_options.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 }
 
 class FcmService {
@@ -30,7 +28,7 @@ class FcmService {
     required this.apiClient,
     FlutterLocalNotificationsPlugin? localNotifications,
   }) : _localNotifications =
-            localNotifications ?? FlutterLocalNotificationsPlugin();
+           localNotifications ?? FlutterLocalNotificationsPlugin();
 
   Future<void> init() async {
     if (_initialized) return;
@@ -72,10 +70,7 @@ class FcmService {
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
     const iOSInit = DarwinInitializationSettings();
 
-    const settings = InitializationSettings(
-      android: androidInit,
-      iOS: iOSInit,
-    );
+    const settings = InitializationSettings(android: androidInit, iOS: iOSInit);
 
     await _localNotifications.initialize(settings: settings);
 
@@ -87,8 +82,10 @@ class FcmService {
         importance: Importance.high,
       );
 
-      final androidPlugin = _localNotifications.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
+      final androidPlugin = _localNotifications
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       await androidPlugin?.requestNotificationsPermission();
       await androidPlugin?.createNotificationChannel(channel);
     }

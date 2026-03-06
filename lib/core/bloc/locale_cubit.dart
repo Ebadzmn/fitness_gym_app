@@ -12,4 +12,3 @@ class LocaleCubit extends Cubit<Locale> {
     }
   }
 }
-

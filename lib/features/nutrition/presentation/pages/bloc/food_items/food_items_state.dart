@@ -28,14 +28,21 @@ class FoodItemsState extends Equatable {
     String? query,
     String? errorMessage,
   }) => FoodItemsState(
-        status: status ?? this.status,
-        items: items ?? this.items,
-        filtered: filtered ?? this.filtered,
-        selected: selected ?? this.selected,
-        query: query ?? this.query,
-        errorMessage: errorMessage ?? this.errorMessage,
-      );
+    status: status ?? this.status,
+    items: items ?? this.items,
+    filtered: filtered ?? this.filtered,
+    selected: selected ?? this.selected,
+    query: query ?? this.query,
+    errorMessage: errorMessage ?? this.errorMessage,
+  );
 
   @override
-  List<Object?> get props => [status, items, filtered, selected, query, errorMessage];
+  List<Object?> get props => [
+    status,
+    items,
+    filtered,
+    selected,
+    query,
+    errorMessage,
+  ];
 }

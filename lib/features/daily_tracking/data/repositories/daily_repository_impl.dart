@@ -119,4 +119,15 @@ class DailyRepositoryImpl implements DailyRepository {
       jsonEncode(entity.training.toMap()),
     );
   }
+
+  @override
+  Future<void> update(DailyTrackingEntity entity, DateTime date) async {
+    await remoteDataSource.updateDailyTracking(entity, _formatDate(date));
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'daily_training_last',
+      jsonEncode(entity.training.toMap()),
+    );
+  }
 }

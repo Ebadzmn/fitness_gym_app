@@ -37,7 +37,10 @@ class _TrainingHistoryView extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
-        title: Text(localizations.trainingHistoryAppBarTitle, style: AppTextStyle.appbarHeading),
+        title: Text(
+          localizations.trainingHistoryAppBarTitle,
+          style: AppTextStyle.appbarHeading,
+        ),
         centerTitle: true,
         backgroundColor: AppColor.primaryColor,
         elevation: 0,

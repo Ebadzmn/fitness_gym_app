@@ -44,11 +44,7 @@ class PasswordChangedSuccessPage extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: Colors.white.withOpacity(0.15),
                   ),
-                  child: Icon(
-                    Icons.check,
-                    color: Colors.white,
-                    size: 40.sp,
-                  ),
+                  child: Icon(Icons.check, color: Colors.white, size: 40.sp),
                 ),
               ),
             ),
@@ -71,4 +67,3 @@ class PasswordChangedSuccessPage extends StatelessWidget {
     );
   }
 }
-

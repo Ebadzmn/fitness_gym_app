@@ -78,10 +78,7 @@ class _PlanDetailContent extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
       child: Column(
         children: [
-          _PlanHeaderCard(
-            plan: plan,
-            exerciseCount: exerciseCount,
-          ),
+          _PlanHeaderCard(plan: plan, exerciseCount: exerciseCount),
           SizedBox(height: 16.h),
           Expanded(
             child: exerciseCount == 0
@@ -100,10 +97,7 @@ class _PlanDetailContent extends StatelessWidget {
                     padding: EdgeInsets.only(top: 4.h, bottom: 4.h),
                     itemBuilder: (context, index) {
                       final exercise = exercises[index];
-                      return _ExerciseCard(
-                        index: index,
-                        exercise: exercise,
-                      );
+                      return _ExerciseCard(index: index, exercise: exercise);
                     },
                   ),
           ),
@@ -143,10 +137,7 @@ class _PlanHeaderCard extends StatelessWidget {
   final TrainingPlanEntity plan;
   final int exerciseCount;
 
-  const _PlanHeaderCard({
-    required this.plan,
-    required this.exerciseCount,
-  });
+  const _PlanHeaderCard({required this.plan, required this.exerciseCount});
 
   @override
   Widget build(BuildContext context) {
@@ -219,10 +210,7 @@ class _ExerciseCard extends StatelessWidget {
   final TrainingPlanExerciseEntity exercise;
   final int index;
 
-  const _ExerciseCard({
-    required this.exercise,
-    required this.index,
-  });
+  const _ExerciseCard({required this.exercise, required this.index});
 
   @override
   Widget build(BuildContext context) {
@@ -240,9 +228,7 @@ class _ExerciseCard extends StatelessWidget {
           border: Border.all(color: const Color(0xFF2E2E5D)),
         ),
         child: Theme(
-          data: Theme.of(context).copyWith(
-            dividerColor: Colors.transparent,
-          ),
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
             tilePadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             iconColor: Colors.white,

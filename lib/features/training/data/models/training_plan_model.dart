@@ -58,10 +58,10 @@ class TrainingPlanExerciseModel extends TrainingPlanExerciseEntity {
     // Handle exerciseSets array if present
     final List<TrainingPlanExerciseSetEntity> setsEntities =
         (json['exerciseSets'] as List<dynamic>?)
-                ?.whereType<Map<String, dynamic>>()
-                .map(TrainingPlanExerciseSetModel.fromJson)
-                .toList() ??
-            const [];
+            ?.whereType<Map<String, dynamic>>()
+            .map(TrainingPlanExerciseSetModel.fromJson)
+            .toList() ??
+        const [];
 
     String setsValue;
     String? range;

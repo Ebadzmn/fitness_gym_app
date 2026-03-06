@@ -8,10 +8,8 @@ class TrainingSplitBloc extends Bloc<TrainingSplitEvent, TrainingSplitState> {
   final GetTrainingSplitUseCase getSplit;
   final GetProfileUseCase getProfile;
 
-  TrainingSplitBloc({
-    required this.getSplit,
-    required this.getProfile,
-  }) : super(const TrainingSplitState()) {
+  TrainingSplitBloc({required this.getSplit, required this.getProfile})
+    : super(const TrainingSplitState()) {
     on<TrainingSplitInitRequested>(_onInit);
   }
 
@@ -42,10 +40,7 @@ class TrainingSplitBloc extends Bloc<TrainingSplitEvent, TrainingSplitState> {
             ),
           ),
           (items) => emit(
-            state.copyWith(
-              status: TrainingSplitStatus.ready,
-              items: items,
-            ),
+            state.copyWith(status: TrainingSplitStatus.ready, items: items),
           ),
         );
       },

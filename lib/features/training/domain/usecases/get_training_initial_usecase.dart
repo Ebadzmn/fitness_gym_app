@@ -2,7 +2,6 @@ import 'package:fitness_app/domain/entities/training_entities/training_dashboard
 
 import '../../data/repositories/fake_training_repository.dart';
 
-
 class GetTrainingInitialUseCase {
   final FakeTrainingRepository repo;
   GetTrainingInitialUseCase(this.repo);

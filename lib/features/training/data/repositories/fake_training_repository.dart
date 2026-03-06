@@ -5,7 +5,11 @@ import '../../../../domain/entities/training_entities/training_split_entity.dart
 class FakeTrainingRepository {
   Future<TrainingDashboardEntity> loadInitial() async {
     await Future<void>.delayed(const Duration(milliseconds: 200));
-    return const TrainingDashboardEntity(prsThisWeek: 12, weeklyVolumeKg: 4850, trainingsCount: 5);
+    return const TrainingDashboardEntity(
+      prsThisWeek: 12,
+      weeklyVolumeKg: 4850,
+      trainingsCount: 5,
+    );
   }
 
   Future<List<TrainingSplitItem>> loadTrainingSplit() async {

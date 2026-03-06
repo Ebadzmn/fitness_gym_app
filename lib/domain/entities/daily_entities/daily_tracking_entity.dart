@@ -41,17 +41,27 @@ class DailyTrackingEntity extends Equatable {
     PedHealthEntity? pedHealth,
     String? notes,
   }) => DailyTrackingEntity(
-        vital: vital ?? this.vital,
-        isSick: isSick ?? this.isSick,
-        wellBeing: wellBeing ?? this.wellBeing,
-        sleep: sleep ?? this.sleep,
-        training: training ?? this.training,
-        nutrition: nutrition ?? this.nutrition,
-        women: women ?? this.women,
-        pedHealth: pedHealth ?? this.pedHealth,
-        notes: notes ?? this.notes,
-      );
+    vital: vital ?? this.vital,
+    isSick: isSick ?? this.isSick,
+    wellBeing: wellBeing ?? this.wellBeing,
+    sleep: sleep ?? this.sleep,
+    training: training ?? this.training,
+    nutrition: nutrition ?? this.nutrition,
+    women: women ?? this.women,
+    pedHealth: pedHealth ?? this.pedHealth,
+    notes: notes ?? this.notes,
+  );
 
   @override
-  List<Object?> get props => [vital, isSick, wellBeing, sleep, training, nutrition, women, pedHealth, notes];
+  List<Object?> get props => [
+    vital,
+    isSick,
+    wellBeing,
+    sleep,
+    training,
+    nutrition,
+    women,
+    pedHealth,
+    notes,
+  ];
 }

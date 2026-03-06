@@ -25,14 +25,21 @@ class PedHealthEntity extends Equatable {
     String? restingHrText,
     String? glucoseText,
   }) => PedHealthEntity(
-        dosageTaken: dosageTaken ?? this.dosageTaken,
-        sideEffects: sideEffects ?? this.sideEffects,
-        systolicText: systolicText ?? this.systolicText,
-        diastolicText: diastolicText ?? this.diastolicText,
-        restingHrText: restingHrText ?? this.restingHrText,
-        glucoseText: glucoseText ?? this.glucoseText,
-      );
+    dosageTaken: dosageTaken ?? this.dosageTaken,
+    sideEffects: sideEffects ?? this.sideEffects,
+    systolicText: systolicText ?? this.systolicText,
+    diastolicText: diastolicText ?? this.diastolicText,
+    restingHrText: restingHrText ?? this.restingHrText,
+    glucoseText: glucoseText ?? this.glucoseText,
+  );
 
   @override
-  List<Object?> get props => [dosageTaken, sideEffects, systolicText, diastolicText, restingHrText, glucoseText];
+  List<Object?> get props => [
+    dosageTaken,
+    sideEffects,
+    systolicText,
+    diastolicText,
+    restingHrText,
+    glucoseText,
+  ];
 }

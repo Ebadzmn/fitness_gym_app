@@ -13,11 +13,15 @@ class TrainingSplitState extends Equatable {
     this.errorMessage,
   });
 
-  TrainingSplitState copyWith({TrainingSplitStatus? status, List<TrainingSplitItem>? items, String? errorMessage}) => TrainingSplitState(
-        status: status ?? this.status,
-        items: items ?? this.items,
-        errorMessage: errorMessage ?? this.errorMessage,
-      );
+  TrainingSplitState copyWith({
+    TrainingSplitStatus? status,
+    List<TrainingSplitItem>? items,
+    String? errorMessage,
+  }) => TrainingSplitState(
+    status: status ?? this.status,
+    items: items ?? this.items,
+    errorMessage: errorMessage ?? this.errorMessage,
+  );
 
   @override
   List<Object?> get props => [status, items, errorMessage];

@@ -21,7 +21,7 @@ class NutritionSupplementBloc
     Emitter<NutritionSupplementState> emit,
   ) async {
     emit(state.copyWith(status: NutritionSupplementStatus.loading));
-    
+
     final profileResult = await getProfile();
     await profileResult.fold(
       (failure) {

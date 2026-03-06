@@ -20,9 +20,7 @@ import 'injection_container.dart' as di;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   await di.init();
   await di.sl<FcmService>().init();
@@ -64,12 +62,8 @@ class _MyAppState extends State<MyApp> {
       splitScreenMode: true,
       builder: (context, child) => MultiBlocProvider(
         providers: [
-          BlocProvider<AuthBloc>(
-            create: (context) => di.sl<AuthBloc>(),
-          ),
-          BlocProvider<LocaleCubit>(
-            create: (context) => LocaleCubit(),
-          ),
+          BlocProvider<AuthBloc>(create: (context) => di.sl<AuthBloc>()),
+          BlocProvider<LocaleCubit>(create: (context) => LocaleCubit()),
         ],
         child: BlocBuilder<LocaleCubit, Locale>(
           builder: (context, locale) {

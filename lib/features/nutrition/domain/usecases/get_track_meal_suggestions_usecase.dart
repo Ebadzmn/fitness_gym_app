@@ -7,7 +7,7 @@ class GetTrackMealSuggestionsUseCase {
   final NutritionRepository repo;
   GetTrackMealSuggestionsUseCase(this.repo);
 
-  Future<Either<ApiException, List<MealSuggestionEntity>>> call(String search) =>
-      repo.getTrackMealSuggestions(search);
+  Future<Either<ApiException, List<MealSuggestionEntity>>> call(
+    String search,
+  ) => repo.getTrackMealSuggestions(search);
 }
-

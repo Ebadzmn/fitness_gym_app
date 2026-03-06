@@ -8,7 +8,11 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<AuthEntity> login(String email, String password, {String? fcmToken}) async {
+  Future<AuthEntity> login(
+    String email,
+    String password, {
+    String? fcmToken,
+  }) async {
     try {
       final authModel = await remoteDataSource.login(
         email,

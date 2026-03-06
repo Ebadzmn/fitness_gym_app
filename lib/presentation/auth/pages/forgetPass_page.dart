@@ -89,16 +89,17 @@ class _ForgetpassPageState extends State<ForgetpassPage> {
                         : () {
                             if (_emailController.text.isNotEmpty) {
                               context.read<AuthBloc>().add(
-                                    ForgetPasswordRequested(
-                                      email: _emailController.text,
-                                    ),
-                                  );
+                                ForgetPasswordRequested(
+                                  email: _emailController.text,
+                                ),
+                              );
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                    AppLocalizations.of(context)!
-                                        .forgetPasswordEmailRequired,
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.forgetPasswordEmailRequired,
                                   ),
                                 ),
                               );

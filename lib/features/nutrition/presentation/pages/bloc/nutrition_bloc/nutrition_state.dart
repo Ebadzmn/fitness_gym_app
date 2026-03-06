@@ -19,10 +19,10 @@ class NutritionState extends Equatable {
     NutritionDashboardEntity? data,
     String? errorMessage,
   }) => NutritionState(
-        status: status ?? this.status,
-        data: data ?? this.data,
-        errorMessage: errorMessage ?? this.errorMessage,
-      );
+    status: status ?? this.status,
+    data: data ?? this.data,
+    errorMessage: errorMessage ?? this.errorMessage,
+  );
 
   @override
   List<Object?> get props => [status, data, errorMessage];

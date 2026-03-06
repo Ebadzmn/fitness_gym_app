@@ -10,10 +10,8 @@ class NutritionPlanBloc extends Bloc<NutritionPlanEvent, NutritionPlanState> {
   final GetNutritionPlanUseCase getPlan;
   final GetProfileUseCase getProfile;
 
-  NutritionPlanBloc({
-    required this.getPlan,
-    required this.getProfile,
-  }) : super(const NutritionPlanState()) {
+  NutritionPlanBloc({required this.getPlan, required this.getProfile})
+    : super(const NutritionPlanState()) {
     on<NutritionPlanLoadRequested>(_onLoad);
     on<NutritionPlanTabChanged>(_onTabChanged);
   }

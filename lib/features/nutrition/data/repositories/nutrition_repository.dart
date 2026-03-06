@@ -39,9 +39,7 @@ abstract class NutritionRepository {
     NutritionMealEntity meal,
   );
   Future<Either<ApiException, void>> updateWater(String unit, int amount);
-  Future<Either<ApiException, Map<String, int>>> getWaterConfig(
-    DateTime date,
-  );
+  Future<Either<ApiException, Map<String, int>>> getWaterConfig(DateTime date);
   Future<NutritionStatisticsEntity> getNutritionStatistics(DateTime date);
   Future<Either<ApiException, SupplementResponseEntity>> getSupplements(
     String userId,

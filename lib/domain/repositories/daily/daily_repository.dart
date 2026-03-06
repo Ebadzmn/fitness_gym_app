@@ -4,4 +4,5 @@ abstract class DailyRepository {
   Future<DailyTrackingEntity> loadInitial();
   Future<DailyTrackingEntity> loadByDate(DateTime date);
   Future<void> save(DailyTrackingEntity entity);
+  Future<void> update(DailyTrackingEntity entity, DateTime date);
 }

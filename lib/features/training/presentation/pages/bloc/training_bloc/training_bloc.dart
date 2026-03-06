@@ -10,22 +10,38 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     on<RefreshRequested>(_onRefresh);
   }
 
-  Future<void> _onInit(TrainingInitRequested event, Emitter<TrainingState> emit) async {
+  Future<void> _onInit(
+    TrainingInitRequested event,
+    Emitter<TrainingState> emit,
+  ) async {
     emit(state.copyWith(status: TrainingStatus.loading));
     try {
       final data = await getInitial();
       emit(state.copyWith(status: TrainingStatus.ready, data: data));
     } catch (e) {
-      emit(state.copyWith(status: TrainingStatus.error, errorMessage: e.toString()));
+      emit(
+        state.copyWith(
+          status: TrainingStatus.error,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 
-  Future<void> _onRefresh(RefreshRequested event, Emitter<TrainingState> emit) async {
+  Future<void> _onRefresh(
+    RefreshRequested event,
+    Emitter<TrainingState> emit,
+  ) async {
     try {
       final data = await getInitial();
       emit(state.copyWith(status: TrainingStatus.ready, data: data));
     } catch (e) {
-      emit(state.copyWith(status: TrainingStatus.error, errorMessage: e.toString()));
+      emit(
+        state.copyWith(
+          status: TrainingStatus.error,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 }

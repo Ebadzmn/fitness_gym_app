@@ -127,7 +127,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         final data = e.response?.data;
         if (data is Map && data['message'] is String) {
           final serverMessage = (data['message'] as String).trim();
-          if (serverMessage.toLowerCase() == 'email already exists!'.toLowerCase()) {
+          if (serverMessage.toLowerCase() ==
+              'email already exists!'.toLowerCase()) {
             message = 'Invalid email or password';
           } else {
             message = serverMessage;

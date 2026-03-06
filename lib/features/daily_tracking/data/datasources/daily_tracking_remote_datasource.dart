@@ -13,10 +13,12 @@ import '../../../../domain/entities/daily_entities/women_entity.dart';
 
 abstract class DailyTrackingRemoteDataSource {
   Future<void> submitDailyTracking(DailyTrackingEntity entity);
+  Future<void> updateDailyTracking(DailyTrackingEntity entity, String date);
   Future<DailyTrackingEntity> fetchDailyTrackingByDate(String date);
 }
 
-class DailyTrackingRemoteDataSourceImpl implements DailyTrackingRemoteDataSource {
+class DailyTrackingRemoteDataSourceImpl
+    implements DailyTrackingRemoteDataSource {
   final ApiClient apiClient;
 
   DailyTrackingRemoteDataSourceImpl({required this.apiClient});
@@ -24,8 +26,18 @@ class DailyTrackingRemoteDataSourceImpl implements DailyTrackingRemoteDataSource
   @override
   Future<void> submitDailyTracking(DailyTrackingEntity entity) async {
     final model = DailyTrackingRequestModel(entity);
-    await apiClient.post(
-      ApiUrls.dailyTrackingPost,
+    await apiClient.post(ApiUrls.dailyTrackingPost, data: model.toJson());
+  }
+
+  @override
+  Future<void> updateDailyTracking(
+    DailyTrackingEntity entity,
+    String date,
+  ) async {
+    final model = DailyTrackingRequestModel(entity);
+    await apiClient.put(
+      ApiUrls.dailyTrackingPut,
+      queryParameters: {'date': date},
       data: model.toJson(),
     );
   }
@@ -89,8 +101,9 @@ class DailyTrackingRemoteDataSourceImpl implements DailyTrackingRemoteDataSource
     final woman = payload['woman'];
     final ped = payload['ped'];
 
-    final cyclePhaseRaw =
-        woman is Map<String, dynamic> ? woman['cyclePhase'] : null;
+    final cyclePhaseRaw = woman is Map<String, dynamic>
+        ? woman['cyclePhase']
+        : null;
     final cyclePhaseText = str(cyclePhaseRaw).trim();
 
     return DailyTrackingEntity(
@@ -114,7 +127,9 @@ class DailyTrackingRemoteDataSourceImpl implements DailyTrackingRemoteDataSource
         muscleSoreness: scale1to10(
           energy is Map<String, dynamic> ? energy['muscelLevel'] : null,
         ),
-        mood: scale1to10(energy is Map<String, dynamic> ? energy['mood'] : null),
+        mood: scale1to10(
+          energy is Map<String, dynamic> ? energy['mood'] : null,
+        ),
         motivation: scale1to10(
           energy is Map<String, dynamic> ? energy['motivation'] : null,
         ),
@@ -150,7 +165,9 @@ class DailyTrackingRemoteDataSourceImpl implements DailyTrackingRemoteDataSource
           fallback: 1,
         ),
         digestion: dbl(
-          nutrition is Map<String, dynamic> ? nutrition['digestionLevel'] : null,
+          nutrition is Map<String, dynamic>
+              ? nutrition['digestionLevel']
+              : null,
           fallback: 1,
         ),
         hunger: dbl(
@@ -197,7 +214,9 @@ class DailyTrackingRemoteDataSourceImpl implements DailyTrackingRemoteDataSource
         ).toLowerCase().contains('taken'),
         sideEffects: str(ped is Map<String, dynamic> ? ped['sideEffect'] : ''),
         systolicText: str(
-          bloodPressure is Map<String, dynamic> ? bloodPressure['systolic'] : '',
+          bloodPressure is Map<String, dynamic>
+              ? bloodPressure['systolic']
+              : '',
         ),
         diastolicText: str(
           bloodPressure is Map<String, dynamic>

@@ -40,7 +40,10 @@ class _NutritionView extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
-        title: Text(localizations.nutritionAppBarTitle, style: AppTextStyle.appbarHeading),
+        title: Text(
+          localizations.nutritionAppBarTitle,
+          style: AppTextStyle.appbarHeading,
+        ),
         centerTitle: true,
         backgroundColor: AppColor.primaryColor,
         elevation: 0,

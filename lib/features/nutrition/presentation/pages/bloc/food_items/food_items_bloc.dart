@@ -13,13 +13,27 @@ class FoodItemsBloc extends Bloc<FoodItemsEvent, FoodItemsState> {
     on<FoodItemsFilterChanged>(_onFilter);
   }
 
-  Future<void> _onLoad(FoodItemsLoadRequested event, Emitter<FoodItemsState> emit) async {
+  Future<void> _onLoad(
+    FoodItemsLoadRequested event,
+    Emitter<FoodItemsState> emit,
+  ) async {
     emit(state.copyWith(status: FoodItemsStatus.loading));
     try {
       final items = await getItems();
-      emit(state.copyWith(status: FoodItemsStatus.success, items: items, filtered: items));
+      emit(
+        state.copyWith(
+          status: FoodItemsStatus.success,
+          items: items,
+          filtered: items,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(status: FoodItemsStatus.failure, errorMessage: e.toString()));
+      emit(
+        state.copyWith(
+          status: FoodItemsStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 
@@ -28,7 +42,8 @@ class FoodItemsBloc extends Bloc<FoodItemsEvent, FoodItemsState> {
     final filtered = state.items.where((it) {
       final matchName = it.name.toLowerCase().contains(q);
       final matchBrand = (it.brand ?? '').toLowerCase().contains(q);
-      final matchCat = state.selected == FoodCategory.all || it.category == state.selected;
+      final matchCat =
+          state.selected == FoodCategory.all || it.category == state.selected;
       return matchCat && (matchName || matchBrand);
     }).toList();
     emit(state.copyWith(query: event.query, filtered: filtered));
@@ -37,8 +52,11 @@ class FoodItemsBloc extends Bloc<FoodItemsEvent, FoodItemsState> {
   void _onFilter(FoodItemsFilterChanged event, Emitter<FoodItemsState> emit) {
     final filtered = state.items.where((it) {
       final q = state.query.toLowerCase();
-      final matchQuery = it.name.toLowerCase().contains(q) || (it.brand ?? '').toLowerCase().contains(q);
-      final matchCat = event.category == FoodCategory.all || it.category == event.category;
+      final matchQuery =
+          it.name.toLowerCase().contains(q) ||
+          (it.brand ?? '').toLowerCase().contains(q);
+      final matchCat =
+          event.category == FoodCategory.all || it.category == event.category;
       return matchCat && matchQuery;
     }).toList();
     emit(state.copyWith(selected: event.category, filtered: filtered));

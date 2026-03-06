@@ -36,258 +36,284 @@ class _DailyPagesState extends State<DailyPages> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-  automaticallyImplyLeading: false,
-  centerTitle: true,
-  title: const Text('Daily Tracking'),
-  actions: [
-    Padding(
-      padding: const EdgeInsets.only(right: 12),
-      child: GestureDetector(
-        onTap: () {
-          // Add action
-        },
-        child: CircleAvatar(
-          radius: 18,
-          backgroundColor: Color(0XFF1211E),
-          child: SvgPicture.asset(AssetsPath.AbCalender),
-        ),
-      ),
-    ),
-  ],
-),
-
-body: Padding(
-  padding:  EdgeInsets.all(10.h),
-  child: SingleChildScrollView(
-    child: Column(
-      children: [
-        SizedBox(height: 12.h,),
-        Container(
-          height: 60.h,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            // color: Color(0XFF101021),
-            color: Color(0XFF101021),
-            borderRadius: BorderRadius.circular(12.r),
-            
-          ),
-    
-          child: Padding(
-            padding: EdgeInsets.all(12  .sp),
-            child: Row(
-              children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                  Text('Date:' , style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                  ),),
-                  SizedBox(height: 4.h,),
-                  Text(_formattedDate , style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                  ),)
-                ],),
-                Spacer(),
-                 Container(
-                  height: 27.h,
-                  width: 74.w,
-                  decoration: BoxDecoration(
-                    color: Color.fromARGB(89, 76, 154, 79),
-                    borderRadius: BorderRadius.circular(20  .r),
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 1.w,
-                    ),
-                  ),
-                  child: Center(
-                    child: Text('Today' , style: GoogleFonts.poppins(
-                    color: Colors.green,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
-                  ),),
-                  ),
-                 ),
-              ],
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        title: const Text('Daily Tracking'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: GestureDetector(
+              onTap: () {
+                // Add action
+              },
+              child: CircleAvatar(
+                radius: 18,
+                backgroundColor: Color(0XFF1211E),
+                child: SvgPicture.asset(AssetsPath.AbCalender),
+              ),
             ),
           ),
-        ),
-    
-        SizedBox(height: 12.h,),
-    
-        weightcard(),
-        SizedBox(height: 12.h,),
-        sleepcard(),
-        SizedBox(height: 12.h,),
-        sickCard(),
-        SizedBox(height: 12.h,),
-
-        Container(
-          height: 120.h,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Color(0XFF101021),
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(12.sp),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(children: [
-                  SvgPicture.asset(AssetsPath.water),
-                  SizedBox(width: 8.w,),
-                  Text('Water:' , style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                  ),),              
-                ],),
-                SizedBox(height: 12.h,),
-               TextFormField(
-      controller: _waterController,
-      style: GoogleFonts.poppins(
-        color: Colors.white, // ← input text will be white
-        fontSize: 14.sp,
-        fontWeight: FontWeight.w400,
+        ],
       ),
-      decoration: InputDecoration(
-        hintText: 'Enter Water (Lit)',
-        hintStyle: GoogleFonts.poppins(
-    color: Colors.white,
-    fontSize: 14.sp,
-    fontWeight: FontWeight.w400,
-        ),
-        filled: true,
-        fillColor: const Color(0XFF0A0A1F),
-    
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Colors.grey, width: 1.w),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Colors.grey, width: 1.w),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Colors.grey, width: 1.w),
-        ),
-      ),
-    ),
-    SizedBox(height: 6.h,),
 
+      body: Padding(
+        padding: EdgeInsets.all(10.h),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(height: 12.h),
+              Container(
+                height: 60.h,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  // color: Color(0XFF101021),
+                  color: Color(0XFF101021),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
 
-
-    Text('At least 2.5 liters recommended.', style: GoogleFonts.poppins(
-      color: Colors.green,
-      fontSize: 12.sp,
-      fontWeight: FontWeight.w400,
-      
-    ),)
-              
-              ],
-            ),
-          ),
-        ),
-      
-        
-        SizedBox(height: 12.h,),
-        EnergyWellBeingCard(),
-        SizedBox(height: 12.h,),
-        TrainingCard(),
-        SizedBox(height: 12.h,),
-
-        Container(
-          height: 120.h,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Color(0XFF101021),
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(12.sp),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  
-                  children: [
-                  SvgPicture.asset(AssetsPath.Clock),
-                  SizedBox(width: 8.w,),
-                  Text('Activity Time:' , style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                  ),),
-                ],),
-                SizedBox(height: 12.h,),
-            
-                TextFormField(
-                  controller: _activityTimeController,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white, // ← input text will be white
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: 'hh:mm',
-                    hintStyle: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    filled: true,
-                    fillColor: const Color(0XFF0A0A1F),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16.r),
-                      borderSide: BorderSide(color: Colors.grey, width: 1.w),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16.r),
-                      borderSide: BorderSide(color: Colors.grey, width: 1.w),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16.r),
-                      borderSide: BorderSide(color: Colors.grey, width: 1.w),
-                    ),
+                child: Padding(
+                  padding: EdgeInsets.all(12.sp),
+                  child: Row(
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Date:',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            _formattedDate,
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Spacer(),
+                      Container(
+                        height: 27.h,
+                        width: 74.w,
+                        decoration: BoxDecoration(
+                          color: Color.fromARGB(89, 76, 154, 79),
+                          borderRadius: BorderRadius.circular(20.r),
+                          border: Border.all(color: Colors.white, width: 1.w),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Today',
+                            style: GoogleFonts.poppins(
+                              color: Colors.green,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              
+              ),
+
+              SizedBox(height: 12.h),
+
+              weightcard(),
+              SizedBox(height: 12.h),
+              sleepcard(),
+              SizedBox(height: 12.h),
+              sickCard(),
+              SizedBox(height: 12.h),
+
+              Container(
+                height: 120.h,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Color(0XFF101021),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(12.sp),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          SvgPicture.asset(AssetsPath.water),
+                          SizedBox(width: 8.w),
+                          Text(
+                            'Water:',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12.h),
+                      TextFormField(
+                        controller: _waterController,
+                        style: GoogleFonts.poppins(
+                          color: Colors.white, // ← input text will be white
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Enter Water (Lit)',
+                          hintStyle: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          filled: true,
+                          fillColor: const Color(0XFF0A0A1F),
+
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.r),
+                            borderSide: BorderSide(
+                              color: Colors.grey,
+                              width: 1.w,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.r),
+                            borderSide: BorderSide(
+                              color: Colors.grey,
+                              width: 1.w,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.r),
+                            borderSide: BorderSide(
+                              color: Colors.grey,
+                              width: 1.w,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 6.h),
+
+                      Text(
+                        'At least 2.5 liters recommended.',
+                        style: GoogleFonts.poppins(
+                          color: Colors.green,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 12.h),
+              EnergyWellBeingCard(),
+              SizedBox(height: 12.h),
+              TrainingCard(),
+              SizedBox(height: 12.h),
+
+              Container(
+                height: 120.h,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Color(0XFF101021),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(12.sp),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          SvgPicture.asset(AssetsPath.Clock),
+                          SizedBox(width: 8.w),
+                          Text(
+                            'Activity Time:',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12.h),
+
+                      TextFormField(
+                        controller: _activityTimeController,
+                        style: GoogleFonts.poppins(
+                          color: Colors.white, // ← input text will be white
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'hh:mm',
+                          hintStyle: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          filled: true,
+                          fillColor: const Color(0XFF0A0A1F),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.r),
+                            borderSide: BorderSide(
+                              color: Colors.grey,
+                              width: 1.w,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.r),
+                            borderSide: BorderSide(
+                              color: Colors.grey,
+                              width: 1.w,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.r),
+                            borderSide: BorderSide(
+                              color: Colors.grey,
+                              width: 1.w,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 20.h),
+
+              NutritionCard(),
+              SizedBox(height: 12.h),
+              if ((sl<TokenStorage>().getUserGender() ?? '').toLowerCase() ==
+                  'female') ...[
+                WomenCard(),
+                SizedBox(height: 12.h),
               ],
-            ),
+              PedCard(),
+            ],
           ),
         ),
-
-        SizedBox(height: 20.h,),
-
-        NutritionCard(),
-        SizedBox(height: 12.h,),
-        if ((sl<TokenStorage>().getUserGender() ?? '').toLowerCase() ==
-            'female') ...[
-          WomenCard(),
-          SizedBox(height: 12.h,),
-        ],
-        PedCard(),
-      ],
-    ),
-  ),
-),
-
+      ),
     );
   }
 }
 
 class sickCard extends StatelessWidget {
-  const sickCard({
-    super.key,
-  });
+  const sickCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -301,16 +327,21 @@ class sickCard extends StatelessWidget {
         padding: EdgeInsets.all(12.sp),
         child: Column(
           children: [
-            Row(children: [
-              SvgPicture.asset(AssetsPath.sick),
-              SizedBox(width: 8.w,),
-              Text('Sick:' , style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
-              ),),
-            ],),
-            SizedBox(height: 12.h,),
+            Row(
+              children: [
+                SvgPicture.asset(AssetsPath.sick),
+                SizedBox(width: 8.w),
+                Text(
+                  'Sick:',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12.h),
             SickOptions(),
           ],
         ),
@@ -338,7 +369,7 @@ class _SickOptionsState extends State<SickOptions> {
           selected: _isSick,
           onTap: () => setState(() => _isSick = true),
         ),
-        SizedBox(height: 12.h,),
+        SizedBox(height: 12.h),
         _circleOption(
           text: 'No',
           selected: !_isSick,
@@ -348,7 +379,11 @@ class _SickOptionsState extends State<SickOptions> {
     );
   }
 
-  Widget _circleOption({required String text, required bool selected, required VoidCallback onTap}) {
+  Widget _circleOption({
+    required String text,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
     final Color fillColor = selected ? Colors.green : Colors.grey;
     final Color borderColor = selected ? Colors.white : Colors.grey;
     return InkWell(
@@ -365,11 +400,14 @@ class _SickOptionsState extends State<SickOptions> {
             ),
           ),
           SizedBox(width: 8.w),
-          Text(text, style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w500,
-          )),
+          Text(
+            text,
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
@@ -408,52 +446,49 @@ class _weightcardState extends State<weightcard> {
             Row(
               children: [
                 SvgPicture.asset(AssetsPath.weight),
-                SizedBox(width: 8.w,),
-                Text('Weight:' , style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                ),),
+                SizedBox(width: 8.w),
+                Text(
+                  'Weight:',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
-            SizedBox(height: 12.h,),
-         TextFormField(
-      controller: _weightController,
-      style: GoogleFonts.poppins(
-        color: Colors.white, // ← input text will be white
-        fontSize: 14.sp,
-        fontWeight: FontWeight.w400,
-      ),
-      decoration: InputDecoration(
-        hintText: 'Enter Weight (kg)',
-        hintStyle: GoogleFonts.poppins(
-    color: Colors.white,
-    fontSize: 14.sp,
-    fontWeight: FontWeight.w400,
-        ),
-        filled: true,
-        fillColor: const Color(0XFF0A0A1F),
-    
-        border: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(16.r),
-    borderSide: BorderSide(
-      color: Colors.grey,
-      width: 1.w,
-    ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Colors.grey, width: 1.w),
-        ),
-        focusedBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(16.r),
-    borderSide: BorderSide(
-      color: Colors.grey,
-      width: 1.w,
-    ),
-        ),
-      ),
-    ),
+            SizedBox(height: 12.h),
+            TextFormField(
+              controller: _weightController,
+              style: GoogleFonts.poppins(
+                color: Colors.white, // ← input text will be white
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w400,
+              ),
+              decoration: InputDecoration(
+                hintText: 'Enter Weight (kg)',
+                hintStyle: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w400,
+                ),
+                filled: true,
+                fillColor: const Color(0XFF0A0A1F),
+
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16.r),
+                  borderSide: BorderSide(color: Colors.grey, width: 1.w),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16.r),
+                  borderSide: BorderSide(color: Colors.grey, width: 1.w),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16.r),
+                  borderSide: BorderSide(color: Colors.grey, width: 1.w),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -469,7 +504,8 @@ class sleepcard extends StatefulWidget {
 }
 
 class _sleepcardState extends State<sleepcard> {
-  final TextEditingController _sleepDurationController = TextEditingController();
+  final TextEditingController _sleepDurationController =
+      TextEditingController();
   double _sleepQuality = 4.0;
 
   @override
@@ -494,92 +530,98 @@ class _sleepcardState extends State<sleepcard> {
             Row(
               children: [
                 SvgPicture.asset(AssetsPath.sleep),
-                SizedBox(width: 8.w,),
-                Text('Sleep:' , style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                ),),
+                SizedBox(width: 8.w),
+                Text(
+                  'Sleep:',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
-    
-            SizedBox(height: 12.h,),
-    
+
+            SizedBox(height: 12.h),
+
             TextFormField(
-      controller: _sleepDurationController,
-      style: GoogleFonts.poppins(
-        color: Colors.white, // ← input text will be white
-        fontSize: 14.sp,
-        fontWeight: FontWeight.w400,
-      ),
-      decoration: InputDecoration(
-        hintText: 'hh:mm',
-        hintStyle: GoogleFonts.poppins(
-    color: Colors.white,
-    fontSize: 14.sp,
-    fontWeight: FontWeight.w400,
-        ),
-        filled: true,
-        fillColor: const Color(0XFF0A0A1F),
-    
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Colors.grey, width: 1.w),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Colors.grey, width: 1.w),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Colors.grey, width: 1.w),
-        ),
-      ),
-    ),
-    
-    
-    
-       SizedBox(height: 12.h,),
-    
-    Row(
-      children: [
-        Text('Sleep Quality (1 - 10 )', style: GoogleFonts.poppins(textStyle: TextStyle(
-    color: Colors.white,
-    fontSize: 14.sp,
-    fontWeight: FontWeight.w500,
-        ),),),
-    
-        Spacer(),
-    
-        Container(
-    height: 20.h,
-    width: 30.w,
-    decoration: BoxDecoration(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(20.r),
-      border: Border.all(
-        color: Colors.green,
-        width: 1.w,
-      ),
-    ),
-    child: Center(
-      child: Text('${_sleepQuality.round()}' , style: GoogleFonts.poppins(
-      color: Colors.green,
-      fontSize: 12.sp,
-      fontWeight: FontWeight.w500,
-    ),),
-    ),
-        )
-      ],
-    ),
-        FullWidthSlider(
-          value: _sleepQuality,
-          min: 1.0,
-          max: 10.0,
-          divisions: 9,
-          onChanged: (v) => setState(() => _sleepQuality = v),
-          overlayColor: Colors.green.withOpacity(0.2),
-        )
+              controller: _sleepDurationController,
+              style: GoogleFonts.poppins(
+                color: Colors.white, // ← input text will be white
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w400,
+              ),
+              decoration: InputDecoration(
+                hintText: 'hh:mm',
+                hintStyle: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w400,
+                ),
+                filled: true,
+                fillColor: const Color(0XFF0A0A1F),
+
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16.r),
+                  borderSide: BorderSide(color: Colors.grey, width: 1.w),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16.r),
+                  borderSide: BorderSide(color: Colors.grey, width: 1.w),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16.r),
+                  borderSide: BorderSide(color: Colors.grey, width: 1.w),
+                ),
+              ),
+            ),
+
+            SizedBox(height: 12.h),
+
+            Row(
+              children: [
+                Text(
+                  'Sleep Quality (1 - 10 )',
+                  style: GoogleFonts.poppins(
+                    textStyle: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+
+                Spacer(),
+
+                Container(
+                  height: 20.h,
+                  width: 30.w,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(20.r),
+                    border: Border.all(color: Colors.green, width: 1.w),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${_sleepQuality.round()}',
+                      style: GoogleFonts.poppins(
+                        color: Colors.green,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            FullWidthSlider(
+              value: _sleepQuality,
+              min: 1.0,
+              max: 10.0,
+              divisions: 9,
+              onChanged: (v) => setState(() => _sleepQuality = v),
+              overlayColor: Colors.green.withOpacity(0.2),
+            ),
           ],
         ),
       ),
@@ -627,7 +669,14 @@ class _TrainingCardState extends State<TrainingCard> {
               children: [
                 Icon(Icons.fitness_center_outlined, color: Colors.white),
                 SizedBox(width: 8.w),
-                Text('Training', style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
+                Text(
+                  'Training',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
             SizedBox(height: 12.h),
@@ -647,8 +696,7 @@ class _TrainingCardState extends State<TrainingCard> {
                     child: _checkboxTile(
                       'Pull Workout',
                       _planPullWorkout,
-                      (v) =>
-                          setState(() => _planPullWorkout = v ?? false),
+                      (v) => setState(() => _planPullWorkout = v ?? false),
                     ),
                   ),
                   SizedBox(width: 12.w),
@@ -656,8 +704,7 @@ class _TrainingCardState extends State<TrainingCard> {
                     child: _checkboxTile(
                       'Push Fullbody',
                       _planPushFullbody,
-                      (v) =>
-                          setState(() => _planPushFullbody = v ?? false),
+                      (v) => setState(() => _planPushFullbody = v ?? false),
                     ),
                   ),
                 ],
@@ -669,9 +716,7 @@ class _TrainingCardState extends State<TrainingCard> {
                     child: _checkboxTile(
                       'Leg Day Advanced',
                       _planLegDayAdvanced,
-                      (v) => setState(
-                        () => _planLegDayAdvanced = v ?? false,
-                      ),
+                      (v) => setState(() => _planLegDayAdvanced = v ?? false),
                     ),
                   ),
                   SizedBox(width: 12.w),
@@ -679,8 +724,7 @@ class _TrainingCardState extends State<TrainingCard> {
                     child: _checkboxTile(
                       'Upper Body',
                       _planUpperBody,
-                      (v) =>
-                          setState(() => _planUpperBody = v ?? false),
+                      (v) => setState(() => _planUpperBody = v ?? false),
                     ),
                   ),
                 ],
@@ -718,11 +762,22 @@ class _TrainingCardState extends State<TrainingCard> {
       ),
       padding: EdgeInsets.symmetric(horizontal: 12.w),
       alignment: Alignment.centerLeft,
-      child: Text(title, style: GoogleFonts.poppins(color: Colors.white, fontSize: 13.sp, fontWeight: FontWeight.w500)),
+      child: Text(
+        title,
+        style: GoogleFonts.poppins(
+          color: Colors.white,
+          fontSize: 13.sp,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     );
   }
 
-  Widget _checkboxTile(String title, bool checked, ValueChanged<bool?> onChanged) {
+  Widget _checkboxTile(
+    String title,
+    bool checked,
+    ValueChanged<bool?> onChanged,
+  ) {
     return Container(
       height: 40.h,
       decoration: BoxDecoration(
@@ -740,7 +795,14 @@ class _TrainingCardState extends State<TrainingCard> {
             activeColor: Colors.green,
           ),
           Expanded(
-            child: Text(title, style: GoogleFonts.poppins(color: Colors.white, fontSize: 12.sp, fontWeight: FontWeight.w500)),
+            child: Text(
+              title,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
         ],
       ),
@@ -759,11 +821,20 @@ class _TrainingCardState extends State<TrainingCard> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: selected ? Colors.green : Colors.transparent,
-              border: Border.all(color: selected ? Colors.white : Colors.white54),
+              border: Border.all(
+                color: selected ? Colors.white : Colors.white54,
+              ),
             ),
           ),
           SizedBox(width: 8.w),
-          Text(label, style: GoogleFonts.poppins(color: Colors.white, fontSize: 13.sp, fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
@@ -778,14 +849,34 @@ class _TrainingCardState extends State<TrainingCard> {
       child: TextFormField(
         controller: _durationCtrl,
         keyboardType: TextInputType.number,
-        style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w400),
+        style: GoogleFonts.poppins(
+          color: Colors.white,
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w400,
+        ),
         decoration: InputDecoration(
           hintText: 'Duration  (Minutes)',
-          hintStyle: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w400),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
-          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
-          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
-          contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+          hintStyle: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w400,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.r),
+            borderSide: BorderSide(color: Colors.grey, width: 1.w),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.r),
+            borderSide: BorderSide(color: Colors.grey, width: 1.w),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.r),
+            borderSide: BorderSide(color: Colors.grey, width: 1.w),
+          ),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 12.w,
+            vertical: 12.h,
+          ),
         ),
       ),
     );
@@ -822,7 +913,14 @@ class _WomenCardState extends State<WomenCard> {
         border: Border.all(color: Colors.green, width: 1.w),
       ),
       child: Center(
-        child: Text('$v', style: GoogleFonts.poppins(color: Colors.green, fontSize: 12.sp, fontWeight: FontWeight.w500)),
+        child: Text(
+          '$v',
+          style: GoogleFonts.poppins(
+            color: Colors.green,
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ),
     );
   }
@@ -830,10 +928,20 @@ class _WomenCardState extends State<WomenCard> {
   Widget _titledBox(String title) {
     return Container(
       height: 40.h,
-      decoration: BoxDecoration(color: const Color(0XFF152032), borderRadius: BorderRadius.circular(10.r)),
+      decoration: BoxDecoration(
+        color: const Color(0XFF152032),
+        borderRadius: BorderRadius.circular(10.r),
+      ),
       padding: EdgeInsets.symmetric(horizontal: 12.w),
       alignment: Alignment.centerLeft,
-      child: Text(title, style: GoogleFonts.poppins(color: Colors.white, fontSize: 13.sp, fontWeight: FontWeight.w500)),
+      child: Text(
+        title,
+        style: GoogleFonts.poppins(
+          color: Colors.white,
+          fontSize: 13.sp,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     );
   }
 
@@ -841,50 +949,153 @@ class _WomenCardState extends State<WomenCard> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(color: const Color(0XFF101021), borderRadius: BorderRadius.circular(12.r)),
+      decoration: BoxDecoration(
+        color: const Color(0XFF101021),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
       child: Padding(
         padding: EdgeInsets.all(12.sp),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [Icon(Icons.woman_2_outlined, color: Colors.white), SizedBox(width: 8.w), Text('Women', style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600))]),
-          SizedBox(height: 12.h),
-          DropdownTile(
-            title: 'Cycle Phase?',
-            value: _cyclePhase,
-            options: const ['Follicular', 'Ovulation', 'Luteal', 'Menstruation'],
-            onChanged: (v) => setState(() => _cyclePhase = v),
-            hint: 'Select Phase',
-          ),
-          SizedBox(height: 12.h),
-          _titledBox('Cycle Day'),
-          SizedBox(height: 8.h),
-          TextFormField(
-            controller: _cycleDayCtrl,
-            style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w400),
-            decoration: InputDecoration(
-              hintText: 'Enter Day',
-              hintStyle: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w400),
-              filled: true,
-              fillColor: const Color(0XFF0A0A1F),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
-              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
-              contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.woman_2_outlined, color: Colors.white),
+                SizedBox(width: 8.w),
+                Text(
+                  'Women',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
-          ),
-          SizedBox(height: 12.h),
-          Row(children: [Expanded(child: Text('PMS Symptoms (1-10)', style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500))), _pillValue(_pms.round())]),
-          FullWidthSlider(value: _pms, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _pms = v), overlayColor: Colors.green.withOpacity(0.2)),
-          Row(children: [Expanded(child: Text('Cramps  (1-10)', style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500))), _pillValue(_cramps.round())]),
-          FullWidthSlider(value: _cramps, min: 1, max: 10, divisions: 9, onChanged: (v) => setState(() => _cramps = v), overlayColor: Colors.green.withOpacity(0.2)),
-          SizedBox(height: 12.h),
-          DropdownMultiSelectTile(
-            title: 'Symptoms',
-            selected: _symptoms,
-            options: const ['Everything Fine', 'Cramps', 'Breast Tenderness', 'Headache', 'Acne', 'Lower Back Pain', 'Tiredness', 'Cravings', 'Sleepless', 'Abdominal Pain', 'Vaginal Itching', 'Vaginal Dryness'],
-            onChanged: (s) => setState(() => _symptoms..clear()..addAll(s)),
-            hint: 'Select Symptoms',
-          ),
-        ]),
+            SizedBox(height: 12.h),
+            DropdownTile(
+              title: 'Cycle Phase?',
+              value: _cyclePhase,
+              options: const [
+                'Follicular',
+                'Ovulation',
+                'Luteal',
+                'Menstruation',
+              ],
+              onChanged: (v) => setState(() => _cyclePhase = v),
+              hint: 'Select Phase',
+            ),
+            SizedBox(height: 12.h),
+            _titledBox('Cycle Day'),
+            SizedBox(height: 8.h),
+            TextFormField(
+              controller: _cycleDayCtrl,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w400,
+              ),
+              decoration: InputDecoration(
+                hintText: 'Enter Day',
+                hintStyle: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w400,
+                ),
+                filled: true,
+                fillColor: const Color(0XFF0A0A1F),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16.r),
+                  borderSide: BorderSide(color: Colors.grey, width: 1.w),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16.r),
+                  borderSide: BorderSide(color: Colors.grey, width: 1.w),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16.r),
+                  borderSide: BorderSide(color: Colors.grey, width: 1.w),
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12.w,
+                  vertical: 12.h,
+                ),
+              ),
+            ),
+            SizedBox(height: 12.h),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'PMS Symptoms (1-10)',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                _pillValue(_pms.round()),
+              ],
+            ),
+            FullWidthSlider(
+              value: _pms,
+              min: 1,
+              max: 10,
+              divisions: 9,
+              onChanged: (v) => setState(() => _pms = v),
+              overlayColor: Colors.green.withOpacity(0.2),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Cramps  (1-10)',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                _pillValue(_cramps.round()),
+              ],
+            ),
+            FullWidthSlider(
+              value: _cramps,
+              min: 1,
+              max: 10,
+              divisions: 9,
+              onChanged: (v) => setState(() => _cramps = v),
+              overlayColor: Colors.green.withOpacity(0.2),
+            ),
+            SizedBox(height: 12.h),
+            DropdownMultiSelectTile(
+              title: 'Symptoms',
+              selected: _symptoms,
+              options: const [
+                'Everything Fine',
+                'Cramps',
+                'Breast Tenderness',
+                'Headache',
+                'Acne',
+                'Lower Back Pain',
+                'Tiredness',
+                'Cravings',
+                'Sleepless',
+                'Abdominal Pain',
+                'Vaginal Itching',
+                'Vaginal Dryness',
+              ],
+              onChanged: (s) => setState(
+                () => _symptoms
+                  ..clear()
+                  ..addAll(s),
+              ),
+              hint: 'Select Symptoms',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -921,36 +1132,123 @@ class _PedCardState extends State<PedCard> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(color: const Color(0XFF101021), borderRadius: BorderRadius.circular(12.r)),
+      decoration: BoxDecoration(
+        color: const Color(0XFF101021),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
       child: Padding(
         padding: EdgeInsets.all(12.sp),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [Icon(Icons.medical_services_outlined, color: Colors.white), SizedBox(width: 8.w), Text('PED', style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600))]),
-          SizedBox(height: 12.h),
-          DropdownYesNoTile(title: 'Daily Dosage Taken', value: _dailyDosageTaken, onChanged: (v) => setState(() => _dailyDosageTaken = v)),
-          SizedBox(height: 12.h),
-          Text('Side Effects Notes', style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500)),
-          SizedBox(height: 8.h),
-          _textArea(_sideEffectsCtrl, hint: 'Enter side effects...'),
-          SizedBox(height: 12.h),
-          Row(children: [Icon(Icons.bloodtype_outlined, color: Colors.white), SizedBox(width: 8.w), Text('Blood Pressure (Everybody)', style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600))]),
-          SizedBox(height: 12.h),
-          Row(children: [
-            Expanded(child: _labeledField('Systolic', _systolicCtrl, hint: 'Enter Systolic')),
-            SizedBox(width: 12.w),
-            Expanded(child: _labeledField('Diastolic', _diastolicCtrl, hint: 'Enter Diastolic')),
-          ]),
-          SizedBox(height: 12.h),
-          _labeledField('Resting Heart Rate', _restingHrCtrl, hint: 'Enter Heart Rate'),
-          SizedBox(height: 12.h),
-          _labeledField('Blood Glucose', _glucoseCtrl, hint: 'Enter Glucose'),
-          SizedBox(height: 12.h),
-          Text('Daily Notes', style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500)),
-          SizedBox(height: 8.h),
-          _textArea(_notesCtrl, hint: 'Enter notes...'),
-          SizedBox(height: 16.h),
-          SizedBox(width: double.infinity, height: 44.h, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent.shade200, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r))), onPressed: () {}, child: Text('Submit', style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600))))
-        ]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.medical_services_outlined, color: Colors.white),
+                SizedBox(width: 8.w),
+                Text(
+                  'PED',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12.h),
+            DropdownYesNoTile(
+              title: 'Daily Dosage Taken',
+              value: _dailyDosageTaken,
+              onChanged: (v) => setState(() => _dailyDosageTaken = v),
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              'Side Effects Notes',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            _textArea(_sideEffectsCtrl, hint: 'Enter side effects...'),
+            SizedBox(height: 12.h),
+            Row(
+              children: [
+                Icon(Icons.bloodtype_outlined, color: Colors.white),
+                SizedBox(width: 8.w),
+                Text(
+                  'Blood Pressure (Everybody)',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12.h),
+            Row(
+              children: [
+                Expanded(
+                  child: _labeledField(
+                    'Systolic',
+                    _systolicCtrl,
+                    hint: 'Enter Systolic',
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: _labeledField(
+                    'Diastolic',
+                    _diastolicCtrl,
+                    hint: 'Enter Diastolic',
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12.h),
+            _labeledField(
+              'Resting Heart Rate',
+              _restingHrCtrl,
+              hint: 'Enter Heart Rate',
+            ),
+            SizedBox(height: 12.h),
+            _labeledField('Blood Glucose', _glucoseCtrl, hint: 'Enter Glucose'),
+            SizedBox(height: 12.h),
+            Text(
+              'Daily Notes',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            _textArea(_notesCtrl, hint: 'Enter notes...'),
+            SizedBox(height: 16.h),
+            SizedBox(
+              width: double.infinity,
+              height: 44.h,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent.shade200,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                ),
+                onPressed: () {},
+                child: Text(
+                  'Submit',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -959,39 +1257,90 @@ class _PedCardState extends State<PedCard> {
     return TextFormField(
       controller: ctrl,
       maxLines: 4,
-      style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w400),
+      style: GoogleFonts.poppins(
+        color: Colors.white,
+        fontSize: 14.sp,
+        fontWeight: FontWeight.w400,
+      ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w400),
+        hintStyle: GoogleFonts.poppins(
+          color: Colors.white,
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w400,
+        ),
         filled: true,
         fillColor: const Color(0XFF0A0A1F),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16.r),
+          borderSide: BorderSide(color: Colors.grey, width: 1.w),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16.r),
+          borderSide: BorderSide(color: Colors.grey, width: 1.w),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16.r),
+          borderSide: BorderSide(color: Colors.grey, width: 1.w),
+        ),
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       ),
     );
   }
 
-  Widget _labeledField(String label, TextEditingController ctrl, {String hint = 'Enter Value'}) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(label, style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500)),
-      SizedBox(height: 8.h),
-      TextFormField(
-        controller: ctrl,
-        style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w400),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w400),
-          filled: true,
-          fillColor: const Color(0XFF0A0A1F),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
-          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
-          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
-          contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+  Widget _labeledField(
+    String label,
+    TextEditingController ctrl, {
+    String hint = 'Enter Value',
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w500,
+          ),
         ),
-      ),
-    ]);
+        SizedBox(height: 8.h),
+        TextFormField(
+          controller: ctrl,
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w400,
+          ),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w400,
+            ),
+            filled: true,
+            fillColor: const Color(0XFF0A0A1F),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16.r),
+              borderSide: BorderSide(color: Colors.grey, width: 1.w),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16.r),
+              borderSide: BorderSide(color: Colors.grey, width: 1.w),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16.r),
+              borderSide: BorderSide(color: Colors.grey, width: 1.w),
+            ),
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 12.w,
+              vertical: 12.h,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -1022,7 +1371,14 @@ class _NutritionCardState extends State<NutritionCard> {
   }
 
   Widget _label(String text) {
-    return Text(text, style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500));
+    return Text(
+      text,
+      style: GoogleFonts.poppins(
+        color: Colors.white,
+        fontSize: 14.sp,
+        fontWeight: FontWeight.w500,
+      ),
+    );
   }
 
   Widget _pillValue(int v) {
@@ -1035,7 +1391,14 @@ class _NutritionCardState extends State<NutritionCard> {
         border: Border.all(color: Colors.green, width: 1.w),
       ),
       child: Center(
-        child: Text('$v', style: GoogleFonts.poppins(color: Colors.green, fontSize: 12.sp, fontWeight: FontWeight.w500)),
+        child: Text(
+          '$v',
+          style: GoogleFonts.poppins(
+            color: Colors.green,
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ),
     );
   }
@@ -1043,15 +1406,32 @@ class _NutritionCardState extends State<NutritionCard> {
   Widget _filledInput(String hint, TextEditingController controller) {
     return TextFormField(
       controller: controller,
-      style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w400),
+      style: GoogleFonts.poppins(
+        color: Colors.white,
+        fontSize: 14.sp,
+        fontWeight: FontWeight.w400,
+      ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w400),
+        hintStyle: GoogleFonts.poppins(
+          color: Colors.white,
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w400,
+        ),
         filled: true,
         fillColor: const Color(0XFF0A0A1F),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16.r), borderSide: BorderSide(color: Colors.grey, width: 1.w)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16.r),
+          borderSide: BorderSide(color: Colors.grey, width: 1.w),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16.r),
+          borderSide: BorderSide(color: Colors.grey, width: 1.w),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16.r),
+          borderSide: BorderSide(color: Colors.grey, width: 1.w),
+        ),
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       ),
     );
@@ -1061,7 +1441,10 @@ class _NutritionCardState extends State<NutritionCard> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(color: const Color(0XFF101021), borderRadius: BorderRadius.circular(12.r)),
+      decoration: BoxDecoration(
+        color: const Color(0XFF101021),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
       child: Padding(
         padding: EdgeInsets.all(12.sp),
         child: Column(
@@ -1071,56 +1454,98 @@ class _NutritionCardState extends State<NutritionCard> {
               children: [
                 Icon(Icons.restaurant_outlined, color: Colors.white),
                 SizedBox(width: 8.w),
-                Text('Nutrition', style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w600)),
+                Text(
+                  'Nutrition',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
             SizedBox(height: 12.h),
 
             Row(
               children: [
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  _label('Calories'),
-                  SizedBox(height: 8.h),
-                  _filledInput('Enter (kcal)', _caloriesCtrl),
-                ])),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _label('Calories'),
+                      SizedBox(height: 8.h),
+                      _filledInput('Enter (kcal)', _caloriesCtrl),
+                    ],
+                  ),
+                ),
                 SizedBox(width: 12.w),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  _label('Carbs'),
-                  SizedBox(height: 8.h),
-                  _filledInput('Enter (g)', _carbsCtrl),
-                ])),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _label('Carbs'),
+                      SizedBox(height: 8.h),
+                      _filledInput('Enter (g)', _carbsCtrl),
+                    ],
+                  ),
+                ),
               ],
             ),
 
             SizedBox(height: 12.h),
             Row(
               children: [
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  _label('Protein'),
-                  SizedBox(height: 8.h),
-                  _filledInput('Enter (g)', _proteinCtrl),
-                ])),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _label('Protein'),
+                      SizedBox(height: 8.h),
+                      _filledInput('Enter (g)', _proteinCtrl),
+                    ],
+                  ),
+                ),
                 SizedBox(width: 12.w),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  _label('Fats'),
-                  SizedBox(height: 8.h),
-                  _filledInput('Enter (g)', _fatsCtrl),
-                ])),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _label('Fats'),
+                      SizedBox(height: 8.h),
+                      _filledInput('Enter (g)', _fatsCtrl),
+                    ],
+                  ),
+                ),
               ],
             ),
 
             SizedBox(height: 12.h),
-            Row(children: [Expanded(child: _label('Hunger  (1-10)')), _pillValue(_hunger.round())]),
+            Row(
+              children: [
+                Expanded(child: _label('Hunger  (1-10)')),
+                _pillValue(_hunger.round()),
+              ],
+            ),
             FullWidthSlider(
               value: _hunger,
               min: 1,
               max: 10,
               divisions: 9,
               onChanged: (v) => setState(() => _hunger = v),
-              overlayColor: const Color.fromARGB(255, 8, 241, 16).withOpacity(0.2),
+              overlayColor: const Color.fromARGB(
+                255,
+                8,
+                241,
+                16,
+              ).withOpacity(0.2),
             ),
 
-            Row(children: [Expanded(child: _label('Digestion  (1-10)')), _pillValue(_digestion.round())]),
+            Row(
+              children: [
+                Expanded(child: _label('Digestion  (1-10)')),
+                _pillValue(_digestion.round()),
+              ],
+            ),
             FullWidthSlider(
               value: _digestion,
               min: 1,

@@ -28,14 +28,21 @@ class ExerciseState extends Equatable {
     String? query,
     String? errorMessage,
   }) => ExerciseState(
-        status: status ?? this.status,
-        all: all ?? this.all,
-        visible: visible ?? this.visible,
-        currentFilter: currentFilter ?? this.currentFilter,
-        query: query ?? this.query,
-        errorMessage: errorMessage ?? this.errorMessage,
-      );
+    status: status ?? this.status,
+    all: all ?? this.all,
+    visible: visible ?? this.visible,
+    currentFilter: currentFilter ?? this.currentFilter,
+    query: query ?? this.query,
+    errorMessage: errorMessage ?? this.errorMessage,
+  );
 
   @override
-  List<Object?> get props => [status, all, visible, currentFilter, query, errorMessage];
+  List<Object?> get props => [
+    status,
+    all,
+    visible,
+    currentFilter,
+    query,
+    errorMessage,
+  ];
 }

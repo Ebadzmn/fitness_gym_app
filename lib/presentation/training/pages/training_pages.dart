@@ -59,7 +59,10 @@ class _TrainingView extends StatelessWidget {
             ),
           ),
         ),
-        title: Text(localizations.trainingAppBarTitle, style: AppTextStyle.appbarHeading),
+        title: Text(
+          localizations.trainingAppBarTitle,
+          style: AppTextStyle.appbarHeading,
+        ),
         centerTitle: true,
       ),
       body: BlocBuilder<TrainingBloc, TrainingState>(
@@ -138,7 +141,8 @@ class _TrainingView extends StatelessWidget {
                         iconColor: const Color(0xFFFF6D00),
                         title: localizations.trainingMenuHistoryTitle,
                         subtitle: localizations.trainingMenuHistorySubtitle,
-                        onTap: () => context.push(AppRoutes.trainingHistoryPage),
+                        onTap: () =>
+                            context.push(AppRoutes.trainingHistoryPage),
                       ),
                     ),
                     SizedBox(width: 12.w),

@@ -11,4 +11,3 @@ class GetDailyByDateUseCase implements UseCase<DailyTrackingEntity, DateTime> {
     return repository.loadByDate(params);
   }
 }
-

@@ -72,5 +72,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'evolve-949b3.firebasestorage.app',
     iosBundleId: 'com.evolveapp.fitness',
   );
-
 }

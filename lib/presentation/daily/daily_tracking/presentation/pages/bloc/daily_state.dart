@@ -9,6 +9,7 @@ class DailyState extends Equatable {
   final DailyTrackingEntity? data;
   final String? errorMessage;
   final bool isReadOnly;
+  final bool isUpdate;
   final List<TrainingPlanEntity> trainingPlans;
 
   const DailyState({
@@ -16,6 +17,7 @@ class DailyState extends Equatable {
     this.data,
     this.errorMessage,
     this.isReadOnly = false,
+    this.isUpdate = false,
     this.trainingPlans = const [],
   });
 
@@ -24,12 +26,14 @@ class DailyState extends Equatable {
     DailyTrackingEntity? data,
     String? errorMessage,
     bool? isReadOnly,
+    bool? isUpdate,
     List<TrainingPlanEntity>? trainingPlans,
   }) => DailyState(
     status: status ?? this.status,
     data: data ?? this.data,
     errorMessage: errorMessage ?? this.errorMessage,
     isReadOnly: isReadOnly ?? this.isReadOnly,
+    isUpdate: isUpdate ?? this.isUpdate,
     trainingPlans: trainingPlans ?? this.trainingPlans,
   );
 
@@ -39,6 +43,7 @@ class DailyState extends Equatable {
     data,
     errorMessage,
     isReadOnly,
+    isUpdate,
     trainingPlans,
   ];
 }
