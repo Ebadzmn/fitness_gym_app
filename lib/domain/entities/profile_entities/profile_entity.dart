@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 class ProfileEntity extends Equatable {
   final AthleteEntity athlete;
   final String coachName;
-  final TimelineEntity timeline;
+  final List<TimelineEntity> timeline;
   final ShowEntity show;
   final int countDown;
 
@@ -118,10 +118,19 @@ class TimelineEntity extends Equatable {
 
 class ShowEntity extends Equatable {
   final String id;
+  final String name;
+  final String division;
   final String date;
+  final String location;
 
-  const ShowEntity({required this.id, required this.date});
+  const ShowEntity({
+    required this.id,
+    required this.name,
+    required this.division,
+    required this.date,
+    required this.location,
+  });
 
   @override
-  List<Object?> get props => [id, date];
+  List<Object?> get props => [id, name, division, date, location];
 }

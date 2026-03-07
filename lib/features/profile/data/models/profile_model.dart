@@ -13,7 +13,11 @@ class ProfileModel extends ProfileEntity {
     return ProfileModel(
       athlete: AthleteModel.fromJson(json['athlete'] ?? {}),
       coachName: json['coachName'] as String? ?? '',
-      timeline: TimelineModel.fromJson(json['timeline'] ?? {}),
+      timeline:
+          (json['timeline'] as List<dynamic>?)
+              ?.map((e) => TimelineModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
       show: ShowModel.fromJson(json['show'] ?? {}),
       countDown: (json['countDown'] as num?)?.toInt() ?? 0,
     );
@@ -23,7 +27,7 @@ class ProfileModel extends ProfileEntity {
     return {
       'athlete': (athlete as AthleteModel).toJson(),
       'coachName': coachName,
-      'timeline': (timeline as TimelineModel).toJson(),
+      'timeline': timeline.map((e) => (e as TimelineModel).toJson()).toList(),
       'show': (show as ShowModel).toJson(),
       'countDown': countDown,
     };
@@ -138,16 +142,31 @@ class TimelineModel extends TimelineEntity {
 }
 
 class ShowModel extends ShowEntity {
-  const ShowModel({required super.id, required super.date});
+  const ShowModel({
+    required super.id,
+    required super.name,
+    required super.division,
+    required super.date,
+    required super.location,
+  });
 
   factory ShowModel.fromJson(Map<String, dynamic> json) {
     return ShowModel(
       id: json['_id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      division: json['division'] as String? ?? '',
       date: json['date'] as String? ?? '',
+      location: json['location'] as String? ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'_id': id, 'date': date};
+    return {
+      '_id': id,
+      'name': name,
+      'division': division,
+      'date': date,
+      'location': location,
+    };
   }
 }

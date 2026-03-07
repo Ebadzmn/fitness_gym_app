@@ -440,25 +440,25 @@ class _ProfileView extends StatelessWidget {
                         SizedBox(height: 16.h),
                         _infoRow(
                           localizations.profileLabelShowName,
-                          'WBFF Muscle',
+                          profile.show.name,
                           valueColor: const Color(0xFFFFCC00),
-                        ), // Placeholder or missing in response? Using static for now if not in Entity
+                        ),
                         SizedBox(height: 12.h),
                         _infoRow(
                           localizations.profileLabelShowDate,
-                          profile.show.date,
+                          _formatDate(profile.show.date),
                           valueColor: Colors.green,
                         ),
                         SizedBox(height: 12.h),
                         _infoRow(
                           localizations.profileLabelLocation,
-                          'Olympia Hall, Germany',
-                        ), // Placeholder
+                          profile.show.location,
+                        ),
                         SizedBox(height: 12.h),
                         _infoRow(
                           localizations.profileLabelDivision,
-                          'WBFF',
-                        ), // Placeholder
+                          profile.show.division,
+                        ),
                         SizedBox(height: 12.h),
                         _infoRow(
                           localizations.profileLabelCountdown,
@@ -538,13 +538,16 @@ class _ProfileView extends StatelessWidget {
                           ),
                         ),
                         // Rows
-                        if (profile.timeline.nextCheckInDate.isNotEmpty)
-                          _tableRow(
-                            '1',
-                            _formatDate(profile.timeline.nextCheckInDate),
-                            profile.timeline.phase,
+                        ...profile.timeline.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final item = entry.value;
+                          return _tableRow(
+                            '${index + 1}',
+                            _formatDate(item.nextCheckInDate),
+                            item.phase,
                             const Color(0xFFD4AF37),
-                          ),
+                          );
+                        }),
                       ],
                     ),
                   ),
