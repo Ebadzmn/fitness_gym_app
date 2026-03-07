@@ -434,18 +434,8 @@ class _CheckInView extends StatelessWidget {
     String dayName = state.checkInDate?.checkInDay ?? '';
 
     if (formattedDate.isEmpty) {
-      final now = DateTime.now();
-      formattedDate = '${now.day}/${now.month}/${now.year}';
-      const days = [
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-        'Sunday',
-      ];
-      dayName = days[now.weekday - 1];
+      formattedDate = 'Loading...';
+      dayName = 'Loading...';
     }
 
     return Container(
@@ -504,6 +494,7 @@ class _CheckInView extends StatelessWidget {
                     : "0 (kg)",
                 showBadge: true,
               ),
+
               CheckInCard(
                 title: localizations.checkInProfileAverageWeightTitle,
                 value: checkInDate != null

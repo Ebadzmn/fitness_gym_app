@@ -4,7 +4,7 @@ class ProfileEntity extends Equatable {
   final AthleteEntity athlete;
   final String coachName;
   final List<TimelineEntity> timeline;
-  final ShowEntity show;
+  final List<ShowEntity> show;
   final int countDown;
 
   const ProfileEntity({

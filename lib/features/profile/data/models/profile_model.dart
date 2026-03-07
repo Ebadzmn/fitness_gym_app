@@ -18,7 +18,17 @@ class ProfileModel extends ProfileEntity {
               ?.map((e) => TimelineModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
-      show: ShowModel.fromJson(json['show'] ?? {}),
+      show: () {
+        final showData = json['show'];
+        if (showData is List) {
+          return showData
+              .map((e) => ShowModel.fromJson(e as Map<String, dynamic>))
+              .toList();
+        } else if (showData is Map<String, dynamic>) {
+          return [ShowModel.fromJson(showData)];
+        }
+        return const <ShowModel>[];
+      }(),
       countDown: (json['countDown'] as num?)?.toInt() ?? 0,
     );
   }
@@ -28,7 +38,7 @@ class ProfileModel extends ProfileEntity {
       'athlete': (athlete as AthleteModel).toJson(),
       'coachName': coachName,
       'timeline': timeline.map((e) => (e as TimelineModel).toJson()).toList(),
-      'show': (show as ShowModel).toJson(),
+      'show': show.map((e) => (e as ShowModel).toJson()).toList(),
       'countDown': countDown,
     };
   }

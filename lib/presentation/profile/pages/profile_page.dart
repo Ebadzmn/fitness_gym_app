@@ -142,6 +142,93 @@ class _ProfileView extends StatelessWidget {
     );
   }
 
+  Widget _showTableRow(
+    String name,
+    String date,
+    String division,
+    String location,
+  ) {
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: Colors.white24)),
+      ),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              flex: 2,
+              child: Container(
+                color: Colors.black,
+                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 12.h),
+                child: Text(
+                  name,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 11.sp,
+                  ),
+                ),
+              ),
+            ),
+            Container(width: 1, color: Colors.white24),
+            Expanded(
+              flex: 2,
+              child: Container(
+                color: const Color(0xFF2C2C3E),
+                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 12.h),
+                child: Text(
+                  date,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 11.sp,
+                  ),
+                ),
+              ),
+            ),
+            Container(width: 1, color: Colors.white24),
+            Expanded(
+              flex: 2,
+              child: Container(
+                color: Colors.black,
+                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 12.h),
+                child: Text(
+                  division,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 11.sp,
+                  ),
+                ),
+              ),
+            ),
+            Container(width: 1, color: Colors.white24),
+            Expanded(
+              flex: 2,
+              child: Container(
+                color: const Color(0xFF2C2C3E),
+                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 12.h),
+                child: Text(
+                  location,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 11.sp,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _sectionHeader(IconData icon, String title, {Color? iconColor}) {
     return Row(
       children: [
@@ -439,31 +526,115 @@ class _ProfileView extends StatelessWidget {
                         ),
                         SizedBox(height: 16.h),
                         _infoRow(
-                          localizations.profileLabelShowName,
-                          profile.show.name,
-                          valueColor: const Color(0xFFFFCC00),
-                        ),
-                        SizedBox(height: 12.h),
-                        _infoRow(
-                          localizations.profileLabelShowDate,
-                          _formatDate(profile.show.date),
-                          valueColor: Colors.green,
-                        ),
-                        SizedBox(height: 12.h),
-                        _infoRow(
-                          localizations.profileLabelLocation,
-                          profile.show.location,
-                        ),
-                        SizedBox(height: 12.h),
-                        _infoRow(
-                          localizations.profileLabelDivision,
-                          profile.show.division,
-                        ),
-                        SizedBox(height: 12.h),
-                        _infoRow(
                           localizations.profileLabelCountdown,
                           '${profile.countDown} ${localizations.profileLabelDaysSuffix}',
                         ),
+                        SizedBox(height: 16.h),
+                        if (profile.show.isNotEmpty)
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.white24),
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(8.r),
+                                topRight: Radius.circular(8.r),
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                // Header
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.withOpacity(0.3),
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(8.r),
+                                      topRight: Radius.circular(8.r),
+                                    ),
+                                  ),
+                                  padding: EdgeInsets.symmetric(vertical: 12.h),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 2,
+                                        child: Text(
+                                          localizations.profileLabelShowName,
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontSize: 11.sp,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 1,
+                                        height: 16.h,
+                                        color: Colors.white24,
+                                      ),
+                                      Expanded(
+                                        flex: 2,
+                                        child: Text(
+                                          localizations.profileLabelShowDate,
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontSize: 11.sp,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 1,
+                                        height: 16.h,
+                                        color: Colors.white24,
+                                      ),
+                                      Expanded(
+                                        flex: 2,
+                                        child: Text(
+                                          localizations.profileLabelDivision,
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontSize: 11.sp,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 1,
+                                        height: 16.h,
+                                        color: Colors.white24,
+                                      ),
+                                      Expanded(
+                                        flex: 2,
+                                        child: Text(
+                                          localizations.profileLabelLocation,
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontSize: 11.sp,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Rows
+                                ...profile.show.map((item) {
+                                  return _showTableRow(
+                                    item.name,
+                                    _formatDate(item.date),
+                                    item.division,
+                                    item.location,
+                                  );
+                                }),
+                              ],
+                            ),
+                          )
+                        else
+                          Text(
+                            localizations.profileEmpty,
+                            style: GoogleFonts.poppins(
+                              color: Colors.white70,
+                              fontSize: 12.sp,
+                            ),
+                          ),
                       ],
                     ),
                   ),
