@@ -31,7 +31,7 @@
   "dailyWeightHint": "(kg)",
   "dailySleepLabel": "Sleep:",
   "dailySleepDurationHint": "08 : 30",
-  "dailySleepQualityLabel": "Sleep Quantity",
+  "dailySleepQualityLabel": "Sleep quality",
   "dailySickLabel": "Sick:",
   "commonYes": "Yes",
   "commonNo": "No",

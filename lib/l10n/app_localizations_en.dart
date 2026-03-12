@@ -57,7 +57,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forgetPasswordTitle => 'Forgot Password';
 
   @override
-  String get forgetPasswordDescription => 'Enter the email or phone your account and we’ll send a code to reset your password';
+  String get forgetPasswordDescription =>
+      'Enter the email or phone your account and we’ll send a code to reset your password';
 
   @override
   String get forgetPasswordEmailLabel => 'Email';
@@ -105,7 +106,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailySleepDurationHint => '08 : 30';
 
   @override
-  String get dailySleepQualityLabel => 'Sleep Quantity';
+  String get dailySleepQualityLabel => 'Sleep quality';
 
   @override
   String get dailySickLabel => 'Sick:';
@@ -153,10 +154,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trainingHistoryAppBarTitle => 'Training History';
 
   @override
-  String get trainingHistoryEmpty => 'Please complete a training first. After that, the history will be added.';
+  String get trainingHistoryEmpty =>
+      'Please complete a training first. After that, the history will be added.';
 
   @override
-  String get coachAddedShortly => 'No customized plan has been created for you yet.';
+  String get coachAddedShortly =>
+      'No customized plan has been created for you yet.';
 
   @override
   String get trainingSplitAppBarTitle => 'Training Split';
