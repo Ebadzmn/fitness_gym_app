@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dartz/dartz.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../domain/entities/profile_entities/profile_entity.dart';
@@ -10,5 +11,11 @@ class GetProfileUseCase {
 
   Future<Either<ApiException, ProfileEntity>> call() async {
     return await repository.getProfile();
+  }
+
+  Future<Either<ApiException, ProfileEntity>> updateProfileImage(
+    File image,
+  ) async {
+    return await repository.updateProfileImage(image);
   }
 }

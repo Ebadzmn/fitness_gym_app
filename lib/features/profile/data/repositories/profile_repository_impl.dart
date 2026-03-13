@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_exception.dart';
@@ -18,6 +19,26 @@ class ProfileRepositoryImpl implements ProfileRepository {
     } on DioException catch (e) {
       return Left(
         ApiException(message: e.message ?? 'Failed to fetch profile'),
+      );
+    } catch (e) {
+      return Left(ApiException(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<ApiException, ProfileEntity>> updateProfileImage(
+    File image,
+  ) async {
+    try {
+      final result = await remoteDataSource.updateProfileImage(image);
+      return Right(result);
+    } on DioException catch (e) {
+      return Left(
+        ApiException(
+          message: e.error is String && (e.error as String).isNotEmpty
+              ? e.error as String
+              : e.message ?? 'Failed to update profile image',
+        ),
       );
     } catch (e) {
       return Left(ApiException(message: e.toString()));

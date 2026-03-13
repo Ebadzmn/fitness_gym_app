@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:equatable/equatable.dart';
 
 abstract class ProfileEvent extends Equatable {
@@ -9,4 +10,13 @@ abstract class ProfileEvent extends Equatable {
 
 class ProfileLoadRequested extends ProfileEvent {
   const ProfileLoadRequested();
+}
+
+class ProfileImageUpdateRequested extends ProfileEvent {
+  final File image;
+
+  const ProfileImageUpdateRequested(this.image);
+
+  @override
+  List<Object?> get props => [image];
 }

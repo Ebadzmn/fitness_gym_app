@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:fitness_app/core/bloc/locale_cubit.dart';
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
@@ -14,6 +15,7 @@ import 'package:fitness_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:fitness_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:fitness_app/l10n/app_localizations.dart';
 import 'package:fitness_app/core/bloc/nav_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -65,6 +67,65 @@ class _ProfileView extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _pickImage(
+    BuildContext context,
+    ImageSource source,
+  ) async {
+    final bloc = context.read<ProfileBloc>();
+    final picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: source);
+    if (image != null) {
+      bloc.add(ProfileImageUpdateRequested(File(image.path)));
+    }
+  }
+
+  void _showImageSourceSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF13131F),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(
+                  Icons.camera_alt_outlined,
+                  color: Colors.white,
+                ),
+                title: Text(
+                  'Camera',
+                  style: GoogleFonts.poppins(color: Colors.white),
+                ),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _pickImage(context, ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.photo_library_outlined,
+                  color: Colors.white,
+                ),
+                title: Text(
+                  'Gallery',
+                  style: GoogleFonts.poppins(color: Colors.white),
+                ),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _pickImage(context, ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -316,7 +377,22 @@ class _ProfileView extends StatelessWidget {
           ),
         ],
       ),
-      body: BlocBuilder<ProfileBloc, ProfileState>(
+      body: BlocConsumer<ProfileBloc, ProfileState>(
+        listenWhen: (previous, current) =>
+            previous.errorMessage != current.errorMessage ||
+            previous.successMessage != current.successMessage,
+        listener: (context, state) {
+          if (state.errorMessage != null && state.errorMessage!.isNotEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.errorMessage!)),
+            );
+          } else if (state.successMessage != null &&
+              state.successMessage!.isNotEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.successMessage!)),
+            );
+          }
+        },
         builder: (context, state) {
           if (state.status == ProfileStatus.loading) {
             return const Center(child: CircularProgressIndicator());
@@ -337,45 +413,92 @@ class _ProfileView extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
               child: Column(
                 children: [
-                  // Profile Picture
                   Center(
-                    child: Stack(
-                      children: [
-                        CircleAvatar(
-                          radius: 40.r,
-                          backgroundColor: Colors.grey.shade800,
-                          backgroundImage: athlete.image.isNotEmpty
-                              ? NetworkImage(athlete.image)
-                              : null,
-                          child: athlete.image.isEmpty
-                              ? Icon(
-                                  Icons.person_outline,
-                                  size: 40.sp,
-                                  color: Colors.white,
-                                )
-                              : null,
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            padding: EdgeInsets.all(4.r),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: AppColor.primaryColor,
-                                width: 2,
+                    child: GestureDetector(
+                      onTap: state.isUpdatingImage
+                          ? null
+                          : () => _showImageSourceSheet(context),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Builder(
+                            builder: (context) {
+                              ImageProvider? provider;
+                              if (state.tempImagePath != null &&
+                                  state.tempImagePath!.isNotEmpty) {
+                                provider = FileImage(
+                                  File(state.tempImagePath!),
+                                );
+                              } else if (athlete.image.isNotEmpty) {
+                                final value = athlete.image;
+                                if (value.startsWith('http')) {
+                                  provider = NetworkImage(value);
+                                } else if (value.startsWith('file://')) {
+                                  provider =
+                                      FileImage(File(Uri.parse(value).path));
+                                } else {
+                                  final normalizedPath =
+                                      value.startsWith('/') ? value : '/$value';
+                                  provider = NetworkImage(
+                                    'https://api.evolveapp.fit$normalizedPath',
+                                  );
+                                }
+                              }
+
+                              return CircleAvatar(
+                                radius: 40.r,
+                                backgroundColor: Colors.grey.shade800,
+                                backgroundImage: provider,
+                                child: provider == null
+                                    ? Icon(
+                                        Icons.person_outline,
+                                        size: 40.sp,
+                                        color: Colors.white,
+                                      )
+                                    : null,
+                              );
+                            },
+                          ),
+                          if (state.isUpdatingImage)
+                            Positioned.fill(
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.black54,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Center(
+                                  child: SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                            child: Icon(
-                              Icons.camera_alt_outlined,
-                              size: 14.sp,
-                              color: Colors.black,
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              padding: EdgeInsets.all(4.r),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: AppColor.primaryColor,
+                                  width: 2,
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.camera_alt_outlined,
+                                size: 14.sp,
+                                color: Colors.black,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   SizedBox(height: 24.h),
