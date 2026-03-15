@@ -72,6 +72,11 @@ import 'features/profile/data/repositories/profile_repository_impl.dart';
 import 'features/profile/domain/repositories/profile_repository.dart';
 import 'features/profile/domain/usecases/get_profile_usecase.dart';
 import 'features/profile/presentation/bloc/profile_bloc.dart';
+import 'features/notification/data/datasources/notes_remote_data_source.dart';
+import 'features/notification/data/repositories/notes_repository_impl.dart';
+import 'features/notification/domain/repositories/notes_repository.dart';
+import 'features/notification/domain/usecases/get_athlete_notes_usecase.dart';
+import 'features/notification/presentation/bloc/notification_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -256,6 +261,21 @@ Future<void> init() async {
   sl.registerLazySingleton(() => AddFoodItemsToMealUseCase(sl()));
   sl.registerLazySingleton(() => UpdateWaterUseCase(sl()));
   sl.registerLazySingleton(() => GetWaterConfigUseCase(sl()));
+
+  // Notes / Notification Feature
+  sl.registerFactory(
+    () => NotificationBloc(
+      getNotes: sl(),
+      getProfile: sl(),
+    ),
+  );
+  sl.registerLazySingleton(() => GetAthleteNotesUseCase(sl()));
+  sl.registerLazySingleton<NotesRepository>(
+    () => NotesRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<NotesRemoteDataSource>(
+    () => NotesRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // Nutrition Statistics
   sl.registerFactory(() => NutritionStatisticsBloc(getStatistics: sl()));

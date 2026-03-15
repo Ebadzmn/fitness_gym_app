@@ -63,6 +63,8 @@ class FcmService {
       _onMessageOpenedApp(initialMessage);
     }
 
+    await checkLatestNoteNotification();
+
     _initialized = true;
   }
 
@@ -117,6 +119,65 @@ class FcmService {
   }
 
   void _onMessageOpenedApp(RemoteMessage message) {}
+  Future<void> checkLatestNoteNotification() async {
+    try {
+      final accessToken = tokenStorage.getAccessToken();
+      if (accessToken == null || accessToken.isEmpty) return;
+
+      final profileResponse = await apiClient.get('${ApiUrls.baseUrl}/profile');
+      if (profileResponse.data['success'] != true) return;
+
+      final profileData =
+          profileResponse.data['data'] as Map<String, dynamic>? ?? {};
+      final athlete = profileData['athlete'] as Map<String, dynamic>? ?? {};
+      final athleteId = athlete['_id'] as String? ?? '';
+      if (athleteId.isEmpty) return;
+
+      final notesResponse =
+          await apiClient.get(ApiUrls.athleteNotes(athleteId));
+      if (notesResponse.data['success'] != true) return;
+
+      final List<dynamic> data =
+          notesResponse.data['data'] as List<dynamic>? ?? [];
+      if (data.isEmpty) return;
+
+      final latest =
+          data.first as Map<String, dynamic>; // API already sorted by time
+      final latestCreatedAt = latest['createdAt'] as String? ?? '';
+      if (latestCreatedAt.isEmpty) return;
+
+      final lastNotified = tokenStorage.getLastNotifiedNoteTime();
+      if (lastNotified != null && lastNotified == latestCreatedAt) {
+        return;
+      }
+
+      final noteText = latest['note'] as String? ?? '';
+      if (noteText.isEmpty) return;
+
+      final preview =
+          noteText.length <= 100 ? noteText : '${noteText.substring(0, 100)}...';
+
+      final id = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+      await _localNotifications.show(
+        id: id,
+        title: 'New Note',
+        body: preview,
+        notificationDetails: const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'high_importance_channel',
+            'High Importance Notifications',
+            channelDescription: 'Used for important notifications.',
+            importance: Importance.high,
+            priority: Priority.high,
+          ),
+          iOS: DarwinNotificationDetails(),
+        ),
+      );
+
+      await tokenStorage.saveLastNotifiedNoteTime(latestCreatedAt);
+    } catch (_) {}
+  }
 
   Future<String?> _getFcmToken(FirebaseMessaging messaging) async {
     if (defaultTargetPlatform == TargetPlatform.iOS) {

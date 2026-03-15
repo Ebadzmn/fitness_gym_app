@@ -19,7 +19,7 @@ class ProfileModel extends ProfileEntity {
               .toList() ??
           const [],
       show: () {
-        final showData = json['show'];
+        final showData = json['show'] ?? json['shows'];
         if (showData is List) {
           return showData
               .map((e) => ShowModel.fromJson(e as Map<String, dynamic>))
@@ -27,6 +27,19 @@ class ProfileModel extends ProfileEntity {
         } else if (showData is Map<String, dynamic>) {
           return [ShowModel.fromJson(showData)];
         }
+
+        final nestedAthlete = json['athlete'];
+        if (nestedAthlete is Map<String, dynamic>) {
+          final shows = nestedAthlete['shows'];
+          if (shows is List) {
+            return shows
+                .map((e) => ShowModel.fromJson(e as Map<String, dynamic>))
+                .toList();
+          } else if (shows is Map<String, dynamic>) {
+            return [ShowModel.fromJson(shows)];
+          }
+        }
+
         return const <ShowModel>[];
       }(),
       countDown: (json['countDown'] as num?)?.toInt() ?? 0,
@@ -158,6 +171,7 @@ class ShowModel extends ShowEntity {
     required super.division,
     required super.date,
     required super.location,
+    required super.countDown,
   });
 
   factory ShowModel.fromJson(Map<String, dynamic> json) {
@@ -167,6 +181,7 @@ class ShowModel extends ShowEntity {
       division: json['division'] as String? ?? '',
       date: json['date'] as String? ?? '',
       location: json['location'] as String? ?? '',
+      countDown: (json['countDown'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -177,6 +192,7 @@ class ShowModel extends ShowEntity {
       'division': division,
       'date': date,
       'location': location,
+      'countDown': countDown,
     };
   }
 }

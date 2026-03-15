@@ -26,6 +26,7 @@ import 'package:flutter/material.dart';
 import 'package:fitness_app/presentation/auth/pages/login_page.dart';
 import 'package:fitness_app/presentation/auth/pages/splash_page.dart';
 import 'package:fitness_app/presentation/auth/pages/webview_screen.dart';
+import 'package:fitness_app/presentation/notification/pages/notification_page.dart';
 
 import 'package:go_router/go_router.dart';
 
@@ -57,6 +58,7 @@ class AppRoutes {
   static const String trainingPlanDetailPage = '/training_plan_detail';
   static const String webViewScreen = '/webview';
   static const String rusuiPage = '/rusui';
+  static const String notificationPage = '/notifications';
 
   static Page<dynamic> fadeTransitionPage({
     required BuildContext context,
@@ -151,6 +153,14 @@ final GoRouter AppRouter = GoRouter(
         context: context,
         state: state,
         child: const HomePage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.notificationPage,
+      pageBuilder: (context, state) => AppRoutes.fadeTransitionPage(
+        context: context,
+        state: state,
+        child: const NotificationPage(),
       ),
     ),
 

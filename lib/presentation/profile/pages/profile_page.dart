@@ -16,6 +16,7 @@ import 'package:fitness_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:fitness_app/l10n/app_localizations.dart';
 import 'package:fitness_app/core/bloc/nav_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:fitness_app/core/appRoutes/app_routes.dart';
 import 'package:intl/intl.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -208,6 +209,7 @@ class _ProfileView extends StatelessWidget {
     String date,
     String division,
     String location,
+    String countdown,
   ) {
     return Container(
       decoration: const BoxDecoration(
@@ -284,6 +286,23 @@ class _ProfileView extends StatelessWidget {
                 ),
               ),
             ),
+            Container(width: 1, color: Colors.white24),
+            Expanded(
+              flex: 2,
+              child: Container(
+                color: Colors.black,
+                alignment: Alignment.center,
+                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 12.h),
+                child: Text(
+                  countdown,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 11.sp,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -351,17 +370,31 @@ class _ProfileView extends StatelessWidget {
         centerTitle: true,
         backgroundColor: AppColor.primaryColor,
         elevation: 0,
-        leading: Padding(
-          padding: EdgeInsets.all(8.w),
-          child: CircleAvatar(
-            backgroundColor: Colors.white10,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
+        leadingWidth: 96.w,
+        leading: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(8.w),
+              child: CircleAvatar(
+                backgroundColor: Colors.white10,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () {
+                    context.read<NavBloc>().add(const NavEvent(0));
+                  },
+                ),
+              ),
+            ),
+            IconButton(
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon: const Icon(Icons.notifications_none, color: Colors.white),
               onPressed: () {
-                context.read<NavBloc>().add(const NavEvent(0));
+                context.push(AppRoutes.notificationPage);
               },
             ),
-          ),
+          ],
         ),
         actions: [
           Padding(
@@ -735,6 +768,22 @@ class _ProfileView extends StatelessWidget {
                                           ),
                                         ),
                                       ),
+                                      Container(
+                                        width: 1,
+                                        height: 16.h,
+                                        color: Colors.white24,
+                                      ),
+                                      Expanded(
+                                        flex: 2,
+                                        child: Text(
+                                          localizations.profileLabelCountdown,
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontSize: 11.sp,
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -745,6 +794,7 @@ class _ProfileView extends StatelessWidget {
                                     _formatDate(item.date),
                                     item.division,
                                     item.location,
+                                    '${item.countDown} ${localizations.profileLabelDaysSuffix}',
                                   );
                                 }),
                               ],

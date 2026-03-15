@@ -122,6 +122,7 @@ class ShowEntity extends Equatable {
   final String division;
   final String date;
   final String location;
+   final int countDown;
 
   const ShowEntity({
     required this.id,
@@ -129,8 +130,9 @@ class ShowEntity extends Equatable {
     required this.division,
     required this.date,
     required this.location,
+     required this.countDown,
   });
 
   @override
-  List<Object?> get props => [id, name, division, date, location];
+  List<Object?> get props => [id, name, division, date, location, countDown];
 }
