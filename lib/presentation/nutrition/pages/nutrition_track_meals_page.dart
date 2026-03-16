@@ -765,7 +765,7 @@ class _DailyGoalSection extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  '+ LOG',
+                  '+ Add',
                   style: GoogleFonts.poppins(
                     color: Colors.black,
                     fontSize: 14.sp,

@@ -71,10 +71,7 @@ class _ProfileView extends StatelessWidget {
     );
   }
 
-  Future<void> _pickImage(
-    BuildContext context,
-    ImageSource source,
-  ) async {
+  Future<void> _pickImage(BuildContext context, ImageSource source) async {
     final bloc = context.read<ProfileBloc>();
     final picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: source);
@@ -389,7 +386,11 @@ class _ProfileView extends StatelessWidget {
             IconButton(
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
-              icon: const Icon(Icons.notifications_none, color: Colors.white),
+              icon: const Badge(
+                backgroundColor: Colors.red,
+                smallSize: 8,
+                child: Icon(Icons.notifications_none, color: Colors.white),
+              ),
               onPressed: () {
                 context.push(AppRoutes.notificationPage);
               },
@@ -416,14 +417,14 @@ class _ProfileView extends StatelessWidget {
             previous.successMessage != current.successMessage,
         listener: (context, state) {
           if (state.errorMessage != null && state.errorMessage!.isNotEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errorMessage!)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.errorMessage!)));
           } else if (state.successMessage != null &&
               state.successMessage!.isNotEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.successMessage!)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.successMessage!)));
           }
         },
         builder: (context, state) {
@@ -467,11 +468,13 @@ class _ProfileView extends StatelessWidget {
                                 if (value.startsWith('http')) {
                                   provider = NetworkImage(value);
                                 } else if (value.startsWith('file://')) {
-                                  provider =
-                                      FileImage(File(Uri.parse(value).path));
+                                  provider = FileImage(
+                                    File(Uri.parse(value).path),
+                                  );
                                 } else {
-                                  final normalizedPath =
-                                      value.startsWith('/') ? value : '/$value';
+                                  final normalizedPath = value.startsWith('/')
+                                      ? value
+                                      : '/$value';
                                   provider = NetworkImage(
                                     'https://api.evolveapp.fit$normalizedPath',
                                   );
@@ -679,11 +682,6 @@ class _ProfileView extends StatelessWidget {
                           Icons.emoji_events_outlined,
                           localizations.profileSectionShowInfo,
                           iconColor: Colors.green,
-                        ),
-                        SizedBox(height: 16.h),
-                        _infoRow(
-                          localizations.profileLabelCountdown,
-                          '${profile.countDown} ${localizations.profileLabelDaysSuffix}',
                         ),
                         SizedBox(height: 16.h),
                         if (profile.show.isNotEmpty)
