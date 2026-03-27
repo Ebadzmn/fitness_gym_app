@@ -77,6 +77,11 @@ import 'features/notification/data/repositories/notes_repository_impl.dart';
 import 'features/notification/domain/repositories/notes_repository.dart';
 import 'features/notification/domain/usecases/get_athlete_notes_usecase.dart';
 import 'features/notification/presentation/bloc/notification_bloc.dart';
+import 'features/timeline/data/datasources/timeline_remote_data_source.dart';
+import 'features/timeline/data/repositories/timeline_repository_impl.dart';
+import 'features/timeline/domain/repositories/timeline_repository.dart';
+import 'features/timeline/domain/usecases/get_timeline_usecase.dart';
+import 'features/timeline/presentation/bloc/timeline_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -299,5 +304,15 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<ProfileRemoteDataSource>(
     () => ProfileRemoteDataSourceImpl(apiClient: sl()),
+  );
+
+  // Feature - Timeline
+  sl.registerFactory(() => TimelineBloc(getTimelineUseCase: sl()));
+  sl.registerLazySingleton(() => GetTimelineUseCase(sl()));
+  sl.registerLazySingleton<TimelineRepository>(
+    () => TimelineRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<TimelineRemoteDataSource>(
+    () => TimelineRemoteDataSourceImpl(apiClient: sl()),
   );
 }

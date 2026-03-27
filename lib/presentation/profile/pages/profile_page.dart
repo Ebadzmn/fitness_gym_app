@@ -5,6 +5,10 @@ import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:fitness_app/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:fitness_app/features/profile/presentation/bloc/profile_event.dart';
 import 'package:fitness_app/features/profile/presentation/bloc/profile_state.dart';
+import 'package:fitness_app/features/timeline/presentation/bloc/timeline_bloc.dart';
+import 'package:fitness_app/features/timeline/presentation/bloc/timeline_event.dart';
+import 'package:fitness_app/features/timeline/presentation/bloc/timeline_state.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:fitness_app/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,8 +28,15 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<ProfileBloc>()..add(const ProfileLoadRequested()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => sl<ProfileBloc>()..add(const ProfileLoadRequested()),
+        ),
+        BlocProvider(
+          create: (_) => sl<TimelineBloc>(),
+        ),
+      ],
       child: const _ProfileView(),
     );
   }
@@ -413,9 +424,17 @@ class _ProfileView extends StatelessWidget {
       ),
       body: BlocConsumer<ProfileBloc, ProfileState>(
         listenWhen: (previous, current) =>
+            previous.status != current.status ||
             previous.errorMessage != current.errorMessage ||
             previous.successMessage != current.successMessage,
         listener: (context, state) {
+          if (state.status == ProfileStatus.success && state.profile != null) {
+            final timelineState = context.read<TimelineBloc>().state;
+            if (timelineState is TimelineInitial) {
+              context.read<TimelineBloc>().add(FetchTimeline(state.profile!.athlete.id));
+            }
+          }
+
           if (state.errorMessage != null && state.errorMessage!.isNotEmpty) {
             ScaffoldMessenger.of(
               context,
@@ -811,87 +830,78 @@ class _ProfileView extends StatelessWidget {
                   ),
                   SizedBox(height: 24.h),
                   // Table
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white24),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(8.r),
-                        topRight: Radius.circular(8.r),
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        // Header
-                        Container(
+                  BlocBuilder<TimelineBloc, TimelineState>(
+                    builder: (context, timelineState) {
+                      if (timelineState is TimelineLoading || timelineState is TimelineInitial) {
+                        return Container(
                           decoration: BoxDecoration(
-                            color: Colors.grey.withOpacity(0.3),
+                            border: Border.all(color: Colors.white24),
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: Column(
+                            children: [
+                              _buildTimelineHeader(localizations),
+                              for (int i = 0; i < 3; i++)
+                                Shimmer.fromColors(
+                                  baseColor: Colors.white12,
+                                  highlightColor: Colors.white24,
+                                  child: _tableRow('Week ${i + 1}', 'Loading...', 'Loading...', Colors.grey),
+                                ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      if (timelineState is TimelineEmpty) {
+                        return Center(
+                          child: Text(
+                            'No timeline data available',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white70,
+                              fontSize: 14.sp,
+                            ),
+                          ),
+                        );
+                      }
+
+                      if (timelineState is TimelineLoaded) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.white24),
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(8.r),
                               topRight: Radius.circular(8.r),
                             ),
                           ),
-                          padding: EdgeInsets.symmetric(vertical: 12.h),
-                          child: Row(
+                          child: Column(
                             children: [
-                              Expanded(
-                                flex: 1,
-                                child: Text(
-                                  localizations.profileTimelineHeaderWeek,
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontSize: 12.sp,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                width: 1,
-                                height: 16.h,
-                                color: Colors.white24,
-                              ),
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  localizations.profileTimelineHeaderDate,
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontSize: 12.sp,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                width: 1,
-                                height: 16.h,
-                                color: Colors.white24,
-                              ),
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  localizations.profileTimelineHeaderPhase,
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontSize: 12.sp,
-                                  ),
-                                ),
-                              ),
+                              _buildTimelineHeader(localizations),
+                              ...timelineState.timelineData.asMap().entries.map((entry) {
+                                final index = entry.key;
+                                final item = entry.value;
+                                return _tableRow(
+                                  'Week ${index + 1}',
+                                  _formatDate(item.date),
+                                  item.phase,
+                                  const Color(0xFFD4AF37),
+                                );
+                              }),
                             ],
                           ),
-                        ),
-                        // Rows
-                        ...profile.timeline.asMap().entries.map((entry) {
-                          final index = entry.key;
-                          final item = entry.value;
-                          return _tableRow(
-                            '${index + 1}',
-                            _formatDate(item.nextCheckInDate),
-                            item.phase,
-                            const Color(0xFFD4AF37),
-                          );
-                        }),
-                      ],
-                    ),
+                        );
+                      }
+
+                      if (timelineState is TimelineError) {
+                        return Center(
+                          child: Text(
+                            timelineState.message,
+                            style: GoogleFonts.poppins(color: Colors.redAccent, fontSize: 14.sp),
+                          ),
+                        );
+                      }
+
+                      return const SizedBox.shrink();
+                    },
                   ),
                   SizedBox(height: 40.h),
                 ],
@@ -905,6 +915,65 @@ class _ProfileView extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+  Widget _buildTimelineHeader(AppLocalizations localizations) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey.withOpacity(0.3),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(8.r),
+          topRight: Radius.circular(8.r),
+        ),
+      ),
+      padding: EdgeInsets.symmetric(vertical: 12.h),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 1,
+            child: Text(
+              localizations.profileTimelineHeaderWeek,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 12.sp,
+              ),
+            ),
+          ),
+          Container(
+            width: 1,
+            height: 16.h,
+            color: Colors.white24,
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              localizations.profileTimelineHeaderDate,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 12.sp,
+              ),
+            ),
+          ),
+          Container(
+            width: 1,
+            height: 16.h,
+            color: Colors.white24,
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              localizations.profileTimelineHeaderPhase,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 12.sp,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

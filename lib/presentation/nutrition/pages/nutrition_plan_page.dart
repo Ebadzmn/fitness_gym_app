@@ -271,7 +271,7 @@ class _NutritionPlanViewState extends State<_NutritionPlanView> {
                 text,
                 style: GoogleFonts.poppins(
                   color: color,
-                  fontSize: 12.sp,
+                  fontSize: 9.sp,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -381,7 +381,10 @@ class _MealTileState extends State<_MealTile> {
           SizedBox(height: 8.h),
 
           // Row 2: Macros summary
-          Row(
+          Wrap(
+            spacing: 8.w,
+            runSpacing: 8.h,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Text(
                 '${m.calories} kcal',
@@ -391,11 +394,9 @@ class _MealTileState extends State<_MealTile> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(width: 16.w),
+              SizedBox(width: 4.w),
               _miniMacro('P: ${m.proteinG}g', const Color(0xFF2287DD)),
-              SizedBox(width: 8.w),
               _miniMacro('C: ${m.carbsG}g', const Color(0xFF43A047)),
-              SizedBox(width: 8.w),
               _miniMacro('F: ${m.fatsG}g', const Color(0xFFFF6D00)),
             ],
           ),
