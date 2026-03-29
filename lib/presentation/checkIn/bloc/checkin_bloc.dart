@@ -267,6 +267,12 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
       // Sync weights to checkInDate after successful save
       final currentDate = state.checkInDate;
       if (currentDate != null) {
+        // Save submission state locally
+        await sharedPreferences.setString(
+          'lastCheckInDate',
+          currentDate.nextCheckInDate,
+        );
+
         // Update cache with new submitted weight
         await sharedPreferences.setString(
           'cached_weight',
@@ -279,8 +285,11 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
               currentWeight: d.currentWeight,
               averageWeight: d.averageWeight,
             ),
+            isSubmitted: true,
           ),
         );
+      } else {
+        emit(state.copyWith(isSubmitted: true));
       }
 
       emit(state.copyWith(status: CheckInStatus.saved));
@@ -386,7 +395,15 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
       }
 
       final updatedDateData = dateData.copyWith(currentWeight: currentWeight);
-      emit(state.copyWith(checkInDate: updatedDateData));
+      
+      // Determine if check-in was already submitted for this date
+      final lastCheckInDate = sharedPreferences.getString('lastCheckInDate');
+      final isSubmitted = lastCheckInDate == dateData.nextCheckInDate;
+
+      emit(state.copyWith(
+        checkInDate: updatedDateData,
+        isSubmitted: isSubmitted,
+      ));
 
       // Sync weights to form data if available
       final d = state.data;

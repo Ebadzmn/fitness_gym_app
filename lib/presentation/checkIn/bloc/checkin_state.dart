@@ -15,6 +15,7 @@ class CheckInState extends Equatable {
   final CheckInViewTab tab;
   final OldCheckInEntity? oldCheckIn;
   final int skip;
+  final bool isSubmitted;
 
   const CheckInState({
     this.status = CheckInStatus.initial,
@@ -24,6 +25,7 @@ class CheckInState extends Equatable {
     this.tab = CheckInViewTab.weekly,
     this.oldCheckIn,
     this.skip = 0,
+    this.isSubmitted = false,
   });
 
   CheckInState copyWith({
@@ -34,6 +36,7 @@ class CheckInState extends Equatable {
     CheckInViewTab? tab,
     OldCheckInEntity? oldCheckIn,
     int? skip,
+    bool? isSubmitted,
   }) => CheckInState(
     status: status ?? this.status,
     data: data ?? this.data,
@@ -42,6 +45,7 @@ class CheckInState extends Equatable {
     tab: tab ?? this.tab,
     oldCheckIn: oldCheckIn ?? this.oldCheckIn,
     skip: skip ?? this.skip,
+    isSubmitted: isSubmitted ?? this.isSubmitted,
   );
 
   @override
@@ -53,5 +57,6 @@ class CheckInState extends Equatable {
     tab,
     oldCheckIn,
     skip,
+    isSubmitted,
   ];
 }

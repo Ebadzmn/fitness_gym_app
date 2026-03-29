@@ -21,6 +21,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 import 'package:fitness_app/core/bloc/nav_bloc.dart';
 
 class CheckinPages extends StatelessWidget {
@@ -259,32 +260,84 @@ class _CheckInView extends StatelessWidget {
                   ),
                 ] else if (state.tab == CheckInViewTab.weekly && step == 3) ...[
                   SizedBox(height: 40.h),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => context.read<CheckInBloc>().add(
-                            const SubmitPressed(),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF446B36),
-                            padding: EdgeInsets.symmetric(vertical: 14.h),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r),
+                  Builder(builder: (context) {
+                    final nextCheckInDateStr = state.checkInDate?.nextCheckInDate ?? '';
+                    DateTime? nextDate;
+                    try {
+                      if (nextCheckInDateStr.isNotEmpty) {
+                        nextDate = DateTime.parse(nextCheckInDateStr);
+                        nextDate = DateTime(nextDate.year, nextDate.month, nextDate.day);
+                      }
+                    } catch (_) {}
+
+                    final now = DateTime.now();
+                    final today = DateTime(now.year, now.month, now.day);
+
+                    bool isSameDate = nextDate != null && nextDate.isAtSameMomentAs(today);
+                    bool isBeforeDate = nextDate != null && today.isBefore(nextDate);
+                    bool isSubmitted = state.isSubmitted;
+
+                    bool isEnabled = isSameDate && !isSubmitted;
+
+                    String buttonText = localizations.commonSubmit;
+                    if (isSubmitted) {
+                      buttonText = 'Already submitted';
+                    } else if (isBeforeDate) {
+                      final diffDays = nextDate.difference(today).inDays;
+                      if (diffDays == 1) {
+                        buttonText = 'Check-in available tomorrow';
+                      } else {
+                        buttonText = 'Check-in available in $diffDays days';
+                      }
+                    } else if (!isSameDate) {
+                      // If it's a past date or something unhandled, maybe disable or enable?
+                      // The prompt says "ONLY on nextCheckInDate", so disable otherwise.
+                      isEnabled = false;
+                    }
+
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (isEnabled) {
+                                context.read<CheckInBloc>().add(
+                                      const SubmitPressed(),
+                                    );
+                              } else {
+                                String message = 'Already submitted';
+                                if (!isSubmitted && isBeforeDate && nextDate != null) {
+                                  message = 'You can check in on ${DateFormat('d MMM yyyy').format(nextDate)}';
+                                } else if (!isSubmitted && !isSameDate) {
+                                  message = 'Check-in is not available today';
+                                }
+                                ScaffoldMessenger.of(context)
+                                  ..hideCurrentSnackBar()
+                                  ..showSnackBar(
+                                    SnackBar(content: Text(message)),
+                                  );
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isEnabled ? const Color(0xFF446B36) : const Color(0xFF2E2E5D),
+                              padding: EdgeInsets.symmetric(vertical: 14.h),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
                             ),
-                          ),
-                          child: Text(
-                            localizations.commonSubmit,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
+                            child: Text(
+                              buttonText,
+                              style: TextStyle(
+                                color: isEnabled ? Colors.white : Colors.white60,
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    );
+                  }),
                 ],
               ], // Close Column children
             ),
