@@ -100,7 +100,10 @@ class AthleteNoteChanged extends CheckInEvent {
 }
 
 class SubmitPressed extends CheckInEvent {
-  const SubmitPressed();
+  final List<Map<String, String>> answers;
+  const SubmitPressed({required this.answers});
+  @override
+  List<Object?> get props => [answers];
 }
 
 class CheckInHistoryPrev extends CheckInEvent {

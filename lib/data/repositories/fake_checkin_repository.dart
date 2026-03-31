@@ -37,19 +37,33 @@ class FakeCheckInRepository {
     return const CheckInEntity();
   }
 
-  Future<void> save(CheckInEntity data) async {
+  Future<void> save(
+    CheckInEntity data, {
+    List<Map<String, String>>? answers,
+  }) async {
     final formData = Map<String, dynamic>();
 
     formData['currentWeight'] = data.currentWeight;
     formData['averageWeight'] = data.averageWeight;
 
     // questionAndAnswer
-    formData['questionAndAnswer[0][question]'] =
-        'Q1 . What are you proud of? *';
-    formData['questionAndAnswer[0][answer]'] = data.answer1;
-    formData['questionAndAnswer[1][question]'] =
-        'Q2 . Calories per default quantity *';
-    formData['questionAndAnswer[1][answer]'] = data.answer2;
+    if (answers != null && answers.isNotEmpty) {
+      for (int i = 0; i < answers.length; i++) {
+        final qa = answers[i];
+        formData['questionAndAnswer[$i][question]'] = qa['question'] ?? '';
+        formData['questionAndAnswer[$i][answer]'] = qa['answer'] ?? '';
+
+        formData['answers[$i][question]'] = qa['question'] ?? '';
+        formData['answers[$i][answer]'] = qa['answer'] ?? '';
+      }
+    } else {
+      formData['questionAndAnswer[0][question]'] =
+          'Q1 . What are you proud of? *';
+      formData['questionAndAnswer[0][answer]'] = data.answer1;
+      formData['questionAndAnswer[1][question]'] =
+          'Q2 . Calories per default quantity *';
+      formData['questionAndAnswer[1][answer]'] = data.answer2;
+    }
 
     // wellBeing
     formData['wellBeing[energyLevel]'] = data.wellBeing.energy.round();

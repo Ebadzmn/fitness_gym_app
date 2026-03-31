@@ -39,6 +39,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   equatable: 
   flutter_bloc:
+  get:
   get_it:
   go_router:
   google_fonts:

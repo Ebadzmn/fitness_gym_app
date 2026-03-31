@@ -262,7 +262,7 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     if (d == null) return;
     emit(state.copyWith(status: CheckInStatus.saving));
     try {
-      await saveCheckIn(d);
+      await saveCheckIn(d, answers: event.answers);
 
       // Sync weights to checkInDate after successful save
       final currentDate = state.checkInDate;

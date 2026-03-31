@@ -19,6 +19,7 @@ import 'package:fitness_app/presentation/checkIn/widgets/questions_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -66,6 +67,9 @@ class _CheckInView extends StatelessWidget {
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () {
+                    if (Get.isRegistered<CheckInQuestionsController>()) {
+                      Get.delete<CheckInQuestionsController>();
+                    }
                 context.read<NavBloc>().add(const NavEvent(0));
               },
             ),
@@ -80,6 +84,10 @@ class _CheckInView extends StatelessWidget {
       body: BlocConsumer<CheckInBloc, CheckInState>(
         listenWhen: (p, c) => p.status != c.status,
         listener: (context, state) {
+          if (Get.isRegistered<CheckInQuestionsController>()) {
+            final c = Get.find<CheckInQuestionsController>();
+            c.isSubmitting.value = state.status == CheckInStatus.saving;
+          }
           if (state.status == CheckInStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.errorMessage ?? 'Error')),
@@ -262,10 +270,14 @@ class _CheckInView extends StatelessWidget {
                   SizedBox(height: 40.h),
                   Builder(builder: (context) {
                     bool isSubmitted = state.isSubmitted;
+                    final isSaving = state.status == CheckInStatus.saving;
 
-                    bool isEnabled = !isSubmitted;
+                    bool isEnabled = !isSubmitted && !isSaving;
 
                     String buttonText = localizations.commonSubmit;
+                    if (isSaving) {
+                      buttonText = 'Submitting...';
+                    }
                     if (isSubmitted) {
                       buttonText = 'Already submitted';
                     }
@@ -276,8 +288,29 @@ class _CheckInView extends StatelessWidget {
                           child: ElevatedButton(
                             onPressed: () {
                               if (isEnabled) {
+                                if (Get.isRegistered<CheckInQuestionsController>()) {
+                                  final c = Get.find<CheckInQuestionsController>();
+                                  if (c.hasAnyEmptyAnswer()) {
+                                    ScaffoldMessenger.of(context)
+                                      ..hideCurrentSnackBar()
+                                      ..showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Please answer all questions before submitting.',
+                                          ),
+                                        ),
+                                      );
+                                    return;
+                                  }
+                                  context.read<CheckInBloc>().add(
+                                        SubmitPressed(
+                                          answers: c.buildAnswersPayload(),
+                                        ),
+                                      );
+                                  return;
+                                }
                                 context.read<CheckInBloc>().add(
-                                      const SubmitPressed(),
+                                      const SubmitPressed(answers: <Map<String, String>>[]),
                                     );
                               } else {
                                 ScaffoldMessenger.of(context)

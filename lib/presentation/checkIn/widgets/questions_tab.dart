@@ -1,17 +1,190 @@
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_bloc.dart';
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_event.dart';
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_state.dart';
-import 'package:fitness_app/presentation/daily/daily_tracking/presentation/pages/bloc/daily_event.dart'
-    hide
-        NutritionTextChanged,
-        WellBeingChanged,
-        DailyNotesChanged,
-        TrainingToggleChanged;
+import 'package:fitness_app/core/apiUrls/api_urls.dart';
+import 'package:fitness_app/core/network/api_client.dart';
+import 'package:fitness_app/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_app/core/coreWidget/full_width_slider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_app/l10n/app_localizations.dart';
+import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
+
+class CheckInQuestion {
+  final String question;
+  final bool isScale;
+  final bool isFromApi;
+  final RxBool status;
+  final RxString answer;
+  final RxDouble scaleValue;
+  final TextEditingController? controller;
+
+  CheckInQuestion({
+    required this.question,
+    this.isScale = false,
+    this.isFromApi = false,
+    bool status = false,
+    String answer = '',
+    double scaleValue = 1,
+  }) : status = status.obs,
+       answer = (isScale ? scaleValue.round().toString() : answer).obs,
+       scaleValue = scaleValue.clamp(1.0, 10.0).toDouble().obs,
+       controller = isScale ? null : TextEditingController(text: answer) {
+    if (isScale) {
+      this.status.value = true;
+    } else {
+      this.status.value = this.answer.value.trim().isNotEmpty;
+    }
+  }
+
+  factory CheckInQuestion.fromMap(Map<String, dynamic> map) {
+    String str(Object? v) => (v ?? '').toString();
+    bool boolVal(Object? v) {
+      if (v is bool) return v;
+      final s = v?.toString().toLowerCase();
+      return s == 'true' || s == '1' || s == 'yes';
+    }
+
+    final q = str(map['question']).trim().isNotEmpty
+        ? str(map['question']).trim()
+        : str(map['Question']).trim();
+
+    return CheckInQuestion(
+      question: q.trim(),
+      isScale: false,
+      isFromApi: true,
+      status: boolVal(map['status']),
+      answer: '',
+    );
+  }
+}
+
+class CheckInQuestionsController extends GetxController {
+  final ApiClient apiClient;
+
+  final RxBool isLoading = false.obs;
+  final RxBool isSubmitting = false.obs;
+  final RxList<CheckInQuestion> questionList = <CheckInQuestion>[].obs;
+
+  CheckInQuestionsController({required this.apiClient});
+
+  @override
+  void onInit() {
+    super.onInit();
+    _loadStaticQuestions();
+    fetchApiQuestions();
+  }
+
+  void _loadStaticQuestions() {
+    questionList.assignAll(
+      <CheckInQuestion>[
+        CheckInQuestion(question: 'What went well this week?'),
+        CheckInQuestion(
+          question: 'Energy Level (1-10)',
+          isScale: true,
+          scaleValue: 1,
+        ),
+        CheckInQuestion(question: 'Mood (1-10)', isScale: true, scaleValue: 1),
+        CheckInQuestion(
+          question: 'Hunger (1-10)',
+          isScale: true,
+          scaleValue: 1,
+        ),
+        CheckInQuestion(
+          question: 'Nutrition Plan adherence (1-10)',
+          isScale: true,
+          scaleValue: 1,
+        ),
+        CheckInQuestion(
+          question: 'Stress Level (1-10)',
+          isScale: true,
+          scaleValue: 1,
+        ),
+        CheckInQuestion(question: 'Challenges?'),
+        CheckInQuestion(
+          question:
+              'What do we need to change, so you can achieve your goals EVEN better?',
+        ),
+        CheckInQuestion(question: 'Something you want to tell me?'),
+      ],
+    );
+  }
+
+  Future<void> fetchApiQuestions() async {
+    isLoading.value = true;
+    try {
+      final response = await apiClient.get(ApiUrls.checkInQuestions);
+      final apiQuestions = _parseQuestions(response.data);
+      if (apiQuestions.isNotEmpty) {
+        questionList.insertAll(0, apiQuestions);
+      }
+    } catch (_) {
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  List<CheckInQuestion> _parseQuestions(dynamic raw) {
+    dynamic payload = raw;
+    if (payload is Map<String, dynamic>) {
+      payload = payload['data'];
+    }
+    if (payload is! List) return const <CheckInQuestion>[];
+
+    final list = <CheckInQuestion>[];
+    for (final item in payload) {
+      if (item is Map<String, dynamic>) {
+        final q = CheckInQuestion.fromMap(item);
+        if (q.question.trim().isNotEmpty) {
+          list.add(q);
+        }
+      }
+    }
+    return list;
+  }
+
+  void setAnswer(CheckInQuestion q, String value) {
+    if (q.isScale) return;
+    q.answer.value = value;
+    q.status.value = value.trim().isNotEmpty;
+  }
+
+  void setScale(CheckInQuestion q, double value) {
+    if (!q.isScale) return;
+    final v = value.clamp(1.0, 10.0).toDouble();
+    q.scaleValue.value = v;
+    q.answer.value = v.round().toString();
+    q.status.value = true;
+  }
+
+  bool hasAnyEmptyAnswer() {
+    for (final q in questionList) {
+      if (!q.isScale && q.answer.value.trim().isEmpty) return true;
+    }
+    return false;
+  }
+
+  List<Map<String, String>> buildAnswersPayload() {
+    return questionList
+        .map(
+          (q) => <String, String>{
+            'question': q.question,
+            'answer': q.answer.value,
+          },
+        )
+        .toList();
+  }
+
+  @override
+  void onClose() {
+    for (final q in questionList) {
+      q.controller?.dispose();
+    }
+    super.onClose();
+  }
+}
 
 class QuestionsTab extends StatefulWidget {
   const QuestionsTab({super.key});
@@ -22,25 +195,240 @@ class QuestionsTab extends StatefulWidget {
 
 class _QuestionsTabState extends State<QuestionsTab> {
   bool _showValidationErrors = false;
+  late final CheckInQuestionsController _checkInQuestionsController;
 
-  Widget _boxedLabel(String title) {
-    return Container(
-      height: 40.h,
-      decoration: BoxDecoration(
-        color: const Color(0XFF101021),
-        borderRadius: BorderRadius.circular(10.r),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: 12.w),
-      alignment: Alignment.centerLeft,
-      child: Text(
-        title,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 13.sp,
-          fontWeight: FontWeight.w500,
+  @override
+  void initState() {
+    super.initState();
+    if (Get.isRegistered<CheckInQuestionsController>()) {
+      _checkInQuestionsController = Get.find<CheckInQuestionsController>();
+    } else {
+      _checkInQuestionsController = Get.put(
+        CheckInQuestionsController(apiClient: sl<ApiClient>()),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  Widget _checkInQuestionsSection(AppLocalizations localizations) {
+    return Obx(() {
+      final items = _checkInQuestionsController.questionList;
+      final loading = _checkInQuestionsController.isLoading.value;
+      final apiItems = items.where((q) => q.isFromApi).toList();
+      final defaultItems = items.where((q) => !q.isFromApi).toList();
+
+      Widget shimmerRow() => Shimmer.fromColors(
+        baseColor: Colors.white12,
+        highlightColor: Colors.white24,
+        child: Container(
+          height: 18.h,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white12,
+            borderRadius: BorderRadius.circular(6.r),
+          ),
         ),
-      ),
-    );
+      );
+
+      Widget questionItem(CheckInQuestion q) {
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Obx(() {
+                final selected = q.status.value;
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        q.question,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
+                    Icon(
+                      selected ? Icons.check_circle : Icons.check_circle_outline,
+                      color: selected
+                          ? const Color(0xFF69B427)
+                          : Colors.white54,
+                      size: 18.sp,
+                    ),
+                  ],
+                );
+              }),
+              SizedBox(height: 10.h),
+              if (q.isScale)
+                Obx(() {
+                  final v = q.scaleValue.value.round();
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              localizations.commonAnswer,
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            height: 20.h,
+                            width: 34.w,
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(20.r),
+                              border: Border.all(
+                                color: const Color(0xFF69B427),
+                                width: 1.w,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '$v',
+                                style: TextStyle(
+                                  color: const Color(0xFF69B427),
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      FullWidthSlider(
+                        value: q.scaleValue.value,
+                        min: 1,
+                        max: 10,
+                        divisions: 9,
+                        onChanged: (nv) =>
+                            _checkInQuestionsController.setScale(q, nv),
+                        overlayColor:
+                            const Color(0xFF69B427).withOpacity(0.2),
+                      ),
+                    ],
+                  );
+                })
+              else
+                TextFormField(
+                  controller: q.controller!,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: localizations.commonAnswer,
+                    hintStyle: TextStyle(
+                      color: Colors.white54,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    filled: true,
+                    fillColor: const Color(0XFF0A0A1F),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                      borderSide: BorderSide(
+                        color: _showValidationErrors &&
+                                q.answer.value.trim().isEmpty
+                            ? Colors.red
+                            : Colors.white24,
+                        width: 1.w,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                      borderSide: BorderSide(
+                        color: _showValidationErrors &&
+                                q.answer.value.trim().isEmpty
+                            ? Colors.red
+                            : Colors.white24,
+                        width: 1.w,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                      borderSide: BorderSide(
+                        color: const Color(0xFF69B427),
+                        width: 1.w,
+                      ),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 12.h,
+                    ),
+                  ),
+                  onChanged: (v) => _checkInQuestionsController.setAnswer(q, v),
+                ),
+            ],
+          ),
+        );
+      }
+
+      Widget group({
+        required String title,
+        required List<CheckInQuestion> groupItems,
+        bool showLoading = false,
+      }) {
+        return Container(
+          decoration: BoxDecoration(
+            color: const Color(0XFF101021),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          padding: EdgeInsets.all(12.sp),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(height: 12.h),
+              ...groupItems.map(questionItem),
+              if (showLoading) ...[
+                for (int i = 0; i < 3; i++) ...[
+                  if (i > 0) SizedBox(height: 10.h),
+                  shimmerRow(),
+                ],
+              ],
+            ],
+          ),
+        );
+      }
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          group(
+            title: 'Coach add questions for you',
+            groupItems: apiItems,
+            showLoading: loading,
+          ),
+          SizedBox(height: 12.h),
+          group(
+            title: 'Default questions',
+            groupItems: defaultItems,
+          ),
+        ],
+      );
+    });
   }
 
   Widget _filledField(
@@ -79,47 +467,6 @@ class _QuestionsTabState extends State<QuestionsTab> {
           borderSide: BorderSide(color: borderColor, width: 1.w),
         ),
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-      ),
-      onChanged: onChanged,
-    );
-  }
-
-  Widget _answerInput(
-    String initialValue, {
-    required String hint,
-    required ValueChanged<String> onChanged,
-    bool isError = false,
-  }) {
-    final borderColor = isError ? Colors.red : Colors.grey;
-    return TextFormField(
-      initialValue: initialValue,
-      style: TextStyle(
-        color: Colors.white,
-        fontSize: 14.sp,
-        fontWeight: FontWeight.w400,
-      ),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 14.sp,
-          fontWeight: FontWeight.w400,
-        ),
-        filled: true,
-        fillColor: const Color(0XFF101021),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.r),
-          borderSide: BorderSide(color: borderColor, width: 1.w),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.r),
-          borderSide: BorderSide(color: borderColor, width: 1.w),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.r),
-          borderSide: BorderSide(color: borderColor, width: 1.w),
-        ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       ),
       onChanged: onChanged,
     );
@@ -278,312 +625,7 @@ class _QuestionsTabState extends State<QuestionsTab> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              localizations.checkInQuestion1Title,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            SizedBox(height: 12.h),
-            _answerInput(
-              data.answer1,
-              hint: localizations.commonAnswer,
-              onChanged: (v) =>
-                  context.read<CheckInBloc>().add(AnswerChanged(1, v)),
-              isError: _showValidationErrors && data.answer1.trim().isEmpty,
-            ),
-            SizedBox(height: 12.h),
-            SizedBox(height: 12.h),
-            Text(
-              localizations.checkInQuestion2Title,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            SizedBox(height: 12.h),
-            _answerInput(
-              data.answer2,
-              hint: localizations.commonTypeHint,
-              onChanged: (v) =>
-                  context.read<CheckInBloc>().add(AnswerChanged(2, v)),
-              isError: _showValidationErrors && data.answer2.trim().isEmpty,
-            ),
-            SizedBox(height: 12.h),
-
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0XFF101021),
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              padding: EdgeInsets.all(12.sp),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    localizations.checkInWellBeingSectionTitle,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(height: 12.h),
-                  _labelWithValue(
-                    localizations.checkInWellBeingEnergyLabel,
-                    data.wellBeing.energy.round(),
-                  ),
-                  FullWidthSlider(
-                    value: data.wellBeing.energy,
-                    min: 1,
-                    max: 10,
-                    divisions: 9,
-                    onChanged: (v) => context.read<CheckInBloc>().add(
-                      WellBeingChanged('energy', v),
-                    ),
-                    overlayColor: const Color(0xFF69B427).withOpacity(0.2),
-                  ),
-                  _labelWithValue(
-                    localizations.checkInWellBeingStressLabel,
-                    data.wellBeing.stress.round(),
-                  ),
-                  FullWidthSlider(
-                    value: data.wellBeing.stress,
-                    min: 1,
-                    max: 10,
-                    divisions: 9,
-                    onChanged: (v) => context.read<CheckInBloc>().add(
-                      WellBeingChanged('stress', v),
-                    ),
-                    overlayColor: const Color(0xFF69B427).withOpacity(0.2),
-                  ),
-                  _labelWithValue(
-                    localizations.checkInWellBeingMoodLabel,
-                    data.wellBeing.mood.round(),
-                  ),
-                  FullWidthSlider(
-                    value: data.wellBeing.mood,
-                    min: 1,
-                    max: 10,
-                    divisions: 9,
-                    onChanged: (v) => context.read<CheckInBloc>().add(
-                      WellBeingChanged('mood', v),
-                    ),
-                    overlayColor: const Color(0xFF69B427).withOpacity(0.2),
-                  ),
-                  _labelWithValue(
-                    localizations.checkInWellBeingSleepLabel,
-                    data.wellBeing.sleep.round(),
-                  ),
-                  FullWidthSlider(
-                    value: data.wellBeing.sleep,
-                    min: 1,
-                    max: 10,
-                    divisions: 9,
-                    onChanged: (v) => context.read<CheckInBloc>().add(
-                      WellBeingChanged('sleep', v),
-                    ),
-                    overlayColor: const Color(0xFF69B427).withOpacity(0.2),
-                  ),
-                ],
-              ),
-            ),
-
-            SizedBox(height: 12.h),
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0XFF101021),
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              padding: EdgeInsets.all(12.sp),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    localizations.checkInNutritionSectionTitle,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(height: 12.h),
-                  _labelWithValue(
-                    localizations.checkInNutritionDietLevelLabel,
-                    data.nutrition.dietLevel.round(),
-                  ),
-                  FullWidthSlider(
-                    value: data.nutrition.dietLevel,
-                    min: 1,
-                    max: 10,
-                    divisions: 9,
-                    onChanged: (v) => context.read<CheckInBloc>().add(
-                      NutritionNumberChanged('dietLevel', v),
-                    ),
-                    overlayColor: const Color(0xFF69B427).withOpacity(0.2),
-                  ),
-                  _labelWithValue(
-                    localizations.checkInNutritionDigestionLabel,
-                    data.nutrition.digestion.round(),
-                  ),
-                  FullWidthSlider(
-                    value: data.nutrition.digestion,
-                    min: 1,
-                    max: 10,
-                    divisions: 9,
-                    onChanged: (v) => context.read<CheckInBloc>().add(
-                      NutritionNumberChanged('digestion', v),
-                    ),
-                    overlayColor: const Color(0xFF69B427).withOpacity(0.2),
-                  ),
-                  SizedBox(height: 12.h),
-                  Text(
-                    localizations.checkInNutritionChallengeTitle,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  _filledField(
-                    data.nutrition.challenge,
-                    hint: localizations.commonTypeHint,
-                    onChanged: (v) => context.read<CheckInBloc>().add(
-                      NutritionTextChanged('challenge', v),
-                    ),
-                    isError:
-                        _showValidationErrors &&
-                        data.nutrition.challenge.trim().isEmpty,
-                  ),
-                ],
-              ),
-            ),
-
-            SizedBox(height: 12.h),
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0XFF101021),
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              padding: EdgeInsets.all(12.sp),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    localizations.checkInTrainingSectionTitle,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(height: 12.h),
-                  _labelWithValue(
-                    localizations.checkInTrainingFeelStrengthLabel,
-                    data.training.feelStrength.round(),
-                  ),
-                  FullWidthSlider(
-                    value: data.training.feelStrength,
-                    min: 1,
-                    max: 10,
-                    divisions: 9,
-                    onChanged: (v) => context.read<CheckInBloc>().add(
-                      TrainingNumberChanged('feelStrength', v),
-                    ),
-                    overlayColor: const Color(0xFF69B427).withOpacity(0.2),
-                  ),
-                  _labelWithValue(
-                    localizations.checkInTrainingPumpsLabel,
-                    data.training.pumps.round(),
-                  ),
-                  FullWidthSlider(
-                    value: data.training.pumps,
-                    min: 1,
-                    max: 10,
-                    divisions: 9,
-                    onChanged: (v) => context.read<CheckInBloc>().add(
-                      TrainingNumberChanged('pumps', v),
-                    ),
-                    overlayColor: const Color(0xFF69B427).withOpacity(0.2),
-                  ),
-                  SizedBox(height: 12.h),
-                  _ynRow(
-                    context,
-                    localizations.checkInTrainingCompletedLabel,
-                    data.training.trainingCompleted,
-                    (v) => context.read<CheckInBloc>().add(
-                      TrainingToggleChanged('trainingCompleted', v),
-                    ),
-                  ),
-                  SizedBox(height: 12.h),
-                  _ynRow(
-                    context,
-                    localizations.checkInTrainingCardioCompletedLabel,
-                    data.training.cardioCompleted,
-                    (v) => context.read<CheckInBloc>().add(
-                      TrainingToggleChanged('cardioCompleted', v),
-                    ),
-                  ),
-                  SizedBox(height: 12.h),
-                  Text(
-                    localizations.checkInTrainingFeedbackTitle,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  _filledField(
-                    data.training.feedback,
-                    hint: localizations.commonTypeHint,
-                    onChanged: (v) => context.read<CheckInBloc>().add(
-                      TrainingTextChanged('feedback', v),
-                    ),
-                    isError:
-                        _showValidationErrors &&
-                        data.training.feedback.trim().isEmpty,
-                  ),
-                ],
-              ),
-            ),
-
-            SizedBox(height: 12.h),
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0XFF101021),
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              padding: EdgeInsets.all(12.sp),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    localizations.checkInAthleteNoteTitle,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  _textArea(
-                    data.athleteNote,
-                    hint: localizations.commonTypeHint,
-                    onChanged: (v) =>
-                        context.read<CheckInBloc>().add(AthleteNoteChanged(v)),
-                    isError:
-                        _showValidationErrors &&
-                        data.athleteNote.trim().isEmpty,
-                  ),
-                ],
-              ),
-            ),
-
+            _checkInQuestionsSection(localizations),
             SizedBox(height: 32.h),
             Row(
               children: [
@@ -618,22 +660,10 @@ class _QuestionsTabState extends State<QuestionsTab> {
                       final data = bloc.state.data;
                       if (data == null) return;
 
-                      final answer1Empty = data.answer1.trim().isEmpty;
-                      final answer2Empty = data.answer2.trim().isEmpty;
-                      final challengeEmpty = data.nutrition.challenge
-                          .trim()
-                          .isEmpty;
-                      final feedbackEmpty = data.training.feedback
-                          .trim()
-                          .isEmpty;
-                      final noteEmpty = data.athleteNote.trim().isEmpty;
+                      final questionsEmpty =
+                          _checkInQuestionsController.hasAnyEmptyAnswer();
 
-                      final hasEmpty =
-                          answer1Empty ||
-                          answer2Empty ||
-                          challengeEmpty ||
-                          feedbackEmpty ||
-                          noteEmpty;
+                      final hasEmpty = questionsEmpty;
 
                       if (hasEmpty) {
                         setState(() {
