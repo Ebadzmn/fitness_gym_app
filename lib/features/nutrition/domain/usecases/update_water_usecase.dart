@@ -7,7 +7,7 @@ class UpdateWaterUseCase {
 
   UpdateWaterUseCase(this.repository);
 
-  Future<Either<ApiException, void>> call(String unit, int amount) {
-    return repository.updateWater(unit, amount);
+  Future<Either<ApiException, void>> call(DateTime date, String unit, int amount) {
+    return repository.updateWater(date, unit, amount);
   }
 }

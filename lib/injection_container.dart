@@ -82,6 +82,12 @@ import 'features/timeline/data/repositories/timeline_repository_impl.dart';
 import 'features/timeline/domain/repositories/timeline_repository.dart';
 import 'features/timeline/domain/usecases/get_timeline_usecase.dart';
 import 'features/timeline/presentation/bloc/timeline_bloc.dart';
+import 'package:fitness_app/data/repositories/fake_checkin_repository.dart';
+import 'package:fitness_app/domain/usecases/checkin/get_checkin_date_usecase.dart';
+import 'package:fitness_app/domain/usecases/checkin/get_checkin_history_usecase.dart';
+import 'package:fitness_app/domain/usecases/checkin/get_checkin_initial_usecase.dart';
+import 'package:fitness_app/domain/usecases/checkin/get_checkin_user_usecase.dart';
+import 'package:fitness_app/domain/usecases/checkin/save_checkin_usecase.dart';
 
 final sl = GetIt.instance;
 
@@ -315,4 +321,12 @@ Future<void> init() async {
   sl.registerLazySingleton<TimelineRemoteDataSource>(
     () => TimelineRemoteDataSourceImpl(apiClient: sl()),
   );
+
+  //! Feature - CheckIn
+  sl.registerLazySingleton(() => FakeCheckInRepository(apiClient: sl()));
+  sl.registerLazySingleton(() => GetCheckInInitialUseCase(sl()));
+  sl.registerLazySingleton(() => SaveCheckInUseCase(sl()));
+  sl.registerLazySingleton(() => GetCheckInHistoryUseCase(sl()));
+  sl.registerLazySingleton(() => GetCheckInDateUseCase(sl()));
+  sl.registerLazySingleton(() => GetCheckInUserUseCase(sl()));
 }

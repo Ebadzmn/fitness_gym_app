@@ -24,33 +24,38 @@ class OldCheckInQA extends Equatable {
 
 /// Entity for well-being data from old check-in.
 class OldCheckInWellBeing extends Equatable {
-  final int energyLevel;
-  final int stressLevel;
-  final int moodLevel;
-  final int sleepQuality;
+  final Map<String, int> metrics;
 
   const OldCheckInWellBeing({
-    this.energyLevel = 0,
-    this.stressLevel = 0,
-    this.moodLevel = 0,
-    this.sleepQuality = 0,
+    this.metrics = const {},
   });
 
-  factory OldCheckInWellBeing.fromMap(Map<String, dynamic> map) =>
-      OldCheckInWellBeing(
-        energyLevel: map['energyLevel'] ?? 0,
-        stressLevel: map['stressLevel'] ?? 0,
-        moodLevel: map['moodLevel'] ?? 0,
-        sleepQuality: map['sleepQuality'] ?? 0,
-      );
+  // Getters for backward compatibility
+  int get energyLevel => metrics['energyLevel'] ?? 0;
+  int get stressLevel => metrics['stressLevel'] ?? 0;
+  int get moodLevel => metrics['moodLevel'] ?? 0;
+  int get sleepQuality => metrics['sleepQuality'] ?? 0;
+  int get hungerLevel => metrics['hungerLevel'] ?? 0;
+
+  factory OldCheckInWellBeing.fromMap(Map<String, dynamic> map) {
+    final Map<String, int> result = {};
+    map.forEach((key, value) {
+      if (key != '_id' &&
+          key != 'id' &&
+          key != 'userId' &&
+          key != 'coachId' &&
+          key != 'createdAt' &&
+          key != 'updatedAt' &&
+          key != '__v') {
+        result[key] = num.tryParse(value?.toString() ?? '')?.toInt() ?? 0;
+      }
+    });
+
+    return OldCheckInWellBeing(metrics: result);
+  }
 
   @override
-  List<Object?> get props => [
-    energyLevel,
-    stressLevel,
-    moodLevel,
-    sleepQuality,
-  ];
+  List<Object?> get props => [metrics];
 }
 
 /// Entity for nutrition data from old check-in.
@@ -67,8 +72,13 @@ class OldCheckInNutrition extends Equatable {
 
   factory OldCheckInNutrition.fromMap(Map<String, dynamic> map) =>
       OldCheckInNutrition(
-        dietLevel: map['dietLevel'] ?? 0,
-        digestionLevel: map['digestionLevel'] ?? 0,
+        dietLevel: num.tryParse(
+                (map['dietLevel'] ?? map['nutritionPlanAdherence'])?.toString() ??
+                    '',
+              )?.toInt() ??
+            0,
+        digestionLevel:
+            num.tryParse(map['digestionLevel']?.toString() ?? '')?.toInt() ?? 0,
         challengeDiet: map['challengeDiet'] ?? '',
       );
 
@@ -92,8 +102,9 @@ class OldCheckInTraining extends Equatable {
 
   factory OldCheckInTraining.fromMap(Map<String, dynamic> map) =>
       OldCheckInTraining(
-        feelStrength: map['feelStrength'] ?? 0,
-        pumps: map['pumps'] ?? 0,
+        feelStrength:
+            num.tryParse(map['feelStrength']?.toString() ?? '')?.toInt() ?? 0,
+        pumps: num.tryParse(map['pumps']?.toString() ?? '')?.toInt() ?? 0,
         cardioCompleted: map['cardioCompleted'] ?? false,
         trainingCompleted: map['trainingCompleted'] ?? false,
       );
@@ -124,6 +135,7 @@ class OldCheckInEntity extends Equatable {
   final List<String> image;
   final List<String> media;
   final String checkinCompleted;
+  final String coachNote;
   final String createdAt;
   final String updatedAt;
 
@@ -142,6 +154,7 @@ class OldCheckInEntity extends Equatable {
     this.image = const [],
     this.media = const [],
     this.checkinCompleted = '',
+    this.coachNote = '',
     this.createdAt = '',
     this.updatedAt = '',
   });
@@ -154,11 +167,13 @@ class OldCheckInEntity extends Equatable {
         [];
 
     return OldCheckInEntity(
-      id: map['_id'] ?? '',
+      id: map['_id'] ?? map['id'] ?? '',
       odId: map['userId'] ?? '',
       odaId: map['coachId'] ?? '',
-      currentWeight: (map['currentWeight'] ?? 0).toDouble(),
-      averageWeight: (map['averageWeight'] ?? 0).toDouble(),
+      currentWeight:
+          num.tryParse(map['currentWeight']?.toString() ?? '')?.toDouble() ?? 0,
+      averageWeight:
+          num.tryParse(map['averageWeight']?.toString() ?? '')?.toDouble() ?? 0,
       questionAndAnswer: qaList,
       wellBeing: OldCheckInWellBeing.fromMap(
         Map<String, dynamic>.from(map['wellBeing'] ?? {}),
@@ -170,10 +185,11 @@ class OldCheckInEntity extends Equatable {
         Map<String, dynamic>.from(map['training'] ?? {}),
       ),
       trainingFeedback: map['trainingFeedback'] ?? '',
-      dailyNote: map['dailyNote'] ?? '',
+      dailyNote: map['dailyNote'] ?? map['athleteNote'] ?? '',
       image: List<String>.from(map['image'] ?? []),
       media: List<String>.from(map['media'] ?? []),
       checkinCompleted: map['checkinCompleted'] ?? '',
+      coachNote: map['coachNote'] ?? '',
       createdAt: map['createdAt'] ?? '',
       updatedAt: map['updatedAt'] ?? '',
     );
@@ -206,6 +222,7 @@ class OldCheckInEntity extends Equatable {
     image,
     media,
     checkinCompleted,
+    coachNote,
     createdAt,
     updatedAt,
   ];

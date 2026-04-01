@@ -9,6 +9,15 @@ class OldCheckingTab extends StatelessWidget {
 
   const OldCheckingTab({super.key, required this.data});
 
+  String _formatFieldName(String key) {
+    if (key.isEmpty) return '';
+    final result = key.replaceAllMapped(
+      RegExp(r'([a-z])([A-Z])'),
+      (Match m) => '${m[1]} ${m[2]}',
+    );
+    return result[0].toUpperCase() + result.substring(1);
+  }
+
   String _normalizedMediaUrl(String url) {
     var u = url.trim();
     if (u.isEmpty) return u;
@@ -433,24 +442,17 @@ class OldCheckingTab extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              SizedBox(height: 12.h),
-              _labelWithValue(
-                'Energy Level (1-10)',
-                data.wellBeing.energyLevel,
-              ),
-              _readOnlySlider(data.wellBeing.energyLevel),
-              _labelWithValue(
-                'Stress level (1-10)',
-                data.wellBeing.stressLevel,
-              ),
-              _readOnlySlider(data.wellBeing.stressLevel),
-              _labelWithValue('Mood level (1-10)', data.wellBeing.moodLevel),
-              _readOnlySlider(data.wellBeing.moodLevel),
-              _labelWithValue(
-                'Sleep quality (1-10)',
-                data.wellBeing.sleepQuality,
-              ),
-              _readOnlySlider(data.wellBeing.sleepQuality),
+              ...data.wellBeing.metrics.entries.map((entry) {
+                return Column(
+                  children: [
+                    _labelWithValue(
+                      '${_formatFieldName(entry.key)} (1-10)',
+                      entry.value,
+                    ),
+                    _readOnlySlider(entry.value),
+                  ],
+                );
+              }).toList(),
             ],
           ),
         ),
@@ -518,11 +520,6 @@ class OldCheckingTab extends StatelessWidget {
               _labelWithValue('Pumps (1-10)', data.training.pumps),
               _readOnlySlider(data.training.pumps),
               SizedBox(height: 12.h),
-              _ynDisplay(
-                'Training Completed?',
-                data.training.trainingCompleted,
-              ),
-              _ynDisplay('Cardio Completed?', data.training.cardioCompleted),
               if (data.trainingFeedback.isNotEmpty) ...[
                 SizedBox(height: 12.h),
                 _textDisplay('Feedback Training', data.trainingFeedback),

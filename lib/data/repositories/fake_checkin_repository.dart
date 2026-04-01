@@ -1,6 +1,7 @@
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/checkin_entities/check_in_entity.dart';
 import '../../domain/entities/checkin_entities/check_in_date_entity.dart';
 import '../../domain/entities/checkin_entities/old_check_in_entity.dart';
@@ -37,83 +38,96 @@ class FakeCheckInRepository {
     return const CheckInEntity();
   }
 
-  Future<void> save(
+  Future<String?> save(
     CheckInEntity data, {
     List<Map<String, String>>? answers,
   }) async {
-    final formData = Map<String, dynamic>();
+    final wellBeing = data.wellBeing.metrics.map(
+      (key, value) => MapEntry(key, value.round()),
+    );
+    // Include nutritionPlanAdherence as well if not already present
+    if (!wellBeing.containsKey('nutritionPlanAdherence')) {
+      wellBeing['nutritionPlanAdherence'] = data.nutrition.dietLevel.round();
+    }
 
-    formData['currentWeight'] = data.currentWeight;
-    formData['averageWeight'] = data.averageWeight;
+    final questionAndAnswer = <Map<String, dynamic>>[];
+    String note = data.athleteNote;
 
-    // questionAndAnswer
     if (answers != null && answers.isNotEmpty) {
-      for (int i = 0; i < answers.length; i++) {
-        final qa = answers[i];
-        formData['questionAndAnswer[$i][question]'] = qa['question'] ?? '';
-        formData['questionAndAnswer[$i][answer]'] = qa['answer'] ?? '';
+      for (final qa in answers) {
+        final q = qa['question'] ?? '';
+        final qLower = q.toLowerCase();
+        final a = qa['answer'] ?? '';
 
-        formData['answers[$i][question]'] = qa['question'] ?? '';
-        formData['answers[$i][answer]'] = qa['answer'] ?? '';
+        if (qLower.contains('something you want to tell me') ||
+            qLower.contains('athlete note')) {
+          note = a.isNotEmpty ? a : note;
+          // Include it in the original QnA list as well to ensure parity with backend expectation
+          questionAndAnswer.add({
+            'question': q,
+            'answer': a,
+            'status': a.isNotEmpty,
+          });
+        } else {
+          questionAndAnswer.add({
+            'question': q,
+            'answer': a,
+            'status': a.isNotEmpty,
+          });
+        }
       }
     } else {
-      formData['questionAndAnswer[0][question]'] =
-          'Q1 . What are you proud of? *';
-      formData['questionAndAnswer[0][answer]'] = data.answer1;
-      formData['questionAndAnswer[1][question]'] =
-          'Q2 . Calories per default quantity *';
-      formData['questionAndAnswer[1][answer]'] = data.answer2;
+      questionAndAnswer.add({
+        'question': 'Q1 . What are you proud of? *',
+        'answer': data.answer1,
+        'status': data.answer1.isNotEmpty,
+      });
+      questionAndAnswer.add({
+        'question': 'Q2 . Calories per default quantity *',
+        'answer': data.answer2,
+        'status': data.answer2.isNotEmpty,
+      });
     }
 
-    // wellBeing
-    formData['wellBeing[energyLevel]'] = data.wellBeing.energy.round();
-    formData['wellBeing[stressLevel]'] = data.wellBeing.stress.round();
-    formData['wellBeing[moodLevel]'] = data.wellBeing.mood.round();
-    formData['wellBeing[sleepQuality]'] = data.wellBeing.sleep.round();
-
-    // nutrition
-    formData['nutrition[dietLevel]'] = data.nutrition.dietLevel.round();
-    formData['nutrition[digestionLevel]'] = data.nutrition.digestion.round();
-    formData['nutrition[challengeDiet]'] = data.nutrition.challenge;
-
-    // training
-    formData['training[feelStrength]'] = data.training.feelStrength.round();
-    formData['training[pumps]'] = data.training.pumps.round();
-    formData['training[cardioCompleted]'] = data.training.cardioCompleted;
-    formData['training[trainingCompleted]'] = data.training.trainingCompleted;
-    formData['trainingFeedback'] = data.training.feedback;
-
-    formData['athleteNote'] = data.athleteNote;
-
-    // Files
-    if (data.uploads.videoPath != null && data.uploads.videoPath!.isNotEmpty) {
-      formData['video'] = await apiClient.createMultipartFile(
-        data.uploads.videoPath!,
-      );
-    }
-
-    if (data.uploads.picturePaths.isNotEmpty) {
-      final List<dynamic> images = [];
-      for (final path in data.uploads.picturePaths) {
-        images.add(await apiClient.createMultipartFile(path));
-      }
-      formData['image'] = images;
-    }
-
-    final response = await apiClient.post(
-      ApiUrls.checkInPost,
-      data: FormData.fromMap(formData),
-    );
+    final formData = FormData.fromMap({
+      'currentWeight': data.currentWeight,
+      'averageWeight': data.averageWeight,
+      'questionAndAnswer': questionAndAnswer,
+      'wellBeing': wellBeing,
+      'athleteNote': note,
+      'image': await Future.wait(
+        data.uploads.picturePaths.map(
+          (p) => MultipartFile.fromFile(p, filename: p.split('/').last),
+        ),
+      ),
+      'media':
+          data.uploads.videoPath != null && data.uploads.videoPath!.isNotEmpty
+          ? [
+            await MultipartFile.fromFile(
+              data.uploads.videoPath!,
+              filename: data.uploads.videoPath!.split('/').last,
+            ),
+          ]
+          : [],
+    });
+    
+    final response = await apiClient.post(ApiUrls.checkInPost, data: formData);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      // Successfully saved to server.
-      // We could also save locally if needed for history, but user asked for post.
       final prefs = await SharedPreferences.getInstance();
       final weekId = _computeWeekId(DateTime.now());
       final list = prefs.getStringList(_entriesKey) ?? <String>[];
       final toSave = data.copyWith(weekId: weekId).toJson();
       list.add(toSave);
       await prefs.setStringList(_entriesKey, list);
+
+      // Return updatedAt if available in the response data
+      final responseData = response.data['data'];
+      if (responseData != null && responseData is Map && responseData.containsKey('updatedAt')) {
+        return responseData['updatedAt'].toString();
+      }
+      // Fallback
+      return DateTime.now().toIso8601String();
     } else {
       throw Exception(
         'Failed to submit check-in: ${response.data['message'] ?? 'Unknown error'}',
@@ -140,11 +154,14 @@ class FakeCheckInRepository {
         items.add(
           CheckInEntity(
             weekId: weekId,
-            wellBeing: CheckInWellBeing(
-              energy: 6 + (i.toDouble()),
-              stress: 4 + (i.toDouble()),
-              mood: 5 + (i.toDouble()),
-              sleep: 6,
+            wellBeing: const CheckInWellBeing(
+              metrics: {
+                'energyLevel': 6,
+                'stressLevel': 4,
+                'moodLevel': 5,
+                'sleepQuality': 6,
+                'hungerLevel': 4,
+              },
             ),
             nutrition: CheckInNutrition(
               dietLevel: 6 + (i.toDouble()),
@@ -195,13 +212,39 @@ class FakeCheckInRepository {
         queryParameters: {'skip': skip},
       );
       if (response.statusCode == 200 && response.data != null) {
-        final data = response.data['data'];
-        if (data != null) {
-          return OldCheckInEntity.fromMap(Map<String, dynamic>.from(data));
+        dynamic data = response.data['data'];
+        if (data is List && data.isNotEmpty) {
+          data = data.first;
+        }
+        if (data != null && data is Map<String, dynamic>) {
+          return OldCheckInEntity.fromMap(data);
         }
       }
       return null;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('Error in getOldCheckIn: $e');
+      debugPrint('Stacktrace: $stackTrace');
+      return null;
+    }
+  }
+
+  /// Fetch existing check-in data for the current user.
+  Future<OldCheckInEntity?> getCheckInUser() async {
+    try {
+      final response = await apiClient.get(ApiUrls.checkInUser);
+      if (response.statusCode == 200 && response.data != null) {
+        dynamic data = response.data['data'];
+        if (data is List && data.isNotEmpty) {
+          data = data.first;
+        }
+        if (data != null && data is Map<String, dynamic>) {
+          return OldCheckInEntity.fromMap(data);
+        }
+      }
+      return null;
+    } catch (e, stackTrace) {
+      debugPrint('Error in getCheckInUser: $e');
+      debugPrint('Stacktrace: $stackTrace');
       return null;
     }
   }

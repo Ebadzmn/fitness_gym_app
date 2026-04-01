@@ -164,11 +164,14 @@ class NutritionRepositoryImpl implements NutritionRepository {
 
   @override
   Future<Either<ApiException, void>> updateWater(
+    DateTime date,
     String unit,
     int amount,
   ) async {
     try {
-      await remoteDataSource.updateWater(unit, amount);
+      final dateStr =
+          '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      await remoteDataSource.updateWater(dateStr, unit, amount);
       return const Right(null);
     } catch (e) {
       return Left(ApiException(message: e.toString()));

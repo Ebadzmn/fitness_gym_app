@@ -152,3 +152,7 @@ class WeightChanged extends CheckInEvent {
   @override
   List<Object?> get props => [field, value];
 }
+
+class CheckInRefreshRequested extends CheckInEvent {
+  const CheckInRefreshRequested();
+}

@@ -6,6 +6,7 @@ import '../../../domain/usecases/checkin/get_checkin_initial_usecase.dart';
 import '../../../domain/usecases/checkin/save_checkin_usecase.dart';
 import '../../../domain/usecases/checkin/get_checkin_history_usecase.dart';
 import '../../../domain/usecases/checkin/get_checkin_date_usecase.dart';
+import '../../../domain/usecases/checkin/get_checkin_user_usecase.dart';
 import '../../../domain/entities/checkin_entities/check_in_entity.dart';
 
 class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
@@ -13,6 +14,7 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
   final SaveCheckInUseCase saveCheckIn;
   final GetCheckInHistoryUseCase getHistory;
   final GetCheckInDateUseCase getCheckInDate;
+  final GetCheckInUserUseCase getCheckInUser;
   final SharedPreferences sharedPreferences;
 
   CheckInBloc({
@@ -20,6 +22,7 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     required this.saveCheckIn,
     required this.getHistory,
     required this.getCheckInDate,
+    required this.getCheckInUser,
     required this.sharedPreferences,
   }) : super(const CheckInState()) {
     on<CheckInInitRequested>(_onInit);
@@ -44,20 +47,62 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     on<VideoSelected>(_onVideoSelected);
     on<UploadButtonPressed>(_onUploadButtonPressed);
     on<WeightChanged>(_onWeightChanged);
+    on<CheckInRefreshRequested>(_onInit);
   }
 
   Future<void> _onInit(
-    CheckInInitRequested event,
+    CheckInEvent event,
     Emitter<CheckInState> emit,
   ) async {
     emit(state.copyWith(status: CheckInStatus.loading));
     try {
-      final data = await getInitial();
+      var data = await getInitial();
+      
+      // Fetch existing check-in data from API to prefill
+      final existingData = await getCheckInUser();
+      if (existingData != null) {
+        data = data.copyWith(
+          currentWeight: existingData.currentWeight,
+          averageWeight: existingData.averageWeight,
+          athleteNote: existingData.dailyNote,
+          wellBeing: const CheckInWellBeing(
+            metrics: {
+              'energyLevel': 1,
+              'moodLevel': 1,
+              'stressLevel': 1,
+              'sleepQuality': 1,
+              'hungerLevel': 1,
+            },
+          ),
+          // Indicate existing media
+          uploads: data.uploads.copyWith(
+            picturesUploaded: existingData.image.isNotEmpty,
+            videoUploaded: existingData.media.isNotEmpty,
+          ),
+        );
+
+        // Persist updatedAt to SharedPreferences for restriction logic
+        if (existingData.updatedAt.isNotEmpty) {
+          await sharedPreferences.setString('lastCheckInUpdatedAt', existingData.updatedAt);
+        }
+      }
+
       add(const CheckInDateRequested());
       emit(
         state.copyWith(
           status: CheckInStatus.ready,
-          data: data,
+          data: data.copyWith(
+            step: 0,
+            wellBeing: const CheckInWellBeing(
+              metrics: {
+                'energyLevel': 1,
+                'moodLevel': 1,
+                'stressLevel': 1,
+                'sleepQuality': 1,
+                'hungerLevel': 1,
+              },
+            ),
+          ),
           tab: CheckInViewTab.weekly,
         ),
       );
@@ -121,21 +166,9 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     final d = state.data;
     if (d == null) return;
     final wb = d.wellBeing;
-    CheckInWellBeing updated = wb;
-    switch (event.field) {
-      case 'energy':
-        updated = wb.copyWith(energy: event.value);
-        break;
-      case 'stress':
-        updated = wb.copyWith(stress: event.value);
-        break;
-      case 'mood':
-        updated = wb.copyWith(mood: event.value);
-        break;
-      case 'sleep':
-        updated = wb.copyWith(sleep: event.value);
-        break;
-    }
+    final Map<String, double> updatedMetrics = Map.from(wb.metrics);
+    updatedMetrics[event.field] = event.value;
+    final updated = wb.copyWith(metrics: updatedMetrics);
     emit(state.copyWith(data: d.copyWith(wellBeing: updated)));
   }
 
@@ -262,16 +295,19 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
     if (d == null) return;
     emit(state.copyWith(status: CheckInStatus.saving));
     try {
-      await saveCheckIn(d, answers: event.answers);
+      final updatedAtStr = await saveCheckIn(d, answers: event.answers);
 
-      // Sync weights to checkInDate after successful save
-      final currentDate = state.checkInDate;
-      if (currentDate != null) {
-        // Save submission state locally
-        await sharedPreferences.setString(
-          'lastCheckInDate',
-          currentDate.nextCheckInDate,
-        );
+      // Save submission state and calculate next check-in date
+      if (updatedAtStr != null) {
+        final updatedAt = DateTime.parse(updatedAtStr);
+        final nextCheckInDate = updatedAt.add(const Duration(days: 7));
+        
+        // Format nextCheckInDate for display (DD/MM/YYYY)
+        final nextCheckInDateStr = 
+            "${nextCheckInDate.day.toString().padLeft(2, '0')}/${nextCheckInDate.month.toString().padLeft(2, '0')}/${nextCheckInDate.year}";
+
+        await sharedPreferences.setString('lastCheckInUpdatedAt', updatedAtStr);
+        await sharedPreferences.setString('nextCheckInDate', nextCheckInDateStr);
 
         // Update cache with new submitted weight
         await sharedPreferences.setString(
@@ -279,17 +315,21 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
           d.currentWeight.toString(),
         );
 
-        emit(
-          state.copyWith(
-            checkInDate: currentDate.copyWith(
-              currentWeight: d.currentWeight,
-              averageWeight: d.averageWeight,
+        final currentDate = state.checkInDate;
+        if (currentDate != null) {
+          emit(
+            state.copyWith(
+              checkInDate: currentDate.copyWith(
+                currentWeight: d.currentWeight,
+                averageWeight: d.averageWeight,
+                nextCheckInDate: nextCheckInDateStr,
+              ),
+              isSubmitted: true,
             ),
-            isSubmitted: true,
-          ),
-        );
-      } else {
-        emit(state.copyWith(isSubmitted: true));
+          );
+        } else {
+          emit(state.copyWith(isSubmitted: true));
+        }
       }
 
       emit(state.copyWith(status: CheckInStatus.saved));
@@ -396,13 +436,30 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
 
       final updatedDateData = dateData.copyWith(currentWeight: currentWeight);
       
-      // Determine if check-in was already submitted for this date
-      final lastCheckInDate = sharedPreferences.getString('lastCheckInDate');
-      final isSubmitted = lastCheckInDate == dateData.nextCheckInDate;
+      // Determine if check-in is restricted by the 7-day period
+      final lastUpdatedAtStr = sharedPreferences.getString('lastCheckInUpdatedAt');
+      bool isRestricted = false;
+      String nextCheckInDisplay = dateData.nextCheckInDate;
+
+      if (lastUpdatedAtStr != null) {
+        try {
+          final lastUpdatedAt = DateTime.parse(lastUpdatedAtStr);
+          final nextAvailableDate = lastUpdatedAt.add(const Duration(days: 7));
+          final now = DateTime.now();
+          
+          if (now.isBefore(nextAvailableDate)) {
+            isRestricted = true;
+          }
+          
+          // Use the calculated next date for display (format: DD/MM/YYYY)
+          nextCheckInDisplay = 
+              "${nextAvailableDate.day.toString().padLeft(2, '0')}/${nextAvailableDate.month.toString().padLeft(2, '0')}/${nextAvailableDate.year}";
+        } catch (_) {}
+      }
 
       emit(state.copyWith(
-        checkInDate: updatedDateData,
-        isSubmitted: isSubmitted,
+        checkInDate: updatedDateData.copyWith(nextCheckInDate: nextCheckInDisplay),
+        isSubmitted: isRestricted,
       ));
 
       // Sync weights to form data if available

@@ -111,46 +111,39 @@ class CheckInEntity extends Equatable {
 }
 
 class CheckInWellBeing extends Equatable {
-  final double energy;
-  final double stress;
-  final double mood;
-  final double sleep;
+  final Map<String, double> metrics;
 
   const CheckInWellBeing({
-    this.energy = 1,
-    this.stress = 1,
-    this.mood = 1,
-    this.sleep = 1,
+    this.metrics = const {},
   });
 
   CheckInWellBeing copyWith({
-    double? energy,
-    double? stress,
-    double? mood,
-    double? sleep,
-  }) => CheckInWellBeing(
-    energy: energy ?? this.energy,
-    stress: stress ?? this.stress,
-    mood: mood ?? this.mood,
-    sleep: sleep ?? this.sleep,
-  );
-
-  Map<String, dynamic> toMap() => {
-    'energy': energy,
-    'stress': stress,
-    'mood': mood,
-    'sleep': sleep,
-  };
-  factory CheckInWellBeing.fromMap(Map<String, dynamic> map) =>
+    Map<String, double>? metrics,
+  }) =>
       CheckInWellBeing(
-        energy: (map['energy'] ?? 1).toDouble(),
-        stress: (map['stress'] ?? 1).toDouble(),
-        mood: (map['mood'] ?? 1).toDouble(),
-        sleep: (map['sleep'] ?? 1).toDouble(),
+        metrics: metrics ?? this.metrics,
       );
 
+  Map<String, dynamic> toMap() => metrics;
+
+  factory CheckInWellBeing.fromMap(Map<String, dynamic> map) {
+    final Map<String, double> result = {};
+    map.forEach((key, value) {
+      if (key != '_id' &&
+          key != 'id' &&
+          key != 'userId' &&
+          key != 'coachId' &&
+          key != 'createdAt' &&
+          key != 'updatedAt' &&
+          key != '__v') {
+        result[key] = (value ?? 0).toDouble();
+      }
+    });
+    return CheckInWellBeing(metrics: result);
+  }
+
   @override
-  List<Object?> get props => [energy, stress, mood, sleep];
+  List<Object?> get props => [metrics];
 }
 
 class CheckInNutrition extends Equatable {

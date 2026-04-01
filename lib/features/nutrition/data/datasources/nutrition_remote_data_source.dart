@@ -26,7 +26,7 @@ abstract class NutritionRemoteDataSource {
     List<Map<String, dynamic>> food,
   );
   Future<void> saveTrackedMeal(String date, Map<String, dynamic> mealData);
-  Future<void> updateWater(String unit, int amount);
+  Future<void> updateWater(String date, String unit, int amount);
   Future<Map<String, int>> fetchWaterConfig(String date);
   Future<NutritionStatisticsModel> fetchNutritionStatistics(String date);
   Future<SupplementResponseModel> fetchSupplements(String userId);
@@ -168,8 +168,12 @@ class NutritionRemoteDataSourceImpl implements NutritionRemoteDataSource {
   }
 
   @override
-  Future<void> updateWater(String unit, int amount) async {
-    await apiClient.post(ApiUrls.water, data: {'unit': unit, 'amount': amount});
+  Future<void> updateWater(String date, String unit, int amount) async {
+    await apiClient.post(ApiUrls.water, data: {
+      'date': date,
+      'unit': unit,
+      'amount': amount,
+    });
   }
 
   @override

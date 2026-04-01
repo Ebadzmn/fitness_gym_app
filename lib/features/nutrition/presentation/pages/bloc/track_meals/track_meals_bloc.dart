@@ -239,7 +239,7 @@ class TrackMealsBloc extends Bloc<TrackMealsEvent, TrackMealsState> {
     TrackMealsLogWater event,
     Emitter<TrackMealsState> emit,
   ) async {
-    final result = await updateWater(event.unit, event.amount);
+    final result = await updateWater(event.date, event.unit, event.amount);
     result.fold(
       (failure) {
         emit(

@@ -5,6 +5,8 @@ import '../../entities/checkin_entities/check_in_entity.dart';
 class SaveCheckInUseCase {
   final FakeCheckInRepository repo;
   SaveCheckInUseCase(this.repo);
-  Future<void> call(CheckInEntity data, {List<Map<String, String>>? answers}) =>
-      repo.save(data, answers: answers);
+  Future<String?> call(
+    CheckInEntity data, {
+    List<Map<String, String>>? answers,
+  }) => repo.save(data, answers: answers);
 }

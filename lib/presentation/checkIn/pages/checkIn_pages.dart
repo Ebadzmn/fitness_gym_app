@@ -1,13 +1,7 @@
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:fitness_app/domain/entities/checkin_entities/old_check_in_entity.dart';
-import 'package:fitness_app/data/repositories/fake_checkin_repository.dart';
-import 'package:fitness_app/domain/usecases/checkin/get_checkin_date_usecase.dart';
-import 'package:fitness_app/domain/usecases/checkin/get_checkin_history_usecase.dart';
-import 'package:fitness_app/domain/usecases/checkin/get_checkin_initial_usecase.dart';
-import 'package:fitness_app/domain/usecases/checkin/save_checkin_usecase.dart';
 import 'package:fitness_app/injection_container.dart';
-import 'package:fitness_app/core/network/api_client.dart';
 import 'package:fitness_app/l10n/app_localizations.dart';
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_bloc.dart';
 import 'package:fitness_app/presentation/checkIn/bloc/checkin_event.dart';
@@ -21,7 +15,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:fitness_app/core/bloc/nav_bloc.dart';
 
@@ -29,23 +22,16 @@ class CheckinPages extends StatelessWidget {
   const CheckinPages({super.key});
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (_) => FakeCheckInRepository(apiClient: sl<ApiClient>()),
-      child: Builder(
-        builder: (ctx) {
-          final repo = RepositoryProvider.of<FakeCheckInRepository>(ctx);
-          return BlocProvider(
-            create: (_) => CheckInBloc(
-              getInitial: GetCheckInInitialUseCase(repo),
-              saveCheckIn: SaveCheckInUseCase(repo),
-              getHistory: GetCheckInHistoryUseCase(repo),
-              getCheckInDate: GetCheckInDateUseCase(repo),
-              sharedPreferences: sl<SharedPreferences>(),
-            )..add(const CheckInInitRequested()),
-            child: const _CheckInView(),
-          );
-        },
-      ),
+    return BlocProvider(
+      create: (_) => CheckInBloc(
+        getInitial: sl(),
+        saveCheckIn: sl(),
+        getHistory: sl(),
+        getCheckInDate: sl(),
+        getCheckInUser: sl(),
+        sharedPreferences: sl(),
+      )..add(const CheckInInitRequested()),
+      child: const _CheckInView(),
     );
   }
 }
@@ -104,233 +90,172 @@ class _CheckInView extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           final step = state.data!.step;
-          return SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () => context.read<CheckInBloc>().add(
-                        const CheckInStepSet(0),
-                      ),
-                      child: CheckInStep(
-                        icon: Icons.person_outline,
-                        label: localizations.checkInStepProfile,
-                        isActive: step == 0,
-                        isCompleted: step > 0,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => context.read<CheckInBloc>().add(
-                        const CheckInStepSet(1),
-                      ),
-                      child: CheckInStep(
-                        icon: Icons.camera_alt_outlined,
-                        label: localizations.checkInStepPhotos,
-                        isActive: step == 1,
-                        isCompleted: step > 1,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => context.read<CheckInBloc>().add(
-                        const CheckInStepSet(2),
-                      ),
-                      child: CheckInStep(
-                        icon: Icons.chat_bubble_outline,
-                        label: localizations.checkInStepQuestions,
-                        isActive: step == 2,
-                        isCompleted: step > 2,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => context.read<CheckInBloc>().add(
-                        const CheckInStepSet(3),
-                      ),
-                      child: CheckInStep(
-                        icon: Icons.check_circle_outline,
-                        label: localizations.checkInStepChecking,
-                        isActive: step == 3,
-                        isCompleted: step > 3,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 30.h),
+          return RefreshIndicator(
+            onRefresh: () async {
+              context.read<CheckInBloc>().add(const CheckInRefreshRequested());
+              
+              if (Get.isRegistered<CheckInQuestionsController>()) {
+                await Get.find<CheckInQuestionsController>().fetchCheckInUser();
+              }
 
-                // Tabs: Weekly Check-In / Old Check-In
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0F0F15),
-                    borderRadius: BorderRadius.circular(30.r),
-                    border: Border.all(color: const Color(0xFF2E2E5D)),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => context.read<CheckInBloc>().add(
-                            const CheckInTabSet('weekly'),
-                          ),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: EdgeInsets.symmetric(vertical: 12.h),
-                            decoration: BoxDecoration(
-                              color: state.tab == CheckInViewTab.weekly
-                                  ? const Color(0xFF446B36)
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(30.r),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              localizations.checkInTabWeekly,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => context.read<CheckInBloc>().add(
-                            const CheckInTabSet('old'),
-                          ),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: EdgeInsets.symmetric(vertical: 12.h),
-                            decoration: BoxDecoration(
-                              color: state.tab == CheckInViewTab.old
-                                  ? const Color(0xFF446B36)
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(30.r),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              localizations.checkInTabOld,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 20.h),
-
-                // Old Check-In view uses API pagination, Weekly shows only date info
-                if (state.tab == CheckInViewTab.old) ...[
-                  _oldCheckInView(context, state.oldCheckIn, state.skip),
-                ] else ...[
-                  _checkInDateView(localizations, state),
-                ],
-                SizedBox(height: 30.h),
-
-                if (state.tab == CheckInViewTab.weekly)
-                  _bodyForStep(context, step),
-
-                // Bottom Buttons
-                if (state.tab == CheckInViewTab.weekly && step == 0) ...[
-                  SizedBox(height: 40.h),
+              await context.read<CheckInBloc>().stream.firstWhere(
+                (state) => state.status != CheckInStatus.loading,
+              );
+            },
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => context.read<CheckInBloc>().add(
-                            const CheckInNextPressed(),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF446B36),
-                            padding: EdgeInsets.symmetric(vertical: 14.h),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                          ),
-                          child: Text(
-                            localizations.commonNext,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                      GestureDetector(
+                        onTap: () => context.read<CheckInBloc>().add(
+                          const CheckInStepSet(0),
+                        ),
+                        child: CheckInStep(
+                          icon: Icons.person_outline,
+                          label: localizations.checkInStepProfile,
+                          isActive: step == 0,
+                          isCompleted: step > 0,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => context.read<CheckInBloc>().add(
+                          const CheckInStepSet(1),
+                        ),
+                        child: CheckInStep(
+                          icon: Icons.camera_alt_outlined,
+                          label: localizations.checkInStepPhotos,
+                          isActive: step == 1,
+                          isCompleted: step > 1,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => context.read<CheckInBloc>().add(
+                          const CheckInStepSet(2),
+                        ),
+                        child: CheckInStep(
+                          icon: Icons.chat_bubble_outline,
+                          label: localizations.checkInStepQuestions,
+                          isActive: step == 2,
+                          isCompleted: step > 2,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => context.read<CheckInBloc>().add(
+                          const CheckInStepSet(3),
+                        ),
+                        child: CheckInStep(
+                          icon: Icons.check_circle_outline,
+                          label: localizations.checkInStepChecking,
+                          isActive: step == 3,
+                          isCompleted: step > 3,
                         ),
                       ),
                     ],
                   ),
-                ] else if (state.tab == CheckInViewTab.weekly && step == 3) ...[
-                  SizedBox(height: 40.h),
-                  Builder(builder: (context) {
-                    bool isSubmitted = state.isSubmitted;
-                    final isSaving = state.status == CheckInStatus.saving;
-
-                    bool isEnabled = !isSubmitted && !isSaving;
-
-                    String buttonText = localizations.commonSubmit;
-                    if (isSaving) {
-                      buttonText = 'Submitting...';
-                    }
-                    if (isSubmitted) {
-                      buttonText = 'Already submitted';
-                    }
-
-                    return Row(
+                  SizedBox(height: 30.h),
+          
+                  // Tabs: Weekly Check-In / Old Check-In
+                  Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0F0F15),
+                      borderRadius: BorderRadius.circular(30.r),
+                      border: Border.all(color: const Color(0xFF2E2E5D)),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => context.read<CheckInBloc>().add(
+                              const CheckInTabSet('weekly'),
+                            ),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: EdgeInsets.symmetric(vertical: 12.h),
+                              decoration: BoxDecoration(
+                                color: state.tab == CheckInViewTab.weekly
+                                    ? const Color(0xFF446B36)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(30.r),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                localizations.checkInTabWeekly,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => context.read<CheckInBloc>().add(
+                              const CheckInTabSet('old'),
+                            ),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: EdgeInsets.symmetric(vertical: 12.h),
+                              decoration: BoxDecoration(
+                                color: state.tab == CheckInViewTab.old
+                                    ? const Color(0xFF446B36)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(30.r),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                localizations.checkInTabOld,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+          
+                  // Old Check-In view uses API pagination, Weekly shows only date info
+                  if (state.tab == CheckInViewTab.old) ...[
+                    _oldCheckInView(context, state.oldCheckIn, state.skip),
+                  ] else ...[
+                    _checkInDateView(localizations, state),
+                  ],
+                  SizedBox(height: 30.h),
+          
+                  if (state.tab == CheckInViewTab.weekly)
+                    _bodyForStep(context, step),
+          
+                  // Bottom Buttons
+                  if (state.tab == CheckInViewTab.weekly && step == 0) ...[
+                    SizedBox(height: 40.h),
+                    Row(
                       children: [
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () {
-                              if (isEnabled) {
-                                if (Get.isRegistered<CheckInQuestionsController>()) {
-                                  final c = Get.find<CheckInQuestionsController>();
-                                  if (c.hasAnyEmptyAnswer()) {
-                                    ScaffoldMessenger.of(context)
-                                      ..hideCurrentSnackBar()
-                                      ..showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Please answer all questions before submitting.',
-                                          ),
-                                        ),
-                                      );
-                                    return;
-                                  }
-                                  context.read<CheckInBloc>().add(
-                                        SubmitPressed(
-                                          answers: c.buildAnswersPayload(),
-                                        ),
-                                      );
-                                  return;
-                                }
-                                context.read<CheckInBloc>().add(
-                                      const SubmitPressed(answers: <Map<String, String>>[]),
-                                    );
-                              } else {
-                                ScaffoldMessenger.of(context)
-                                  ..hideCurrentSnackBar()
-                                  ..showSnackBar(
-                                    const SnackBar(content: Text('Already submitted')),
-                                  );
-                              }
-                            },
+                            onPressed: () => context.read<CheckInBloc>().add(
+                              const CheckInNextPressed(),
+                            ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: isEnabled ? const Color(0xFF446B36) : const Color(0xFF2E2E5D),
+                              backgroundColor: const Color(0xFF446B36),
                               padding: EdgeInsets.symmetric(vertical: 14.h),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12.r),
                               ),
                             ),
                             child: Text(
-                              buttonText,
+                              localizations.commonNext,
                               style: TextStyle(
-                                color: isEnabled ? Colors.white : Colors.white60,
+                                color: Colors.white,
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -338,10 +263,84 @@ class _CheckInView extends StatelessWidget {
                           ),
                         ),
                       ],
-                    );
-                  }),
-                ],
-              ], // Close Column children
+                    ),
+                  ] else if (state.tab == CheckInViewTab.weekly && step == 3) ...[
+                    SizedBox(height: 40.h),
+                    Builder(builder: (context) {
+                      bool isSubmitted = state.isSubmitted;
+                      final isSaving = state.status == CheckInStatus.saving;
+          
+                      bool isEnabled = !isSubmitted && !isSaving;
+          
+                      String buttonText = localizations.commonSubmit;
+                      if (isSaving) {
+                        buttonText = 'Submitting...';
+                      }
+                      if (isSubmitted) {
+                        buttonText = 'Already submitted';
+                      }
+          
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                if (isEnabled) {
+                                  if (Get.isRegistered<CheckInQuestionsController>()) {
+                                    final c = Get.find<CheckInQuestionsController>();
+                                    if (c.hasAnyEmptyAnswer()) {
+                                      ScaffoldMessenger.of(context)
+                                        ..hideCurrentSnackBar()
+                                        ..showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Please answer all questions before submitting.',
+                                            ),
+                                          ),
+                                        );
+                                      return;
+                                    }
+                                    context.read<CheckInBloc>().add(
+                                          SubmitPressed(
+                                            answers: c.buildAnswersPayload(),
+                                          ),
+                                        );
+                                    return;
+                                  }
+                                  context.read<CheckInBloc>().add(
+                                        const SubmitPressed(answers: <Map<String, String>>[]),
+                                      );
+                                } else {
+                                  ScaffoldMessenger.of(context)
+                                    ..hideCurrentSnackBar()
+                                    ..showSnackBar(
+                                      const SnackBar(content: Text('Already submitted')),
+                                    );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: isEnabled ? const Color(0xFF446B36) : const Color(0xFF2E2E5D),
+                                padding: EdgeInsets.symmetric(vertical: 14.h),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.r),
+                                ),
+                              ),
+                              child: Text(
+                                buttonText,
+                                style: TextStyle(
+                                  color: isEnabled ? Colors.white : Colors.white60,
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
+                  ],
+                ], // Close Column children
+              ),
             ),
           );
         },
