@@ -2,6 +2,7 @@ import 'package:fitness_app/core/storage/token_storage.dart';
 import 'package:fitness_app/features/nutrition/domain/usecases/sync_nutrition_data_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
+import 'package:get/get.dart' as get_pkg;
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/forget_password_usecase.dart';
 import '../../domain/usecases/verify_otp_usecase.dart';
@@ -85,6 +86,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     await tokenStorage.clearTokens();
+    get_pkg.Get.deleteAll(force: true);
     emit(AuthUnauthenticated());
   }
 

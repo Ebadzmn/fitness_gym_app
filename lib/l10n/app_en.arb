@@ -270,5 +270,6 @@
   "commonAnswer": "Answer",
   "checkInCheckingCurrentWeightTitle": "Current Weight",
   "checkInCheckingAverageWeightTitle": "Avg Weight",
+  "dailyTrainingNoPlan": "No Training plan add here",
   "applyHereText": "Not part of coaching program? Apply Here"
 }

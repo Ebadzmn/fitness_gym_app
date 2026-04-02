@@ -790,5 +790,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get checkInCheckingAverageWeightTitle => 'Avg Weight';
 
   @override
+  String get dailyTrainingNoPlan => 'Hier ist kein Trainingsplan hinzugefügt';
+
+  @override
   String get applyHereText => 'Nicht Teil des Coaching-Programms? Hier bewerben';
 }

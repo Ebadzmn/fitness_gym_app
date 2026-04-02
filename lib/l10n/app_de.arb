@@ -97,6 +97,7 @@
   "dailyBpGlucoseLabel": "Blutzucker",
   "dailyNotesSectionTitle": "Tägliche Notizen",
   "dailySubmitButton": "Speichern",
+  "dailyTrainingNoPlan": "Hier ist kein Trainingsplan hinzugefügt",
   "applyHereText": "Nicht Teil des Coaching-Programms? Hier bewerben",
   "trainingHistoryAppBarTitle": "Trainingsverlauf",
   "trainingHistoryEmpty": "Bitte schließe zuerst ein Training ab. Danach wird der Verlauf hinzugefügt.",

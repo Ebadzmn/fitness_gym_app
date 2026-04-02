@@ -943,7 +943,7 @@ class _DailyView extends StatelessWidget {
 
     if (plans.isEmpty) {
       return Text(
-        AppLocalizations.of(context)!.trainingExerciseGenericError,
+        AppLocalizations.of(context)!.dailyTrainingNoPlan,
         style: GoogleFonts.poppins(color: Colors.white54, fontSize: 12.sp),
       );
     }

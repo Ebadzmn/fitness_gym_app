@@ -3,40 +3,37 @@ import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_dashboard_entity.dart';
 import 'package:fitness_app/injection_container.dart';
-import 'package:fitness_app/core/storage/token_storage.dart';
+import 'package:fitness_app/presentation/nutrition/controllers/nutrition_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
-import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_bloc/nutrition_bloc.dart';
-import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_bloc/nutrition_event.dart';
-import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_bloc/nutrition_state.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_statistics_entity.dart'
     as stats;
 import 'package:fitness_app/l10n/app_localizations.dart';
+import 'package:get/get.dart';
 
 class NutritionPage extends StatelessWidget {
   const NutritionPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<NutritionBloc>()..add(const NutritionInitRequested()),
-      child: const _NutritionView(),
-    );
+    // GetX controller initialized if not already
+    final controller = Get.isRegistered<NutritionController>()
+        ? Get.find<NutritionController>()
+        : Get.put(sl<NutritionController>());
+
+    return _NutritionView(controller: controller);
   }
 }
 
 class _NutritionView extends StatelessWidget {
-  const _NutritionView();
+  final NutritionController controller;
+  const _NutritionView({required this.controller});
 
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    final tokenStorage = sl<TokenStorage>();
-    final gender = tokenStorage.getUserGender()?.trim().toLowerCase() ?? '';
-    final showPeds = gender == 'female';
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
@@ -64,13 +61,22 @@ class _NutritionView extends StatelessWidget {
           ),
         ),
       ),
-      body: BlocBuilder<NutritionBloc, NutritionState>(
-        builder: (context, state) {
-          if (state.status == NutritionStatus.loading || state.data == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final data = state.data!;
-          return SingleChildScrollView(
+      body: Obx(() {
+        if (controller.isLoading.value && controller.nutritionData.value == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final data = controller.nutritionData.value;
+        if (data == null) {
+          return const Center(child: Text('No Data Available', style: TextStyle(color: Colors.white)));
+        }
+
+        final showPeds = controller.athleteStatus.value.trim().toLowerCase() == 'enhanced';
+
+        return RefreshIndicator(
+          onRefresh: () => controller.fetchNutritionData(),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
             child: Column(
               children: [
@@ -171,9 +177,9 @@ class _NutritionView extends StatelessWidget {
                 ),
               ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      }),
     );
   }
 
@@ -222,21 +228,21 @@ class _NutritionView extends StatelessWidget {
             label: localizations.nutritionMacroProteinLabel,
             valueText: '${proteinStr}g / ${goals.proteinGoal}g',
             color: const Color(0xFF4A6CF7),
-            progress: totals.totalProtein / goals.proteinGoal,
+            progress: goals.proteinGoal > 0 ? totals.totalProtein / goals.proteinGoal : 0,
           ),
           SizedBox(height: 8.h),
           _macroRow(
             label: localizations.nutritionMacroCarbsLabel,
             valueText: '${carbsStr}g / ${goals.carbsGoal}g',
             color: const Color(0xFF82C941),
-            progress: totals.totalCarbs / goals.carbsGoal,
+            progress: goals.carbsGoal > 0 ? totals.totalCarbs / goals.carbsGoal : 0,
           ),
           SizedBox(height: 8.h),
           _macroRow(
             label: localizations.nutritionMacroFatsLabel,
             valueText: '${fatsStr}g / ${goals.fatGoal}g',
             color: const Color(0xFFFF6D00),
-            progress: totals.totalFats / goals.fatGoal,
+            progress: goals.fatGoal > 0 ? totals.totalFats / goals.fatGoal : 0,
           ),
         ],
       ),
@@ -309,21 +315,24 @@ class _NutritionView extends StatelessWidget {
             SizedBox(height: 12.h),
             Text(
               title,
+              textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            SizedBox(height: 6.h),
-            if (subtitle.isNotEmpty)
+            if (subtitle.isNotEmpty) ...[
+              SizedBox(height: 6.h),
               Text(
                 subtitle,
+                textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   color: Colors.white70,
                   fontSize: 12.sp,
                 ),
               ),
+            ],
           ],
         ),
       ),

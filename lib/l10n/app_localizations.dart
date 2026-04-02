@@ -290,7 +290,7 @@ abstract class AppLocalizations {
   /// No description provided for @dailySleepQualityLabel.
   ///
   /// In en, this message translates to:
-  /// **'Sleep Quantity'**
+  /// **'Sleep quality'**
   String get dailySleepQualityLabel;
 
   /// No description provided for @dailySickLabel.
@@ -1648,6 +1648,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Avg Weight'**
   String get checkInCheckingAverageWeightTitle;
+
+  /// No description provided for @dailyTrainingNoPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'No Training plan add here'**
+  String get dailyTrainingNoPlan;
 
   /// No description provided for @applyHereText.
   ///

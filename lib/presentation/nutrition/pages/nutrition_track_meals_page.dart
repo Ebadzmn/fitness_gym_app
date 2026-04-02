@@ -251,7 +251,7 @@ class _TrackMealsView extends StatelessWidget {
                 text,
                 style: GoogleFonts.poppins(
                   color: color,
-                  fontSize: 12.sp,
+                  fontSize: 9.sp,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -637,7 +637,7 @@ class _DailyGoalSection extends StatelessWidget {
                 value,
                 style: GoogleFonts.poppins(
                   color: Colors.white,
-                  fontSize: 16.sp,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -747,7 +747,7 @@ class _DailyGoalSection extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    '$stepAmount ml logged',
+                    '$stepAmount ml added',
                     style: GoogleFonts.poppins(color: Colors.white),
                   ),
                   backgroundColor: const Color(0xFF1E1E2C),
@@ -837,7 +837,7 @@ class _DailyGoalSection extends StatelessWidget {
                 Navigator.of(dialogCtx).pop(parsed);
               },
               child: Text(
-                'Log',
+                'Add',
                 style: GoogleFonts.poppins(
                   color: const Color(0xFF00D180),
                   fontWeight: FontWeight.w700,
@@ -876,7 +876,7 @@ class _DailyGoalSection extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          '$amount ml logged',
+          '$amount ml added',
           style: GoogleFonts.poppins(color: Colors.white),
         ),
         backgroundColor: const Color(0xFF1E1E2C),
@@ -1309,7 +1309,7 @@ class _MealTileState extends State<_MealTile> {
         text,
         style: GoogleFonts.poppins(
           color: textColor,
-          fontSize: 13.sp,
+          fontSize: 12.sp,
           fontWeight: FontWeight.w500,
         ),
       ),
