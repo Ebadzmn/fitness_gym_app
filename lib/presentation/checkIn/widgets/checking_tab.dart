@@ -12,6 +12,78 @@ import 'package:fitness_app/presentation/checkIn/widgets/questions_tab.dart';
 class CheckingTab extends StatelessWidget {
   const CheckingTab({super.key});
 
+  String _formatFieldName(String key) {
+    if (key.isEmpty) return '';
+    final result = key.replaceAllMapped(
+      RegExp(r'([a-z])([A-Z])'),
+      (Match m) => '${m[1]} ${m[2]}',
+    );
+    return result[0].toUpperCase() + result.substring(1);
+  }
+
+  Widget _labelWithValue(String label, int value) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.h),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Container(
+            height: 20.h,
+            width: 30.w,
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(color: const Color(0xFF69B427), width: 1.w),
+            ),
+            child: Center(
+              child: Text(
+                '$value',
+                style: TextStyle(
+                  color: const Color(0xFF69B427),
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _readOnlySlider(int value) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8.h),
+      child: SliderTheme(
+        data: SliderThemeData(
+          thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.r),
+          overlayShape: RoundSliderOverlayShape(overlayRadius: 16.r),
+          trackHeight: 4.h,
+          activeTrackColor: const Color(0xFF69B427),
+          inactiveTrackColor: const Color(0xFF2A2A3F),
+          thumbColor: const Color(0xFF69B427),
+          overlayColor: const Color(0xFF69B427).withOpacity(0.2),
+        ),
+        child: Slider(
+          value: value.toDouble().clamp(0, 10),
+          min: 0,
+          max: 10,
+          divisions: 10,
+          onChanged: null, // Read-only
+        ),
+      ),
+    );
+  }
+
   Widget _summaryCard({
     required IconData icon,
     required String title,
@@ -335,6 +407,46 @@ class CheckingTab extends StatelessWidget {
                 ],
               ),
             ),
+
+            if (Get.isRegistered<CheckInQuestionsController>())
+              Padding(
+                padding: EdgeInsets.only(top: 12.h),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0XFF101021),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  padding: EdgeInsets.all(12.sp),
+                  child: Obx(() {
+                    final controller = Get.find<CheckInQuestionsController>();
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Well-Being',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        ...controller.wellBeingMetrics.entries.map((entry) {
+                          return Column(
+                            key: ValueKey(entry.key),
+                            children: [
+                              _labelWithValue(
+                                '${_formatFieldName(entry.key)} (1-10)',
+                                entry.value.value.round(),
+                              ),
+                              _readOnlySlider(entry.value.value.round()),
+                            ],
+                          );
+                        }).toList(),
+                      ],
+                    );
+                  }),
+                ),
+              ),
 
             SizedBox(height: 12.h),
             Container(

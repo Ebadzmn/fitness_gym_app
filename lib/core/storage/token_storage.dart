@@ -9,6 +9,12 @@ class TokenStorage {
   static const String _userStatusKey = 'user_status';
   static const String _lastNotifiedNoteTimeKey = 'last_notified_note_time';
 
+  // Check-in related keys
+  static const String _lastCheckInUpdatedAtKey = 'lastCheckInUpdatedAt';
+  static const String _nextCheckInDateKey = 'nextCheckInDate';
+  static const String _cachedWeightKey = 'cached_weight';
+  static const String _weeklyCheckInEntriesKey = 'weekly_checkin_entries';
+
   final SharedPreferences _prefs;
 
   TokenStorage(this._prefs);
@@ -69,12 +75,27 @@ class TokenStorage {
     return _prefs.getString(_lastNotifiedNoteTimeKey);
   }
 
+  Future<void> clearAll() async {
+    // These keys are critical for session/check-in separation
+    final keysToClear = [
+      _accessTokenKey,
+      _refreshTokenKey,
+      _fcmTokenKey,
+      _userGenderKey,
+      _userStatusKey,
+      _lastNotifiedNoteTimeKey,
+      _lastCheckInUpdatedAtKey,
+      _nextCheckInDateKey,
+      _cachedWeightKey,
+      _weeklyCheckInEntriesKey,
+    ];
+
+    for (final key in keysToClear) {
+      await _prefs.remove(key);
+    }
+  }
+
   Future<void> clearTokens() async {
-    await _prefs.remove(_accessTokenKey);
-    await _prefs.remove(_refreshTokenKey);
-    await _prefs.remove(_fcmTokenKey);
-    await _prefs.remove(_userGenderKey);
-    await _prefs.remove(_userStatusKey);
-    await _prefs.remove(_lastNotifiedNoteTimeKey);
+    await clearAll();
   }
 }

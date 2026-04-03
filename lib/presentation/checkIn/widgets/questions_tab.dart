@@ -56,8 +56,23 @@ class CheckInQuestionsController extends GetxController {
   void onInit() {
     super.onInit();
     noteController = TextEditingController();
+    _loadDefaultWellBeing();
     _loadStaticQuestions();
     fetchCheckInUser();
+  }
+
+  void _loadDefaultWellBeing() {
+    final defaults = {
+      'energyLevel': 1.0,
+      'stressLevel': 1.0,
+      'moodLevel': 1.0,
+      'sleepQuality': 1.0,
+      'hungerLevel': 1.0,
+    };
+    wellBeingMetrics.clear();
+    defaults.forEach((key, value) {
+      wellBeingMetrics[key] = value.obs;
+    });
   }
 
   void _loadStaticQuestions() {
@@ -95,8 +110,9 @@ class CheckInQuestionsController extends GetxController {
         final apiMetrics = data.wellBeing.metrics;
         if (apiMetrics.isNotEmpty) {
           wellBeingMetrics.clear();
-          apiMetrics.forEach((key, value) {
-            wellBeingMetrics[key] = value.toDouble().obs;
+          apiMetrics.forEach((key, _) {
+            // Adopt the key but ignore the value from API, reset to 1.0
+            wellBeingMetrics[key] = 1.0.obs;
           });
         }
         

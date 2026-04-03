@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fitness_app/presentation/training/widgets/workout_history_modal.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/workout_timer/workout_timer_cubit.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/workout_timer/workout_timer_state.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/workout_session/workout_session_cubit.dart';
@@ -441,6 +442,23 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
                           ],
                         ),
                         centerTitle: true,
+                        actions: [
+                          IconButton(
+                            icon: const Icon(Icons.history, color: Colors.white),
+                            onPressed: () {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                useSafeArea: true,
+                                showDragHandle: true,
+                                backgroundColor: const Color(0XFF101021),
+                                builder: (context) => 
+                                    WorkoutHistoryModal(planTitle: plan.title),
+                              );
+                            },
+                          ),
+                          SizedBox(width: 8.w),
+                        ],
                       ),
                       body: Column(
                         children: [
