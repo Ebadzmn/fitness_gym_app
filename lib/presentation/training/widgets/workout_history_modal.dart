@@ -18,10 +18,7 @@ class WorkoutHistoryModal extends StatelessWidget {
       tag: planTitle,
     );
 
-    // Force a fresh fetch every time the modal is opened
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.fetchPlanHistory();
-    });
+    // Controller handles fetching in onInit, so we don't need redundant calls here.
 
     return Container(
       padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 0),
