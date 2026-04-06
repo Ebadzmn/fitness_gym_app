@@ -11,7 +11,7 @@ class PreviousWorkoutModalController extends GetxController {
 
   final RxBool isLoading = true.obs;
   final RxString errorMessage = ''.obs;
-  final Rxn<TrainingHistoryEntity> workout = Rxn<TrainingHistoryEntity>();
+  final RxList<TrainingHistoryEntity> workouts = <TrainingHistoryEntity>[].obs;
 
   @override
   void onInit() {
@@ -37,10 +37,10 @@ class PreviousWorkoutModalController extends GetxController {
             .toList();
 
         if (matchingWorkouts.isNotEmpty) {
-          // Take the most recent one (history list is usually descending by date)
-          workout.value = matchingWorkouts.first;
+          matchingWorkouts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          workouts.assignAll(matchingWorkouts);
         } else {
-          workout.value = null;
+          workouts.clear();
         }
         isLoading.value = false;
       },

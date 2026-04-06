@@ -24,9 +24,21 @@ class TrainingPlanBloc extends Bloc<TrainingPlanEvent, TrainingPlanState> {
           errorMessage: failure.message,
         ),
       ),
-      (plans) => emit(
-        state.copyWith(status: TrainingPlanStatus.success, plans: plans),
-      ),
+      (plans) {
+        final sortedPlans = plans.toList()
+          ..sort((a, b) {
+            try {
+              final dateA = DateTime.parse(a.date);
+              final dateB = DateTime.parse(b.date);
+              return dateB.compareTo(dateA);
+            } catch (_) {
+              return 0;
+            }
+          });
+        emit(
+          state.copyWith(status: TrainingPlanStatus.success, plans: sortedPlans),
+        );
+      },
     );
   }
 }

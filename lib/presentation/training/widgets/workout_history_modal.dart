@@ -60,8 +60,8 @@ class WorkoutHistoryModal extends StatelessWidget {
                 );
               }
 
-              final workout = controller.workout.value;
-              if (workout == null) {
+              final workoutsList = controller.workouts;
+              if (workoutsList.isEmpty) {
                 return Center(
                   child: Text(
                     "No previous records for this plan.",
@@ -70,96 +70,106 @@ class WorkoutHistoryModal extends StatelessWidget {
                 );
               }
 
-              // Group sets by exercise
-              final Map<String, List<PushDataEntity>> exercises = {};
-              for (var set in workout.pushData) {
-                if (!exercises.containsKey(set.exerciseName)) {
-                  exercises[set.exerciseName] = [];
-                }
-                exercises[set.exerciseName]!.add(set);
-              }
-
               return SingleChildScrollView(
                 padding: EdgeInsets.only(bottom: 20.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Date & Time
-                    Text(
-                      '${workout.createdAt.day}/${workout.createdAt.month}/${workout.createdAt.year} at ${workout.time.hour}:${workout.time.minute}',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white70,
-                        fontSize: 13.sp,
-                      ),
-                    ),
-                    if (workout.note.isNotEmpty) ...[
-                      SizedBox(height: 8.h),
-                      Text(
-                        workout.note,
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontSize: 13.sp,
-                        ),
-                      ),
-                    ],
-                    SizedBox(height: 20.h),
+                  children: workoutsList.map((workout) {
+                    // Group sets by exercise
+                    final Map<String, List<PushDataEntity>> exercises = {};
+                    for (var set in workout.pushData) {
+                      if (!exercises.containsKey(set.exerciseName)) {
+                        exercises[set.exerciseName] = [];
+                      }
+                      exercises[set.exerciseName]!.add(set);
+                    }
 
-                    // Exercise List
-                    ...exercises.entries.map((entry) {
-                      final name = entry.key;
-                      final sets = entry.value;
-
-                      return Container(
-                        margin: EdgeInsets.only(bottom: 16.h),
-                        padding: EdgeInsets.all(12.w),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF13131F),
-                          borderRadius: BorderRadius.circular(12.r),
-                          border: Border.all(color: const Color(0xFF2E2E5D)),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+                    return Container(
+                      margin: EdgeInsets.only(bottom: 24.h),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Date & Time
+                          Text(
+                            '${workout.createdAt.day.toString().padLeft(2, '0')}/${workout.createdAt.month.toString().padLeft(2, '0')}/${workout.createdAt.year} at ${workout.time.hour}:${workout.time.minute}',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          if (workout.note.isNotEmpty) ...[
+                            SizedBox(height: 8.h),
                             Text(
-                              name,
+                              workout.note,
                               style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
+                                color: Colors.white70,
+                                fontSize: 13.sp,
                               ),
                             ),
-                            SizedBox(height: 8.h),
-                            // Set breakdown
-                            ...sets.map((s) {
-                              return Padding(
-                                padding: EdgeInsets.symmetric(vertical: 2.h),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Set ${s.set}',
-                                      style: GoogleFonts.poppins(
-                                        color: Colors.white70,
-                                        fontSize: 12.sp,
-                                      ),
-                                    ),
-                                    Text(
-                                      '${s.weight} kg x ${s.repRange} (RIR: ${s.rir})',
-                                      style: GoogleFonts.poppins(
-                                        color: Colors.white,
-                                        fontSize: 12.sp,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }),
                           ],
-                        ),
-                      );
-                    }).toList(),
-                  ],
+                          SizedBox(height: 16.h),
+
+                          // Exercise List
+                          ...exercises.entries.map((entry) {
+                            final name = entry.key;
+                            final sets = entry.value;
+
+                            return Container(
+                              margin: EdgeInsets.only(bottom: 16.h),
+                              padding: EdgeInsets.all(12.w),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF13131F),
+                                borderRadius: BorderRadius.circular(12.r),
+                                border: Border.all(color: const Color(0xFF2E2E5D)),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    name,
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8.h),
+                                  // Set breakdown
+                                  ...sets.map((s) {
+                                    return Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 2.h),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Set ${s.set}',
+                                            style: GoogleFonts.poppins(
+                                              color: Colors.white70,
+                                              fontSize: 12.sp,
+                                            ),
+                                          ),
+                                          Text(
+                                            '${s.weight} kg x ${s.repRange} (RIR: ${s.rir})',
+                                            style: GoogleFonts.poppins(
+                                              color: Colors.white,
+                                              fontSize: 12.sp,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }),
+                                ],
+                              ),
+                            );
+                          }),
+                          Divider(color: Colors.white24, height: 16.h),
+                        ],
+                      ),
+                    );
+                  }).toList(),
                 ),
               );
             }),
