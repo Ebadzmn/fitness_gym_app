@@ -1,17 +1,21 @@
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fitness_app/presentation/training/widgets/workout_history_modal.dart';
-import 'package:fitness_app/features/training/presentation/pages/bloc/workout_timer/workout_timer_cubit.dart';
-import 'package:fitness_app/features/training/presentation/pages/bloc/workout_timer/workout_timer_state.dart';
+import 'package:fitness_app/domain/entities/training_entities/training_plan_entity.dart';
+import 'package:fitness_app/features/training/data/models/training_history_request_model.dart';
+import 'package:fitness_app/features/training/domain/repositories/exercise_repository.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/workout_session/workout_session_cubit.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/workout_session/workout_session_state.dart';
-import 'package:fitness_app/features/training/data/models/training_history_request_model.dart';
+import 'package:fitness_app/features/training/presentation/pages/bloc/workout_timer/workout_timer_cubit.dart';
+import 'package:fitness_app/features/training/presentation/pages/bloc/workout_timer/workout_timer_state.dart';
 import 'package:fitness_app/injection_container.dart';
+import 'package:fitness_app/presentation/training/controllers/previous_workout_modal_controller.dart';
+import 'package:fitness_app/presentation/training/widgets/workout_history_modal.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WorkoutSessionPage extends StatefulWidget {
@@ -27,9 +31,11 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
   _exerciseControllers = {};
   final Map<int, List<Map<String, bool>>> _fieldErrors = {};
   final TextEditingController _noteController = TextEditingController();
-  int _currentExerciseIndex = 0;
+
   String? _planKey;
   bool _hasLoadedFromPrefs = false;
+  bool _isChangingExercise = false;
+  List<TrainingPlanExerciseEntity>? _sessionExercises;
 
   @override
   void initState() {
@@ -39,9 +45,9 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
 
   @override
   void dispose() {
-    for (var list in _exerciseControllers.values) {
-      for (var controllers in list) {
-        for (var c in controllers.values) {
+    for (final list in _exerciseControllers.values) {
+      for (final controllers in list) {
+        for (final c in controllers.values) {
           c.dispose();
         }
       }
@@ -51,11 +57,235 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
     super.dispose();
   }
 
-  void _onExchangeExercise(List<dynamic> exercises) {
-    if (exercises.isEmpty) return;
+  Future<void> _onChangeExercisePressed(
+    BuildContext context,
+    List<TrainingPlanExerciseEntity> currentExercises,
+  ) async {
+    if (_isChangingExercise) return;
+
     setState(() {
-      _currentExerciseIndex = (_currentExerciseIndex + 1) % exercises.length;
+      _isChangingExercise = true;
     });
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: CircularProgressIndicator(color: Color(0xFF4CAF50)),
+      ),
+    );
+
+    final repo = sl<ExerciseRepository>();
+    final result = await repo.getExercises();
+
+    if (mounted) {
+      Navigator.of(context, rootNavigator: true).pop();
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _isChangingExercise = false;
+    });
+
+    await result.fold(
+      (failure) async {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(failure.message)));
+      },
+      (items) async {
+        if (!mounted) return;
+
+        final selected = await _showExercisePicker(context, items);
+        if (selected == null || !mounted) return;
+
+        final newExercise = TrainingPlanExerciseEntity(
+          name: selected.title,
+          sets: '1',
+          muscle: selected.category,
+          type: selected.equipment,
+          range: '',
+          rir: '',
+          exerciseSets: const [],
+        );
+
+        setState(() {
+          final next = List<TrainingPlanExerciseEntity>.from(currentExercises)
+            ..add(newExercise);
+          _sessionExercises = next;
+          _initializeControllers(next);
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${selected.title} added to workout.')),
+        );
+      },
+    );
+  }
+
+  Future<dynamic> _showExercisePicker(
+    BuildContext context,
+    List<dynamic> exercises,
+  ) {
+    return showModalBottomSheet<dynamic>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: const Color(0XFF101021),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18.r)),
+      ),
+      builder: (bottomSheetContext) {
+        final searchController = TextEditingController();
+        var selectedExercise = exercises.isNotEmpty ? exercises.first : null;
+
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final query = searchController.text.trim().toLowerCase();
+            final filtered = exercises.where((item) {
+              final title = (item.title ?? '').toString().toLowerCase();
+              return title.contains(query);
+            }).toList();
+
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 16.w,
+                right: 16.w,
+                top: 16.h,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 16.h,
+              ),
+              child: SizedBox(
+                height: 0.75.sh,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Change Exercise',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: 12.h),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF13131F),
+                        borderRadius: BorderRadius.circular(10.r),
+                        border: Border.all(color: const Color(0xFF2E2E5D)),
+                      ),
+                      child: TextField(
+                        controller: searchController,
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 13.sp,
+                        ),
+                        onChanged: (_) => setModalState(() {}),
+                        decoration: InputDecoration(
+                          hintText: 'Search exercise...',
+                          hintStyle: GoogleFonts.poppins(
+                            color: Colors.white38,
+                            fontSize: 12.sp,
+                          ),
+                          prefixIcon: const Icon(
+                            Icons.search,
+                            color: Colors.white54,
+                          ),
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 12.h),
+                    Expanded(
+                      child: filtered.isEmpty
+                          ? Center(
+                              child: Text(
+                                'No exercise found',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white54,
+                                  fontSize: 13.sp,
+                                ),
+                              ),
+                            )
+                          : ListView.separated(
+                              itemCount: filtered.length,
+                              separatorBuilder: (_, __) =>
+                                  Divider(color: Colors.white12, height: 1.h),
+                              itemBuilder: (context, index) {
+                                final item = filtered[index];
+                                final isSelected =
+                                    item.id?.toString() ==
+                                    selectedExercise?.id?.toString();
+
+                                return ListTile(
+                                  onTap: () {
+                                    setModalState(() {
+                                      selectedExercise = item;
+                                    });
+                                  },
+                                  title: Text(
+                                    item.title?.toString() ?? '-',
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontSize: 13.sp,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    item.category?.toString() ?? '',
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white60,
+                                      fontSize: 11.sp,
+                                    ),
+                                  ),
+                                  trailing: Icon(
+                                    isSelected
+                                        ? Icons.radio_button_checked
+                                        : Icons.radio_button_unchecked,
+                                    color: isSelected
+                                        ? const Color(0xFF4CAF50)
+                                        : Colors.white38,
+                                  ),
+                                );
+                              },
+                            ),
+                    ),
+                    SizedBox(height: 10.h),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: selectedExercise == null
+                            ? null
+                            : () => Navigator.of(
+                                bottomSheetContext,
+                              ).pop(selectedExercise),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF4CAF50),
+                          disabledBackgroundColor: Colors.white24,
+                          padding: EdgeInsets.symmetric(vertical: 14.h),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                        ),
+                        child: Text(
+                          'Change Exercise',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   String _buildFieldKey(
@@ -191,8 +421,8 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
 
       final oldList = _exerciseControllers[i];
       if (oldList != null) {
-        for (var map in oldList) {
-          for (var c in map.values) {
+        for (final map in oldList) {
+          for (final c in map.values) {
             c.dispose();
           }
         }
@@ -214,9 +444,13 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
     }
   }
 
-  void _onComplete(BuildContext context, dynamic plan, int duration) {
+  void _onComplete(
+    BuildContext context,
+    String trainingName,
+    List<TrainingPlanExerciseEntity> exercises,
+    int duration,
+  ) {
     final List<PushData> pushData = [];
-    final exercises = plan.exercises;
 
     for (int i = 0; i < exercises.length; i++) {
       final exercise = exercises[i];
@@ -245,19 +479,15 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
       } else {
         final count = setsDetail.length;
         for (int s = 0; s < count; s++) {
-          final controllers = controllersList.length > s
-              ? controllersList[s]
-              : controllersList.last;
+          final controllers =
+              controllersList.length > s ? controllersList[s] : controllersList.last;
           final setModel = setsDetail[s];
           final weight = num.tryParse(controllers['weight']?.text ?? '0') ?? 0;
           final userRep = controllers['reps']?.text ?? '';
           final userRir = controllers['rir']?.text ?? '';
-          final repRange = userRep.isNotEmpty
-              ? userRep
-              : (setModel.repRange?.toString() ?? '');
-          final rir = userRir.isNotEmpty
-              ? userRir
-              : (setModel.rir?.toString() ?? '');
+          final repRange =
+              userRep.isNotEmpty ? userRep : (setModel.repRange?.toString() ?? '');
+          final rir = userRir.isNotEmpty ? userRir : (setModel.rir?.toString() ?? '');
           final setNumber =
               int.tryParse(setModel.sets?.toString() ?? '') ?? (s + 1);
 
@@ -278,7 +508,7 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
     final minutes = ((duration % 3600) ~/ 60).toString();
 
     context.read<WorkoutSessionCubit>().saveSession(
-      trainingName: plan.title,
+      trainingName: trainingName,
       time: TrainingTime(hour: hours, minite: minutes),
       pushData: pushData,
       note: _noteController.text,
@@ -295,8 +525,7 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
         continue;
       }
 
-      final errorList =
-          _fieldErrors[i] ??
+      final errorList = _fieldErrors[i] ??
           List.generate(controllersList.length, (_) {
             return {'weight': false, 'reps': false, 'rir': false};
           });
@@ -385,13 +614,15 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
             }
             if (state is WorkoutSessionLoaded) {
               final plan = state.plan;
-              final exercises = plan.exercises;
+              final exercises =
+                  _sessionExercises ??
+                  List<TrainingPlanExerciseEntity>.from(plan.exercises);
 
-              final planKey = (plan.id ?? widget.planId).toString();
+              final planKey = plan.id.toString();
               if (_planKey != planKey) {
                 _planKey = planKey;
                 _hasLoadedFromPrefs = false;
-                _currentExerciseIndex = 0;
+                _sessionExercises = null;
               }
 
               _initializeControllers(exercises);
@@ -444,15 +675,21 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
                         centerTitle: true,
                         actions: [
                           IconButton(
-                            icon: const Icon(Icons.history, color: Colors.white),
+                            icon: const Icon(
+                              Icons.history,
+                              color: Colors.white,
+                            ),
                             onPressed: () {
+                              Get.delete<PreviousWorkoutModalController>(
+                                tag: plan.title,
+                              );
                               showModalBottomSheet(
                                 context: context,
                                 isScrollControlled: true,
                                 useSafeArea: true,
                                 showDragHandle: true,
                                 backgroundColor: const Color(0XFF101021),
-                                builder: (context) => 
+                                builder: (context) =>
                                     WorkoutHistoryModal(planTitle: plan.title),
                               );
                             },
@@ -462,13 +699,7 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
                       ),
                       body: Column(
                         children: [
-                          _TimerSection(
-                            currentExercise: exercises.isNotEmpty
-                                ? exercises[_currentExerciseIndex]
-                                : null,
-                            canExchange: exercises.length > 1,
-                            onExchange: () => _onExchangeExercise(exercises),
-                          ),
+                          const _TimerSection(),
                           SizedBox(height: 10.h),
                           Expanded(
                             child: exercises.isEmpty
@@ -480,20 +711,15 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
                                       ),
                                     ),
                                   )
-                                : ListView.builder(
+                                : ListView(
                                     padding: EdgeInsets.symmetric(
                                       horizontal: 16.w,
                                       vertical: 10.h,
                                     ),
-                                    itemCount: exercises.length,
-                                    itemBuilder: (context, index) {
-                                      if (index != _currentExerciseIndex) {
-                                        return const SizedBox.shrink();
-                                      }
-                                      final exercise = exercises[index];
-                                      return Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
                                             'Exercises',
@@ -503,46 +729,101 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
-                                          SizedBox(height: 12.h),
-                                          _ExerciseRow(
-                                            exercise: exercise,
-                                            index: index + 1,
-                                            controllers:
-                                                _exerciseControllers[index]!,
-                                            errorFlags:
-                                                _fieldErrors[index] ?? const [],
+                                          OutlinedButton.icon(
+                                            onPressed: _isChangingExercise
+                                                ? null
+                                                : () =>
+                                                    _onChangeExercisePressed(
+                                                      context,
+                                                      exercises,
+                                                    ),
+                                            style: OutlinedButton.styleFrom(
+                                              side: const BorderSide(
+                                                color: Color(0xFF4CAF50),
+                                              ),
+                                              foregroundColor: Colors.white,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8.r),
+                                              ),
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 10.w,
+                                                vertical: 8.h,
+                                              ),
+                                              minimumSize: const Size(0, 0),
+                                              tapTargetSize:
+                                                  MaterialTapTargetSize
+                                                      .shrinkWrap,
+                                              visualDensity:
+                                                  VisualDensity.compact,
+                                            ),
+                                            icon: _isChangingExercise
+                                                ? SizedBox(
+                                                    width: 14.w,
+                                                    height: 14.w,
+                                                    child:
+                                                        const CircularProgressIndicator(
+                                                          strokeWidth: 2,
+                                                          color: Color(
+                                                            0xFF4CAF50,
+                                                          ),
+                                                        ),
+                                                  )
+                                                : const Icon(
+                                                    Icons.swap_horiz,
+                                                    size: 16,
+                                                  ),
+                                            label: Text(
+                                              _isChangingExercise
+                                                  ? 'Loading...'
+                                                  : 'Change Exercise',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 11.sp,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
                                           ),
-                                          SizedBox(height: 20.h),
-                                          _NotesInput(
-                                            controller: _noteController,
-                                          ),
-                                          SizedBox(height: 24.h),
-                                          _BottomButtons(
-                                            onComplete: () {
-                                              final isValid =
-                                                  _validateAllFields(
-                                                    exercises,
-                                                    context,
-                                                  );
-                                              if (!isValid) {
-                                                return;
-                                              }
-                                              final duration = context
-                                                  .read<WorkoutTimerCubit>()
-                                                  .state
-                                                  .duration;
-                                              _onComplete(
-                                                context,
-                                                plan,
-                                                duration,
-                                              );
-                                              _clearSavedControllers(exercises);
-                                            },
-                                          ),
-                                          SizedBox(height: 20.h),
                                         ],
-                                      );
-                                    },
+                                      ),
+                                      SizedBox(height: 12.h),
+                                      ...List.generate(exercises.length, (index) {
+                                        final exercise = exercises[index];
+                                        return _ExerciseRow(
+                                          exercise: exercise,
+                                          index: index + 1,
+                                          controllers:
+                                              _exerciseControllers[index]!,
+                                          errorFlags:
+                                              _fieldErrors[index] ?? const [],
+                                        );
+                                      }),
+                                      SizedBox(height: 8.h),
+                                      _NotesInput(controller: _noteController),
+                                      SizedBox(height: 24.h),
+                                      _BottomButtons(
+                                        onComplete: () {
+                                          final isValid = _validateAllFields(
+                                            exercises,
+                                            context,
+                                          );
+                                          if (!isValid) {
+                                            return;
+                                          }
+                                          final duration = context
+                                              .read<WorkoutTimerCubit>()
+                                              .state
+                                              .duration;
+                                          _onComplete(
+                                            context,
+                                            plan.title,
+                                            exercises,
+                                            duration,
+                                          );
+                                          _clearSavedControllers(exercises);
+                                        },
+                                      ),
+                                      SizedBox(height: 20.h),
+                                    ],
                                   ),
                           ),
                         ],
@@ -561,28 +842,15 @@ class _WorkoutSessionPageState extends State<WorkoutSessionPage> {
 }
 
 class _TimerSection extends StatelessWidget {
-  final dynamic currentExercise;
-  final bool canExchange;
-  final VoidCallback onExchange;
-
-  const _TimerSection({
-    required this.currentExercise,
-    required this.canExchange,
-    required this.onExchange,
-  });
+  const _TimerSection();
 
   @override
   Widget build(BuildContext context) {
-    final exerciseName = currentExercise?.name?.toString() ?? 'No Exercise';
-    final setsLabel = currentExercise?.sets?.toString() ?? '-';
-
     return BlocBuilder<WorkoutTimerCubit, WorkoutTimerState>(
       builder: (context, state) {
         final hours = (state.duration ~/ 3600).toString().padLeft(2, '0');
-        final minutes = ((state.duration % 3600) ~/ 60).toString().padLeft(
-          2,
-          '0',
-        );
+        final minutes =
+            ((state.duration % 3600) ~/ 60).toString().padLeft(2, '0');
         final seconds = (state.duration % 60).toString().padLeft(2, '0');
 
         return Column(
@@ -638,85 +906,6 @@ class _TimerSection extends StatelessWidget {
                 ),
               ),
             ),
-            if (currentExercise != null) ...[
-              SizedBox(height: 16.h),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 12.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF13131F),
-                    borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(
-                      color: const Color(0xFF4CAF50),
-                      width: 1.w,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            exerciseName,
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          if (canExchange)
-                            GestureDetector(
-                              onTap: onExchange,
-                              child: Text(
-                                'To Exchange',
-                                style: GoogleFonts.poppins(
-                                  color: const Color(0xFFFFA726),
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      SizedBox(height: 8.h),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8.w,
-                          vertical: 4.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF234361),
-                          borderRadius: BorderRadius.circular(6.r),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.fitness_center,
-                              color: Colors.white70,
-                              size: 12.sp,
-                            ),
-                            SizedBox(width: 4.w),
-                            Text(
-                              '$setsLabel Sets',
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 11.sp,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
           ],
         );
       },
@@ -776,9 +965,7 @@ class _ExerciseRowState extends State<_ExerciseRow> {
         color: const Color(0xFF13131F),
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: isCompleted
-              ? const Color(0xFF4CAF50)
-              : const Color(0xFF2E2E5D),
+          color: isCompleted ? const Color(0xFF4CAF50) : const Color(0xFF2E2E5D),
         ),
       ),
       child: Column(
@@ -787,14 +974,18 @@ class _ExerciseRowState extends State<_ExerciseRow> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                widget.exercise.name,
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  widget.exercise.name,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              SizedBox(width: 8.w),
               Text(
                 '${widget.exercise.sets ?? '-'} Sets',
                 style: GoogleFonts.poppins(
@@ -872,9 +1063,7 @@ class _ExerciseRowState extends State<_ExerciseRow> {
                         isCompleted
                             ? Icons.check_circle
                             : Icons.check_circle_outline,
-                        color: isCompleted
-                            ? const Color(0xFF4CAF50)
-                            : Colors.white24,
+                        color: isCompleted ? const Color(0xFF4CAF50) : Colors.white24,
                         size: 22.sp,
                       ),
                     ),
@@ -886,12 +1075,10 @@ class _ExerciseRowState extends State<_ExerciseRow> {
                     final setControllers = widget.controllers[index];
                     final setsDetail =
                         (widget.exercise.exerciseSets as List?) ?? const [];
-                    final setModel = setsDetail.length > index
-                        ? setsDetail[index]
-                        : null;
-                    final setLabel = setModel != null
-                        ? setModel.sets.toString()
-                        : '${index + 1}';
+                    final setModel =
+                        setsDetail.length > index ? setsDetail[index] : null;
+                    final setLabel =
+                        setModel != null ? setModel.sets.toString() : '${index + 1}';
                     final repsHint = setModel != null
                         ? setModel.repRange.toString()
                         : (widget.exercise.range ?? '');
@@ -900,9 +1087,8 @@ class _ExerciseRowState extends State<_ExerciseRow> {
                         : (widget.exercise.rir ?? '');
 
                     final errorList = widget.errorFlags;
-                    final errorMap = errorList.length > index
-                        ? errorList[index]
-                        : const {};
+                    final errorMap =
+                        errorList.length > index ? errorList[index] : const {};
                     final weightError = errorMap['weight'] ?? false;
                     final repsError = errorMap['reps'] ?? false;
                     final rirError = errorMap['rir'] ?? false;
