@@ -221,7 +221,7 @@ class _TrainingView extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        height: 140.h,
+        constraints: BoxConstraints(minHeight: 140.h),
         decoration: BoxDecoration(
           color: const Color(0XFF101021),
           borderRadius: BorderRadius.circular(12.r),

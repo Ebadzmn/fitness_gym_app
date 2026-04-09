@@ -68,6 +68,7 @@ class _MyAppState extends State<MyApp> {
         child: BlocBuilder<LocaleCubit, Locale>(
           builder: (context, locale) {
             return MaterialApp.router(
+              title: "Evolve - Coaching App",
               routerConfig: AppRouter,
               locale: locale,
               localizationsDelegates: AppLocalizations.localizationsDelegates,

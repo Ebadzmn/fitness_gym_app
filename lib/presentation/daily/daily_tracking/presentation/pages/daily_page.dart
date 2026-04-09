@@ -258,7 +258,7 @@ class _DailyView extends StatelessWidget {
     final localizations = AppLocalizations.of(context)!;
     final chipLabel = _relativeDateChipLabel(context, dateLabel, isReadOnly);
     return Container(
-      height: 60.h,
+      constraints: BoxConstraints(minHeight: 60.h),
       width: double.infinity,
       decoration: BoxDecoration(
         color: const Color(0XFF101021),
@@ -324,7 +324,7 @@ class _DailyView extends StatelessWidget {
   Widget _weightCard(BuildContext context, String initial) {
     final localizations = AppLocalizations.of(context)!;
     return Container(
-      height: 110.h,
+      constraints: BoxConstraints(minHeight: 110.h),
       width: double.infinity,
       decoration: BoxDecoration(
         color: const Color(0XFF101021),
@@ -391,7 +391,7 @@ class _DailyView extends StatelessWidget {
   Widget _sleepCard(BuildContext context, String durationText, double quality) {
     final localizations = AppLocalizations.of(context)!;
     return Container(
-      height: 170.h,
+      constraints: BoxConstraints(minHeight: 170.h),
       width: double.infinity,
       decoration: BoxDecoration(
         color: const Color(0XFF101021),
@@ -483,7 +483,7 @@ class _DailyView extends StatelessWidget {
   Widget _sickCard(BuildContext context, bool isSick) {
     final localizations = AppLocalizations.of(context)!;
     return Container(
-      height: 120.h,
+      constraints: BoxConstraints(minHeight: 120.h),
       decoration: BoxDecoration(
         color: const Color(0XFF101021),
         borderRadius: BorderRadius.circular(12.r),
@@ -564,7 +564,7 @@ class _DailyView extends StatelessWidget {
   Widget _waterCard(BuildContext context, String initial) {
     final localizations = AppLocalizations.of(context)!;
     return Container(
-      height: 120.h,
+      constraints: BoxConstraints(minHeight: 120.h),
       width: double.infinity,
       decoration: BoxDecoration(
         color: const Color(0XFF101021),
@@ -1193,7 +1193,7 @@ class _DailyView extends StatelessWidget {
   Widget _activityTimeCard(BuildContext context, String initial) {
     final localizations = AppLocalizations.of(context)!;
     return Container(
-      height: 120.h,
+      constraints: BoxConstraints(minHeight: 120.h),
       width: double.infinity,
       decoration: BoxDecoration(
         color: const Color(0XFF101021),
