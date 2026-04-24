@@ -25,6 +25,7 @@ import 'domain/usecases/daily/get_daily_by_date_usecase.dart';
 import 'domain/usecases/daily/save_daily_usecase.dart';
 import 'domain/usecases/daily/update_daily_usecase.dart';
 import 'presentation/daily/daily_tracking/presentation/pages/bloc/daily_bloc.dart';
+import 'presentation/daily/daily_tracking/presentation/pages/controller/daily_tracking_controller.dart';
 import 'features/training/data/datasources/training_remote_datasource.dart';
 import 'features/training/data/repositories/training_repository_impl.dart';
 import 'domain/repositories/training_history/training_plan_repository.dart';
@@ -145,6 +146,17 @@ Future<void> init() async {
 
   //! Features - Daily Tracking
   // Bloc
+  sl.registerFactory(
+    () => DailyTrackingController(
+      getInitial: sl(),
+      getByDate: sl(),
+      saveDaily: sl(),
+      updateDaily: sl(),
+      sharedPreferences: sl(),
+      getTrainingPlans: sl(),
+    ),
+  );
+
   sl.registerFactory(
     () => DailyBloc(
       getInitial: sl(),

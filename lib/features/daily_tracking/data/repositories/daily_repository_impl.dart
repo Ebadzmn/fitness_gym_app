@@ -62,8 +62,8 @@ class DailyRepositoryImpl implements DailyRepository {
       training:
           persistedTraining ??
           const TrainingEntity(
-            trainingCompleted: true,
-            cardioCompleted: true,
+            trainingCompleted: false,
+            cardioCompleted: false,
             feedback: '',
             plans: <String>{},
             cardioType: 'WALKING',

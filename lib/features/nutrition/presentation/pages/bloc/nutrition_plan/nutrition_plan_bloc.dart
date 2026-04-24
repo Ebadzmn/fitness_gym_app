@@ -71,18 +71,12 @@ class NutritionPlanBloc extends Bloc<NutritionPlanEvent, NutritionPlanState> {
     NutritionPlanResponseEntity fullData,
     int index,
   ) {
-    String dayFilter;
-    if (index == 0) {
-      dayFilter = 'training day';
-    } else if (index == 1) {
-      dayFilter = 'restday'; // API returns 'restday' (no space)
-    } else {
-      dayFilter = 'special';
-    }
-
-    final meals = fullData.meals
-        .where((m) => m.trainingDay.toLowerCase() == dayFilter)
-        .toList();
+    final meals = fullData.meals.where((m) {
+      final type = m.trainingDay.toLowerCase();
+      if (index == 0) return type.contains('training');
+      if (index == 1) return type.contains('rest');
+      return type.contains('special');
+    }).toList();
 
     double p = 0, c = 0, f = 0;
     int cal = 0;

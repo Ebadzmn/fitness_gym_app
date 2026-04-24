@@ -58,8 +58,8 @@ class TrainingEntity extends Equatable {
     'intensity': intensity,
   };
   factory TrainingEntity.fromMap(Map<String, dynamic> map) => TrainingEntity(
-    trainingCompleted: map['trainingCompleted'] ?? true,
-    cardioCompleted: map['cardioCompleted'] ?? true,
+    trainingCompleted: map['trainingCompleted'] ?? false,
+    cardioCompleted: map['cardioCompleted'] ?? false,
     feedback: map['feedback'] ?? '',
     plans: Set<String>.from(map['plans'] ?? const <String>[]),
     cardioType: map['cardioType'] ?? 'WALKING',

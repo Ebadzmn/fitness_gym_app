@@ -3,7 +3,7 @@ import 'package:fitness_app/core/coreWidget/full_width_slider.dart';
 import 'package:fitness_app/domain/entities/training_entities/training_plan_entity.dart';
 import 'package:fitness_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -12,9 +12,7 @@ import 'package:fitness_app/core/coreWidget/dropdown_yes_no_tile.dart';
 import 'package:fitness_app/core/coreWidget/dropdown_tile.dart';
 import 'package:fitness_app/core/storage/token_storage.dart';
 import 'package:fitness_app/injection_container.dart' as di;
-import 'bloc/daily_bloc.dart';
-import 'bloc/daily_event.dart';
-import 'bloc/daily_state.dart';
+import 'controller/daily_tracking_controller.dart';
 import 'package:fitness_app/core/constants/daily_tracking_constants.dart';
 import 'package:intl/intl.dart';
 
@@ -23,14 +21,12 @@ class DailyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => di.sl<DailyBloc>()..add(const DailyInitRequested()),
-      child: const _DailyView(),
-    );
+    Get.lazyPut(() => di.sl<DailyTrackingController>());
+    return const _DailyView();
   }
 }
 
-class _DailyView extends StatelessWidget {
+class _DailyView extends GetView<DailyTrackingController> {
   const _DailyView();
 
   @override
@@ -45,95 +41,70 @@ class _DailyView extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12),
-            child: BlocBuilder<DailyBloc, DailyState>(
-              builder: (context, state) {
-                return GestureDetector(
-                  onTap: () async {
-                    final initial = _parseDateLabel(
-                      state.data?.vital.dateLabel,
-                    );
-                    final selected = await showDatePicker(
-                      context: context,
-                      initialDate: initial,
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2100),
-                      builder: (context, child) {
-                        final theme = Theme.of(context);
-                        return Theme(
-                          data: theme.copyWith(
-                            colorScheme: const ColorScheme.dark(
-                              primary: Color(0xFF82C941),
-                              onPrimary: Colors.black,
-                              surface: Color(0xFF0F0F15),
-                              onSurface: Colors.white,
-                            ),
-                            dialogTheme: const DialogThemeData(
-                              backgroundColor: Color(0xFF0F0F15),
-                            ),
-                          ),
-                          child: child ?? const SizedBox.shrink(),
-                        );
-                      },
-                    );
-                    if (selected == null) return;
-                    if (!context.mounted) return;
-                    context.read<DailyBloc>().add(DailyDateChanged(selected));
-                  },
-                  child: CircleAvatar(
-                    radius: 18,
-                    backgroundColor: const Color(0xFF0F0F15),
-                    child: SvgPicture.asset(AssetsPath.AbCalender),
-                  ),
+            child: GestureDetector(
+              onTap: () async {
+                final initial = _parseDateLabel(
+                  controller.data.value?.vital.dateLabel,
                 );
+                final selected = await showDatePicker(
+                  context: context,
+                  initialDate: initial,
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                  builder: (context, child) {
+                    final theme = Theme.of(context);
+                    return Theme(
+                      data: theme.copyWith(
+                        colorScheme: const ColorScheme.dark(
+                          primary: Color(0xFF82C941),
+                          onPrimary: Colors.black,
+                          surface: Color(0xFF0F0F15),
+                          onSurface: Colors.white,
+                        ),
+                        dialogTheme: const DialogThemeData(
+                          backgroundColor: Color(0xFF0F0F15),
+                        ),
+                      ),
+                      child: child ?? const SizedBox.shrink(),
+                    );
+                  },
+                );
+                if (selected == null) return;
+                controller.onDateChanged(selected);
               },
+              child: CircleAvatar(
+                radius: 18,
+                backgroundColor: const Color(0xFF0F0F15),
+                child: SvgPicture.asset(AssetsPath.AbCalender),
+              ),
             ),
           ),
         ],
       ),
-      body: BlocConsumer<DailyBloc, DailyState>(
-        listenWhen: (prev, curr) => prev.status != curr.status,
-        listener: (context, state) {
-          if (state.status == DailyStatus.error) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  state.errorMessage ?? localizations.dailyTrackingError,
-                ),
-              ),
-            );
-          }
-          if (state.status == DailyStatus.saved) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(localizations.dailyTrackingSaved)),
-            );
-          }
-        },
-        builder: (context, state) {
-          if (state.status == DailyStatus.loading || state.data == null) {
+      body: Obx(
+        () {
+          if (controller.status.value == DailyStatus.loading ||
+              controller.data.value == null) {
             return const Center(child: CircularProgressIndicator());
           }
-          final data = state.data!;
+          final data = controller.data.value!;
           final tokenStorage = di.sl<TokenStorage>();
-          final gender = (tokenStorage.getUserGender() ?? '')
-              .trim()
-              .toLowerCase();
-          final status = (tokenStorage.getUserStatus() ?? '')
-              .trim()
-              .toLowerCase();
+          final gender = (tokenStorage.getUserGender() ?? '').trim().toLowerCase();
+          final status = (tokenStorage.getUserStatus() ?? '').trim().toLowerCase();
           return Padding(
             padding: EdgeInsets.all(10.h),
             child: KeyedSubtree(
               key: ValueKey(data.vital.dateLabel),
               child: SingleChildScrollView(
                 child: AbsorbPointer(
-                  absorbing: state.isReadOnly,
+                  absorbing: controller.isReadOnly.value,
                   child: Column(
                     children: [
                       SizedBox(height: 12.h),
                       _dateTodayHeader(
                         context,
                         data.vital.dateLabel,
-                        state.isReadOnly,
+                        controller.isReadOnly.value,
                       ),
                       SizedBox(height: 12.h),
                       _weightCard(context, data.vital.weightText),
@@ -168,7 +139,7 @@ class _DailyView extends StatelessWidget {
                       ],
                       _dailyNotesCard(context, data.notes),
                       SizedBox(height: 16.h),
-                      _submitButton(context, state.isUpdate),
+                      _submitButton(context, controller.isUpdate.value),
                     ],
                   ),
                 ),
@@ -378,9 +349,7 @@ class _DailyView extends StatelessWidget {
                   borderSide: BorderSide(color: Colors.grey, width: 1.w),
                 ),
               ),
-              onChanged: (v) => context.read<DailyBloc>().add(
-                VitalTextChanged('weightText', v),
-              ),
+              onChanged: (v) => controller.onVitalTextChanged('weightText', v),
             ),
           ],
         ),
@@ -445,8 +414,7 @@ class _DailyView extends StatelessWidget {
                   borderSide: BorderSide(color: Colors.grey, width: 1.w),
                 ),
               ),
-              onChanged: (v) =>
-                  context.read<DailyBloc>().add(SleepDurationChanged(v)),
+              onChanged: (v) => controller.onSleepDurationChanged(v),
             ),
             SizedBox(height: 12.h),
             Row(
@@ -468,8 +436,7 @@ class _DailyView extends StatelessWidget {
               min: 1,
               max: 10,
               divisions: 9,
-              onChanged: (v) =>
-                  context.read<DailyBloc>().add(SleepQualityChanged(v)),
+              onChanged: (v) => controller.onSleepQualityChanged(v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
               overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
@@ -511,14 +478,14 @@ class _DailyView extends StatelessWidget {
               context,
               localizations.commonYes,
               isSick == true,
-              () => context.read<DailyBloc>().add(const SickChanged(true)),
+              () => controller.onSickChanged(true),
             ),
             SizedBox(height: 12.h),
             _circleOption(
               context,
               localizations.commonNo,
               isSick == false,
-              () => context.read<DailyBloc>().add(const SickChanged(false)),
+              () => controller.onSickChanged(false),
             ),
           ],
         ),
@@ -619,9 +586,7 @@ class _DailyView extends StatelessWidget {
                   borderSide: BorderSide(color: Colors.grey, width: 1.w),
                 ),
               ),
-              onChanged: (v) => context.read<DailyBloc>().add(
-                VitalTextChanged('waterText', v),
-              ),
+              onChanged: (v) => controller.onVitalTextChanged('waterText', v),
             ),
             SizedBox(height: 6.h),
             Text(
@@ -687,7 +652,7 @@ class _DailyView extends StatelessWidget {
               max: 10,
               divisions: 9,
               onChanged: (v) =>
-                  context.read<DailyBloc>().add(WellBeingChanged('energy', v)),
+                  controller.onWellBeingChanged('energy', v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
               overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
@@ -713,7 +678,7 @@ class _DailyView extends StatelessWidget {
               max: 10,
               divisions: 9,
               onChanged: (v) =>
-                  context.read<DailyBloc>().add(WellBeingChanged('stress', v)),
+                  controller.onWellBeingChanged('stress', v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
               overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
@@ -738,9 +703,8 @@ class _DailyView extends StatelessWidget {
               min: 1,
               max: 10,
               divisions: 9,
-              onChanged: (v) => context.read<DailyBloc>().add(
-                WellBeingChanged('muscleSoreness', v),
-              ),
+              onChanged: (v) =>
+                  controller.onWellBeingChanged('muscleSoreness', v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
               overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
@@ -766,7 +730,7 @@ class _DailyView extends StatelessWidget {
               max: 10,
               divisions: 9,
               onChanged: (v) =>
-                  context.read<DailyBloc>().add(WellBeingChanged('mood', v)),
+                  controller.onWellBeingChanged('mood', v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
               overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
@@ -791,9 +755,8 @@ class _DailyView extends StatelessWidget {
               min: 1,
               max: 10,
               divisions: 9,
-              onChanged: (v) => context.read<DailyBloc>().add(
-                WellBeingChanged('motivation', v),
-              ),
+              onChanged: (v) =>
+                  controller.onWellBeingChanged('motivation', v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
               overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
@@ -837,9 +800,7 @@ class _DailyView extends StatelessWidget {
                   borderSide: BorderSide(color: Colors.grey, width: 1.w),
                 ),
               ),
-              onChanged: (v) => context.read<DailyBloc>().add(
-                VitalTextChanged('bodyTempText', v),
-              ),
+              onChanged: (v) => controller.onVitalTextChanged('bodyTempText', v),
             ),
           ],
         ),
@@ -849,7 +810,7 @@ class _DailyView extends StatelessWidget {
 
   Widget _trainingCard(BuildContext context, DailyTrackingEntity data) {
     final localizations = AppLocalizations.of(context)!;
-    final trainingPlans = context.read<DailyBloc>().state.trainingPlans;
+    final trainingPlans = controller.trainingPlans;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -879,9 +840,7 @@ class _DailyView extends StatelessWidget {
             DropdownYesNoTile(
               title: localizations.dailyTrainingCompletedTitle,
               value: data.training.trainingCompleted,
-              onChanged: (v) => context.read<DailyBloc>().add(
-                TrainingToggleChanged('trainingCompleted', v),
-              ),
+              onChanged: (v) => controller.onTrainingToggleChanged('trainingCompleted', v),
             ),
             if (data.training.trainingCompleted == true) ...[
               SizedBox(height: 12.h),
@@ -893,9 +852,7 @@ class _DailyView extends StatelessWidget {
             DropdownYesNoTile(
               title: localizations.dailyCardioCompletedTitle,
               value: data.training.cardioCompleted,
-              onChanged: (v) => context.read<DailyBloc>().add(
-                TrainingToggleChanged('cardioCompleted', v),
-              ),
+              onChanged: (v) => controller.onTrainingToggleChanged('cardioCompleted', v),
             ),
             if (data.training.cardioCompleted == true) ...[
               SizedBox(height: 12.h),
@@ -1049,7 +1006,7 @@ class _DailyView extends StatelessWidget {
         }
         return InkWell(
           onTap: () =>
-              context.read<DailyBloc>().add(TrainingCardioTypeChanged(label)),
+              controller.onTrainingCardioTypeChanged(label),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -1097,9 +1054,7 @@ class _DailyView extends StatelessWidget {
   }) {
     final dispatchValue = valueToDispatch ?? label;
     return InkWell(
-      onTap: () => context.read<DailyBloc>().add(
-        TrainingPlanToggled(dispatchValue, !value),
-      ),
+      onTap: () => controller.onTrainingPlanToggled(dispatchValue, !value),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         decoration: BoxDecoration(
@@ -1185,7 +1140,7 @@ class _DailyView extends StatelessWidget {
           ),
         ),
         onChanged: (v) =>
-            context.read<DailyBloc>().add(TrainingDurationChanged(v)),
+            controller.onTrainingDurationChanged(v),
       ),
     );
   }
@@ -1249,9 +1204,7 @@ class _DailyView extends StatelessWidget {
                   borderSide: BorderSide(color: Colors.grey, width: 1.w),
                 ),
               ),
-              onChanged: (v) => context.read<DailyBloc>().add(
-                VitalTextChanged('activityStepCount', v),
-              ),
+              onChanged: (v) => controller.onVitalTextChanged('activityStepCount', v),
             ),
           ],
         ),
@@ -1305,9 +1258,7 @@ class _DailyView extends StatelessWidget {
                       _filledInput(
                         data.nutrition.caloriesText,
                         localizations.dailyGenericTypeHint,
-                        (v) => context.read<DailyBloc>().add(
-                          NutritionTextChanged('caloriesText', v),
-                        ),
+                        (v) => controller.onNutritionTextChanged('caloriesText', v),
                       ),
                     ],
                   ),
@@ -1329,9 +1280,7 @@ class _DailyView extends StatelessWidget {
                       _filledInput(
                         data.nutrition.carbsText,
                         localizations.dailyGenericTypeHint,
-                        (v) => context.read<DailyBloc>().add(
-                          NutritionTextChanged('carbsText', v),
-                        ),
+                        (v) => controller.onNutritionTextChanged('carbsText', v),
                       ),
                     ],
                   ),
@@ -1357,9 +1306,7 @@ class _DailyView extends StatelessWidget {
                       _filledInput(
                         data.nutrition.proteinText,
                         localizations.dailyGenericTypeHint,
-                        (v) => context.read<DailyBloc>().add(
-                          NutritionTextChanged('proteinText', v),
-                        ),
+                        (v) => controller.onNutritionTextChanged('proteinText', v),
                       ),
                     ],
                   ),
@@ -1381,9 +1328,7 @@ class _DailyView extends StatelessWidget {
                       _filledInput(
                         data.nutrition.fatsText,
                         localizations.dailyGenericTypeHint,
-                        (v) => context.read<DailyBloc>().add(
-                          NutritionTextChanged('fatsText', v),
-                        ),
+                        (v) => controller.onNutritionTextChanged('fatsText', v),
                       ),
                     ],
                   ),
@@ -1411,9 +1356,7 @@ class _DailyView extends StatelessWidget {
               min: 1,
               max: 10,
               divisions: 9,
-              onChanged: (v) => context.read<DailyBloc>().add(
-                NutritionChanged('hunger', numberValue: v),
-              ),
+              onChanged: (v) => controller.onNutritionChanged('hunger', numberValue: v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
               overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
@@ -1438,9 +1381,7 @@ class _DailyView extends StatelessWidget {
               min: 1,
               max: 10,
               divisions: 9,
-              onChanged: (v) => context.read<DailyBloc>().add(
-                NutritionChanged('digestion', numberValue: v),
-              ),
+              onChanged: (v) => controller.onNutritionChanged('digestion', numberValue: v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
               overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
@@ -1458,9 +1399,7 @@ class _DailyView extends StatelessWidget {
             _filledInput(
               data.nutrition.saltText,
               localizations.dailyGenericTypeHint,
-              (v) => context.read<DailyBloc>().add(
-                NutritionTextChanged('saltText', v),
-              ),
+              (v) => controller.onNutritionTextChanged('saltText', v),
             ),
           ],
         ),
@@ -1563,7 +1502,7 @@ class _DailyView extends StatelessWidget {
               value: data.women.cyclePhase,
               options: DailyTrackingConstants.cyclePhaseValues,
               onChanged: (v) =>
-                  context.read<DailyBloc>().add(WomenCyclePhaseChanged(v)),
+                  controller.onWomenCyclePhaseChanged(v),
             ),
             SizedBox(height: 12.h),
             _titledBox(
@@ -1591,7 +1530,7 @@ class _DailyView extends StatelessWidget {
               max: 10,
               divisions: 9,
               onChanged: (v) =>
-                  context.read<DailyBloc>().add(WomenPmsChanged(v)),
+                  controller.onWomenPmsChanged(v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
               overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
@@ -1617,7 +1556,7 @@ class _DailyView extends StatelessWidget {
               max: 10,
               divisions: 9,
               onChanged: (v) =>
-                  context.read<DailyBloc>().add(WomenCrampsChanged(v)),
+                  controller.onWomenCrampsChanged(v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
               overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
@@ -1628,7 +1567,7 @@ class _DailyView extends StatelessWidget {
               selected: data.women.symptoms,
               options: DailyTrackingConstants.womenSymptomsValues,
               onChanged: (s) =>
-                  context.read<DailyBloc>().add(WomenSymptomsChanged(s)),
+                  controller.onWomenSymptomsChanged(s),
             ),
           ],
         ),
@@ -1668,7 +1607,7 @@ class _DailyView extends StatelessWidget {
               title: localizations.dailyPedDosageTitle,
               value: data.pedHealth.dosageTaken,
               onChanged: (v) =>
-                  context.read<DailyBloc>().add(PedDosageChanged(v)),
+                  controller.onPedDosageChanged(v),
             ),
             SizedBox(height: 12.h),
             Text(
@@ -1684,7 +1623,7 @@ class _DailyView extends StatelessWidget {
               data.pedHealth.sideEffects,
               hint: localizations.dailyGenericTypeHint,
               onChanged: (v) =>
-                  context.read<DailyBloc>().add(PedSideEffectsChanged(v)),
+                  controller.onPedSideEffectsChanged(v),
             ),
           ],
         ),
@@ -1726,9 +1665,7 @@ class _DailyView extends StatelessWidget {
                   child: _labeledField(
                     localizations.dailyBpSystolicLabel,
                     data.pedHealth.systolicText,
-                    (v) => context.read<DailyBloc>().add(
-                      PedBpChanged('systolicText', v),
-                    ),
+                    (v) => controller.onPedBpChanged('systolicText', v),
                     hint: localizations.dailyGenericTypeHint,
                   ),
                 ),
@@ -1737,9 +1674,7 @@ class _DailyView extends StatelessWidget {
                   child: _labeledField(
                     localizations.dailyBpDiastolicLabel,
                     data.pedHealth.diastolicText,
-                    (v) => context.read<DailyBloc>().add(
-                      PedBpChanged('diastolicText', v),
-                    ),
+                    (v) => controller.onPedBpChanged('diastolicText', v),
                     hint: localizations.dailyGenericTypeHint,
                   ),
                 ),
@@ -1749,9 +1684,7 @@ class _DailyView extends StatelessWidget {
             _labeledField(
               localizations.dailyBpRestingHrLabel,
               data.pedHealth.restingHrText,
-              (v) => context.read<DailyBloc>().add(
-                PedBpChanged('restingHrText', v),
-              ),
+              (v) => controller.onPedBpChanged('restingHrText', v),
               hint: localizations.dailyGenericTypeHint,
             ),
             SizedBox(height: 12.h),
@@ -1759,7 +1692,7 @@ class _DailyView extends StatelessWidget {
               localizations.dailyBpGlucoseLabel,
               data.pedHealth.glucoseText,
               (v) =>
-                  context.read<DailyBloc>().add(PedBpChanged('glucoseText', v)),
+                  controller.onPedBpChanged('glucoseText', v),
               hint: localizations.dailyGenericTypeHint,
             ),
           ],
@@ -1800,7 +1733,7 @@ class _DailyView extends StatelessWidget {
               notes,
               hint: localizations.dailyGenericTypeHint,
               onChanged: (v) =>
-                  context.read<DailyBloc>().add(DailyNotesChanged(v)),
+                  controller.onDailyNotesChanged(v),
             ),
           ],
         ),
@@ -1819,7 +1752,7 @@ class _DailyView extends StatelessWidget {
             borderRadius: BorderRadius.circular(12.r),
           ),
         ),
-        onPressed: () => context.read<DailyBloc>().add(const SavePressed()),
+        onPressed: () => controller.onSavePressed(),
         child: Text(
           isUpdate ? 'Update' : AppLocalizations.of(context)!.dailySubmitButton,
           style: GoogleFonts.poppins(

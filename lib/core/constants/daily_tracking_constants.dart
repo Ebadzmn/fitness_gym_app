@@ -27,17 +27,17 @@ class DailyTrackingConstants {
   ];
 
   static const List<String> womenSymptomsValues = [
-    'EVERYTHING_FINE',
-    'CRAMPS',
-    'BREAST_TENDERNESS',
-    'HEADACHE',
-    'ACNE',
-    'LOWER_BACK_PAIN',
-    'TIREDNESS',
-    'CRAVINGS',
-    'SLEEPLESS',
-    'ABDOMINAL_PAIN',
-    'VAGINAL_ITCHING',
-    'VAGINAL_DRYNESS',
+    'Everything Fine',
+    'Cramps',
+    'Breast Tenderness',
+    'Headache',
+    'Acne',
+    'Lower Back Pain',
+    'Tiredness',
+    'Cravings',
+    'Sleepless',
+    'Abdominal Pain',
+    'Vaginal Itching',
+    'Vaginal Dryness',
   ];
 }

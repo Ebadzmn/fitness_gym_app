@@ -136,16 +136,17 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                     ? Chewie(controller: _chewieController!)
                     : Stack(
                         children: [
-                          Image.network(
-                            imageUrl.isNotEmpty
-                                ? imageUrl
-                                : 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1470&q=80',
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Container(color: const Color(0xFF2B2D3F)),
-                          ),
+                          if (imageUrl.isNotEmpty)
+                            Image.network(
+                              imageUrl,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Container(color: const Color(0xFF2B2D3F)),
+                            )
+                          else
+                            Container(color: const Color(0xFF2B2D3F)),
                           Container(
                             decoration: const BoxDecoration(
                               gradient: LinearGradient(
