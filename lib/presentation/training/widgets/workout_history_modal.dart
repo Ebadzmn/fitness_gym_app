@@ -91,7 +91,7 @@ class WorkoutHistoryModal extends StatelessWidget {
                         children: [
                           // Date & Time
                           Text(
-                            '${workout.createdAt.day.toString().padLeft(2, '0')}/${workout.createdAt.month.toString().padLeft(2, '0')}/${workout.createdAt.year} at ${workout.time.hour}:${workout.time.minute}',
+                            '${workout.dateTime.day.toString().padLeft(2, '0')}/${workout.dateTime.month.toString().padLeft(2, '0')}/${workout.dateTime.year} at ${workout.time.hour}:${workout.time.minute}',
                             style: GoogleFonts.poppins(
                               color: Colors.white,
                               fontSize: 14.sp,

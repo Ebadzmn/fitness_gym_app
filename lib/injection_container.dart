@@ -46,6 +46,7 @@ import 'features/training/data/repositories/training_split_repository_impl.dart'
 import 'domain/repositories/training_history/training_split_repository.dart';
 import 'features/training/domain/usecases/get_training_split_usecase.dart';
 import 'features/training/presentation/pages/bloc/training_spilt2/training_split_bloc.dart';
+import 'presentation/training/controllers/workout_session_controller.dart';
 import 'features/nutrition/data/datasources/nutrition_remote_data_source.dart';
 import 'features/nutrition/data/repositories/nutrition_repository_impl.dart';
 import 'features/nutrition/data/repositories/nutrition_repository.dart';
@@ -193,6 +194,16 @@ Future<void> init() async {
       getTrainingPlanById: sl(),
       saveTrainingHistory: sl(),
       getProfile: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => WorkoutSessionController(
+      getTrainingPlanById: sl(),
+      saveTrainingHistory: sl(),
+      getProfile: sl(),
+      exerciseRepository: sl(),
+      sharedPreferences: sl(),
     ),
   );
 

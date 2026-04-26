@@ -16,6 +16,7 @@ import 'package:fitness_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'injection_container.dart' as di;
+import 'package:get/get.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -67,9 +68,11 @@ class _MyAppState extends State<MyApp> {
         ],
         child: BlocBuilder<LocaleCubit, Locale>(
           builder: (context, locale) {
-            return MaterialApp.router(
+            return GetMaterialApp.router(
               title: "Evolve - Coaching App",
-              routerConfig: AppRouter,
+              routeInformationParser: AppRouter.routeInformationParser,
+              routerDelegate: AppRouter.routerDelegate,
+              routeInformationProvider: AppRouter.routeInformationProvider,
               locale: locale,
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,

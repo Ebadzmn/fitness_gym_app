@@ -65,6 +65,7 @@ class WorkoutSessionCubit extends Cubit<WorkoutSessionState> {
       time: time,
       pushData: pushData,
       note: note,
+      dateTime: DateTime.now(),
     );
 
     final result = await saveTrainingHistory(request);

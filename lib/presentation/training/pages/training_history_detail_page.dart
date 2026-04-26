@@ -50,7 +50,7 @@ class TrainingHistoryDetailPage extends StatelessWidget {
           children: [
             // Date
             Text(
-              '${historyItem.createdAt.day}/${historyItem.createdAt.month}/${historyItem.createdAt.year} at ${historyItem.time.hour}:${historyItem.time.minute}',
+              '${historyItem.dateTime.day}/${historyItem.dateTime.month}/${historyItem.dateTime.year} at ${historyItem.time.hour}:${historyItem.time.minute}',
               style: GoogleFonts.poppins(color: Colors.white, fontSize: 13.sp),
             ),
             SizedBox(height: 8.h),

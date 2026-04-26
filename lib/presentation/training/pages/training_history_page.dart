@@ -127,7 +127,7 @@ class _HistoryCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  _formatMonthOnly(item.createdAt),
+                  _formatMonthOnly(item.dateTime),
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 16.sp,
@@ -158,7 +158,7 @@ class _HistoryCard extends StatelessWidget {
             SizedBox(height: 4.h),
             // Full Date
             Text(
-              _formatFullDate(item.createdAt),
+              _formatFullDate(item.dateTime),
               style: GoogleFonts.poppins(
                 color: Colors.white70,
                 fontSize: 13.sp,

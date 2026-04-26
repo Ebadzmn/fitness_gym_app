@@ -35,7 +35,7 @@ class TrainingHistoryModel extends TrainingHistoryEntity {
     required super.time,
     required super.pushData,
     required super.note,
-    required super.createdAt,
+    required super.dateTime,
     required super.updatedAt,
     super.totalWeight,
   });
@@ -52,7 +52,8 @@ class TrainingHistoryModel extends TrainingHistoryEntity {
               .toList() ??
           [],
       note: json['note'] ?? '',
-      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+      dateTime: DateTime.tryParse(json['dateTime'] ?? json['createdAt'] ?? '') ??
+          DateTime.now(),
       updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
       totalWeight: json['totalWeight'],
     );
@@ -66,7 +67,7 @@ class TrainingHistoryModel extends TrainingHistoryEntity {
       'time': (time as TrainingTimeModel).toJson(),
       'pushData': pushData.map((e) => (e as PushDataModel).toJson()).toList(),
       'note': note,
-      'createdAt': createdAt.toIso8601String(),
+      'dateTime': dateTime.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
       'totalWeight': totalWeight,
     };

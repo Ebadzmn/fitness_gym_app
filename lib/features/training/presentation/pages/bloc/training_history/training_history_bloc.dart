@@ -32,7 +32,7 @@ class TrainingHistoryBloc
       (response) {
         print("Bloc Success: ${response.history.length} items");
         final sortedHistory = response.history.toList()
-          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          ..sort((a, b) => b.dateTime.compareTo(a.dateTime));
         emit(
           state.copyWith(
             status: TrainingHistoryStatus.success,

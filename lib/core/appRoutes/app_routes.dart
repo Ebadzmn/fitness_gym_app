@@ -29,6 +29,7 @@ import 'package:fitness_app/presentation/auth/pages/webview_screen.dart';
 import 'package:fitness_app/presentation/notification/pages/notification_page.dart';
 
 import 'package:go_router/go_router.dart';
+import 'package:get/get.dart';
 
 class AppRoutes {
   static const String splashPage = '/splash';
@@ -76,6 +77,7 @@ class AppRoutes {
 }
 
 final GoRouter AppRouter = GoRouter(
+  navigatorKey: Get.key,
   initialLocation: AppRoutes.splashPage,
   routes: [
     GoRoute(
@@ -290,7 +292,7 @@ final GoRouter AppRouter = GoRouter(
                 time: const TrainingTimeEntity(hour: '0', minute: '0'),
                 pushData: const [],
                 note: '',
-                createdAt: DateTime.now(),
+                dateTime: DateTime.now(),
                 updatedAt: DateTime.now(),
                 totalWeight: 0,
               );

@@ -20,7 +20,7 @@ class TrainingHistoryEntity extends Equatable {
   final TrainingTimeEntity time;
   final List<PushDataEntity> pushData;
   final String note;
-  final DateTime createdAt;
+  final DateTime dateTime;
   final DateTime updatedAt;
   final num? totalWeight;
 
@@ -31,7 +31,7 @@ class TrainingHistoryEntity extends Equatable {
     required this.time,
     required this.pushData,
     required this.note,
-    required this.createdAt,
+    required this.dateTime,
     required this.updatedAt,
     this.totalWeight,
   });
@@ -44,7 +44,7 @@ class TrainingHistoryEntity extends Equatable {
     time,
     pushData,
     note,
-    createdAt,
+    dateTime,
     updatedAt,
     totalWeight,
   ];

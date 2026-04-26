@@ -4,6 +4,7 @@ class TrainingHistoryRequest {
   final TrainingTime time;
   final List<PushData> pushData;
   final String note;
+  final DateTime dateTime;
 
   TrainingHistoryRequest({
     required this.userId,
@@ -11,6 +12,7 @@ class TrainingHistoryRequest {
     required this.time,
     required this.pushData,
     required this.note,
+    required this.dateTime,
   });
 
   Map<String, dynamic> toJson() {
@@ -20,6 +22,7 @@ class TrainingHistoryRequest {
       'time': time.toJson(),
       'pushData': pushData.map((e) => e.toJson()).toList(),
       'note': note,
+      'dateTime': dateTime.toIso8601String(),
     };
   }
 }

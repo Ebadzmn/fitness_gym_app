@@ -37,7 +37,7 @@ class PreviousWorkoutModalController extends GetxController {
             .toList();
 
         if (matchingWorkouts.isNotEmpty) {
-          matchingWorkouts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          matchingWorkouts.sort((a, b) => b.dateTime.compareTo(a.dateTime));
           workouts.assignAll(matchingWorkouts);
         } else {
           workouts.clear();
