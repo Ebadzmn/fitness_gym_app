@@ -36,7 +36,6 @@ import 'package:fitness_app/features/training/domain/usecases/get_training_histo
 import 'package:fitness_app/domain/repositories/training_history/training_history_repository.dart';
 import 'package:fitness_app/features/training/data/repositories/training_history_repository_impl.dart';
 import 'package:fitness_app/features/training/presentation/pages/bloc/workout_session/workout_session_cubit.dart';
-import 'features/training/presentation/pages/bloc/exercise_bloc/exercise_bloc.dart';
 import 'features/training/domain/usecases/get_exercises_usecase.dart';
 import 'features/training/domain/repositories/exercise_repository.dart';
 import 'features/training/data/repositories/exercise_repository_impl.dart';
@@ -63,6 +62,7 @@ import 'features/nutrition/domain/usecases/delete_tracked_food_item_usecase.dart
 import 'features/nutrition/domain/usecases/add_food_item_to_meal_usecase.dart';
 import 'features/nutrition/domain/usecases/add_food_items_to_meal_usecase.dart';
 import 'features/nutrition/domain/usecases/get_nutrition_statistics_usecase.dart';
+import 'features/nutrition/domain/usecases/get_food_items_usecase.dart';
 import 'features/nutrition/domain/usecases/sync_nutrition_data_usecase.dart';
 import 'features/nutrition/domain/usecases/update_water_usecase.dart';
 import 'features/nutrition/domain/usecases/get_water_config_usecase.dart';
@@ -227,7 +227,6 @@ Future<void> init() async {
   );
 
   // Exercise Feature
-  sl.registerFactory(() => ExerciseBloc(getExercises: sl()));
   sl.registerLazySingleton(() => GetExercisesUseCase(sl()));
   sl.registerLazySingleton<ExerciseRepository>(
     () => ExerciseRepositoryImpl(remoteDataSource: sl()),
@@ -269,6 +268,7 @@ Future<void> init() async {
   sl.registerLazySingleton(
     () => GetNutritionPlanUseCase(sl()),
   ); // Changed from GetNutritionInitialUseCase to match original
+  sl.registerLazySingleton(() => GetFoodItemsUseCase(sl()));
   sl.registerLazySingleton(() => GetSupplementsUseCase(sl()));
   sl.registerLazySingleton<NutritionRepository>(
     () => NutritionRepositoryImpl(remoteDataSource: sl()),

@@ -1,27 +1,24 @@
 import 'package:fitness_app/domain/entities/training_entities/exercise_entity.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_app/core/appRoutes/app_routes.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:fitness_app/core/config/app_text_style.dart';
-import 'package:fitness_app/features/training/presentation/pages/bloc/exercise_bloc/exercise_bloc.dart';
-import 'package:fitness_app/features/training/presentation/pages/bloc/exercise_bloc/exercise_event.dart';
-import 'package:fitness_app/features/training/presentation/pages/bloc/exercise_bloc/exercise_state.dart';
+import 'package:fitness_app/presentation/training/controllers/exercise_controller.dart';
 import 'package:fitness_app/l10n/app_localizations.dart';
 import '../../../../../../injection_container.dart';
+import 'package:get/get.dart';
 
 class ExercisePage extends StatelessWidget {
   const ExercisePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<ExerciseBloc>()..add(const ExerciseInitRequested()),
-      child: const _ExerciseView(),
-    );
+    // Inject controller using GetX
+    Get.put(ExerciseController(getExercisesUseCase: sl()));
+    return const _ExerciseView();
   }
 }
 
@@ -52,53 +49,57 @@ class _ExerciseView extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      body: BlocBuilder<ExerciseBloc, ExerciseState>(
-        builder: (context, state) {
-          return SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _searchField(context, state.query, localizations),
-                SizedBox(height: 16.h),
-                _filters(context, state.currentFilter, localizations),
-                SizedBox(height: 20.h),
-                if (state.status == ExerciseStatus.loading)
-                  SizedBox(
-                    height: 400.h,
-                    child: const Center(child: CircularProgressIndicator()),
-                  )
-                else if (state.status == ExerciseStatus.error)
-                  Center(
-                    child: Text(
-                      state.errorMessage ??
-                          localizations.trainingExerciseGenericError,
-                      style: GoogleFonts.poppins(color: Colors.white),
-                    ),
-                  )
-                else
-                  ...state.visible.map(
+      body: Obx(() {
+        final controller = Get.find<ExerciseController>();
+        return SingleChildScrollView(
+          controller: controller.scrollController,
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _searchField(controller, localizations),
+              SizedBox(height: 16.h),
+              _filters(controller, localizations),
+              SizedBox(height: 20.h),
+              if (controller.isLoading.value)
+                SizedBox(
+                  height: 400.h,
+                  child: const Center(child: CircularProgressIndicator()),
+                )
+              else if (controller.errorMessage.isNotEmpty)
+                Center(
+                  child: Text(
+                    controller.errorMessage.value,
+                    style: GoogleFonts.poppins(color: Colors.white),
+                  ),
+                )
+              else
+                ...[
+                  ...controller.visibleExercises.map(
                     (e) => Padding(
                       padding: EdgeInsets.only(bottom: 12.h),
                       child: _exerciseCard(context, e),
                     ),
                   ),
-              ],
-            ),
-          );
-        },
-      ),
+                  if (controller.isFetchingMore.value)
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16.h),
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                ],
+            ],
+          ),
+        );
+      }),
     );
   }
 
   Widget _searchField(
-    BuildContext context,
-    String initial,
+    ExerciseController controller,
     AppLocalizations localizations,
   ) {
-    final ctrl = TextEditingController(text: initial);
     return TextFormField(
-      controller: ctrl,
+      controller: controller.searchController,
       style: GoogleFonts.poppins(color: Colors.white, fontSize: 14.sp),
       decoration: InputDecoration(
         hintText: localizations.trainingExerciseSearchHint,
@@ -120,14 +121,12 @@ class _ExerciseView extends StatelessWidget {
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
         prefixIcon: const Icon(Icons.search, color: Colors.white70),
       ),
-      onChanged: (v) =>
-          context.read<ExerciseBloc>().add(ExerciseSearchChanged(v)),
+      onChanged: controller.onSearchChanged,
     );
   }
 
   Widget _filters(
-    BuildContext context,
-    String current,
+    ExerciseController controller,
     AppLocalizations localizations,
   ) {
     final filters = [
@@ -155,9 +154,8 @@ class _ExerciseView extends StatelessWidget {
           for (final f in filters) ...[
             _filterChip(
               label: f,
-              selected: current == f,
-              onTap: () =>
-                  context.read<ExerciseBloc>().add(ExerciseFilterSet(f)),
+              selected: controller.currentFilter.value == f,
+              onTap: () => controller.setFilter(f),
             ),
             SizedBox(width: 12.w),
           ],
@@ -248,11 +246,15 @@ class _ExerciseView extends StatelessWidget {
                         size: 14,
                       ),
                       SizedBox(width: 6.w),
-                      Text(
-                        e.equipment,
-                        style: GoogleFonts.poppins(
-                          color: Colors.white70,
-                          fontSize: 12.sp,
+                      Expanded(
+                        child: Text(
+                          e.equipment,
+                          style: GoogleFonts.poppins(
+                            color: Colors.white70,
+                            fontSize: 12.sp,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],

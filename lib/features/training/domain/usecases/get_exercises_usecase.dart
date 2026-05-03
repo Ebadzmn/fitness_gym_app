@@ -8,5 +8,13 @@ class GetExercisesUseCase {
   GetExercisesUseCase(this.repo);
   Future<Either<ApiException, List<ExerciseEntity>>> call({
     String? muscleCategory,
-  }) => repo.getExercises(muscleCategory: muscleCategory);
+    int? page,
+    int? limit,
+    String? searchTerm,
+  }) => repo.getExercises(
+        muscleCategory: muscleCategory,
+        page: page,
+        limit: limit,
+        searchTerm: searchTerm,
+      );
 }

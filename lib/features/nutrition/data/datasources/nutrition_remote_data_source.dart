@@ -11,7 +11,11 @@ import '../../../../domain/entities/nutrition_entities/meal_suggestion_entity.da
 
 abstract class NutritionRemoteDataSource {
   Future<NutritionPlanResponseEntity> fetchNutritionPlan(String userId);
-  Future<List<FoodItemEntity>> fetchFoodItems();
+  Future<List<FoodItemEntity>> fetchFoodItems({
+    int? page,
+    int? limit,
+    String? searchTerm,
+  });
   Future<List<MealSuggestionEntity>> fetchTrackMealSuggestions(String search);
   Future<NutritionDailyTrackingModel> fetchTrackedMeals(String date);
   Future<void> deleteTrackedFoodItem(String date, String mealId, String foodId);
@@ -56,8 +60,20 @@ class NutritionRemoteDataSourceImpl implements NutritionRemoteDataSource {
   }
 
   @override
-  Future<List<FoodItemEntity>> fetchFoodItems() async {
-    final response = await apiClient.get(ApiUrls.nutritionFood);
+  Future<List<FoodItemEntity>> fetchFoodItems({
+    int? page,
+    int? limit,
+    String? searchTerm,
+  }) async {
+    final Map<String, dynamic> queryParams = {};
+    if (page != null) queryParams['page'] = page;
+    if (limit != null) queryParams['limit'] = limit;
+    if (searchTerm != null && searchTerm.isNotEmpty) queryParams['searchTerm'] = searchTerm;
+
+    final response = await apiClient.get(
+      ApiUrls.nutritionFood,
+      queryParameters: queryParams,
+    );
 
     if (response.data['success'] == true) {
       // The API returns a paginated response: data: { items: [], ... }

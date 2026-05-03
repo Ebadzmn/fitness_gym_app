@@ -13,9 +13,17 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
   @override
   Future<Either<ApiException, List<ExerciseEntity>>> getExercises({
     String? muscleCategory,
+    int? page,
+    int? limit,
+    String? searchTerm,
   }) async {
     try {
-      final models = await remoteDataSource.fetchExercises(muscleCategory);
+      final models = await remoteDataSource.fetchExercises(
+        muscleCategory: muscleCategory,
+        page: page,
+        limit: limit,
+        searchTerm: searchTerm,
+      );
       return Right(models);
     } on ApiException catch (e) {
       return Left(e);

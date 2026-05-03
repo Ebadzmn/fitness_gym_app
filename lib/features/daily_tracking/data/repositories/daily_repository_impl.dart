@@ -66,7 +66,7 @@ class DailyRepositoryImpl implements DailyRepository {
                 feedback: '',
                 plans: <String>{},
                 cardioType: 'No',
-                duration: '0',
+                duration: '',
                 intensity: 0,
               ))
           .copyWith(

@@ -1,16 +1,12 @@
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
-import 'package:fitness_app/features/nutrition/data/repositories/nutrition_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_app/domain/entities/nutrition_entities/food_item_entity.dart';
-import 'package:fitness_app/features/nutrition/domain/usecases/get_food_items_usecase.dart';
-import 'package:fitness_app/features/nutrition/presentation/pages/bloc/food_items/food_items_bloc.dart';
-import 'package:fitness_app/features/nutrition/presentation/pages/bloc/food_items/food_items_event.dart';
-import 'package:fitness_app/features/nutrition/presentation/pages/bloc/food_items/food_items_state.dart';
+import 'package:fitness_app/presentation/nutrition/controllers/food_items_controller.dart';
+import 'package:get/get.dart';
 import 'package:fitness_app/injection_container.dart';
 import 'package:fitness_app/l10n/app_localizations.dart';
 
@@ -19,12 +15,8 @@ class NutritionFoodItemsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => FoodItemsBloc(
-        getItems: GetFoodItemsUseCase(sl<NutritionRepository>()),
-      )..add(const FoodItemsLoadRequested()),
-      child: const _FoodItemsView(),
-    );
+    Get.put(FoodItemsController(getFoodItemsUseCase: sl()));
+    return const _FoodItemsView();
   }
 }
 
@@ -55,49 +47,54 @@ class _FoodItemsView extends StatelessWidget {
           ),
         ),
       ),
-      body: BlocBuilder<FoodItemsBloc, FoodItemsState>(
-        builder: (context, state) {
-          if (state.status == FoodItemsStatus.loading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (state.status == FoodItemsStatus.failure) {
-            return Center(
-              child: Text(
-                localizations.trainingExerciseGenericError,
-                style: TextStyle(color: Colors.white),
-              ),
-            );
-          }
-          return SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
-            child: Column(
-              children: [
-                _searchField(context, state.query),
-                SizedBox(height: 12.h),
-                _filterRow(context, state.selected),
-                SizedBox(height: 12.h),
-                if (state.filtered.isEmpty)
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 20.h),
-                      child: Text(
-                        'No items found',
-                        style: TextStyle(color: Colors.white54),
-                      ),
-                    ),
-                  )
-                else
-                  ...state.filtered.map((it) => _FoodItemTile(item: it)),
-              ],
+      body: Obx(() {
+        final controller = Get.find<FoodItemsController>();
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (controller.errorMessage.isNotEmpty) {
+          return Center(
+            child: Text(
+              localizations.trainingExerciseGenericError,
+              style: TextStyle(color: Colors.white),
             ),
           );
-        },
-      ),
+        }
+        return SingleChildScrollView(
+          controller: controller.scrollController,
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+          child: Column(
+            children: [
+              _searchField(controller),
+              SizedBox(height: 12.h),
+              _filterRow(controller),
+              SizedBox(height: 12.h),
+              if (controller.visibleItems.isEmpty)
+                Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 20.h),
+                    child: Text(
+                      'No items found',
+                      style: TextStyle(color: Colors.white54),
+                    ),
+                  ),
+                )
+              else
+                ...controller.visibleItems.map((it) => _FoodItemTile(item: it)),
+              if (controller.isFetchingMore.value)
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.h),
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+            ],
+          ),
+        );
+      }),
     );
   }
 
-  Widget _searchField(BuildContext context, String query) {
-    final localizations = AppLocalizations.of(context)!;
+  Widget _searchField(FoodItemsController controller) {
+    final localizations = AppLocalizations.of(Get.context!)!;
     return Container(
       decoration: BoxDecoration(
         color: const Color(0XFF101021),
@@ -106,8 +103,8 @@ class _FoodItemsView extends StatelessWidget {
       ),
       padding: EdgeInsets.symmetric(horizontal: 12.w),
       child: TextField(
-        onChanged: (v) =>
-            context.read<FoodItemsBloc>().add(FoodItemsSearchChanged(v)),
+        controller: controller.searchController,
+        onChanged: controller.onSearchChanged,
         style: GoogleFonts.poppins(color: Colors.white),
         decoration: InputDecoration(
           hintText: localizations.dailyGenericTypeHint,
@@ -118,14 +115,13 @@ class _FoodItemsView extends StatelessWidget {
     );
   }
 
-  Widget _filterRow(BuildContext context, FoodCategory selected) {
-    final localizations = AppLocalizations.of(context)!;
+  Widget _filterRow(FoodItemsController controller) {
+    final localizations = AppLocalizations.of(Get.context!)!;
     Widget chip(String label, FoodCategory cat, {Color? color}) {
-      final isSelected = selected == cat;
+      final isSelected = controller.currentFilter.value == cat;
       return UnconstrainedBox(
         child: InkWell(
-          onTap: () =>
-              context.read<FoodItemsBloc>().add(FoodItemsFilterChanged(cat)),
+          onTap: () => controller.setFilter(cat),
           borderRadius: BorderRadius.circular(8.r),
           child: Container(
             height: 30.h,

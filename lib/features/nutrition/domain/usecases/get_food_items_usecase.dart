@@ -4,5 +4,10 @@ import 'package:fitness_app/features/nutrition/data/repositories/nutrition_repos
 class GetFoodItemsUseCase {
   final NutritionRepository repo;
   GetFoodItemsUseCase(this.repo);
-  Future<List<FoodItemEntity>> call() => repo.getFoodItems();
+  Future<List<FoodItemEntity>> call({
+    int? page,
+    int? limit,
+    String? searchTerm,
+  }) =>
+      repo.getFoodItems(page: page, limit: limit, searchTerm: searchTerm);
 }

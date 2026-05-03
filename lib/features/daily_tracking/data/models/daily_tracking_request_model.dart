@@ -44,15 +44,22 @@ class DailyTrackingRequestModel {
 
       "training": {
         "trainingCompleted": entity.training.trainingCompleted,
-        "trainingPlan": entity.training.plans.toList(),
+        "trainingPlan": entity.training.plans
+            .where((p) => p != 'PLACE_HOLDER')
+            .toList(),
         "cardioCompleted": entity.training.cardioCompleted,
-        "cardioType": entity.training.cardioType == 'No'
+        "cardioType": (entity.training.cardioType == 'No' ||
+                entity.training.cardioType.isEmpty)
             ? ""
             : entity.training.cardioType.toUpperCase().replaceAll(
                   ' ',
                   '_',
                 ),
-        "duration": entity.training.duration.isEmpty ? "0" : entity.training.duration,
+        "duration": (!entity.training.cardioCompleted ||
+                entity.training.duration == "0" ||
+                entity.training.duration.isEmpty)
+            ? ""
+            : entity.training.duration,
       },
 
       "activityStep":
@@ -79,8 +86,11 @@ class DailyTrackingRequestModel {
       },
 
       "ped": {
-        "dailyDosage": entity.pedHealth.dosageTaken ? "Taken" : "No",
-        "sideEffect": entity.pedHealth.sideEffects.isEmpty ? "No" : entity.pedHealth.sideEffects,
+        "dailyDosage": entity.pedHealth.dosageTaken ? "Taken" : "",
+        "sideEffect": (entity.pedHealth.sideEffects == "No" ||
+                entity.pedHealth.sideEffects.isEmpty)
+            ? ""
+            : entity.pedHealth.sideEffects,
       },
 
       "dailyNotes": (entity.notes == "No" || entity.notes.isEmpty) ? "" : entity.notes,

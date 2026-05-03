@@ -4,7 +4,7 @@ import '../../../../core/apiUrls/api_urls.dart';
 import '../models/exercise_model.dart';
 
 abstract class ExerciseRemoteDataSource {
-  Future<List<ExerciseModel>> fetchExercises(String? muscleCategory);
+  Future<List<ExerciseModel>> fetchExercises({String? muscleCategory, int? page, int? limit, String? searchTerm});
   Future<ExerciseModel> fetchExerciseById(String id);
 }
 
@@ -14,11 +14,14 @@ class ExerciseRemoteDataSourceImpl implements ExerciseRemoteDataSource {
   ExerciseRemoteDataSourceImpl({required this.apiClient});
 
   @override
-  Future<List<ExerciseModel>> fetchExercises(String? muscleCategory) async {
+  Future<List<ExerciseModel>> fetchExercises({String? muscleCategory, int? page, int? limit, String? searchTerm}) async {
     final Map<String, dynamic> queryParams = {};
     if (muscleCategory != null && muscleCategory != 'All') {
       queryParams['musalCategory'] = muscleCategory;
     }
+    if (page != null) queryParams['page'] = page;
+    if (limit != null) queryParams['limit'] = limit;
+    if (searchTerm != null && searchTerm.isNotEmpty) queryParams['searchTerm'] = searchTerm;
 
     final response = await apiClient.get(
       ApiUrls.exercise,

@@ -1,6 +1,5 @@
 class DailyTrackingConstants {
   static const List<String> trainingPlanValues = [
-    'PLACE_HOLDER',
     'FULL_BODY',
     'LEG_DAY_ADVANCED',
     'TRAINING_PLAN_1',

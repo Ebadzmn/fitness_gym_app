@@ -62,8 +62,8 @@ class TrainingEntity extends Equatable {
     cardioCompleted: map['cardioCompleted'] ?? false,
     feedback: map['feedback'] ?? '',
     plans: Set<String>.from(map['plans'] ?? const <String>[]),
-    cardioType: map['cardioType'] ?? 'No',
-    duration: map['duration'] ?? '0',
+    cardioType: map['cardioType'] ?? '',
+    duration: map['duration'] ?? '',
     intensity: (map['intensity'] ?? 0).toDouble(),
   );
 }

@@ -13,7 +13,11 @@ abstract class NutritionRepository {
   Future<Either<ApiException, NutritionPlanResponseEntity>> getNutritionPlan(
     String userId,
   );
-  Future<List<FoodItemEntity>> getFoodItems();
+  Future<List<FoodItemEntity>> getFoodItems({
+    int? page,
+    int? limit,
+    String? searchTerm,
+  });
   Future<Either<ApiException, List<MealSuggestionEntity>>>
   getTrackMealSuggestions(String search);
   Future<Either<ApiException, NutritionDailyTrackingEntity>> getTrackedMeals(
