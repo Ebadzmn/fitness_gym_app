@@ -23,6 +23,9 @@ class _WebViewScreenState extends State<WebViewScreen> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
+          onProgress: (int progress) {
+            // Update loading bar.
+          },
           onPageStarted: (String url) {
             if (mounted) {
               setState(() {
@@ -37,9 +40,40 @@ class _WebViewScreenState extends State<WebViewScreen> {
               });
             }
           },
+          onWebResourceError: (WebResourceError error) {
+            debugPrint('''
+Page resource error:
+  code: ${error.errorCode}
+  description: ${error.description}
+  errorType: ${error.errorType}
+  isForMainFrame: ${error.isForMainFrame}
+          ''');
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error: ${error.description}')),
+              );
+            }
+          },
+          onNavigationRequest: (NavigationRequest request) {
+            return NavigationDecision.navigate;
+          },
         ),
-      )
-      ..loadRequest(Uri.parse(widget.url));
+      );
+    try {
+      final uri = Uri.parse(widget.url);
+      _controller.loadRequest(uri);
+    } catch (e) {
+      debugPrint('Error parsing URL: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Invalid URL: ${widget.url}')),
+        );
+      }
+    }
   }
 
   @override

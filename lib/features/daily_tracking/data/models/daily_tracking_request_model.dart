@@ -24,9 +24,7 @@ class DailyTrackingRequestModel {
       "sleepHour": double.tryParse(_cleanNum(entity.sleep.durationText)) ?? 0,
       "sleepQuality": entity.sleep.quality.toString(),
       "sick": entity.isSick,
-      "water": entity
-          .vital
-          .waterText, // Assuming "1.2 (Lit)" format is acceptable or needs cleaning? Based on prompt "2L"
+      "water": entity.vital.waterText.isEmpty ? "0" : entity.vital.waterText,
 
       "bloodPressure": {
         "systolic": _cleanNum(entity.pedHealth.systolicText),
@@ -48,11 +46,13 @@ class DailyTrackingRequestModel {
         "trainingCompleted": entity.training.trainingCompleted,
         "trainingPlan": entity.training.plans.toList(),
         "cardioCompleted": entity.training.cardioCompleted,
-        "cardioType": entity.training.cardioType.toUpperCase().replaceAll(
-          ' ',
-          '_',
-        ),
-        "duration": entity.training.duration, // "30"
+        "cardioType": entity.training.cardioType == 'No'
+            ? ""
+            : entity.training.cardioType.toUpperCase().replaceAll(
+                  ' ',
+                  '_',
+                ),
+        "duration": entity.training.duration.isEmpty ? "0" : entity.training.duration,
       },
 
       "activityStep":
@@ -71,25 +71,19 @@ class DailyTrackingRequestModel {
       },
 
       "woman": {
-        "cyclePhase":
-            entity.women.cyclePhase ??
-            "OVULATION", // Default or nullable handling
-        "cycleDay": entity
-            .women
-            .cycleDayLabel, // "Monday" vs "14" - Mapping issue? Assuming entity has correct data or string
+        "cyclePhase": entity.women.cyclePhase ?? "",
+        "cycleDay": (entity.women.cycleDayLabel == "No" || entity.women.cycleDayLabel.isEmpty) ? "" : entity.women.cycleDayLabel,
         "pmsSymptoms": entity.women.pms,
         "cramps": entity.women.cramps,
         "symptoms": entity.women.symptoms.toList(),
       },
 
       "ped": {
-        "dailyDosage": entity.pedHealth.dosageTaken
-            ? "Taken"
-            : "Not Taken", // Logic adjustment needed based on prompt "500mg"
-        "sideEffect": entity.pedHealth.sideEffects,
+        "dailyDosage": entity.pedHealth.dosageTaken ? "Taken" : "No",
+        "sideEffect": entity.pedHealth.sideEffects.isEmpty ? "No" : entity.pedHealth.sideEffects,
       },
 
-      "dailyNotes": entity.notes,
+      "dailyNotes": (entity.notes == "No" || entity.notes.isEmpty) ? "" : entity.notes,
     };
   }
 }

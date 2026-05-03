@@ -433,9 +433,9 @@ class _DailyView extends GetView<DailyTrackingController> {
             ),
             FullWidthSlider(
               value: quality,
-              min: 1,
+              min: 0,
               max: 10,
-              divisions: 9,
+              divisions: 10,
               onChanged: (v) => controller.onSleepQualityChanged(v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
@@ -648,9 +648,9 @@ class _DailyView extends GetView<DailyTrackingController> {
             ),
             FullWidthSlider(
               value: data.wellBeing.energy,
-              min: 1,
+              min: 0,
               max: 10,
-              divisions: 9,
+              divisions: 10,
               onChanged: (v) =>
                   controller.onWellBeingChanged('energy', v),
               activeTrackColor: const Color(0xFF69B427),
@@ -674,9 +674,9 @@ class _DailyView extends GetView<DailyTrackingController> {
             ),
             FullWidthSlider(
               value: data.wellBeing.stress,
-              min: 1,
+              min: 0,
               max: 10,
-              divisions: 9,
+              divisions: 10,
               onChanged: (v) =>
                   controller.onWellBeingChanged('stress', v),
               activeTrackColor: const Color(0xFF69B427),
@@ -700,9 +700,9 @@ class _DailyView extends GetView<DailyTrackingController> {
             ),
             FullWidthSlider(
               value: data.wellBeing.muscleSoreness,
-              min: 1,
+              min: 0,
               max: 10,
-              divisions: 9,
+              divisions: 10,
               onChanged: (v) =>
                   controller.onWellBeingChanged('muscleSoreness', v),
               activeTrackColor: const Color(0xFF69B427),
@@ -726,9 +726,9 @@ class _DailyView extends GetView<DailyTrackingController> {
             ),
             FullWidthSlider(
               value: data.wellBeing.mood,
-              min: 1,
+              min: 0,
               max: 10,
-              divisions: 9,
+              divisions: 10,
               onChanged: (v) =>
                   controller.onWellBeingChanged('mood', v),
               activeTrackColor: const Color(0xFF69B427),
@@ -752,9 +752,9 @@ class _DailyView extends GetView<DailyTrackingController> {
             ),
             FullWidthSlider(
               value: data.wellBeing.motivation,
-              min: 1,
+              min: 0,
               max: 10,
-              divisions: 9,
+              divisions: 10,
               onChanged: (v) =>
                   controller.onWellBeingChanged('motivation', v),
               activeTrackColor: const Color(0xFF69B427),
@@ -1353,9 +1353,9 @@ class _DailyView extends GetView<DailyTrackingController> {
             ),
             FullWidthSlider(
               value: data.nutrition.hunger,
-              min: 1,
+              min: 0,
               max: 10,
-              divisions: 9,
+              divisions: 10,
               onChanged: (v) => controller.onNutritionChanged('hunger', numberValue: v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
@@ -1378,9 +1378,9 @@ class _DailyView extends GetView<DailyTrackingController> {
             ),
             FullWidthSlider(
               value: data.nutrition.digestion,
-              min: 1,
+              min: 0,
               max: 10,
-              divisions: 9,
+              divisions: 10,
               onChanged: (v) => controller.onNutritionChanged('digestion', numberValue: v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
@@ -1526,9 +1526,9 @@ class _DailyView extends GetView<DailyTrackingController> {
             ),
             FullWidthSlider(
               value: data.women.pms,
-              min: 1,
+              min: 0,
               max: 10,
-              divisions: 9,
+              divisions: 10,
               onChanged: (v) =>
                   controller.onWomenPmsChanged(v),
               activeTrackColor: const Color(0xFF69B427),
@@ -1552,9 +1552,9 @@ class _DailyView extends GetView<DailyTrackingController> {
             ),
             FullWidthSlider(
               value: data.women.cramps,
-              min: 1,
+              min: 0,
               max: 10,
-              divisions: 9,
+              divisions: 10,
               onChanged: (v) =>
                   controller.onWomenCrampsChanged(v),
               activeTrackColor: const Color(0xFF69B427),
