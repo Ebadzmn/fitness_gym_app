@@ -10,6 +10,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:fitness_app/features/training/presentation/bloc/timer_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class WorkoutSessionPage extends StatelessWidget {
   final String planId;
@@ -22,15 +24,17 @@ class WorkoutSessionPage extends StatelessWidget {
       sl<WorkoutSessionController>(),
       tag: planId,
     );
-    
+
     // Load session if not already loaded
     if (controller.plan.value == null) {
       controller.loadWorkoutSession(planId);
     }
 
-    return Scaffold(
-      backgroundColor: AppColor.primaryColor,
-      resizeToAvoidBottomInset: true,
+    return BlocProvider(
+      create: (context) => TimerBloc()..add(StartTimer()),
+      child: Scaffold(
+        backgroundColor: AppColor.primaryColor,
+        resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: AppColor.primaryColor,
         elevation: 0,
@@ -202,8 +206,9 @@ class WorkoutSessionPage extends StatelessWidget {
           ],
         );
       }),
-    );
-  }
+    ),
+  );
+}
 
   Future<dynamic> _showExercisePicker(
     BuildContext context,
@@ -376,65 +381,77 @@ class _TimerSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<WorkoutSessionController>(tag: planId);
-    return Obx(() {
-      final d = controller.duration.value;
-      final hours = (d ~/ 3600).toString().padLeft(2, '0');
-      final minutes = ((d % 3600) ~/ 60).toString().padLeft(2, '0');
-      final seconds = (d % 60).toString().padLeft(2, '0');
-      final isRunning = controller.isTimerRunning.value;
+    return BlocBuilder<TimerBloc, TimerState>(
+      builder: (context, state) {
+        final d = state.duration;
+        final hours = (d ~/ 3600).toString().padLeft(2, '0');
+        final minutes = ((d % 3600) ~/ 60).toString().padLeft(2, '0');
+        final seconds = (d % 60).toString().padLeft(2, '0');
+        final isRunning = state.isRunning;
 
-      return Column(
-        children: [
-          Text(
-            isRunning ? 'Running...' : 'Start!',
-            style: GoogleFonts.poppins(
-              color: Colors.white,
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w600,
+        // Sync back to controller for submission
+        controller.duration.value = d;
+        controller.isTimerRunning.value = isRunning;
+
+        return Column(
+          children: [
+            Text(
+              isRunning ? 'Running...' : 'Start!',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-          SizedBox(height: 12.h),
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 20.w),
-            decoration: BoxDecoration(
-              color: const Color(0xFF13131F),
-              borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(color: const Color(0xFF2E2E5D)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _timerItem(hours, 'hours'),
-                _divider(),
-                _timerItem(minutes, 'Minutes'),
-                _divider(),
-                _timerItem(seconds, 'seconds'),
-              ],
-            ),
-          ),
-          SizedBox(height: 12.h),
-          InkWell(
-            onTap: () => controller.toggleTimer(),
-            borderRadius: BorderRadius.circular(30.r),
-            child: Container(
-              padding: EdgeInsets.all(4.r),
+            SizedBox(height: 12.h),
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 20.w),
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
+                color: const Color(0xFF13131F),
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(color: const Color(0xFF2E2E5D)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _timerItem(hours, 'hours'),
+                  _divider(),
+                  _timerItem(minutes, 'Minutes'),
+                  _divider(),
+                  _timerItem(seconds, 'seconds'),
+                ],
+              ),
+            ),
+            SizedBox(height: 12.h),
+            InkWell(
+              onTap: () {
+                if (isRunning) {
+                  context.read<TimerBloc>().add(PauseTimer());
+                } else {
+                  context.read<TimerBloc>().add(StartTimer());
+                }
+              },
+              borderRadius: BorderRadius.circular(30.r),
+              child: Container(
+                padding: EdgeInsets.all(4.r),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFF2E5B24),
+                    width: 1.w,
+                  ),
+                ),
+                child: Icon(
+                  isRunning ? Icons.pause_circle_outline : Icons.play_circle_outline,
                   color: const Color(0xFF2E5B24),
-                  width: 1.w,
+                  size: 32.sp,
                 ),
               ),
-              child: Icon(
-                isRunning ? Icons.pause_circle_outline : Icons.play_circle_outline,
-                color: const Color(0xFF2E5B24),
-                size: 32.sp,
-              ),
             ),
-          ),
-        ],
-      );
-    });
+          ],
+        );
+      },
+    );
   }
 
   Widget _timerItem(String value, String label) {

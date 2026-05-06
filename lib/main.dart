@@ -18,8 +18,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'injection_container.dart' as di;
 import 'package:get/get.dart';
 
+import 'package:fitness_app/core/services/background_service.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeService();
   await dotenv.load(fileName: ".env");
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);

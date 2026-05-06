@@ -43,7 +43,7 @@ class WorkoutSessionController extends GetxController {
   // Timer State
   final RxInt duration = 0.obs;
   final RxBool isTimerRunning = false.obs;
-  Timer? _timer;
+  // Timer is now managed by Background Service & TimerBloc
 
   String? _planKey;
   bool _hasLoadedFromPrefs = false;
@@ -52,12 +52,10 @@ class WorkoutSessionController extends GetxController {
   void onInit() {
     super.onInit();
     noteController.addListener(_onNoteChanged);
-    startTimer();
   }
 
   @override
   void onClose() {
-    _timer?.cancel();
     noteController.removeListener(_onNoteChanged);
     noteController.dispose();
     _disposeControllers();
@@ -260,32 +258,7 @@ class WorkoutSessionController extends GetxController {
     await sharedPreferences.remove(noteKey);
   }
 
-  // Timer Logic
-  void startTimer() {
-    if (isTimerRunning.value) return;
-    isTimerRunning.value = true;
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      duration.value++;
-    });
-  }
-
-  void stopTimer() {
-    _timer?.cancel();
-    isTimerRunning.value = false;
-  }
-
-  void toggleTimer() {
-    if (isTimerRunning.value) {
-      stopTimer();
-    } else {
-      startTimer();
-    }
-  }
-
-  void resetTimer() {
-    stopTimer();
-    duration.value = 0;
-  }
+  // Timer logic moved to TimerBloc & Background Service
 
   // Exercise Picker Logic
   Future<void> changeExercise(

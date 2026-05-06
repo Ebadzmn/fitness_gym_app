@@ -1,0 +1,105 @@
+import 'dart:async';
+import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
+
+// Events
+abstract class TimerEvent extends Equatable {
+  const TimerEvent();
+  @override
+  List<Object?> get props => [];
+}
+
+class StartTimer extends TimerEvent {}
+class PauseTimer extends TimerEvent {}
+class ResetTimer extends TimerEvent {}
+class SyncTimer extends TimerEvent {
+  final int seconds;
+  final bool isRunning;
+  const SyncTimer(this.seconds, this.isRunning);
+  @override
+  List<Object?> get props => [seconds, isRunning];
+}
+
+// State
+class TimerState extends Equatable {
+  final int duration;
+  final bool isRunning;
+
+  const TimerState({required this.duration, required this.isRunning});
+
+  factory TimerState.initial() => const TimerState(duration: 0, isRunning: false);
+
+  TimerState copyWith({int? duration, bool? isRunning}) {
+    return TimerState(
+      duration: duration ?? this.duration,
+      isRunning: isRunning ?? this.isRunning,
+    );
+  }
+
+  @override
+  List<Object?> get props => [duration, isRunning];
+}
+
+// Bloc
+class TimerBloc extends Bloc<TimerEvent, TimerState> {
+  StreamSubscription? _serviceSubscription;
+  final FlutterBackgroundService _service = FlutterBackgroundService();
+
+  TimerBloc() : super(TimerState.initial()) {
+    on<StartTimer>(_onStart);
+    on<PauseTimer>(_onPause);
+    on<ResetTimer>(_onReset);
+    on<SyncTimer>(_onSync);
+
+    _serviceSubscription = _service.on('update').listen((event) {
+      if (event != null && event['seconds'] != null) {
+        add(SyncTimer(event['seconds'] as int, state.isRunning));
+      }
+    });
+    
+    _checkInitialState();
+  }
+
+  Future<void> _checkInitialState() async {
+    final isRunning = await _service.isRunning();
+    if (isRunning) {
+      // If service is already running, we should just wait for updates.
+      // We can also trigger a manual update if we had a 'requestUpdate' event.
+      emit(state.copyWith(isRunning: true));
+    }
+  }
+
+  Future<void> _onStart(StartTimer event, Emitter<TimerState> emit) async {
+    final isServiceRunning = await _service.isRunning();
+    if (!isServiceRunning) {
+      await _service.startService();
+    }
+    
+    _service.invoke('startTimer');
+    emit(state.copyWith(isRunning: true));
+  }
+
+  void _onPause(PauseTimer event, Emitter<TimerState> emit) {
+    _service.invoke('pauseTimer');
+    emit(state.copyWith(isRunning: false));
+  }
+
+  void _onReset(ResetTimer event, Emitter<TimerState> emit) {
+    _service.invoke('resetTimer');
+    emit(TimerState.initial());
+  }
+
+  void _onSync(SyncTimer event, Emitter<TimerState> emit) {
+    // If the duration is same but isRunning changed, or vice versa
+    if (state.duration != event.seconds || state.isRunning != event.isRunning) {
+      emit(state.copyWith(duration: event.seconds, isRunning: event.isRunning));
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _serviceSubscription?.cancel();
+    return super.close();
+  }
+}
