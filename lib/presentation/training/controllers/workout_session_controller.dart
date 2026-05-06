@@ -38,6 +38,7 @@ class WorkoutSessionController extends GetxController {
   final Map<int, List<Map<String, TextEditingController>>> exerciseControllers =
       {};
   final Map<int, List<Map<String, RxBool>>> fieldErrors = {};
+  final RxMap<int, bool> completedExercises = <int, bool>{}.obs;
   final TextEditingController noteController = TextEditingController();
 
   // Timer State
@@ -184,6 +185,10 @@ class WorkoutSessionController extends GetxController {
     return 'workout_${_planKey}_note';
   }
 
+  String _buildCompletionKey(int exerciseIndex) {
+    return 'workout_${_planKey}_ex${exerciseIndex}_completed';
+  }
+
   Future<void> _saveField(
     int exerciseIndex,
     int setIndex,
@@ -203,6 +208,19 @@ class WorkoutSessionController extends GetxController {
 
   void _onNoteChanged() {
     _saveNote(noteController.text);
+  }
+
+  Future<void> toggleExerciseCompletion(int index) async {
+    final currentValue = completedExercises[index] ?? false;
+    final newValue = !currentValue;
+    completedExercises[index] = newValue;
+    await _saveCompletion(index, newValue);
+  }
+
+  Future<void> _saveCompletion(int index, bool value) async {
+    if (_planKey == null) return;
+    final key = _buildCompletionKey(index);
+    await sharedPreferences.setBool(key, value);
   }
 
   Future<void> _loadSavedControllers(
@@ -237,6 +255,14 @@ class WorkoutSessionController extends GetxController {
         noteController.text = noteValue;
       }
     }
+
+    for (int i = 0; i < exercises.length; i++) {
+      final key = _buildCompletionKey(i);
+      final value = sharedPreferences.getBool(key);
+      if (value != null) {
+        completedExercises[i] = value;
+      }
+    }
   }
 
   Future<void> _clearSavedControllers() async {
@@ -244,6 +270,9 @@ class WorkoutSessionController extends GetxController {
 
     for (int i = 0; i < sessionExercises.length; i++) {
       final controllersList = exerciseControllers[i];
+      final completionKey = _buildCompletionKey(i);
+      await sharedPreferences.remove(completionKey);
+
       if (controllersList == null) continue;
 
       for (int setIndex = 0; setIndex < controllersList.length; setIndex++) {

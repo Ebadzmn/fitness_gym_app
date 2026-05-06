@@ -93,6 +93,7 @@ void onStart(ServiceInstance service) async {
 
     service.invoke('update', {
       "seconds": currentSeconds,
+      "isRunning": isRunning,
     });
 
     if (service is AndroidServiceInstance) {
@@ -143,7 +144,11 @@ void onStart(ServiceInstance service) async {
     await prefs.setInt(keyOffsetSeconds, 0);
     await prefs.setBool(keyIsRunning, false);
     
-    service.invoke('update', {"seconds": 0});
+    service.invoke('update', {"seconds": 0, "isRunning": false});
+  });
+
+  service.on('requestUpdate').listen((event) async {
+    await updateTimer();
   });
 
   // Resume state on start
@@ -152,9 +157,11 @@ void onStart(ServiceInstance service) async {
     isRunning = true;
     timer = Timer.periodic(const Duration(seconds: 1), (t) => updateTimer());
   } else {
-    // Just sync the current offset
     final offset = prefs.getInt(keyOffsetSeconds) ?? 0;
-    service.invoke('update', {"seconds": offset});
+    service.invoke('update', {
+      "seconds": offset,
+      "isRunning": false,
+    });
   }
 }
 

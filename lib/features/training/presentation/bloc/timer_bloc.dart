@@ -54,7 +54,10 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
 
     _serviceSubscription = _service.on('update').listen((event) {
       if (event != null && event['seconds'] != null) {
-        add(SyncTimer(event['seconds'] as int, state.isRunning));
+        add(SyncTimer(
+          event['seconds'] as int,
+          event['isRunning'] as bool? ?? state.isRunning,
+        ));
       }
     });
     
@@ -64,9 +67,7 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
   Future<void> _checkInitialState() async {
     final isRunning = await _service.isRunning();
     if (isRunning) {
-      // If service is already running, we should just wait for updates.
-      // We can also trigger a manual update if we had a 'requestUpdate' event.
-      emit(state.copyWith(isRunning: true));
+      _service.invoke('requestUpdate');
     }
   }
 

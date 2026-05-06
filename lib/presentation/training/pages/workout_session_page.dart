@@ -31,7 +31,7 @@ class WorkoutSessionPage extends StatelessWidget {
     }
 
     return BlocProvider(
-      create: (context) => TimerBloc()..add(StartTimer()),
+      create: (context) => TimerBloc(),
       child: Scaffold(
         backgroundColor: AppColor.primaryColor,
         resizeToAvoidBottomInset: true,
@@ -423,30 +423,59 @@ class _TimerSection extends StatelessWidget {
               ),
             ),
             SizedBox(height: 12.h),
-            InkWell(
-              onTap: () {
-                if (isRunning) {
-                  context.read<TimerBloc>().add(PauseTimer());
-                } else {
-                  context.read<TimerBloc>().add(StartTimer());
-                }
-              },
-              borderRadius: BorderRadius.circular(30.r),
-              child: Container(
-                padding: EdgeInsets.all(4.r),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: const Color(0xFF2E5B24),
-                    width: 1.w,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                InkWell(
+                  onTap: () {
+                    if (isRunning) {
+                      context.read<TimerBloc>().add(PauseTimer());
+                    } else {
+                      context.read<TimerBloc>().add(StartTimer());
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(30.r),
+                  child: Container(
+                    padding: EdgeInsets.all(4.r),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color(0xFF2E5B24),
+                        width: 1.w,
+                      ),
+                    ),
+                    child: Icon(
+                      isRunning
+                          ? Icons.pause_circle_outline
+                          : Icons.play_circle_outline,
+                      color: const Color(0xFF2E5B24),
+                      size: 32.sp,
+                    ),
                   ),
                 ),
-                child: Icon(
-                  isRunning ? Icons.pause_circle_outline : Icons.play_circle_outline,
-                  color: const Color(0xFF2E5B24),
-                  size: 32.sp,
+                SizedBox(width: 20.w),
+                InkWell(
+                  onTap: () {
+                    context.read<TimerBloc>().add(ResetTimer());
+                  },
+                  borderRadius: BorderRadius.circular(30.r),
+                  child: Container(
+                    padding: EdgeInsets.all(4.r),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.red.withOpacity(0.5),
+                        width: 1.w,
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.refresh,
+                      color: Colors.red.withOpacity(0.8),
+                      size: 32.sp,
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ],
         );
@@ -492,16 +521,17 @@ class _ExerciseRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<WorkoutSessionController>(tag: planId);
-    final isCompleted = false.obs;
 
-    return Obx(() => Container(
+    return Obx(() {
+      final isCompleted = controller.completedExercises[index] ?? false;
+      return Container(
           margin: EdgeInsets.only(bottom: 12.h),
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
           decoration: BoxDecoration(
             color: const Color(0xFF13131F),
             borderRadius: BorderRadius.circular(12.r),
             border: Border.all(
-              color: isCompleted.value
+              color: isCompleted
                   ? const Color(0xFF4CAF50)
                   : const Color(0xFF2E2E5D),
             ),
@@ -592,12 +622,12 @@ class _ExerciseRow extends StatelessWidget {
                         ),
                         SizedBox(width: 8.w),
                         GestureDetector(
-                          onTap: () => isCompleted.toggle(),
+                          onTap: () => controller.toggleExerciseCompletion(index),
                           child: Icon(
-                            isCompleted.value
+                            isCompleted
                                 ? Icons.check_circle
                                 : Icons.check_circle_outline,
-                            color: isCompleted.value
+                            color: isCompleted
                                 ? const Color(0xFF4CAF50)
                                 : Colors.white24,
                             size: 22.sp,
@@ -668,7 +698,8 @@ class _ExerciseRow extends StatelessWidget {
               ),
             ],
           ),
-        ));
+        );
+    });
   }
 
   Widget _inputBox(
