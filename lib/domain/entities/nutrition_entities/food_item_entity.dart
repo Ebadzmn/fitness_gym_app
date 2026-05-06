@@ -75,6 +75,8 @@ class FoodItemEntity extends Equatable {
         return FoodCategory.vegetables;
       case 'supplements':
         return FoodCategory.supplements;
+      case 'dairy':
+        return FoodCategory.dairy;
       default:
         return FoodCategory.all;
     }

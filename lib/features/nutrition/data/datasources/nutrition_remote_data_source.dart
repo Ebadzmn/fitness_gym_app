@@ -14,7 +14,7 @@ abstract class NutritionRemoteDataSource {
   Future<List<FoodItemEntity>> fetchFoodItems({
     int? page,
     int? limit,
-    String? searchTerm,
+    String? search,
   });
   Future<List<MealSuggestionEntity>> fetchTrackMealSuggestions(String search);
   Future<NutritionDailyTrackingModel> fetchTrackedMeals(String date);
@@ -63,12 +63,12 @@ class NutritionRemoteDataSourceImpl implements NutritionRemoteDataSource {
   Future<List<FoodItemEntity>> fetchFoodItems({
     int? page,
     int? limit,
-    String? searchTerm,
+    String? search,
   }) async {
     final Map<String, dynamic> queryParams = {};
     if (page != null) queryParams['page'] = page;
     if (limit != null) queryParams['limit'] = limit;
-    if (searchTerm != null && searchTerm.isNotEmpty) queryParams['searchTerm'] = searchTerm;
+    if (search != null && search.isNotEmpty) queryParams['search'] = search;
 
     final response = await apiClient.get(
       ApiUrls.nutritionFood,

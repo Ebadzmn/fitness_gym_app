@@ -16,7 +16,7 @@ abstract class NutritionRepository {
   Future<List<FoodItemEntity>> getFoodItems({
     int? page,
     int? limit,
-    String? searchTerm,
+    String? search,
   });
   Future<Either<ApiException, List<MealSuggestionEntity>>>
   getTrackMealSuggestions(String search);

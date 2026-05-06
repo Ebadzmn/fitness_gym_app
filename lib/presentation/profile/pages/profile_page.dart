@@ -147,6 +147,32 @@ class _ProfileView extends StatelessWidget {
       return dateString;
     }
   }
+  Color _getPhaseColor(String phase) {
+    switch (phase) {
+      case 'Pre Prep Phase':
+        return const Color(0xFF00A9E0);
+      case 'Health Phase':
+        return const Color(0xFF009B91);
+      case 'Diet Phase':
+        return const Color(0xFF1B75BC);
+      case 'Offseason':
+        return const Color(0xFF008B5E);
+      case 'Prep':
+        return const Color(0xFFF7941D);
+      case 'Peak Week':
+        return const Color(0xFFED1C24);
+      case 'Diet-Break':
+        return const Color(0xFF92278F);
+      case 'Reverse Diet Phase':
+        return const Color(0xFFD91C5C);
+      case 'Other':
+        return const Color(0xFF58595B);
+      case 'No Phase':
+        return const Color(0xFF1B2631);
+      default:
+        return const Color(0xFFD4AF37);
+    }
+  }
 
   Widget _tableRow(String week, String date, String phase, Color phaseColor) {
     return Container(
@@ -879,12 +905,12 @@ class _ProfileView extends StatelessWidget {
                               ...timelineState.timelineData.asMap().entries.map((entry) {
                                 final index = entry.key;
                                 final item = entry.value;
-                                return _tableRow(
-                                  'Week ${index + 1}',
-                                  _formatDate(item.date),
-                                  item.phase,
-                                  const Color(0xFFD4AF37),
-                                );
+                                  return _tableRow(
+                                    'Week ${index + 1}',
+                                    _formatDate(item.date),
+                                    item.phase,
+                                    _getPhaseColor(item.phase),
+                                  );
                               }),
                             ],
                           ),

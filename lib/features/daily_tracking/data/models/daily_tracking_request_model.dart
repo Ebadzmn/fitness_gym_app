@@ -21,7 +21,7 @@ class DailyTrackingRequestModel {
     return {
       "date": _formatDate(entity.vital.dateLabel),
       "weight": double.tryParse(_cleanNum(entity.vital.weightText)) ?? 0,
-      "sleepHour": double.tryParse(_cleanNum(entity.sleep.durationText)) ?? 0,
+      "sleepHour": entity.sleep.durationText.isEmpty ? "0" : entity.sleep.durationText,
       "sleepQuality": entity.sleep.quality.toString(),
       "sick": entity.isSick,
       "water": entity.vital.waterText.isEmpty ? "0" : entity.vital.waterText,

@@ -29,13 +29,13 @@ class FoodItemsController extends GetxController {
   List<FoodItemEntity> get visibleItems {
     var list = foodItems.toList();
 
-    // Local search filtering
-    if (searchQuery.value.isNotEmpty) {
-      final query = searchQuery.value.toLowerCase();
-      list = list.where((item) => 
-        item.name.toLowerCase().contains(query)
-      ).toList();
-    }
+    // Local search filtering is removed as it's now server-side
+    // if (searchQuery.value.isNotEmpty) {
+    //   final query = searchQuery.value.toLowerCase();
+    //   list = list.where((item) => 
+    //     item.name.toLowerCase().contains(query)
+    //   ).toList();
+    // }
 
     if (currentFilter.value == FoodCategory.all) return list;
 
@@ -88,16 +88,25 @@ class FoodItemsController extends GetxController {
   }
 
   Future<void> _fetchInitialFoodItems() async {
-    isLoading.value = true;
+    // Only show full-page loader if we don't have any items yet
+    if (foodItems.isEmpty) {
+      isLoading.value = true;
+    }
+    
     errorMessage.value = '';
     _currentPage = 1;
     _hasMoreData = true;
-    foodItems.clear();
+
+    String searchValue = searchQuery.value;
+    if (searchValue.isEmpty && currentFilter.value != FoodCategory.all) {
+      searchValue = currentFilter.value.name;
+    }
 
     try {
       final result = await getFoodItemsUseCase(
         page: _currentPage,
         limit: _limit,
+        search: searchValue,
       );
 
       if (result.length < _limit) {
@@ -115,10 +124,16 @@ class FoodItemsController extends GetxController {
     isFetchingMore.value = true;
     _currentPage++;
 
+    String searchValue = searchQuery.value;
+    if (searchValue.isEmpty && currentFilter.value != FoodCategory.all) {
+      searchValue = currentFilter.value.name;
+    }
+
     try {
       final result = await getFoodItemsUseCase(
         page: _currentPage,
         limit: _limit,
+        search: searchValue,
       );
 
       if (result.isEmpty || result.length < _limit) {
@@ -136,9 +151,14 @@ class FoodItemsController extends GetxController {
   void setFilter(FoodCategory filter) {
     if (currentFilter.value == filter) return;
     currentFilter.value = filter;
+    _fetchInitialFoodItems();
   }
 
   void onSearchChanged(String query) {
     searchQuery.value = query;
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      _fetchInitialFoodItems();
+    });
   }
 }

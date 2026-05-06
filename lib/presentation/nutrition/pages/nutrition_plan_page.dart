@@ -215,23 +215,6 @@ class _NutritionPlanViewState extends State<_NutritionPlanView> {
                 Row(
                   children: [
                     Icon(
-                      Icons.water_drop,
-                      color: const Color(0xFF4A6CF7), // Blue
-                      size: 18.sp,
-                    ),
-                    SizedBox(width: 6.w),
-                    Text(
-                      '${plan.waterLiters}L Water',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 13.sp,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Icon(
                       Icons.local_fire_department,
                       color: const Color(0xFF82C941), // Green
                       size: 18.sp,

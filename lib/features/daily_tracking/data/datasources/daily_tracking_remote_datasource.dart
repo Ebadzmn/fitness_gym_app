@@ -71,7 +71,11 @@ class DailyTrackingRemoteDataSourceImpl
       return s;
     }
 
-    String str(Object? v) => (v ?? '').toString();
+    String str(Object? v) {
+      final s = (v ?? '').toString().trim();
+      if (s == '0' || s == '0.0' || s == 'No') return '';
+      return s;
+    }
     double dbl(Object? v, {double fallback = 0}) {
       if (v is num) return v.toDouble();
       return double.tryParse(v?.toString() ?? '') ?? fallback;

@@ -7,7 +7,7 @@ class GetFoodItemsUseCase {
   Future<List<FoodItemEntity>> call({
     int? page,
     int? limit,
-    String? searchTerm,
+    String? search,
   }) =>
-      repo.getFoodItems(page: page, limit: limit, searchTerm: searchTerm);
+      repo.getFoodItems(page: page, limit: limit, search: search);
 }

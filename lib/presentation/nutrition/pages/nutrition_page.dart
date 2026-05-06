@@ -62,16 +62,23 @@ class _NutritionView extends StatelessWidget {
         ),
       ),
       body: Obx(() {
-        if (controller.isLoading.value && controller.nutritionData.value == null) {
+        if (controller.isLoading.value &&
+            controller.nutritionData.value == null) {
           return const Center(child: CircularProgressIndicator());
         }
 
         final data = controller.nutritionData.value;
         if (data == null) {
-          return const Center(child: Text('No Data Available', style: TextStyle(color: Colors.white)));
+          return const Center(
+            child: Text(
+              'No Data Available',
+              style: TextStyle(color: Colors.white),
+            ),
+          );
         }
 
-        final showPeds = controller.athleteStatus.value.trim().toLowerCase() == 'enhanced';
+        final showPeds =
+            controller.athleteStatus.value.trim().toLowerCase() == 'enhanced';
 
         return RefreshIndicator(
           onRefresh: () => controller.fetchNutritionData(),
@@ -214,7 +221,7 @@ class _NutritionView extends StatelessWidget {
                 ),
               ),
               Text(
-                '${totals.totalCalories.toInt()} / ${goals.caloriesGoal} kcal',
+                '${totals.totalCalories.toInt()} kcal',
                 style: GoogleFonts.poppins(
                   color: const Color(0xFF82C941),
                   fontSize: 13.sp,
@@ -226,21 +233,25 @@ class _NutritionView extends StatelessWidget {
           SizedBox(height: 12.h),
           _macroRow(
             label: localizations.nutritionMacroProteinLabel,
-            valueText: '${proteinStr}g / ${goals.proteinGoal}g',
+            valueText: '${proteinStr}g',
             color: const Color(0xFF4A6CF7),
-            progress: goals.proteinGoal > 0 ? totals.totalProtein / goals.proteinGoal : 0,
+            progress: goals.proteinGoal > 0
+                ? totals.totalProtein / goals.proteinGoal
+                : 0,
           ),
           SizedBox(height: 8.h),
           _macroRow(
             label: localizations.nutritionMacroCarbsLabel,
-            valueText: '${carbsStr}g / ${goals.carbsGoal}g',
+            valueText: '${carbsStr}g',
             color: const Color(0xFF82C941),
-            progress: goals.carbsGoal > 0 ? totals.totalCarbs / goals.carbsGoal : 0,
+            progress: goals.carbsGoal > 0
+                ? totals.totalCarbs / goals.carbsGoal
+                : 0,
           ),
           SizedBox(height: 8.h),
           _macroRow(
             label: localizations.nutritionMacroFatsLabel,
-            valueText: '${fatsStr}g / ${goals.fatGoal}g',
+            valueText: '${fatsStr}g',
             color: const Color(0xFFFF6D00),
             progress: goals.fatGoal > 0 ? totals.totalFats / goals.fatGoal : 0,
           ),

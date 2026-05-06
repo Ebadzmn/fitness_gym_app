@@ -35,13 +35,13 @@ class NutritionRepositoryImpl implements NutritionRepository {
   Future<List<FoodItemEntity>> getFoodItems({
     int? page,
     int? limit,
-    String? searchTerm,
+    String? search,
   }) async {
     try {
       return await remoteDataSource.fetchFoodItems(
         page: page,
         limit: limit,
-        searchTerm: searchTerm,
+        search: search,
       );
     } on DioException catch (e) {
       throw ApiException(message: e.message ?? 'Failed to fetch food items');

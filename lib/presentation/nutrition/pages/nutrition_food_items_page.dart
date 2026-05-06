@@ -49,7 +49,7 @@ class _FoodItemsView extends StatelessWidget {
       ),
       body: Obx(() {
         final controller = Get.find<FoodItemsController>();
-        if (controller.isLoading.value) {
+        if (controller.isLoading.value && controller.foodItems.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
         if (controller.errorMessage.isNotEmpty) {
