@@ -1463,6 +1463,12 @@ abstract class AppLocalizations {
   /// **'Back'**
   String get commonBack;
 
+  /// No description provided for @commonError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get commonError;
+
   /// No description provided for @checkInSinceLastBadge.
   ///
   /// In en, this message translates to:
@@ -1529,6 +1535,18 @@ abstract class AppLocalizations {
   /// **'Any issues?'**
   String get checkInQuestion2Title;
 
+  /// No description provided for @checkInQuestion3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'What do we need to change, so you can achieve your goals even better?'**
+  String get checkInQuestion3Title;
+
+  /// No description provided for @checkInQuestion4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Something you want to tell me?'**
+  String get checkInQuestion4Title;
+
   /// No description provided for @checkInWellBeingSectionTitle.
   ///
   /// In en, this message translates to:
@@ -1558,6 +1576,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sleep'**
   String get checkInWellBeingSleepLabel;
+
+  /// No description provided for @checkInWellBeingHungerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hunger'**
+  String get checkInWellBeingHungerLabel;
 
   /// No description provided for @checkInNutritionSectionTitle.
   ///
@@ -1631,6 +1655,12 @@ abstract class AppLocalizations {
   /// **'Athlete Note'**
   String get checkInAthleteNoteTitle;
 
+  /// No description provided for @checkInAthleteNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your note here...'**
+  String get checkInAthleteNoteHint;
+
   /// No description provided for @commonAnswer.
   ///
   /// In en, this message translates to:
@@ -1648,6 +1678,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Avg Weight'**
   String get checkInCheckingAverageWeightTitle;
+
+  /// No description provided for @checkInSubmittingButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitting...'**
+  String get checkInSubmittingButton;
+
+  /// No description provided for @checkInAlreadySubmittedButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Already submitted'**
+  String get checkInAlreadySubmittedButton;
+
+  /// No description provided for @checkInValidationAnswerAllQuestionsBeforeSubmitting.
+  ///
+  /// In en, this message translates to:
+  /// **'Please answer all questions before submitting.'**
+  String get checkInValidationAnswerAllQuestionsBeforeSubmitting;
+
+  /// No description provided for @checkInValidationAnswerAllQuestionsBeforeContinuing.
+  ///
+  /// In en, this message translates to:
+  /// **'Please answer all questions before continuing.'**
+  String get checkInValidationAnswerAllQuestionsBeforeContinuing;
+
+  /// No description provided for @checkInSubmittedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted'**
+  String get checkInSubmittedSuccess;
+
+  /// No description provided for @checkInStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get checkInStatusCompleted;
+
+  /// No description provided for @checkInStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get checkInStatusPending;
+
+  /// No description provided for @checkInPreviousButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get checkInPreviousButton;
+
+  /// No description provided for @checkInNextButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get checkInNextButton;
+
+  /// No description provided for @checkInLoadingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get checkInLoadingLabel;
+
+  /// No description provided for @checkInUploadedMediaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploaded Photos/Videos'**
+  String get checkInUploadedMediaTitle;
+
+  /// No description provided for @checkInQuestionsAnswersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions & Answers'**
+  String get checkInQuestionsAnswersTitle;
+
+  /// No description provided for @checkInCoachFeedbackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Coach Feedback'**
+  String get checkInCoachFeedbackTitle;
 
   /// No description provided for @dailyTrainingNoPlan.
   ///

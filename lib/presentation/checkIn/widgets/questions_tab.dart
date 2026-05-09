@@ -212,6 +212,45 @@ class _QuestionsTabState extends State<QuestionsTab> {
     return result[0].toUpperCase() + result.substring(1);
   }
 
+  String _localizedQuestionText(
+    AppLocalizations localizations,
+    String question,
+  ) {
+    switch (question.trim()) {
+      case 'What went well this week?':
+        return localizations.checkInQuestion1Title;
+      case 'Challenges?':
+        return localizations.checkInQuestion2Title;
+      case 'What do we need to change, so you can achieve your goals EVEN better?':
+      case 'What do we need to change, so you can achieve your goals even better?':
+        return localizations.checkInQuestion3Title;
+      case 'Something you want to tell me?':
+        return localizations.checkInQuestion4Title;
+      default:
+        return question;
+    }
+  }
+
+  String _localizedMetricLabel(
+    AppLocalizations localizations,
+    String key,
+  ) {
+    switch (key) {
+      case 'energyLevel':
+        return localizations.checkInWellBeingEnergyLabel;
+      case 'stressLevel':
+        return localizations.checkInWellBeingStressLabel;
+      case 'moodLevel':
+        return localizations.checkInWellBeingMoodLabel;
+      case 'sleepQuality':
+        return localizations.checkInWellBeingSleepLabel;
+      case 'hungerLevel':
+        return localizations.checkInWellBeingHungerLabel;
+      default:
+        return _formatFieldName(key);
+    }
+  }
+
   Widget _titleValueItem({
     required String title,
     required Widget input,
@@ -289,7 +328,7 @@ class _QuestionsTabState extends State<QuestionsTab> {
     );
   }
 
-  Widget _coachNoteSection() {
+  Widget _coachNoteSection(AppLocalizations localizations) {
     return Obx(() {
       final note = _checkInQuestionsController.coachNote.value;
       if (note.isEmpty) return const SizedBox.shrink();
@@ -324,7 +363,7 @@ class _QuestionsTabState extends State<QuestionsTab> {
                 ),
                 SizedBox(width: 8.w),
                 Text(
-                  'Coach Feedback',
+                  localizations.checkInCoachFeedbackTitle,
                   style: TextStyle(
                     color: const Color(0xFF69B427),
                     fontSize: 14.sp,
@@ -361,13 +400,13 @@ class _QuestionsTabState extends State<QuestionsTab> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 0. Coach Feedback Section
-          _coachNoteSection(),
+          _coachNoteSection(localizations),
 
           // 1. Wellbeing Section (Dynamic Sliders)
           Obx(() => Column(
             children: _checkInQuestionsController.wellBeingMetrics.entries.map((entry) {
               return _titleValueItem(
-                title: '${_formatFieldName(entry.key)} (1-10)',
+                title: '${_localizedMetricLabel(localizations, entry.key)} (1-10)',
                 numericValue: entry.value,
                 input: Obx(() => FullWidthSlider(
                   value: entry.value.value,
@@ -384,7 +423,7 @@ class _QuestionsTabState extends State<QuestionsTab> {
           // 2. Questions Section (from API)
           ..._checkInQuestionsController.questionList.map((q) {
             return _titleValueItem(
-              title: q.question,
+              title: _localizedQuestionText(localizations, q.question),
               isMandatory: q.isMandatory,
               input: q.isScale
               ? Obx(() => Column(
@@ -444,7 +483,7 @@ class _QuestionsTabState extends State<QuestionsTab> {
 
           // 3. Athlete Note
           _titleValueItem(
-            title: 'Athlete Note',
+            title: localizations.checkInAthleteNoteTitle,
             input: TextFormField(
               controller: _checkInQuestionsController.noteController,
               maxLines: 4,
@@ -453,7 +492,7 @@ class _QuestionsTabState extends State<QuestionsTab> {
                 fontSize: 14.sp,
               ),
               decoration: InputDecoration(
-                hintText: 'Enter your note here...',
+                hintText: localizations.checkInAthleteNoteHint,
                 hintStyle: TextStyle(color: Colors.white54, fontSize: 14.sp),
                 filled: true,
                 fillColor: const Color(0XFF0A0A1F),
@@ -534,9 +573,10 @@ class _QuestionsTabState extends State<QuestionsTab> {
                           _showValidationErrors = true;
                         });
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
+                          SnackBar(
                             content: Text(
-                              'Please answer all questions before continuing.',
+                              localizations
+                                  .checkInValidationAnswerAllQuestionsBeforeContinuing,
                             ),
                           ),
                         );

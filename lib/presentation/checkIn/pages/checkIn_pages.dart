@@ -38,6 +38,13 @@ class CheckinPages extends StatelessWidget {
 
 class _CheckInView extends StatelessWidget {
   const _CheckInView();
+
+  String _localizedStatusText(AppLocalizations localizations, String status) {
+    return status.toLowerCase() == 'completed'
+        ? localizations.checkInStatusCompleted
+        : localizations.checkInStatusPending;
+  }
+
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
@@ -76,13 +83,15 @@ class _CheckInView extends StatelessWidget {
           }
           if (state.status == CheckInStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errorMessage ?? 'Error')),
+              SnackBar(content: Text(state.errorMessage ?? localizations.commonError)),
             );
           }
           if (state.status == CheckInStatus.saved) {
             ScaffoldMessenger.of(
               context,
-            ).showSnackBar(const SnackBar(content: Text('Submitted')));
+            ).showSnackBar(
+              SnackBar(content: Text(localizations.checkInSubmittedSuccess)),
+            );
           }
         },
         builder: (context, state) {
@@ -182,12 +191,18 @@ class _CheckInView extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(30.r),
                               ),
                               alignment: Alignment.center,
-                              child: Text(
-                                localizations.checkInTabWeekly,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w600,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  localizations.checkInTabWeekly,
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  overflow: TextOverflow.visible,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ),
@@ -208,12 +223,18 @@ class _CheckInView extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(30.r),
                               ),
                               alignment: Alignment.center,
-                              child: Text(
-                                localizations.checkInTabOld,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w600,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  localizations.checkInTabOld,
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  overflow: TextOverflow.visible,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ),
@@ -274,10 +295,10 @@ class _CheckInView extends StatelessWidget {
           
                       String buttonText = localizations.commonSubmit;
                       if (isSaving) {
-                        buttonText = 'Submitting...';
+                        buttonText = localizations.checkInSubmittingButton;
                       }
                       if (isSubmitted) {
-                        buttonText = 'Already submitted';
+                        buttonText = localizations.checkInAlreadySubmittedButton;
                       }
           
                       return Row(
@@ -292,9 +313,10 @@ class _CheckInView extends StatelessWidget {
                                       ScaffoldMessenger.of(context)
                                         ..hideCurrentSnackBar()
                                         ..showSnackBar(
-                                          const SnackBar(
+                                          SnackBar(
                                             content: Text(
-                                              'Please answer all questions before submitting.',
+                                              localizations
+                                                  .checkInValidationAnswerAllQuestionsBeforeSubmitting,
                                             ),
                                           ),
                                         );
@@ -314,7 +336,12 @@ class _CheckInView extends StatelessWidget {
                                   ScaffoldMessenger.of(context)
                                     ..hideCurrentSnackBar()
                                     ..showSnackBar(
-                                      const SnackBar(content: Text('Already submitted')),
+                                      SnackBar(
+                                        content: Text(
+                                          localizations
+                                              .checkInAlreadySubmittedButton,
+                                        ),
+                                      ),
                                     );
                                 }
                               },
@@ -406,13 +433,13 @@ class _CheckInView extends StatelessWidget {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                 decoration: BoxDecoration(
-                  color: data.checkinCompleted == 'Completed'
+                  color: data.checkinCompleted.toLowerCase() == 'completed'
                       ? const Color(0xFF446B36)
                       : const Color(0xFFB87333),
                   borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Text(
-                  data.checkinCompleted,
+                  _localizedStatusText(localizations, data.checkinCompleted),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 10.sp,
@@ -439,7 +466,7 @@ class _CheckInView extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  'Previous',
+                  localizations.checkInPreviousButton,
                   style: TextStyle(
                     color: Colors.white70,
                     fontSize: 14.sp,
@@ -465,7 +492,7 @@ class _CheckInView extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  'Next',
+                  localizations.checkInNextButton,
                   style: TextStyle(
                     color: skip > 0 ? Colors.white : Colors.white38,
                     fontSize: 14.sp,
@@ -488,8 +515,8 @@ class _CheckInView extends StatelessWidget {
     String dayName = state.checkInDate?.checkInDay ?? '';
 
     if (formattedDate.isEmpty) {
-      formattedDate = 'Loading...';
-      dayName = 'Loading...';
+      formattedDate = localizations.checkInLoadingLabel;
+      dayName = localizations.checkInLoadingLabel;
     }
 
     return Container(

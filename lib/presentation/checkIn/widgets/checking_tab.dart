@@ -21,6 +21,42 @@ class CheckingTab extends StatelessWidget {
     return result[0].toUpperCase() + result.substring(1);
   }
 
+  String _localizedMetricLabel(AppLocalizations localizations, String key) {
+    switch (key) {
+      case 'energyLevel':
+        return localizations.checkInWellBeingEnergyLabel;
+      case 'stressLevel':
+        return localizations.checkInWellBeingStressLabel;
+      case 'moodLevel':
+        return localizations.checkInWellBeingMoodLabel;
+      case 'sleepQuality':
+        return localizations.checkInWellBeingSleepLabel;
+      case 'hungerLevel':
+        return localizations.checkInWellBeingHungerLabel;
+      default:
+        return _formatFieldName(key);
+    }
+  }
+
+  String _localizedQuestionText(
+    AppLocalizations localizations,
+    String question,
+  ) {
+    switch (question.trim()) {
+      case 'What went well this week?':
+        return localizations.checkInQuestion1Title;
+      case 'Challenges?':
+        return localizations.checkInQuestion2Title;
+      case 'What do we need to change, so you can achieve your goals EVEN better?':
+      case 'What do we need to change, so you can achieve your goals even better?':
+        return localizations.checkInQuestion3Title;
+      case 'Something you want to tell me?':
+        return localizations.checkInQuestion4Title;
+      default:
+        return question;
+    }
+  }
+
   Widget _labelWithValue(String label, int value) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.h),
@@ -423,7 +459,7 @@ class CheckingTab extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Well-Being',
+                          localizations.checkInWellBeingSectionTitle,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 14.sp,
@@ -435,7 +471,7 @@ class CheckingTab extends StatelessWidget {
                             key: ValueKey(entry.key),
                             children: [
                               _labelWithValue(
-                                '${_formatFieldName(entry.key)} (1-10)',
+                                '${_localizedMetricLabel(localizations, entry.key)} (1-10)',
                                 entry.value.value.round(),
                               ),
                               _readOnlySlider(entry.value.value.round()),
@@ -575,11 +611,11 @@ class CheckingTab extends StatelessWidget {
                               ? q.answer.value
                               : localizations.commonNoAnswer;
 
-                          return Column(
+                              return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Q$idx. ${q.question}',
+                                'Q$idx. ${_localizedQuestionText(localizations, q.question)}',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 14.sp,

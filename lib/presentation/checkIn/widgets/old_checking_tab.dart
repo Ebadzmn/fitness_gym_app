@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_app/core/apiUrls/api_urls.dart';
 import 'package:fitness_app/domain/entities/checkin_entities/old_check_in_entity.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
 
 /// Read-only widget displaying old check-in data with the same design as CheckingTab.
 class OldCheckingTab extends StatelessWidget {
@@ -16,6 +17,45 @@ class OldCheckingTab extends StatelessWidget {
       (Match m) => '${m[1]} ${m[2]}',
     );
     return result[0].toUpperCase() + result.substring(1);
+  }
+
+  String _localizedMetricLabel(AppLocalizations localizations, String key) {
+    switch (key) {
+      case 'energyLevel':
+        return localizations.checkInWellBeingEnergyLabel;
+      case 'stressLevel':
+        return localizations.checkInWellBeingStressLabel;
+      case 'moodLevel':
+        return localizations.checkInWellBeingMoodLabel;
+      case 'sleepQuality':
+        return localizations.checkInWellBeingSleepLabel;
+      case 'hungerLevel':
+        return localizations.checkInWellBeingHungerLabel;
+      default:
+        return _formatFieldName(key);
+    }
+  }
+
+  String _localizedQuestionText(AppLocalizations localizations, String question) {
+    switch (question.trim()) {
+      case 'What went well this week?':
+        return localizations.checkInQuestion1Title;
+      case 'Challenges?':
+        return localizations.checkInQuestion2Title;
+      case 'What do we need to change, so you can achieve your goals EVEN better?':
+      case 'What do we need to change, so you can achieve your goals even better?':
+        return localizations.checkInQuestion3Title;
+      case 'Something you want to tell me?':
+        return localizations.checkInQuestion4Title;
+      default:
+        return question;
+    }
+  }
+
+  String _localizedStatusText(AppLocalizations localizations, String status) {
+    return status.toLowerCase() == 'completed'
+        ? localizations.checkInStatusCompleted
+        : localizations.checkInStatusPending;
   }
 
   String _normalizedMediaUrl(String url) {
@@ -48,6 +88,7 @@ class OldCheckingTab extends StatelessWidget {
   }
 
   Widget _summaryCard({
+    required AppLocalizations localizations,
     required IconData icon,
     required String title,
     required String value,
@@ -104,7 +145,7 @@ class OldCheckingTab extends StatelessWidget {
                     ),
                     SizedBox(width: 4.w),
                     Text(
-                      'Check-in since last',
+                      localizations.checkInSinceLastBadge,
                       style: TextStyle(
                         color: const Color(0xFF69B427),
                         fontSize: 10.sp,
@@ -184,7 +225,11 @@ class OldCheckingTab extends StatelessWidget {
     );
   }
 
-  Widget _ynDisplay(String title, bool value) {
+  Widget _ynDisplay(
+    AppLocalizations localizations,
+    String title,
+    bool value,
+  ) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 6.h),
       child: Row(
@@ -208,7 +253,7 @@ class OldCheckingTab extends StatelessWidget {
               borderRadius: BorderRadius.circular(20.r),
             ),
             child: Text(
-              value ? 'Yes' : 'No',
+              value ? localizations.commonYes : localizations.commonNo,
               style: TextStyle(
                 color: value
                     ? const Color(0xFF69B427)
@@ -223,7 +268,11 @@ class OldCheckingTab extends StatelessWidget {
     );
   }
 
-  Widget _textDisplay(String label, String value) {
+  Widget _textDisplay(
+    AppLocalizations localizations,
+    String label,
+    String value,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -245,7 +294,7 @@ class OldCheckingTab extends StatelessWidget {
             border: Border.all(color: Colors.white10),
           ),
           child: Text(
-            value.isNotEmpty ? value : 'No data',
+            value.isNotEmpty ? value : localizations.profileEmpty,
             style: TextStyle(color: Colors.white, fontSize: 13.sp),
           ),
         ),
@@ -255,18 +304,21 @@ class OldCheckingTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Weight cards
         _summaryCard(
+          localizations: localizations,
           icon: Icons.emoji_events_outlined,
-          title: 'Current Weight',
+          title: localizations.checkInCheckingCurrentWeightTitle,
           value: '${data.currentWeight} (kg)',
         ),
         _summaryCard(
+          localizations: localizations,
           icon: Icons.percent,
-          title: 'Average Weight',
+          title: localizations.checkInCheckingAverageWeightTitle,
           value: '${data.averageWeight} (kg)',
         ),
 
@@ -283,7 +335,7 @@ class OldCheckingTab extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Uploaded Photos/Videos',
+                  localizations.checkInUploadedMediaTitle,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 14.sp,
@@ -349,7 +401,7 @@ class OldCheckingTab extends StatelessWidget {
                             SizedBox(width: 8.w),
                             Expanded(
                               child: Text(
-                                'Video: $fullUrl',
+                                '${localizations.checkInCheckingVideoPlaceholderTitle}: $fullUrl',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 12.sp,
@@ -379,7 +431,7 @@ class OldCheckingTab extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Questions & Answers',
+                localizations.checkInQuestionsAnswersTitle,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 14.sp,
@@ -394,7 +446,7 @@ class OldCheckingTab extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Q$idx . ${qa.question}',
+                      'Q$idx . ${_localizedQuestionText(localizations, qa.question)}',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 14.sp,
@@ -411,7 +463,7 @@ class OldCheckingTab extends StatelessWidget {
                         border: Border.all(color: Colors.white10),
                       ),
                       child: Text(
-                        'A$idx. ${qa.answer.isNotEmpty ? qa.answer : "No answer"}',
+                        'A$idx. ${qa.answer.isNotEmpty ? qa.answer : localizations.commonNoAnswer}',
                         style: TextStyle(color: Colors.white, fontSize: 13.sp),
                       ),
                     ),
@@ -435,7 +487,7 @@ class OldCheckingTab extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Well-Being',
+                localizations.checkInWellBeingSectionTitle,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 14.sp,
@@ -446,7 +498,7 @@ class OldCheckingTab extends StatelessWidget {
                 return Column(
                   children: [
                     _labelWithValue(
-                      '${_formatFieldName(entry.key)} (1-10)',
+                      '${_localizedMetricLabel(localizations, entry.key)} (1-10)',
                       entry.value,
                     ),
                     _readOnlySlider(entry.value),
@@ -469,7 +521,7 @@ class OldCheckingTab extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Nutrition',
+                localizations.checkInNutritionSectionTitle,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 14.sp,
@@ -477,16 +529,23 @@ class OldCheckingTab extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 12.h),
-              _labelWithValue('Diet Level (1-10)', data.nutrition.dietLevel),
+              _labelWithValue(
+                '${localizations.checkInNutritionDietLevelLabel} (1-10)',
+                data.nutrition.dietLevel,
+              ),
               _readOnlySlider(data.nutrition.dietLevel),
               _labelWithValue(
-                'Digestion (1-10)',
+                '${localizations.checkInNutritionDigestionLabel} (1-10)',
                 data.nutrition.digestionLevel,
               ),
               _readOnlySlider(data.nutrition.digestionLevel),
               if (data.nutrition.challengeDiet.isNotEmpty) ...[
                 SizedBox(height: 12.h),
-                _textDisplay('Challenge Diet', data.nutrition.challengeDiet),
+                _textDisplay(
+                  localizations,
+                  localizations.checkInNutritionChallengeTitle,
+                  data.nutrition.challengeDiet,
+                ),
               ],
             ],
           ),
@@ -504,7 +563,7 @@ class OldCheckingTab extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Training',
+                localizations.checkInTrainingSectionTitle,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 14.sp,
@@ -513,16 +572,23 @@ class OldCheckingTab extends StatelessWidget {
               ),
               SizedBox(height: 12.h),
               _labelWithValue(
-                'Feel Strength (1-10)',
+                '${localizations.checkInTrainingFeelStrengthLabel} (1-10)',
                 data.training.feelStrength,
               ),
               _readOnlySlider(data.training.feelStrength),
-              _labelWithValue('Pumps (1-10)', data.training.pumps),
+              _labelWithValue(
+                '${localizations.checkInTrainingPumpsLabel} (1-10)',
+                data.training.pumps,
+              ),
               _readOnlySlider(data.training.pumps),
               SizedBox(height: 12.h),
               if (data.trainingFeedback.isNotEmpty) ...[
                 SizedBox(height: 12.h),
-                _textDisplay('Feedback Training', data.trainingFeedback),
+                _textDisplay(
+                  localizations,
+                  localizations.checkInTrainingFeedbackTitle,
+                  data.trainingFeedback,
+                ),
               ],
             ],
           ),
@@ -541,7 +607,7 @@ class OldCheckingTab extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Daily Notes',
+                  localizations.dailyNotesSectionTitle,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 14.sp,

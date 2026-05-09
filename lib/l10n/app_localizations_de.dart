@@ -629,163 +629,217 @@ class AppLocalizationsDe extends AppLocalizations {
   String get nutritionMenuStatisticsSubtitle => 'Fortschritt ansehen';
 
   @override
-  String get checkInAppBarTitle => 'Check-In';
+  String get checkInAppBarTitle => 'Check-in';
 
   @override
-  String get checkInStepProfile => 'Profile';
+  String get checkInStepProfile => 'Profil';
 
   @override
-  String get checkInStepPhotos => 'Photos';
+  String get checkInStepPhotos => 'Fotos';
 
   @override
-  String get checkInStepQuestions => 'Questions';
+  String get checkInStepQuestions => 'Fragen';
 
   @override
-  String get checkInStepChecking => 'Checking';
+  String get checkInStepChecking => 'Prüfung';
 
   @override
-  String get checkInTabWeekly => 'Weekly Check-in';
+  String get checkInTabWeekly => 'Wöchentlicher Check-in';
 
   @override
-  String get checkInTabOld => 'Old Check-ins';
+  String get checkInTabOld => 'Frühere Check-ins';
 
   @override
-  String get commonNext => 'Next';
+  String get commonNext => 'Weiter';
 
   @override
-  String get commonSubmit => 'Submit';
+  String get commonSubmit => 'Absenden';
 
   @override
-  String get checkInNoPreviousFound => 'No previous check-ins found.';
+  String get checkInNoPreviousFound => 'Keine früheren Check-ins gefunden.';
 
   @override
-  String get checkInLabel => 'Check-In';
+  String get checkInLabel => 'Check-in';
 
   @override
-  String get checkInDateLabel => 'Date';
+  String get checkInDateLabel => 'Datum';
 
   @override
-  String get checkInDayLabel => 'Day';
+  String get checkInDayLabel => 'Tag';
 
   @override
-  String get checkInProfileCurrentWeightTitle => 'Current Weight';
+  String get checkInProfileCurrentWeightTitle => 'Aktuelles Gewicht';
 
   @override
-  String get checkInProfileAverageWeightTitle => 'Average Weight';
+  String get checkInProfileAverageWeightTitle => 'Durchschnittsgewicht';
 
   @override
-  String get checkInPhotosMultiFileInfo => 'Select multiple photos';
+  String get checkInPhotosMultiFileInfo => 'Wähle mehrere Fotos aus';
 
   @override
-  String get checkInPhotosSelectFileLabel => 'Select Photos';
+  String get checkInPhotosSelectFileLabel => 'Fotos auswählen';
 
   @override
-  String get checkInPhotosSingleVideoInfo => 'Select a single video';
+  String get checkInPhotosSingleVideoInfo => 'Wähle ein einzelnes Video aus';
 
   @override
-  String get checkInPhotosVideoDropLabel => 'Upload Video';
+  String get checkInPhotosVideoDropLabel => 'Video hochladen';
 
   @override
-  String get checkInPhotosUploadSuccess => 'Uploaded Successfully';
+  String get checkInPhotosUploadSuccess => 'Erfolgreich hochgeladen';
 
   @override
-  String get commonUpload => 'Upload';
+  String get commonUpload => 'Hochladen';
 
   @override
-  String get commonBack => 'Back';
+  String get commonBack => 'Zurück';
 
   @override
-  String get checkInSinceLastBadge => 'Since Last Check-in';
+  String get commonError => 'Fehler';
 
   @override
-  String get checkInCheckingBasicDataTitle => 'Basic Data';
+  String get checkInSinceLastBadge => 'Seit dem letzten Check-in';
 
   @override
-  String get checkInCheckingPicturesUploadedLabel => 'Photos Uploaded';
+  String get checkInCheckingBasicDataTitle => 'Basisdaten';
 
   @override
-  String get checkInCheckingVideoUploadedLabel => 'Video Uploaded';
+  String get checkInCheckingPicturesUploadedLabel => 'Fotos hochgeladen';
+
+  @override
+  String get checkInCheckingVideoUploadedLabel => 'Video hochgeladen';
 
   @override
   String get checkInCheckingVideoPlaceholderTitle => 'Video';
 
   @override
-  String get checkInCheckingVideoUploadedSubtitle => 'Video uploaded';
+  String get checkInCheckingVideoUploadedSubtitle => 'Video hochgeladen';
 
   @override
-  String get checkInCheckingVideoDefaultSubtitle => 'No video uploaded';
+  String get checkInCheckingVideoDefaultSubtitle => 'Kein Video hochgeladen';
 
   @override
-  String get checkInCheckingQuestionCountDescription => 'Questions Answered';
+  String get checkInCheckingQuestionCountDescription => 'Beantwortete Fragen';
 
   @override
-  String get checkInQuestion1Title => 'How was your week?';
+  String get checkInQuestion1Title => 'Wie war deine Woche?';
 
   @override
-  String get commonNoAnswer => 'No Answer';
+  String get commonNoAnswer => 'Keine Antwort';
 
   @override
-  String get checkInQuestion2Title => 'Any issues?';
+  String get checkInQuestion2Title => 'Gab es Probleme?';
 
   @override
-  String get checkInWellBeingSectionTitle => 'Well-Being';
+  String get checkInQuestion3Title => 'Was müssen wir ändern, damit du deine Ziele noch besser erreichen kannst?';
 
   @override
-  String get checkInWellBeingEnergyLabel => 'Energy';
+  String get checkInQuestion4Title => 'Möchtest du mir noch etwas mitteilen?';
+
+  @override
+  String get checkInWellBeingSectionTitle => 'Wohlbefinden';
+
+  @override
+  String get checkInWellBeingEnergyLabel => 'Energie';
 
   @override
   String get checkInWellBeingStressLabel => 'Stress';
 
   @override
-  String get checkInWellBeingMoodLabel => 'Mood';
+  String get checkInWellBeingMoodLabel => 'Stimmung';
 
   @override
-  String get checkInWellBeingSleepLabel => 'Sleep';
+  String get checkInWellBeingSleepLabel => 'Schlaf';
 
   @override
-  String get checkInNutritionSectionTitle => 'Nutrition';
+  String get checkInWellBeingHungerLabel => 'Hunger';
 
   @override
-  String get checkInNutritionDietLevelLabel => 'Diet Adherence';
+  String get checkInNutritionSectionTitle => 'Ernährung';
 
   @override
-  String get checkInNutritionDigestionLabel => 'Digestion';
+  String get checkInNutritionDietLevelLabel => 'Ernährungsdisziplin';
 
   @override
-  String get checkInNutritionChallengeTitle => 'Challenges';
+  String get checkInNutritionDigestionLabel => 'Verdauung';
 
   @override
-  String get commonTypeHint => 'Type here...';
+  String get checkInNutritionChallengeTitle => 'Herausforderungen';
+
+  @override
+  String get commonTypeHint => 'Hier eingeben...';
 
   @override
   String get checkInTrainingSectionTitle => 'Training';
 
   @override
-  String get checkInTrainingFeelStrengthLabel => 'Strength';
+  String get checkInTrainingFeelStrengthLabel => 'Kraft';
 
   @override
   String get checkInTrainingPumpsLabel => 'Pump';
 
   @override
-  String get checkInTrainingCompletedLabel => 'Training Completed';
+  String get checkInTrainingCompletedLabel => 'Training abgeschlossen';
 
   @override
-  String get checkInTrainingCardioCompletedLabel => 'Cardio Completed';
+  String get checkInTrainingCardioCompletedLabel => 'Cardio abgeschlossen';
 
   @override
   String get checkInTrainingFeedbackTitle => 'Feedback';
 
   @override
-  String get checkInAthleteNoteTitle => 'Athlete Note';
+  String get checkInAthleteNoteTitle => 'Athletennotiz';
 
   @override
-  String get commonAnswer => 'Answer';
+  String get checkInAthleteNoteHint => 'Gib deine Notiz hier ein...';
 
   @override
-  String get checkInCheckingCurrentWeightTitle => 'Current Weight';
+  String get commonAnswer => 'Antwort';
 
   @override
-  String get checkInCheckingAverageWeightTitle => 'Avg Weight';
+  String get checkInCheckingCurrentWeightTitle => 'Aktuelles Gewicht';
+
+  @override
+  String get checkInCheckingAverageWeightTitle => 'Durchschnittsgewicht';
+
+  @override
+  String get checkInSubmittingButton => 'Wird gesendet...';
+
+  @override
+  String get checkInAlreadySubmittedButton => 'Bereits eingereicht';
+
+  @override
+  String get checkInValidationAnswerAllQuestionsBeforeSubmitting => 'Bitte beantworte vor dem Absenden alle Fragen.';
+
+  @override
+  String get checkInValidationAnswerAllQuestionsBeforeContinuing => 'Bitte beantworte vor dem Fortfahren alle Fragen.';
+
+  @override
+  String get checkInSubmittedSuccess => 'Erfolgreich eingereicht';
+
+  @override
+  String get checkInStatusCompleted => 'Abgeschlossen';
+
+  @override
+  String get checkInStatusPending => 'Ausstehend';
+
+  @override
+  String get checkInPreviousButton => 'Vorherige';
+
+  @override
+  String get checkInNextButton => 'Nächste';
+
+  @override
+  String get checkInLoadingLabel => 'Wird geladen...';
+
+  @override
+  String get checkInUploadedMediaTitle => 'Hochgeladene Fotos/Videos';
+
+  @override
+  String get checkInQuestionsAnswersTitle => 'Fragen & Antworten';
+
+  @override
+  String get checkInCoachFeedbackTitle => 'Coach-Feedback';
 
   @override
   String get dailyTrainingNoPlan => 'Hier ist kein Trainingsplan hinzugefügt';

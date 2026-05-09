@@ -695,6 +695,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonBack => 'Back';
 
   @override
+  String get commonError => 'Error';
+
+  @override
   String get checkInSinceLastBadge => 'Since Last Check-in';
 
   @override
@@ -728,6 +731,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get checkInQuestion2Title => 'Any issues?';
 
   @override
+  String get checkInQuestion3Title => 'What do we need to change, so you can achieve your goals even better?';
+
+  @override
+  String get checkInQuestion4Title => 'Something you want to tell me?';
+
+  @override
   String get checkInWellBeingSectionTitle => 'Well-Being';
 
   @override
@@ -741,6 +750,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkInWellBeingSleepLabel => 'Sleep';
+
+  @override
+  String get checkInWellBeingHungerLabel => 'Hunger';
 
   @override
   String get checkInNutritionSectionTitle => 'Nutrition';
@@ -779,6 +791,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get checkInAthleteNoteTitle => 'Athlete Note';
 
   @override
+  String get checkInAthleteNoteHint => 'Enter your note here...';
+
+  @override
   String get commonAnswer => 'Answer';
 
   @override
@@ -786,6 +801,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkInCheckingAverageWeightTitle => 'Avg Weight';
+
+  @override
+  String get checkInSubmittingButton => 'Submitting...';
+
+  @override
+  String get checkInAlreadySubmittedButton => 'Already submitted';
+
+  @override
+  String get checkInValidationAnswerAllQuestionsBeforeSubmitting => 'Please answer all questions before submitting.';
+
+  @override
+  String get checkInValidationAnswerAllQuestionsBeforeContinuing => 'Please answer all questions before continuing.';
+
+  @override
+  String get checkInSubmittedSuccess => 'Submitted';
+
+  @override
+  String get checkInStatusCompleted => 'Completed';
+
+  @override
+  String get checkInStatusPending => 'Pending';
+
+  @override
+  String get checkInPreviousButton => 'Previous';
+
+  @override
+  String get checkInNextButton => 'Next';
+
+  @override
+  String get checkInLoadingLabel => 'Loading...';
+
+  @override
+  String get checkInUploadedMediaTitle => 'Uploaded Photos/Videos';
+
+  @override
+  String get checkInQuestionsAnswersTitle => 'Questions & Answers';
+
+  @override
+  String get checkInCoachFeedbackTitle => 'Coach Feedback';
 
   @override
   String get dailyTrainingNoPlan => 'No Training plan add here';
