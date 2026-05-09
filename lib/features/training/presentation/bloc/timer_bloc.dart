@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fitness_app/injection_container.dart';
 
 // Events
 abstract class TimerEvent extends Equatable {
@@ -45,29 +47,61 @@ class TimerState extends Equatable {
 class TimerBloc extends Bloc<TimerEvent, TimerState> {
   StreamSubscription? _serviceSubscription;
   final FlutterBackgroundService _service = FlutterBackgroundService();
+  final String planId;
 
-  TimerBloc() : super(TimerState.initial()) {
+  TimerBloc({required this.planId}) : super(TimerState.initial()) {
     on<StartTimer>(_onStart);
     on<PauseTimer>(_onPause);
     on<ResetTimer>(_onReset);
     on<SyncTimer>(_onSync);
 
     _serviceSubscription = _service.on('update').listen((event) {
-      if (event != null && event['seconds'] != null) {
+      if (event != null &&
+          event['planId']?.toString() == planId &&
+          event['seconds'] != null) {
         add(SyncTimer(
           event['seconds'] as int,
           event['isRunning'] as bool? ?? state.isRunning,
         ));
       }
     });
-    
+
     _checkInitialState();
+    _loadPersistedState();
   }
 
   Future<void> _checkInitialState() async {
     final isRunning = await _service.isRunning();
     if (isRunning) {
-      _service.invoke('requestUpdate');
+      _service.invoke('requestUpdate', {'planId': planId});
+    }
+  }
+
+  String _encodePlanId(String value) => Uri.encodeComponent(value);
+
+  String _startTimeKey() =>
+      'workout_timer_${_encodePlanId(planId)}_start_time';
+
+  String _offsetSecondsKey() =>
+      'workout_timer_${_encodePlanId(planId)}_offset_seconds';
+
+  String _isRunningKey() =>
+      'workout_timer_${_encodePlanId(planId)}_is_running';
+
+  Future<void> _loadPersistedState() async {
+    final prefs = sl<SharedPreferences>();
+    final startTimeStr = prefs.getString(_startTimeKey());
+    final offsetSeconds = prefs.getInt(_offsetSecondsKey()) ?? 0;
+    final isRunning = prefs.getBool(_isRunningKey()) ?? false;
+
+    int seconds = offsetSeconds;
+    if (startTimeStr != null) {
+      final startTime = DateTime.parse(startTimeStr);
+      seconds += DateTime.now().difference(startTime).inSeconds;
+    }
+
+    if (seconds != state.duration || isRunning != state.isRunning) {
+      emit(state.copyWith(duration: seconds, isRunning: isRunning));
     }
   }
 
@@ -77,17 +111,17 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       await _service.startService();
     }
     
-    _service.invoke('startTimer');
+    _service.invoke('startTimer', {'planId': planId});
     emit(state.copyWith(isRunning: true));
   }
 
   void _onPause(PauseTimer event, Emitter<TimerState> emit) {
-    _service.invoke('pauseTimer');
+    _service.invoke('pauseTimer', {'planId': planId});
     emit(state.copyWith(isRunning: false));
   }
 
   void _onReset(ResetTimer event, Emitter<TimerState> emit) {
-    _service.invoke('resetTimer');
+    _service.invoke('resetTimer', {'planId': planId});
     emit(TimerState.initial());
   }
 

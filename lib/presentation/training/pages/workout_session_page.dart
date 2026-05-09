@@ -31,7 +31,7 @@ class WorkoutSessionPage extends StatelessWidget {
     }
 
     return BlocProvider(
-      create: (context) => TimerBloc(),
+      create: (context) => TimerBloc(planId: planId),
       child: Scaffold(
         backgroundColor: AppColor.primaryColor,
         resizeToAvoidBottomInset: true,

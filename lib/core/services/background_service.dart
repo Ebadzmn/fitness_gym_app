@@ -8,6 +8,118 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 const String notificationChannelId = 'workout_timer_channel';
 const int notificationId = 888;
+const String _timerKeyPrefix = 'workout_timer';
+
+String _encodePlanId(String planId) => Uri.encodeComponent(planId);
+
+String _startTimeKey(String planId) =>
+    '${_timerKeyPrefix}_${_encodePlanId(planId)}_start_time';
+
+String _offsetSecondsKey(String planId) =>
+    '${_timerKeyPrefix}_${_encodePlanId(planId)}_offset_seconds';
+
+String _isRunningKey(String planId) =>
+    '${_timerKeyPrefix}_${_encodePlanId(planId)}_is_running';
+
+String _planIdFromTimerKey(String key) {
+  final startPrefix = '${_timerKeyPrefix}_';
+  if (!key.startsWith(startPrefix) || !key.endsWith('_is_running')) {
+    return '';
+  }
+  final encodedPlanId = key
+      .substring(startPrefix.length, key.length - '_is_running'.length);
+  return Uri.decodeComponent(encodedPlanId);
+}
+
+final Map<String, Timer> _planTimers = {};
+
+Future<void> _emitTimerUpdate(
+  ServiceInstance service,
+  SharedPreferences prefs,
+  String planId,
+) async {
+  final startTimeStr = prefs.getString(_startTimeKey(planId));
+  final offsetSeconds = prefs.getInt(_offsetSecondsKey(planId)) ?? 0;
+  final isRunning = prefs.getBool(_isRunningKey(planId)) ?? false;
+
+  int currentSeconds = offsetSeconds;
+  if (startTimeStr != null) {
+    final startTime = DateTime.parse(startTimeStr);
+    currentSeconds += DateTime.now().difference(startTime).inSeconds;
+  }
+
+  service.invoke('update', {
+    'planId': planId,
+    'seconds': currentSeconds,
+    'isRunning': isRunning,
+  });
+
+  if (service is AndroidServiceInstance) {
+    if (await service.isForegroundService()) {
+      service.setForegroundNotificationInfo(
+        title: 'Workout Running',
+        content: 'Time: ${_formatDuration(currentSeconds)}',
+      );
+    }
+  }
+}
+
+Future<void> _startPlanTimer(
+  ServiceInstance service,
+  SharedPreferences prefs,
+  String planId,
+) async {
+  _planTimers[planId]?.cancel();
+
+  _planTimers[planId] = Timer.periodic(
+    const Duration(seconds: 1),
+    (t) => _emitTimerUpdate(service, prefs, planId),
+  );
+  await _emitTimerUpdate(service, prefs, planId);
+}
+
+Future<void> _pausePlanTimer(
+  ServiceInstance service,
+  SharedPreferences prefs,
+  String planId,
+) async {
+  _planTimers[planId]?.cancel();
+  _planTimers.remove(planId);
+
+  final startTimeStr = prefs.getString(_startTimeKey(planId));
+  final offsetSeconds = prefs.getInt(_offsetSecondsKey(planId)) ?? 0;
+
+  if (startTimeStr != null) {
+    final startTime = DateTime.parse(startTimeStr);
+    final elapsedSinceStart = DateTime.now().difference(startTime).inSeconds;
+    await prefs.setInt(
+      _offsetSecondsKey(planId),
+      offsetSeconds + elapsedSinceStart,
+    );
+    await prefs.remove(_startTimeKey(planId));
+  }
+
+  await prefs.setBool(_isRunningKey(planId), false);
+  await _emitTimerUpdate(service, prefs, planId);
+}
+
+Future<void> _resetPlanTimer(
+  ServiceInstance service,
+  SharedPreferences prefs,
+  String planId,
+) async {
+  _planTimers[planId]?.cancel();
+  _planTimers.remove(planId);
+  await prefs.remove(_startTimeKey(planId));
+  await prefs.setInt(_offsetSecondsKey(planId), 0);
+  await prefs.setBool(_isRunningKey(planId), false);
+
+  service.invoke('update', {
+    'planId': planId,
+    'seconds': 0,
+    'isRunning': false,
+  });
+}
 
 Future<void> initializeService() async {
   final service = FlutterBackgroundService();
@@ -71,97 +183,55 @@ void onStart(ServiceInstance service) async {
     service.stopSelf();
   });
 
-  Timer? timer;
-  bool isRunning = false;
-  
-  // Persistence keys
-  const String keyStartTime = 'workout_timer_start_time';
-  const String keyOffsetSeconds = 'workout_timer_offset_seconds';
-  const String keyIsRunning = 'workout_timer_is_running';
-
   final prefs = await SharedPreferences.getInstance();
 
-  Future<void> updateTimer() async {
-    final startTimeStr = prefs.getString(keyStartTime);
-    final offsetSeconds = prefs.getInt(keyOffsetSeconds) ?? 0;
-    
-    int currentSeconds = offsetSeconds;
-    if (startTimeStr != null) {
-      final startTime = DateTime.parse(startTimeStr);
-      currentSeconds += DateTime.now().difference(startTime).inSeconds;
-    }
-
-    service.invoke('update', {
-      "seconds": currentSeconds,
-      "isRunning": isRunning,
-    });
-
-    if (service is AndroidServiceInstance) {
-      if (await service.isForegroundService()) {
-        service.setForegroundNotificationInfo(
-          title: "Workout Running",
-          content: "Time: ${_formatDuration(currentSeconds)}",
-        );
-      }
-    }
-  }
-
   service.on('startTimer').listen((event) async {
-    if (isRunning) return;
-    
-    isRunning = true;
-    final now = DateTime.now();
-    await prefs.setString(keyStartTime, now.toIso8601String());
-    await prefs.setBool(keyIsRunning, true);
+    final planId = event?['planId']?.toString();
+    if (planId == null || planId.isEmpty) return;
 
-    timer?.cancel();
-    timer = Timer.periodic(const Duration(seconds: 1), (t) => updateTimer());
+    final now = DateTime.now();
+    await prefs.setString(_startTimeKey(planId), now.toIso8601String());
+    await prefs.setBool(_isRunningKey(planId), true);
+
+    await _startPlanTimer(service, prefs, planId);
   });
 
   service.on('pauseTimer').listen((event) async {
-    if (!isRunning) return;
-    
-    isRunning = false;
-    timer?.cancel();
+    final planId = event?['planId']?.toString();
+    if (planId == null || planId.isEmpty) return;
 
-    final startTimeStr = prefs.getString(keyStartTime);
-    final offsetSeconds = prefs.getInt(keyOffsetSeconds) ?? 0;
-    
-    if (startTimeStr != null) {
-      final startTime = DateTime.parse(startTimeStr);
-      final elapsedSinceStart = DateTime.now().difference(startTime).inSeconds;
-      await prefs.setInt(keyOffsetSeconds, offsetSeconds + elapsedSinceStart);
-      await prefs.remove(keyStartTime);
-    }
-    
-    await prefs.setBool(keyIsRunning, false);
+    await _pausePlanTimer(service, prefs, planId);
   });
 
   service.on('resetTimer').listen((event) async {
-    isRunning = false;
-    timer?.cancel();
-    await prefs.remove(keyStartTime);
-    await prefs.setInt(keyOffsetSeconds, 0);
-    await prefs.setBool(keyIsRunning, false);
-    
-    service.invoke('update', {"seconds": 0, "isRunning": false});
+    final planId = event?['planId']?.toString();
+    if (planId == null || planId.isEmpty) return;
+
+    await _resetPlanTimer(service, prefs, planId);
   });
 
   service.on('requestUpdate').listen((event) async {
-    await updateTimer();
+    final planId = event?['planId']?.toString();
+    if (planId == null || planId.isEmpty) return;
+
+    await _emitTimerUpdate(service, prefs, planId);
   });
 
-  // Resume state on start
-  final persistedIsRunning = prefs.getBool(keyIsRunning) ?? false;
-  if (persistedIsRunning) {
-    isRunning = true;
-    timer = Timer.periodic(const Duration(seconds: 1), (t) => updateTimer());
-  } else {
-    final offset = prefs.getInt(keyOffsetSeconds) ?? 0;
-    service.invoke('update', {
-      "seconds": offset,
-      "isRunning": false,
-    });
+  // Resume any plan timers that were already running before the service restarted.
+  final runningPlanIds = prefs
+      .getKeys()
+      .where(
+        (key) =>
+            key.startsWith('${_timerKeyPrefix}_') &&
+            key.endsWith('_is_running'),
+      )
+      .where((key) => prefs.getBool(key) ?? false)
+      .map(_planIdFromTimerKey)
+      .where((planId) => planId.isNotEmpty)
+      .toList();
+
+  for (final planId in runningPlanIds) {
+    await _startPlanTimer(service, prefs, planId);
   }
 }
 
