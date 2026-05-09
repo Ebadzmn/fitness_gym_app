@@ -25,19 +25,6 @@ class DailyRepositoryImpl implements DailyRepository {
 
   @override
   Future<DailyTrackingEntity> loadInitial() async {
-    // Keeping local load for initial state logic for now, or could fetch from API if needed.
-    // Assuming prompt only asked for POST on save, keeping GET logic as is (mock/local).
-    await Future<void>.delayed(const Duration(milliseconds: 200));
-    final prefs = await SharedPreferences.getInstance();
-    final trainingJson = prefs.getString('daily_training_last');
-    TrainingEntity? persistedTraining;
-    if (trainingJson != null) {
-      try {
-        persistedTraining = TrainingEntity.fromMap(jsonDecode(trainingJson));
-      } catch (_) {}
-    }
-
-    // Auto-generate today's date
     final now = DateTime.now();
     final dateLabel =
         '${now.year}.${now.month.toString().padLeft(2, '0')}.${now.day.toString().padLeft(2, '0')}';
@@ -59,20 +46,14 @@ class DailyRepositoryImpl implements DailyRepository {
         motivation: 0,
       ),
       sleep: const SleepEntity(durationText: '', quality: 0),
-      training: (persistedTraining ??
-              const TrainingEntity(
-                trainingCompleted: false,
-                cardioCompleted: false,
-                feedback: '',
-                plans: <String>{},
-                cardioType: '',
-                duration: '',
-                intensity: 0,
-              ))
-          .copyWith(
+      training: const TrainingEntity(
         trainingCompleted: false,
         cardioCompleted: false,
+        feedback: '',
+        plans: <String>{},
         cardioType: '',
+        duration: '',
+        intensity: 0,
       ),
       nutrition: const NutritionEntity(
         dietLevel: 0,

@@ -874,14 +874,12 @@ class _DailyView extends GetView<DailyTrackingController> {
     DailyTrackingEntity data,
     List<TrainingPlanEntity> plans,
   ) {
-    final selectedName = data.training.plans.isNotEmpty
-        ? data.training.plans.first
-        : null;
+    final selectedNames = data.training.plans;
 
     TrainingPlanEntity? selectedPlan;
-    if (selectedName != null) {
+    if (selectedNames.isNotEmpty) {
       for (final p in plans) {
-        if (p.title == selectedName) {
+        if (selectedNames.contains(p.title)) {
           selectedPlan = p;
           break;
         }
@@ -907,7 +905,7 @@ class _DailyView extends GetView<DailyTrackingController> {
 
     final tiles = plans.map((plan) {
       final title = plan.title;
-      final isSelected = selectedName == title;
+      final isSelected = selectedNames.contains(title);
       return Expanded(
         child: _checkboxTile(
           context,
@@ -1505,8 +1503,11 @@ class _DailyView extends GetView<DailyTrackingController> {
                   controller.onWomenCyclePhaseChanged(v),
             ),
             SizedBox(height: 12.h),
-            _titledBox(
-              localizations.dailyWomenCycleDayTitle(data.women.cycleDayLabel),
+            _labeledField(
+              localizations.dailyWomenCycleDayTitle,
+              data.women.cycleDayLabel,
+              (v) => controller.onWomenCycleDayChanged(v),
+              hint: localizations.dailyGenericTypeHint,
             ),
             SizedBox(height: 12.h),
             Row(

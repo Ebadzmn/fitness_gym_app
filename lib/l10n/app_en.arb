@@ -82,12 +82,7 @@
   "dailyNutritionSaltLabel": "Salt (g)",
   "dailyWomenSectionTitle": "Women",
   "dailyWomenCyclePhaseTitle": "Cycle Phase?",
-  "dailyWomenCycleDayTitle": "Cycle Day  ( {dayLabel} )",
-  "@dailyWomenCycleDayTitle": {
-    "placeholders": {
-      "dayLabel": {}
-    }
-  },
+  "dailyWomenCycleDayTitle": "Cycle Day",
   "dailyWomenPmsLabel": "PMS Symptoms (1-10)",
   "dailyWomenCrampsLabel": "Cramps  (1-10)",
   "dailyWomenSymptomsTitle": "Symptoms",

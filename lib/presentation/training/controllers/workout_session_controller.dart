@@ -305,7 +305,7 @@ class WorkoutSessionController extends GetxController {
 
     await result.fold(
       (failure) async {
-        Get.snackbar('Error', failure.message);
+        Get.snackbar('Error', failure.message, colorText: Colors.white, backgroundColor: Colors.red);
       },
       (items) async {
         final selected = await showPicker(items);
@@ -326,7 +326,7 @@ class WorkoutSessionController extends GetxController {
         sessionExercises.assignAll(next);
         _initializeControllers(next);
 
-        Get.snackbar('Success', '${selected.title} added to workout.');
+        Get.snackbar('Success', '${selected.title} added to workout.', colorText: Colors.white, backgroundColor: Colors.green);
       },
     );
   }
@@ -365,7 +365,7 @@ class WorkoutSessionController extends GetxController {
     }
 
     if (hasError) {
-      Get.snackbar('Incomplete', 'Please complete all sets before submitting.');
+      Get.snackbar('Incomplete', 'Please complete all sets before submitting.', colorText: Colors.white, backgroundColor: Colors.orange);
       return false;
     }
 
@@ -463,7 +463,7 @@ class WorkoutSessionController extends GetxController {
     final result = await _saveTrainingHistory(request);
     result.fold(
       (failure) {
-        Get.snackbar('Error', failure.message);
+        Get.snackbar('Error', failure.message, colorText: Colors.white, backgroundColor: Colors.red);
         isSaving.value = false;
       },
       (_) async {
@@ -471,7 +471,7 @@ class WorkoutSessionController extends GetxController {
         isSaved.value = true;
         isSaving.value = false;
         Get.back();
-        Get.snackbar('Success', 'Workout saved successfully!');
+        Get.snackbar('Success', 'Workout saved successfully!', colorText: Colors.white, backgroundColor: Colors.green);
       },
     );
   }

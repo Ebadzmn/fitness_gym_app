@@ -596,8 +596,8 @@ abstract class AppLocalizations {
   /// No description provided for @dailyWomenCycleDayTitle.
   ///
   /// In en, this message translates to:
-  /// **'Cycle Day  ( {dayLabel} )'**
-  String dailyWomenCycleDayTitle(Object dayLabel);
+  /// **'Cycle Day'**
+  String get dailyWomenCycleDayTitle;
 
   /// No description provided for @dailyWomenPmsLabel.
   ///
@@ -1166,7 +1166,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileLabelAge.
   ///
   /// In en, this message translates to:
-  /// **'Birth date and Calculate age.'**
+  /// **'Age'**
   String get profileLabelAge;
 
   /// No description provided for @profileLabelAgeYearsSuffix.

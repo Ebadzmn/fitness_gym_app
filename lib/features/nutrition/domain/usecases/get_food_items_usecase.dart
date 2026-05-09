@@ -8,6 +8,7 @@ class GetFoodItemsUseCase {
     int? page,
     int? limit,
     String? search,
+    String? filter,
   }) =>
-      repo.getFoodItems(page: page, limit: limit, search: search);
+      repo.getFoodItems(page: page, limit: limit, search: search, filter: filter);
 }

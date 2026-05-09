@@ -101,8 +101,9 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
         event.date.day,
       );
       final isToday = selectedDay == today;
+      final isFuture = selectedDay.isAfter(today);
 
-      if (rawLabel.isEmpty && !isToday) {
+      if (rawLabel.isEmpty || isFuture) {
         try {
           final initial = await getInitial(NoParams());
           final y = event.date.year;

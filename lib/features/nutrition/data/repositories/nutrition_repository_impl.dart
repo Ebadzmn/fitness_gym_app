@@ -36,12 +36,14 @@ class NutritionRepositoryImpl implements NutritionRepository {
     int? page,
     int? limit,
     String? search,
+    String? filter,
   }) async {
     try {
       return await remoteDataSource.fetchFoodItems(
         page: page,
         limit: limit,
         search: search,
+        filter: filter,
       );
     } on DioException catch (e) {
       throw ApiException(message: e.message ?? 'Failed to fetch food items');

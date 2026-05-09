@@ -27,40 +27,7 @@ class FoodItemsController extends GetxController {
 
   // Derive visible items based on search and current category
   List<FoodItemEntity> get visibleItems {
-    var list = foodItems.toList();
-
-    // Local search filtering is removed as it's now server-side
-    // if (searchQuery.value.isNotEmpty) {
-    //   final query = searchQuery.value.toLowerCase();
-    //   list = list.where((item) => 
-    //     item.name.toLowerCase().contains(query)
-    //   ).toList();
-    // }
-
-    if (currentFilter.value == FoodCategory.all) return list;
-
-    return list.where((e) {
-      final itemCatStr = e.category.name.toLowerCase().trim();
-      
-      switch (currentFilter.value) {
-        case FoodCategory.protein:
-          return itemCatStr.contains('protein') || itemCatStr.contains('meat') || itemCatStr.contains('chicken');
-        case FoodCategory.carbs:
-          return itemCatStr.contains('carb') || itemCatStr.contains('grain') || itemCatStr.contains('rice');
-        case FoodCategory.fats:
-          return itemCatStr.contains('fat') || itemCatStr.contains('oil') || itemCatStr.contains('nut');
-        case FoodCategory.supplements:
-          return itemCatStr.contains('supplement') || itemCatStr.contains('whey');
-        case FoodCategory.fruits:
-          return itemCatStr.contains('fruit');
-        case FoodCategory.vegetables:
-          return itemCatStr.contains('vegetable') || itemCatStr.contains('veg');
-        case FoodCategory.dairy:
-          return itemCatStr.contains('dairy') || itemCatStr.contains('milk') || itemCatStr.contains('cheese');
-        case FoodCategory.all:
-          return true;
-      }
-    }).toList();
+    return foodItems.toList();
   }
 
   @override
@@ -97,16 +64,15 @@ class FoodItemsController extends GetxController {
     _currentPage = 1;
     _hasMoreData = true;
 
-    String searchValue = searchQuery.value;
-    if (searchValue.isEmpty && currentFilter.value != FoodCategory.all) {
-      searchValue = currentFilter.value.name;
-    }
+    String? searchValue = searchQuery.value.isNotEmpty ? searchQuery.value : null;
+    String? filterValue = currentFilter.value != FoodCategory.all ? currentFilter.value.name : null;
 
     try {
       final result = await getFoodItemsUseCase(
         page: _currentPage,
         limit: _limit,
         search: searchValue,
+        filter: filterValue,
       );
 
       if (result.length < _limit) {
@@ -124,16 +90,15 @@ class FoodItemsController extends GetxController {
     isFetchingMore.value = true;
     _currentPage++;
 
-    String searchValue = searchQuery.value;
-    if (searchValue.isEmpty && currentFilter.value != FoodCategory.all) {
-      searchValue = currentFilter.value.name;
-    }
+    String? searchValue = searchQuery.value.isNotEmpty ? searchQuery.value : null;
+    String? filterValue = currentFilter.value != FoodCategory.all ? currentFilter.value.name : null;
 
     try {
       final result = await getFoodItemsUseCase(
         page: _currentPage,
         limit: _limit,
         search: searchValue,
+        filter: filterValue,
       );
 
       if (result.isEmpty || result.length < _limit) {
@@ -151,11 +116,18 @@ class FoodItemsController extends GetxController {
   void setFilter(FoodCategory filter) {
     if (currentFilter.value == filter) return;
     currentFilter.value = filter;
+    if (filter != FoodCategory.all) {
+      searchController.clear();
+      searchQuery.value = '';
+    }
     _fetchInitialFoodItems();
   }
 
   void onSearchChanged(String query) {
     searchQuery.value = query;
+    if (query.isNotEmpty && currentFilter.value != FoodCategory.all) {
+      currentFilter.value = FoodCategory.all;
+    }
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
       _fetchInitialFoodItems();

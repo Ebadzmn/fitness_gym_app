@@ -78,12 +78,7 @@
   "dailyNutritionSaltLabel": "Salz (g)",
   "dailyWomenSectionTitle": "Frauen",
   "dailyWomenCyclePhaseTitle": "Zyklusphase?",
-  "dailyWomenCycleDayTitle": "Zyklustag ({dayLabel})",
-  "@dailyWomenCycleDayTitle": {
-    "placeholders": {
-      "dayLabel": {}
-    }
-  },
+  "dailyWomenCycleDayTitle": "Zyklustag",
   "dailyWomenPmsLabel": "PMS-Symptome (1-10)",
   "dailyWomenCrampsLabel": "Krämpfe (1-10)",
   "dailyWomenSymptomsTitle": "Symptome",

@@ -258,9 +258,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get dailyWomenCyclePhaseTitle => 'Zyklusphase?';
 
   @override
-  String dailyWomenCycleDayTitle(Object dayLabel) {
-    return 'Zyklustag ($dayLabel)';
-  }
+  String get dailyWomenCycleDayTitle => 'Zyklustag';
 
   @override
   String get dailyWomenPmsLabel => 'PMS-Symptome (1-10)';

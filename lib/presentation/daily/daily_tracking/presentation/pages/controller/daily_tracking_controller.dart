@@ -63,15 +63,11 @@ class DailyTrackingController extends GetxController {
   Future<void> initDailyTracking() async {
     status.value = DailyStatus.loading;
     try {
-      final result = await getInitial(NoParams());
-      data.value = result;
-
       final plansResult = await getTrainingPlans();
       plansResult.fold((_) {}, (list) => trainingPlans.value = list);
 
-      isReadOnly.value = false;
-      isUpdate.value = false;
-      status.value = DailyStatus.success;
+      // Fetch today's data instead of just loading a blank template
+      await onDateChanged(DateTime.now());
     } catch (e) {
       status.value = DailyStatus.error;
       errorMessage.value = e.toString();
@@ -87,8 +83,9 @@ class DailyTrackingController extends GetxController {
       final today = DateTime(now.year, now.month, now.day);
       final selectedDay = DateTime(date.year, date.month, date.day);
       final isToday = selectedDay == today;
+      final isFuture = selectedDay.isAfter(today);
 
-      if (rawLabel.isEmpty && !isToday) {
+      if (rawLabel.isEmpty || isFuture) {
         try {
           final initial = await getInitial(NoParams());
           final y = date.year;
@@ -274,9 +271,16 @@ class DailyTrackingController extends GetxController {
 
   void onTrainingPlanToggled(String plan, bool selected) {
     if (data.value == null) return;
-    final plans = selected ? <String>{plan} : <String>{};
+    
+    final currentPlans = Set<String>.from(data.value!.training.plans);
+    if (selected) {
+      currentPlans.add(plan);
+    } else {
+      currentPlans.remove(plan);
+    }
+    
     data.value = data.value!.copyWith(
-      training: data.value!.training.copyWith(plans: plans),
+      training: data.value!.training.copyWith(plans: currentPlans),
     );
   }
 
@@ -329,6 +333,13 @@ class DailyTrackingController extends GetxController {
     if (data.value == null) return;
     data.value = data.value!.copyWith(
       women: data.value!.women.copyWith(cyclePhase: phase),
+    );
+  }
+
+  void onWomenCycleDayChanged(String dayLabel) {
+    if (data.value == null) return;
+    data.value = data.value!.copyWith(
+      women: data.value!.women.copyWith(cycleDayLabel: dayLabel),
     );
   }
 

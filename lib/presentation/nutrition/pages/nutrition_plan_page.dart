@@ -7,6 +7,9 @@ import 'package:fitness_app/domain/entities/nutrition_entities/nutrition_plan_en
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_plan/nutrition_plan_bloc.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_plan/nutrition_plan_event.dart';
 import 'package:fitness_app/features/nutrition/presentation/pages/bloc/nutrition_plan/nutrition_plan_state.dart';
+import 'package:fitness_app/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:fitness_app/features/profile/presentation/bloc/profile_event.dart';
+import 'package:fitness_app/features/profile/presentation/bloc/profile_state.dart';
 import '../../../../injection_container.dart';
 import 'package:fitness_app/l10n/app_localizations.dart';
 
@@ -15,9 +18,16 @@ class NutritionPlanPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) =>
-          sl<NutritionPlanBloc>()..add(const NutritionPlanLoadRequested()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) =>
+              sl<NutritionPlanBloc>()..add(const NutritionPlanLoadRequested()),
+        ),
+        BlocProvider(
+          create: (_) => sl<ProfileBloc>()..add(const ProfileLoadRequested()),
+        ),
+      ],
       child: const _NutritionPlanView(),
     );
   }
@@ -155,85 +165,105 @@ class _NutritionPlanViewState extends State<_NutritionPlanView> {
   }
 
   Widget _planHeader(NutritionPlanEntity plan) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF274128),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFF3C7D3D)),
-      ),
-      padding: EdgeInsets.all(12.sp),
-      child: Column(
-        children: [
-          Row(
+    return BlocBuilder<ProfileBloc, ProfileState>(
+      builder: (context, profileState) {
+        final waterQuantity = profileState.profile?.athlete.waterQuantity ?? 0;
+        return Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF274128),
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(color: const Color(0xFF3C7D3D)),
+          ),
+          padding: EdgeInsets.all(12.sp),
+          child: Column(
             children: [
-              Container(
-                padding: EdgeInsets.all(10.r),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF224225),
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Icon(
-                  Icons.restaurant,
-                  color: const Color(0xFF82C941),
-                  size: 20.sp,
-                ),
-              ),
-              SizedBox(width: 12.w),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Row(
                 children: [
-                  Text(
-                    plan.title,
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w700,
+                  Container(
+                    padding: EdgeInsets.all(10.r),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF224225),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Icon(
+                      Icons.restaurant,
+                      color: const Color(0xFF82C941),
+                      size: 20.sp,
                     ),
                   ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    '${plan.mealsCount} Meals',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white70,
-                      fontSize: 12.sp,
-                    ),
+                  SizedBox(width: 12.w),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        plan.title,
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
+                      Text(
+                        '${plan.mealsCount} Meals',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white70,
+                          fontSize: 12.sp,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-          SizedBox(height: 12.h),
-          Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFF182418),
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 14.h),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
+              SizedBox(height: 12.h),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF182418),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 14.h),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.local_fire_department,
-                      color: const Color(0xFF82C941), // Green
-                      size: 18.sp,
-                    ),
-                    SizedBox(width: 6.w),
-                    Text(
-                      '${plan.calories} kcal',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 13.sp,
-                      ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.local_fire_department,
+                          color: const Color(0xFF82C941), // Green
+                          size: 18.sp,
+                        ),
+                        SizedBox(width: 6.w),
+                        Text(
+                          '${plan.calories} kcal',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 13.sp,
+                          ),
+                        ),
+                        SizedBox(width: 16.w),
+                        Icon(
+                          Icons.water_drop,
+                          color: Colors.blueAccent, // Blue for water
+                          size: 18.sp,
+                        ),
+                        SizedBox(width: 6.w),
+                        Text(
+                          '$waterQuantity L',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 13.sp,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
