@@ -446,8 +446,14 @@ class CheckInBloc extends Bloc<CheckInEvent, CheckInState> {
           final lastUpdatedAt = DateTime.parse(lastUpdatedAtStr);
           final nextAvailableDate = lastUpdatedAt.add(const Duration(days: 7));
           final now = DateTime.now();
-          
-          if (now.isBefore(nextAvailableDate)) {
+          final today = DateTime(now.year, now.month, now.day);
+          final availableDate = DateTime(
+            nextAvailableDate.year,
+            nextAvailableDate.month,
+            nextAvailableDate.day,
+          );
+
+          if (today.isBefore(availableDate)) {
             isRestricted = true;
           }
           
