@@ -8,6 +8,8 @@ import 'package:fitness_app/core/coreWidget/dropdown_yes_no_tile.dart';
 import 'package:fitness_app/core/coreWidget/dropdown_tile.dart';
 import 'package:fitness_app/core/storage/token_storage.dart';
 import 'package:fitness_app/injection_container.dart';
+import 'package:fitness_app/presentation/daily/controllers/daily_nutrition_controller.dart';
+import 'package:get/get.dart';
 
 class DailyPages extends StatefulWidget {
   const DailyPages({super.key});
@@ -1344,14 +1346,297 @@ class _PedCardState extends State<PedCard> {
   }
 }
 
-class NutritionCard extends StatefulWidget {
+class NutritionCard extends StatelessWidget {
   const NutritionCard({super.key});
 
   @override
-  State<NutritionCard> createState() => _NutritionCardState();
+  Widget build(BuildContext context) {
+    final controller = Get.put(
+      sl<DailyNutritionController>(),
+      tag: 'dailyNutrition',
+    );
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0XFF101021),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(12.sp),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.restaurant_outlined, color: Colors.white),
+                SizedBox(width: 8.w),
+                Text(
+                  'Nutrition',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12.h),
+
+            // ── Nutrition Plan Dropdown ──
+            Obx(() => _NutritionPlanDropdown(
+              selectedPlan: controller.selectedPlan.value,
+              plans: controller.plans,
+              onChanged: controller.onPlanChanged,
+            )),
+            SizedBox(height: 12.h),
+
+            // ── Macro Summary ──
+            Obx(() => controller.isLoading.value
+                ? Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                      child: SizedBox(
+                        height: 24.h,
+                        width: 24.h,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.green,
+                        ),
+                      ),
+                    ),
+                  )
+                : _MacroSummaryRow(
+                    calories: controller.calories.value,
+                    carbs: controller.carbs.value,
+                    protein: controller.protein.value,
+                    fats: controller.fats.value,
+                  ),
+            ),
+            SizedBox(height: 12.h),
+
+            // ── Manual Input Fields ──
+            _NutritionInputFields(),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-class _NutritionCardState extends State<NutritionCard> {
+class _NutritionPlanDropdown extends StatelessWidget {
+  final String? selectedPlan;
+  final List<String> plans;
+  final ValueChanged<String> onChanged;
+
+  const _NutritionPlanDropdown({
+    required this.selectedPlan,
+    required this.plans,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 44.h,
+      decoration: BoxDecoration(
+        color: const Color(0XFF152032),
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: Colors.white12, width: 1),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 12.w),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: (selectedPlan == null || selectedPlan!.isEmpty) ? null : selectedPlan,
+          isExpanded: true,
+          dropdownColor: const Color(0XFF152032),
+          icon: Icon(Icons.expand_more, color: Colors.white70, size: 20.sp),
+          hint: Text(
+            'Select Nutrition Plan',
+            style: GoogleFonts.poppins(
+              color: Colors.white54,
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w500,
+          ),
+          items: plans
+              .map((plan) => DropdownMenuItem<String>(
+                    value: plan,
+                    child: Row(
+                      children: [
+                        Icon(
+                          plan == 'Training Day'
+                              ? Icons.fitness_center
+                              : plan == 'Rest Day'
+                                  ? Icons.bed_outlined
+                                  : Icons.star_outline,
+                          color: plan == selectedPlan
+                              ? Colors.green
+                              : Colors.white54,
+                          size: 18.sp,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          plan,
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ))
+              .toList(),
+          onChanged: (value) {
+            if (value != null) onChanged(value);
+          },
+        ),
+      ),
+    );
+  }
+}
+
+
+class _MacroSummaryRow extends StatelessWidget {
+  final int calories;
+  final double carbs;
+  final double protein;
+  final double fats;
+
+  const _MacroSummaryRow({
+    required this.calories,
+    required this.carbs,
+    required this.protein,
+    required this.fats,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0xFF0A0A1F),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: Colors.white10, width: 1),
+      ),
+      padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 8.w),
+      child: Column(
+        children: [
+          Text(
+            'Macro Summary',
+            style: GoogleFonts.poppins(
+              color: Colors.white70,
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: 10.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _MacroItem(
+                label: 'Calories',
+                value: '$calories',
+                unit: 'kcal',
+                color: const Color(0xFF82C941),
+                bgColor: const Color(0xFF1A2E1A),
+              ),
+              _MacroItem(
+                label: 'Carbs',
+                value: carbs.toStringAsFixed(1),
+                unit: 'g',
+                color: const Color(0xFF43A047),
+                bgColor: const Color(0xFF1A2E1A),
+              ),
+              _MacroItem(
+                label: 'Protein',
+                value: protein.toStringAsFixed(1),
+                unit: 'g',
+                color: const Color(0xFF2287DD),
+                bgColor: const Color(0xFF1A2536),
+              ),
+              _MacroItem(
+                label: 'Fats',
+                value: fats.toStringAsFixed(1),
+                unit: 'g',
+                color: const Color(0xFFFF6D00),
+                bgColor: const Color(0xFF2E1F12),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MacroItem extends StatelessWidget {
+  final String label;
+  final String value;
+  final String unit;
+  final Color color;
+  final Color bgColor;
+
+  const _MacroItem({
+    required this.label,
+    required this.value,
+    required this.unit,
+    required this.color,
+    required this.bgColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          height: 50.r,
+          width: 50.r,
+          decoration: BoxDecoration(
+            color: bgColor,
+            shape: BoxShape.circle,
+            border: Border.all(color: color, width: 2),
+          ),
+          child: Center(
+            child: Text(
+              '$value$unit',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                color: color,
+                fontSize: 8.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: 6.h),
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 11.sp,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _NutritionInputFields extends StatefulWidget {
+  const _NutritionInputFields();
+
+  @override
+  State<_NutritionInputFields> createState() => _NutritionInputFieldsState();
+}
+
+class _NutritionInputFieldsState extends State<_NutritionInputFields> {
   double _hunger = 6;
   double _digestion = 6;
   final TextEditingController _caloriesCtrl = TextEditingController();
@@ -1439,129 +1724,103 @@ class _NutritionCardState extends State<NutritionCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: const Color(0XFF101021),
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(12.sp),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            Row(
-              children: [
-                Icon(Icons.restaurant_outlined, color: Colors.white),
-                SizedBox(width: 8.w),
-                Text(
-                  'Nutrition',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _label('Calories'),
+                  SizedBox(height: 8.h),
+                  _filledInput('Enter (kcal)', _caloriesCtrl),
+                ],
+              ),
             ),
-            SizedBox(height: 12.h),
-
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _label('Calories'),
-                      SizedBox(height: 8.h),
-                      _filledInput('Enter (kcal)', _caloriesCtrl),
-                    ],
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _label('Carbs'),
-                      SizedBox(height: 8.h),
-                      _filledInput('Enter (g)', _carbsCtrl),
-                    ],
-                  ),
-                ),
-              ],
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _label('Carbs'),
+                  SizedBox(height: 8.h),
+                  _filledInput('Enter (g)', _carbsCtrl),
+                ],
+              ),
             ),
-
-            SizedBox(height: 12.h),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _label('Protein'),
-                      SizedBox(height: 8.h),
-                      _filledInput('Enter (g)', _proteinCtrl),
-                    ],
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _label('Fats'),
-                      SizedBox(height: 8.h),
-                      _filledInput('Enter (g)', _fatsCtrl),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            SizedBox(height: 12.h),
-            Row(
-              children: [
-                Expanded(child: _label('Hunger  (1-10)')),
-                _pillValue(_hunger.round()),
-              ],
-            ),
-            FullWidthSlider(
-              value: _hunger,
-              min: 1,
-              max: 10,
-              divisions: 9,
-              onChanged: (v) => setState(() => _hunger = v),
-              overlayColor: const Color.fromARGB(
-                255,
-                8,
-                241,
-                16,
-              ).withOpacity(0.2),
-            ),
-
-            Row(
-              children: [
-                Expanded(child: _label('Digestion  (1-10)')),
-                _pillValue(_digestion.round()),
-              ],
-            ),
-            FullWidthSlider(
-              value: _digestion,
-              min: 1,
-              max: 10,
-              divisions: 9,
-              onChanged: (v) => setState(() => _digestion = v),
-              overlayColor: Colors.green.withOpacity(0.2),
-            ),
-
-            SizedBox(height: 12.h),
-            _label('Salt (g)'),
-            SizedBox(height: 8.h),
-            _filledInput('Enter Salt (g)', _saltCtrl),
           ],
         ),
-      ),
+
+        SizedBox(height: 12.h),
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _label('Protein'),
+                  SizedBox(height: 8.h),
+                  _filledInput('Enter (g)', _proteinCtrl),
+                ],
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _label('Fats'),
+                  SizedBox(height: 8.h),
+                  _filledInput('Enter (g)', _fatsCtrl),
+                ],
+              ),
+            ),
+          ],
+        ),
+
+        SizedBox(height: 12.h),
+        Row(
+          children: [
+            Expanded(child: _label('Hunger  (1-10)')),
+            _pillValue(_hunger.round()),
+          ],
+        ),
+        FullWidthSlider(
+          value: _hunger,
+          min: 1,
+          max: 10,
+          divisions: 9,
+          onChanged: (v) => setState(() => _hunger = v),
+          overlayColor: const Color.fromARGB(
+            255,
+            8,
+            241,
+            16,
+          ).withOpacity(0.2),
+        ),
+
+        Row(
+          children: [
+            Expanded(child: _label('Digestion  (1-10)')),
+            _pillValue(_digestion.round()),
+          ],
+        ),
+        FullWidthSlider(
+          value: _digestion,
+          min: 1,
+          max: 10,
+          divisions: 9,
+          onChanged: (v) => setState(() => _digestion = v),
+          overlayColor: Colors.green.withOpacity(0.2),
+        ),
+
+        SizedBox(height: 12.h),
+        _label('Salt (g)'),
+        SizedBox(height: 8.h),
+        _filledInput('Enter Salt (g)', _saltCtrl),
+      ],
     );
   }
 }

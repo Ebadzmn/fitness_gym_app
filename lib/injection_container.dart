@@ -75,6 +75,7 @@ import 'features/profile/domain/repositories/profile_repository.dart';
 import 'features/profile/domain/usecases/get_profile_usecase.dart';
 import 'features/profile/presentation/bloc/profile_bloc.dart';
 import 'presentation/nutrition/controllers/nutrition_controller.dart';
+import 'presentation/daily/controllers/daily_nutrition_controller.dart';
 import 'features/notification/data/datasources/notes_remote_data_source.dart';
 import 'features/notification/data/repositories/notes_repository_impl.dart';
 import 'features/notification/domain/repositories/notes_repository.dart';
@@ -262,6 +263,12 @@ Future<void> init() async {
       getTrackMeals: sl(),
       nutritionStorage: sl(),
       tokenStorage: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => DailyNutritionController(
+      getPlan: sl(),
+      getProfile: sl(),
     ),
   );
   sl.registerLazySingleton(() => GetNutritionInitialUseCase(sl()));

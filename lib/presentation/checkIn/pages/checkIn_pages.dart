@@ -60,9 +60,9 @@ class _CheckInView extends StatelessWidget {
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () {
-                    if (Get.isRegistered<CheckInQuestionsController>()) {
-                      Get.delete<CheckInQuestionsController>();
-                    }
+                if (Get.isRegistered<CheckInQuestionsController>()) {
+                  Get.delete<CheckInQuestionsController>();
+                }
                 context.read<NavBloc>().add(const NavEvent(0));
               },
             ),
@@ -83,13 +83,13 @@ class _CheckInView extends StatelessWidget {
           }
           if (state.status == CheckInStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errorMessage ?? localizations.commonError)),
+              SnackBar(
+                content: Text(state.errorMessage ?? localizations.commonError),
+              ),
             );
           }
           if (state.status == CheckInStatus.saved) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(
+            ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(localizations.checkInSubmittedSuccess)),
             );
           }
@@ -102,7 +102,7 @@ class _CheckInView extends StatelessWidget {
           return RefreshIndicator(
             onRefresh: () async {
               context.read<CheckInBloc>().add(const CheckInRefreshRequested());
-              
+
               if (Get.isRegistered<CheckInQuestionsController>()) {
                 await Get.find<CheckInQuestionsController>().fetchCheckInUser();
               }
@@ -166,7 +166,7 @@ class _CheckInView extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 30.h),
-          
+
                   // Tabs: Weekly Check-In / Old Check-In
                   Container(
                     decoration: BoxDecoration(
@@ -220,7 +220,7 @@ class _CheckInView extends StatelessWidget {
                                 color: state.tab == CheckInViewTab.old
                                     ? const Color(0xFF446B36)
                                     : Colors.transparent,
-                                borderRadius: BorderRadius.circular(30.r),
+                                borderRadius: BorderRadius.circular(20.r),
                               ),
                               alignment: Alignment.center,
                               child: FittedBox(
@@ -244,18 +244,18 @@ class _CheckInView extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 20.h),
-          
+
                   // Old Check-In view uses API pagination, Weekly shows only date info
                   if (state.tab == CheckInViewTab.old) ...[
                     _oldCheckInView(context, state.oldCheckIn, state.skip),
                   ] else ...[
                     _checkInDateView(localizations, state),
                   ],
-                  SizedBox(height: 30.h),
-          
+                  SizedBox(height: 20.h),
+
                   if (state.tab == CheckInViewTab.weekly)
                     _bodyForStep(context, step),
-          
+
                   // Bottom Buttons
                   if (state.tab == CheckInViewTab.weekly && step == 0) ...[
                     SizedBox(height: 40.h),
@@ -285,86 +285,101 @@ class _CheckInView extends StatelessWidget {
                         ),
                       ],
                     ),
-                  ] else if (state.tab == CheckInViewTab.weekly && step == 3) ...[
+                  ] else if (state.tab == CheckInViewTab.weekly &&
+                      step == 3) ...[
                     SizedBox(height: 40.h),
-                    Builder(builder: (context) {
-                      bool isSubmitted = state.isSubmitted;
-                      final isSaving = state.status == CheckInStatus.saving;
-          
-                      bool isEnabled = !isSubmitted && !isSaving;
-          
-                      String buttonText = localizations.commonSubmit;
-                      if (isSaving) {
-                        buttonText = localizations.checkInSubmittingButton;
-                      }
-                      if (isSubmitted) {
-                        buttonText = localizations.checkInAlreadySubmittedButton;
-                      }
-          
-                      return Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                if (isEnabled) {
-                                  if (Get.isRegistered<CheckInQuestionsController>()) {
-                                    final c = Get.find<CheckInQuestionsController>();
-                                    if (c.hasAnyEmptyAnswer()) {
-                                      ScaffoldMessenger.of(context)
-                                        ..hideCurrentSnackBar()
-                                        ..showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              localizations
-                                                  .checkInValidationAnswerAllQuestionsBeforeSubmitting,
+                    Builder(
+                      builder: (context) {
+                        bool isSubmitted = state.isSubmitted;
+                        final isSaving = state.status == CheckInStatus.saving;
+
+                        bool isEnabled = !isSubmitted && !isSaving;
+
+                        String buttonText = localizations.commonSubmit;
+                        if (isSaving) {
+                          buttonText = localizations.checkInSubmittingButton;
+                        }
+                        if (isSubmitted) {
+                          buttonText =
+                              localizations.checkInAlreadySubmittedButton;
+                        }
+
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  if (isEnabled) {
+                                    if (Get.isRegistered<
+                                      CheckInQuestionsController
+                                    >()) {
+                                      final c =
+                                          Get.find<
+                                            CheckInQuestionsController
+                                          >();
+                                      if (c.hasAnyEmptyAnswer()) {
+                                        ScaffoldMessenger.of(context)
+                                          ..hideCurrentSnackBar()
+                                          ..showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                localizations
+                                                    .checkInValidationAnswerAllQuestionsBeforeSubmitting,
+                                              ),
                                             ),
-                                          ),
-                                        );
+                                          );
+                                        return;
+                                      }
+                                      context.read<CheckInBloc>().add(
+                                        SubmitPressed(
+                                          answers: c.buildAnswersPayload(),
+                                        ),
+                                      );
                                       return;
                                     }
                                     context.read<CheckInBloc>().add(
-                                          SubmitPressed(
-                                            answers: c.buildAnswersPayload(),
-                                          ),
-                                        );
-                                    return;
-                                  }
-                                  context.read<CheckInBloc>().add(
-                                        const SubmitPressed(answers: <Map<String, String>>[]),
-                                      );
-                                } else {
-                                  ScaffoldMessenger.of(context)
-                                    ..hideCurrentSnackBar()
-                                    ..showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          localizations
-                                              .checkInAlreadySubmittedButton,
-                                        ),
+                                      const SubmitPressed(
+                                        answers: <Map<String, String>>[],
                                       ),
                                     );
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: isEnabled ? const Color(0xFF446B36) : const Color(0xFF2E2E5D),
-                                padding: EdgeInsets.symmetric(vertical: 14.h),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12.r),
+                                  } else {
+                                    ScaffoldMessenger.of(context)
+                                      ..hideCurrentSnackBar()
+                                      ..showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            localizations
+                                                .checkInAlreadySubmittedButton,
+                                          ),
+                                        ),
+                                      );
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: isEnabled
+                                      ? const Color(0xFF446B36)
+                                      : const Color(0xFF2E2E5D),
+                                  padding: EdgeInsets.symmetric(vertical: 14.h),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12.r),
+                                  ),
                                 ),
-                              ),
-                              child: Text(
-                                buttonText,
-                                style: TextStyle(
-                                  color: isEnabled ? Colors.white : Colors.white60,
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.w600,
+                                child: Text(
+                                  buttonText,
+                                  style: TextStyle(
+                                    color: isEnabled
+                                        ? Colors.white
+                                        : Colors.white60,
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      );
-                    }),
+                          ],
+                        );
+                      },
+                    ),
                   ],
                 ], // Close Column children
               ),

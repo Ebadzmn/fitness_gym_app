@@ -14,6 +14,7 @@ import 'package:fitness_app/core/storage/token_storage.dart';
 import 'package:fitness_app/injection_container.dart' as di;
 import 'controller/daily_tracking_controller.dart';
 import 'package:fitness_app/core/constants/daily_tracking_constants.dart';
+import 'package:fitness_app/presentation/daily/controllers/daily_nutrition_controller.dart';
 import 'package:intl/intl.dart';
 
 class DailyPage extends StatelessWidget {
@@ -1212,6 +1213,8 @@ class _DailyView extends GetView<DailyTrackingController> {
 
   Widget _nutritionCard(BuildContext context, DailyTrackingEntity data) {
     final localizations = AppLocalizations.of(context)!;
+    final dailyNutrition = Get.put(di.sl<DailyNutritionController>(), tag: 'dailyNutrition');
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -1238,6 +1241,18 @@ class _DailyView extends GetView<DailyTrackingController> {
               ],
             ),
             SizedBox(height: 12.h),
+            Obx(() => _NutritionPlanDropdown(
+              selectedPlan: dailyNutrition.selectedPlan.value,
+              plans: dailyNutrition.plans,
+              onChanged: (val) {
+                dailyNutrition.onPlanChanged(val);
+                controller.onNutritionTextChanged('caloriesText', dailyNutrition.calories.value.toString());
+                controller.onNutritionTextChanged('carbsText', dailyNutrition.carbs.value.toStringAsFixed(1));
+                controller.onNutritionTextChanged('proteinText', dailyNutrition.protein.value.toStringAsFixed(1));
+                controller.onNutritionTextChanged('fatsText', dailyNutrition.fats.value.toStringAsFixed(1));
+              },
+            )),
+            SizedBox(height: 12.h),
             Row(
               children: [
                 Expanded(
@@ -1257,6 +1272,7 @@ class _DailyView extends GetView<DailyTrackingController> {
                         data.nutrition.caloriesText,
                         localizations.dailyGenericTypeHint,
                         (v) => controller.onNutritionTextChanged('caloriesText', v),
+                        key: ValueKey('cal_${dailyNutrition.selectedPlan.value}'),
                       ),
                     ],
                   ),
@@ -1279,6 +1295,7 @@ class _DailyView extends GetView<DailyTrackingController> {
                         data.nutrition.carbsText,
                         localizations.dailyGenericTypeHint,
                         (v) => controller.onNutritionTextChanged('carbsText', v),
+                        key: ValueKey('carbs_${dailyNutrition.selectedPlan.value}'),
                       ),
                     ],
                   ),
@@ -1305,6 +1322,7 @@ class _DailyView extends GetView<DailyTrackingController> {
                         data.nutrition.proteinText,
                         localizations.dailyGenericTypeHint,
                         (v) => controller.onNutritionTextChanged('proteinText', v),
+                        key: ValueKey('prot_${dailyNutrition.selectedPlan.value}'),
                       ),
                     ],
                   ),
@@ -1327,6 +1345,7 @@ class _DailyView extends GetView<DailyTrackingController> {
                         data.nutrition.fatsText,
                         localizations.dailyGenericTypeHint,
                         (v) => controller.onNutritionTextChanged('fatsText', v),
+                        key: ValueKey('fats_${dailyNutrition.selectedPlan.value}'),
                       ),
                     ],
                   ),
@@ -1408,9 +1427,11 @@ class _DailyView extends GetView<DailyTrackingController> {
   Widget _filledInput(
     String initialValue,
     String hint,
-    ValueChanged<String> onChanged,
-  ) {
+    ValueChanged<String> onChanged, {
+    Key? key,
+  }) {
     return TextFormField(
+      key: key,
       initialValue: initialValue,
       style: GoogleFonts.poppins(
         color: Colors.white,
@@ -1802,6 +1823,84 @@ class _DailyView extends GetView<DailyTrackingController> {
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       ),
       onChanged: onChanged,
+    );
+  }
+}
+
+class _NutritionPlanDropdown extends StatelessWidget {
+  final String? selectedPlan;
+  final List<String> plans;
+  final ValueChanged<String> onChanged;
+
+  const _NutritionPlanDropdown({
+    required this.selectedPlan,
+    required this.plans,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 44.h,
+      decoration: BoxDecoration(
+        color: const Color(0XFF152032),
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: Colors.white12, width: 1),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 12.w),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: (selectedPlan == null || selectedPlan!.isEmpty) ? null : selectedPlan,
+          isExpanded: true,
+          dropdownColor: const Color(0XFF152032),
+          icon: Icon(Icons.expand_more, color: Colors.white70, size: 20.sp),
+          hint: Text(
+            'Select Nutrition Plan',
+            style: GoogleFonts.poppins(
+              color: Colors.white54,
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w500,
+          ),
+          items: plans
+              .map((plan) => DropdownMenuItem<String>(
+                    value: plan,
+                    child: Row(
+                      children: [
+                        Icon(
+                          plan == 'Training Day'
+                              ? Icons.fitness_center
+                              : plan == 'Rest Day'
+                                  ? Icons.bed_outlined
+                                  : Icons.star_outline,
+                          color: plan == selectedPlan
+                              ? Colors.green
+                              : Colors.white54,
+                          size: 18.sp,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          plan,
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ))
+              .toList(),
+          onChanged: (value) {
+            if (value != null) onChanged(value);
+          },
+        ),
+      ),
     );
   }
 }
