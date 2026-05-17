@@ -106,6 +106,7 @@ class WorkoutSessionPage extends StatelessWidget {
         }
 
         final exercises = controller.sessionExercises;
+        final planComment = (controller.plan.value?.comment ?? '').trim();
 
         return Column(
           children: [
@@ -125,6 +126,10 @@ class WorkoutSessionPage extends StatelessWidget {
                         vertical: 10.h,
                       ),
                       children: [
+                        if (planComment.isNotEmpty) ...[
+                          _CoachCommentCard(comment: planComment),
+                          SizedBox(height: 12.h),
+                        ],
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -208,7 +213,7 @@ class WorkoutSessionPage extends StatelessWidget {
       }),
     ),
   );
-}
+  }
 
   Future<dynamic> _showExercisePicker(
     BuildContext context,
@@ -374,6 +379,57 @@ class WorkoutSessionPage extends StatelessWidget {
   }
 }
 
+class _CoachCommentCard extends StatelessWidget {
+  final String comment;
+
+  const _CoachCommentCard({required this.comment});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(14.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFF13131F),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: const Color(0xFF2E2E5D)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.chat_bubble_outline,
+                color: const Color(0xFF4CAF50),
+                size: 18.sp,
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                'Coach Comment',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          Text(
+            comment,
+            style: GoogleFonts.poppins(
+              color: Colors.white70,
+              fontSize: 13.sp,
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _TimerSection extends StatelessWidget {
   final String planId;
   const _TimerSection({required this.planId});
@@ -464,13 +520,13 @@ class _TimerSection extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: Colors.red.withOpacity(0.5),
+                        color: Colors.red.withValues(alpha: 0.5),
                         width: 1.w,
                       ),
                     ),
                     child: Icon(
                       Icons.refresh,
-                      color: Colors.red.withOpacity(0.8),
+                      color: Colors.red.withValues(alpha: 0.8),
                       size: 32.sp,
                     ),
                   ),
@@ -555,7 +611,7 @@ class _ExerciseRow extends StatelessWidget {
                   ),
                   SizedBox(width: 8.w),
                   Text(
-                    '${exercise.sets ?? '-'} Sets',
+                    '${exercise.sets} Sets',
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 14.sp,

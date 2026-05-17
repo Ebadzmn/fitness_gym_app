@@ -4,6 +4,7 @@ class SupplementEntity extends Equatable {
   final String id;
   final String name;
   final String brand;
+  final String productLink;
   final String dosage;
   final String frequency;
   final String time;
@@ -14,6 +15,7 @@ class SupplementEntity extends Equatable {
     required this.id,
     required this.name,
     required this.brand,
+    required this.productLink,
     required this.dosage,
     required this.frequency,
     required this.time,
@@ -26,6 +28,7 @@ class SupplementEntity extends Equatable {
     id,
     name,
     brand,
+    productLink,
     dosage,
     frequency,
     time,

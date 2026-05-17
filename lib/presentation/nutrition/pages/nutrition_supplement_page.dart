@@ -1,4 +1,5 @@
 import 'package:fitness_app/core/config/app_text_style.dart';
+import 'package:fitness_app/core/appRoutes/app_routes.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -114,7 +115,7 @@ class _NutritionSupplementView extends StatelessWidget {
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: ConstrainedBox(
-                        constraints: BoxConstraints(minWidth: 800.w),
+                        constraints: BoxConstraints(minWidth: 940.w),
                         child: Table(
                           columnWidths: const {
                             0: FlexColumnWidth(1.2), // Name
@@ -124,6 +125,7 @@ class _NutritionSupplementView extends StatelessWidget {
                             4: FlexColumnWidth(0.8), // Time
                             5: FlexColumnWidth(1.0), // Purpose
                             6: FlexColumnWidth(1.6), // Note
+                            7: FlexColumnWidth(1.4), // Product Link
                           },
                           defaultVerticalAlignment:
                               TableCellVerticalAlignment.middle,
@@ -159,10 +161,12 @@ class _NutritionSupplementView extends StatelessWidget {
                                   localizations
                                       .nutritionSupplementsTableComment,
                                 ),
+                                _headerCell('Product Link'),
                               ],
                             ),
                             ...supplements.map(
                               (supplement) => _dataRow(
+                                context,
                                 supplement.name,
                                 supplement.brand,
                                 supplement.dosage,
@@ -170,6 +174,7 @@ class _NutritionSupplementView extends StatelessWidget {
                                 supplement.time,
                                 supplement.purpose,
                                 supplement.note,
+                                supplement.productLink,
                               ),
                             ),
                           ],
@@ -209,6 +214,7 @@ class _NutritionSupplementView extends StatelessWidget {
   }
 
   TableRow _dataRow(
+    BuildContext context,
     String name,
     String brand,
     String dosage,
@@ -216,6 +222,7 @@ class _NutritionSupplementView extends StatelessWidget {
     String time,
     String purpose,
     String note,
+    String productLink,
   ) {
     return TableRow(
       decoration: const BoxDecoration(
@@ -229,6 +236,7 @@ class _NutritionSupplementView extends StatelessWidget {
         _dataCell(time),
         _dataCell(purpose),
         _dataCell(note),
+        _linkCell(context, name, productLink),
       ],
     );
   }
@@ -246,5 +254,48 @@ class _NutritionSupplementView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _linkCell(BuildContext context, String name, String link) {
+    final normalizedLink = _normalizeUrl(link);
+    final hasLink = normalizedLink.isNotEmpty;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
+      child: GestureDetector(
+        onTap: hasLink
+            ? () {
+                context.push(
+                  AppRoutes.webViewScreen,
+                  extra: {
+                    'url': normalizedLink,
+                    'title': name,
+                  },
+                );
+              }
+            : null,
+        child: Text(
+          hasLink ? normalizedLink : '-',
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.poppins(
+            color: hasLink ? const Color(0xFF69B427) : Colors.white70,
+            fontSize: 12.sp,
+            fontWeight: hasLink ? FontWeight.w500 : FontWeight.w400,
+            decoration: hasLink ? TextDecoration.underline : null,
+            decorationColor: const Color(0xFF69B427),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _normalizeUrl(String link) {
+    final value = link.trim();
+    if (value.isEmpty) return '';
+    final uri = Uri.tryParse(value);
+    if (uri != null && uri.hasScheme) return value;
+    return 'https://$value';
   }
 }

@@ -199,7 +199,7 @@ class _HistoryCard extends StatelessWidget {
               return Padding(
                 padding: EdgeInsets.only(bottom: 8.h),
                 child: Text(
-                  '${sets.length} × $name → Best: ${bestSet.weight} kg × ${bestSet.repRange} @ 10 [F]',
+                  '${sets.length} × $name → Best: ${bestSet.weight} kg × ${bestSet.repRange} @ RIR ${bestSet.rir}',
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 13.sp,
