@@ -1,8 +1,10 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import '../storage/token_storage.dart';
 import '../session/session_manager.dart';
-import 'api_exception.dart';
 
 final Logger _networkLogger = Logger(
   printer: PrettyPrinter(
@@ -11,9 +13,68 @@ final Logger _networkLogger = Logger(
     lineLength: 90,
     colors: true,
     printEmojis: true,
-    printTime: true,
+    dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
   ),
 );
+
+const int _logChunkSize = 800;
+
+void _logFullMessage(String message) {
+  for (int i = 0; i < message.length; i += _logChunkSize) {
+    final end = (i + _logChunkSize < message.length)
+        ? i + _logChunkSize
+        : message.length;
+    debugPrintSynchronously(message.substring(i, end));
+  }
+}
+
+String _prettyJson(dynamic value) {
+  try {
+    const encoder = JsonEncoder.withIndent('  ');
+    return encoder.convert(value);
+  } catch (_) {
+    return value.toString();
+  }
+}
+
+Map<String, dynamic> _serializeFormData(FormData formData) {
+  return {
+    'fields': {
+      for (final field in formData.fields) field.key: field.value,
+    },
+    'files': [
+      for (final file in formData.files)
+        {
+          'field': file.key,
+          'filename': file.value.filename,
+          'contentType': file.value.contentType?.toString(),
+          'length': file.value.length,
+        },
+    ],
+  };
+}
+
+String _stringifyForLog(dynamic value) {
+  if (value == null) return 'null';
+  if (value is FormData) {
+    return _prettyJson(_serializeFormData(value));
+  }
+  if (value is Map || value is List) {
+    return _prettyJson(value);
+  }
+  if (value is String) {
+    return value;
+  }
+  try {
+    return _prettyJson(value);
+  } catch (_) {
+    return value.toString();
+  }
+}
+
+void _logSection(String title, dynamic value) {
+  _logFullMessage('$title\n${_stringifyForLog(value)}');
+}
 
 class AuthInterceptor extends Interceptor {
   final TokenStorage _tokenStorage;
@@ -34,9 +95,12 @@ class LoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     _networkLogger.i('➡️  ${options.method} ${options.uri}');
-    _networkLogger.d('Headers: ${options.headers}');
+    _logSection('Headers:', options.headers);
+    if (options.queryParameters.isNotEmpty) {
+      _logSection('Query Parameters:', options.queryParameters);
+    }
     if (options.data != null) {
-      _networkLogger.d('Body: ${options.data}');
+      _logSection('Body:', options.data);
     }
     super.onRequest(options, handler);
   }
@@ -46,7 +110,7 @@ class LoggingInterceptor extends Interceptor {
     _networkLogger.i(
       '⬅️  ${response.statusCode} ${response.requestOptions.uri}',
     );
-    _networkLogger.d('Response: ${response.data}');
+    _logSection('Response:', response.data);
     super.onResponse(response, handler);
   }
 
@@ -58,25 +122,22 @@ class LoggingInterceptor extends Interceptor {
       stackTrace: err.stackTrace,
     );
     if (err.response?.data != null) {
-      _networkLogger.e('Error Data: ${err.response?.data}');
+      _logSection('Error Data:', err.response?.data);
     }
     super.onError(err, handler);
   }
 }
 
 class TokenRefreshInterceptor extends Interceptor {
-  final TokenStorage _tokenStorage;
   final Dio _dio;
   final SessionManager? _sessionManager;
   final Future<String?> Function()? onRefreshToken;
 
   TokenRefreshInterceptor({
-    required TokenStorage tokenStorage,
     required Dio dio,
     SessionManager? sessionManager,
     this.onRefreshToken,
-  }) : _tokenStorage = tokenStorage,
-       _dio = dio,
+  }) : _dio = dio,
        _sessionManager = sessionManager;
 
   @override

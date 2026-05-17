@@ -50,7 +50,6 @@ class ApiClient {
     _dio.interceptors.addAll([
       AuthInterceptor(_tokenStorage),
       TokenRefreshInterceptor(
-        tokenStorage: _tokenStorage,
         dio: _dio,
         sessionManager: sessionManager,
         onRefreshToken: onRefreshToken,

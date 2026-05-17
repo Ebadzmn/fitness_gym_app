@@ -45,10 +45,6 @@ class FakeCheckInRepository {
     final wellBeing = data.wellBeing.metrics.map(
       (key, value) => MapEntry(key, value.round()),
     );
-    // Include nutritionPlanAdherence as well if not already present
-    if (!wellBeing.containsKey('nutritionPlanAdherence')) {
-      wellBeing['nutritionPlanAdherence'] = data.nutrition.dietLevel.round();
-    }
 
     final questionAndAnswer = <Map<String, dynamic>>[];
     String note = data.athleteNote;
