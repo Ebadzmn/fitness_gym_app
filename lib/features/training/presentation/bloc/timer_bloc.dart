@@ -101,18 +101,25 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
     }
 
     if (seconds != state.duration || isRunning != state.isRunning) {
-      emit(state.copyWith(duration: seconds, isRunning: isRunning));
+      add(SyncTimer(seconds, isRunning));
     }
   }
 
   Future<void> _onStart(StartTimer event, Emitter<TimerState> emit) async {
-    final isServiceRunning = await _service.isRunning();
-    if (!isServiceRunning) {
-      await _service.startService();
-    }
-    
+    await _ensureServiceReady();
     _service.invoke('startTimer', {'planId': planId});
     emit(state.copyWith(isRunning: true));
+  }
+
+  Future<void> _ensureServiceReady() async {
+    if (await _service.isRunning()) return;
+
+    await _service.startService();
+
+    for (var attempt = 0; attempt < 10; attempt++) {
+      if (await _service.isRunning()) return;
+      await Future.delayed(const Duration(milliseconds: 150));
+    }
   }
 
   void _onPause(PauseTimer event, Emitter<TimerState> emit) {

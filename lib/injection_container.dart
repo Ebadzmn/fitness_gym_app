@@ -201,6 +201,7 @@ Future<void> init() async {
   sl.registerFactory(
     () => WorkoutSessionController(
       getTrainingPlanById: sl(),
+      getTrainingHistory: sl(),
       saveTrainingHistory: sl(),
       getProfile: sl(),
       exerciseRepository: sl(),

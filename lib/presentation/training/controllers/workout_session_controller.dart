@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:fitness_app/domain/entities/training_entities/training_plan_entity.dart';
+import 'package:fitness_app/domain/entities/training_entities/training_history_entity.dart';
 import 'package:fitness_app/features/profile/domain/usecases/get_profile_usecase.dart';
 import 'package:fitness_app/features/training/data/models/training_history_request_model.dart';
 import 'package:fitness_app/features/training/domain/repositories/exercise_repository.dart';
 import 'package:fitness_app/features/training/domain/usecases/get_training_plan_by_id_usecase.dart';
+import 'package:fitness_app/features/training/domain/usecases/get_training_history_usecase.dart';
 import 'package:fitness_app/features/training/domain/usecases/save_training_history_usecase.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class WorkoutSessionController extends GetxController {
   final GetTrainingPlanByIdUseCase getTrainingPlanById;
+  final GetTrainingHistoryUseCase getTrainingHistory;
   final SaveTrainingHistoryUseCase _saveTrainingHistory;
   final GetProfileUseCase getProfile;
   final ExerciseRepository exerciseRepository;
@@ -18,6 +21,7 @@ class WorkoutSessionController extends GetxController {
 
   WorkoutSessionController({
     required this.getTrainingPlanById,
+    required this.getTrainingHistory,
     required SaveTrainingHistoryUseCase saveTrainingHistory,
     required this.getProfile,
     required this.exerciseRepository,
@@ -49,6 +53,7 @@ class WorkoutSessionController extends GetxController {
 
   String? _planKey;
   bool _hasLoadedFromPrefs = false;
+  bool _hasLoadedHistoryPrefill = false;
 
   @override
   void onInit() {
@@ -103,6 +108,11 @@ class WorkoutSessionController extends GetxController {
         if (!_hasLoadedFromPrefs) {
           _hasLoadedFromPrefs = true;
           _loadSavedControllers(sessionExercises);
+        }
+
+        if (!_hasLoadedHistoryPrefill) {
+          _hasLoadedHistoryPrefill = true;
+          _prefillFromHistory(loadedPlan.title, sessionExercises);
         }
 
         isLoading.value = false;
@@ -338,6 +348,66 @@ class WorkoutSessionController extends GetxController {
         controller.text = value;
       }
     }
+  }
+
+  Future<void> _prefillFromHistory(
+    String planTitle,
+    List<TrainingPlanExerciseEntity> exercises,
+  ) async {
+    if (_planKey == null || exercises.isEmpty) return;
+
+    final result = await getTrainingHistory();
+    result.fold(
+      (failure) {
+        debugPrint('Workout history prefill failed: ${failure.message}');
+      },
+      (response) {
+        final matchingWorkouts = response.history
+            .where((history) => history.trainingName == planTitle)
+            .toList();
+
+        if (matchingWorkouts.isEmpty) return;
+
+        matchingWorkouts.sort(
+          (a, b) => b.dateTime.compareTo(a.dateTime),
+        );
+
+        final latestWorkout = matchingWorkouts.first;
+        final byExercise = <String, List<PushDataEntity>>{};
+
+        for (final item in latestWorkout.pushData) {
+          byExercise.putIfAbsent(item.exerciseName, () => []).add(item);
+        }
+
+        for (int i = 0; i < exercises.length; i++) {
+          final exercise = exercises[i];
+          final controller = exerciseControllers[i];
+          if (controller == null) continue;
+
+          final historySets = byExercise[exercise.name];
+          if (historySets == null || historySets.isEmpty) continue;
+
+          historySets.sort((a, b) => a.set.compareTo(b.set));
+
+          for (int sIndex = 0; sIndex < controller.length; sIndex++) {
+            final map = controller[sIndex];
+            final historySet = historySets.length > sIndex
+                ? historySets[sIndex]
+                : historySets.last;
+
+            if ((map['weight']?.text ?? '').isEmpty) {
+              map['weight']?.text = historySet.weight.toString();
+            }
+            if ((map['reps']?.text ?? '').isEmpty) {
+              map['reps']?.text = historySet.repRange;
+            }
+            if ((map['rir']?.text ?? '').isEmpty) {
+              map['rir']?.text = historySet.rir;
+            }
+          }
+        }
+      },
+    );
   }
 
   Future<void> _clearSavedControllers() async {
