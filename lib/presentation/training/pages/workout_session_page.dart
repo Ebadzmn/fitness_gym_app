@@ -577,6 +577,7 @@ class _ExerciseRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<WorkoutSessionController>(tag: planId);
+    final noteController = controller.exerciseNoteControllers[index];
 
     return Obx(() {
       final isCompleted = controller.completedExercises[index] ?? false;
@@ -753,6 +754,11 @@ class _ExerciseRow extends StatelessWidget {
                         );
                       }),
                     ),
+                    SizedBox(height: 12.h),
+                    _ExerciseNotesInput(
+                      controller: noteController,
+                      exerciseName: exercise.name,
+                    ),
                   ],
                 ),
               ),
@@ -796,6 +802,62 @@ class _ExerciseRow extends StatelessWidget {
           keyboardType: TextInputType.number,
         ),
       ),
+    );
+  }
+}
+
+class _ExerciseNotesInput extends StatelessWidget {
+  final TextEditingController? controller;
+  final String exerciseName;
+
+  const _ExerciseNotesInput({
+    required this.controller,
+    required this.exerciseName,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (controller == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Exercise Notes',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: 8.h),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.w),
+          decoration: BoxDecoration(
+            color: const Color(0XFF101021),
+            borderRadius: BorderRadius.circular(8.r),
+            border: Border.all(color: const Color(0xFF2E2E5D)),
+          ),
+          child: TextField(
+            controller: controller,
+            style: GoogleFonts.poppins(color: Colors.white, fontSize: 12.sp),
+            minLines: 2,
+            maxLines: 4,
+            keyboardType: TextInputType.multiline,
+            textInputAction: TextInputAction.newline,
+            decoration: InputDecoration(
+              hintText: 'Add notes for $exerciseName...',
+              hintStyle: GoogleFonts.poppins(
+                color: Colors.white30,
+                fontSize: 12.sp,
+              ),
+              border: InputBorder.none,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

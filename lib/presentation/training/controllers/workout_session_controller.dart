@@ -37,6 +37,7 @@ class WorkoutSessionController extends GetxController {
   // Form State
   final Map<int, List<Map<String, TextEditingController>>> exerciseControllers =
       {};
+  final Map<int, TextEditingController> exerciseNoteControllers = {};
   final Map<int, List<Map<String, RxBool>>> fieldErrors = {};
   final RxMap<int, bool> completedExercises = <int, bool>{}.obs;
   final TextEditingController noteController = TextEditingController();
@@ -71,7 +72,11 @@ class WorkoutSessionController extends GetxController {
         }
       }
     }
+    for (final controller in exerciseNoteControllers.values) {
+      controller.dispose();
+    }
     exerciseControllers.clear();
+    exerciseNoteControllers.clear();
     fieldErrors.clear();
   }
 
@@ -107,6 +112,7 @@ class WorkoutSessionController extends GetxController {
 
   void _initializeControllers(List<TrainingPlanExerciseEntity> exercises) {
     for (int i = 0; i < exercises.length; i++) {
+      final exerciseIndex = i;
       final exercise = exercises[i];
       final setsDetail = (exercise.exerciseSets as List?) ?? const [];
       final setsCount = setsDetail.isNotEmpty ? setsDetail.length : 1;
@@ -133,6 +139,14 @@ class WorkoutSessionController extends GetxController {
         };
         _attachControllerListeners(i, setIndex, controllers);
         return controllers;
+      });
+
+      exerciseNoteControllers.putIfAbsent(exerciseIndex, () {
+        final controller = TextEditingController();
+        controller.addListener(
+          () => _saveExerciseNote(exerciseIndex, controller.text),
+        );
+        return controller;
       });
 
       fieldErrors[i] = List.generate(setsCount, (_) {
@@ -185,6 +199,10 @@ class WorkoutSessionController extends GetxController {
     return 'workout_${_planKey}_note';
   }
 
+  String _buildExerciseNoteKey(int exerciseIndex) {
+    return 'workout_${_planKey}_ex${exerciseIndex}_note';
+  }
+
   String _buildCompletionKey(int exerciseIndex) {
     return 'workout_${_planKey}_ex${exerciseIndex}_completed';
   }
@@ -222,6 +240,12 @@ class WorkoutSessionController extends GetxController {
   Future<void> _saveNote(String value) async {
     if (_planKey == null) return;
     final key = _buildNoteKey();
+    await sharedPreferences.setString(key, value);
+  }
+
+  Future<void> _saveExerciseNote(int exerciseIndex, String value) async {
+    if (_planKey == null) return;
+    final key = _buildExerciseNoteKey(exerciseIndex);
     await sharedPreferences.setString(key, value);
   }
 
@@ -303,6 +327,17 @@ class WorkoutSessionController extends GetxController {
         noteController.text = noteValue;
       }
     }
+
+    for (int i = 0; i < exercises.length; i++) {
+      final controller = exerciseNoteControllers[i];
+      if (controller == null) continue;
+
+      final key = _buildExerciseNoteKey(i);
+      final value = sharedPreferences.getString(key);
+      if (value != null && value.isNotEmpty && controller.text != value) {
+        controller.text = value;
+      }
+    }
   }
 
   Future<void> _clearSavedControllers() async {
@@ -325,6 +360,12 @@ class WorkoutSessionController extends GetxController {
 
     final noteKey = _buildNoteKey();
     await sharedPreferences.remove(noteKey);
+
+    for (int i = 0; i < sessionExercises.length; i++) {
+      final key = _buildExerciseNoteKey(i);
+      await sharedPreferences.remove(key);
+    }
+
     await sharedPreferences.remove('workout_${_planKey}_last_checked_date');
     completedExercises.clear();
   }
