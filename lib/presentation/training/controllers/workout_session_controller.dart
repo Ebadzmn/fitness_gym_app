@@ -189,6 +189,10 @@ class WorkoutSessionController extends GetxController {
     return 'workout_${_planKey}_ex${exerciseIndex}_completed';
   }
 
+  String _buildLastValueKey(String exerciseName, int setIndex, String field) {
+    return 'last_val_${_planKey}_${exerciseName}_set${setIndex}_$field';
+  }
+
   Future<void> _saveField(
     int exerciseIndex,
     int setIndex,
@@ -196,8 +200,23 @@ class WorkoutSessionController extends GetxController {
     String value,
   ) async {
     if (_planKey == null) return;
-    final key = _buildFieldKey(exerciseIndex, setIndex, field);
-    await sharedPreferences.setString(key, value);
+    
+    // Save current session data
+    final sessionKey = _buildFieldKey(exerciseIndex, setIndex, field);
+    await sharedPreferences.setString(sessionKey, value);
+
+    // Save permanent "last value" data
+    if (value.isNotEmpty) {
+      final exerciseName = sessionExercises[exerciseIndex].name;
+      final lastKey = _buildLastValueKey(exerciseName, setIndex, field);
+      await sharedPreferences.setString(lastKey, value);
+    }
+  }
+
+  String getLastValue(String exerciseName, int setIndex, String field) {
+    if (_planKey == null) return '';
+    final key = _buildLastValueKey(exerciseName, setIndex, field);
+    return sharedPreferences.getString(key) ?? '';
   }
 
   Future<void> _saveNote(String value) async {
@@ -221,12 +240,41 @@ class WorkoutSessionController extends GetxController {
     if (_planKey == null) return;
     final key = _buildCompletionKey(index);
     await sharedPreferences.setBool(key, value);
+
+    // Save completion date (YYYY-MM-DD)
+    final now = DateTime.now();
+    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    await sharedPreferences.setString('workout_${_planKey}_last_checked_date', todayStr);
   }
 
   Future<void> _loadSavedControllers(
     List<TrainingPlanExerciseEntity> exercises,
   ) async {
     if (_planKey == null) return;
+
+    // Check if the date has changed since the last saved completions
+    final now = DateTime.now();
+    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final savedDate = sharedPreferences.getString('workout_${_planKey}_last_checked_date');
+
+    if (savedDate != null && savedDate != todayStr) {
+      // Different day! Clear the completed exercises from shared preferences
+      for (int i = 0; i < exercises.length; i++) {
+        final key = _buildCompletionKey(i);
+        await sharedPreferences.remove(key);
+      }
+      await sharedPreferences.remove('workout_${_planKey}_last_checked_date');
+      completedExercises.clear();
+    } else {
+      // Same day or first check, load completion status
+      for (int i = 0; i < exercises.length; i++) {
+        final key = _buildCompletionKey(i);
+        final value = sharedPreferences.getBool(key);
+        if (value != null) {
+          completedExercises[i] = value;
+        }
+      }
+    }
 
     for (int i = 0; i < exercises.length; i++) {
       final controllersList = exerciseControllers[i];
@@ -255,14 +303,6 @@ class WorkoutSessionController extends GetxController {
         noteController.text = noteValue;
       }
     }
-
-    for (int i = 0; i < exercises.length; i++) {
-      final key = _buildCompletionKey(i);
-      final value = sharedPreferences.getBool(key);
-      if (value != null) {
-        completedExercises[i] = value;
-      }
-    }
   }
 
   Future<void> _clearSavedControllers() async {
@@ -285,6 +325,8 @@ class WorkoutSessionController extends GetxController {
 
     final noteKey = _buildNoteKey();
     await sharedPreferences.remove(noteKey);
+    await sharedPreferences.remove('workout_${_planKey}_last_checked_date');
+    completedExercises.clear();
   }
 
   // Timer logic moved to TimerBloc & Background Service

@@ -712,6 +712,10 @@ class _ExerciseRow extends StatelessWidget {
 
                         final errorMap = controller.fieldErrors[index]![sIndex];
 
+                        final lastWeight = controller.getLastValue(exercise.name, sIndex, 'weight');
+                        final lastReps = controller.getLastValue(exercise.name, sIndex, 'reps');
+                        final lastRir = controller.getLastValue(exercise.name, sIndex, 'rir');
+
                         return Padding(
                           padding: EdgeInsets.symmetric(vertical: 4.h),
                           child: Row(
@@ -729,19 +733,19 @@ class _ExerciseRow extends StatelessWidget {
                               SizedBox(width: 8.w),
                               _inputBox(
                                 setControllers['weight'],
-                                hintText: '',
+                                hintText: lastWeight.isNotEmpty ? lastWeight : '',
                                 isError: errorMap['weight']!.value,
                               ),
                               SizedBox(width: 8.w),
                               _inputBox(
                                 setControllers['reps'],
-                                hintText: repsHint,
+                                hintText: lastReps.isNotEmpty ? lastReps : repsHint,
                                 isError: errorMap['reps']!.value,
                               ),
                               SizedBox(width: 8.w),
                               _inputBox(
                                 setControllers['rir'],
-                                hintText: rirHint,
+                                hintText: lastRir.isNotEmpty ? lastRir : rirHint,
                                 isError: errorMap['rir']!.value,
                               ),
                             ],

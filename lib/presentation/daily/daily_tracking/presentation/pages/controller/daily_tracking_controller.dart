@@ -215,6 +215,7 @@ class DailyTrackingController extends GetxController {
         );
       } else {
         await saveDaily(data.value!);
+        isUpdate.value = true;
       }
       if (data.value!.vital.weightText.isNotEmpty) {
         await sharedPreferences.setString(

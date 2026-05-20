@@ -280,7 +280,7 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
           data.vital.weightText,
         );
       }
-      emit(state.copyWith(status: DailyStatus.saved));
+      emit(state.copyWith(status: DailyStatus.saved, isUpdate: true));
     } catch (e) {
       emit(state.copyWith(status: DailyStatus.error, errorMessage: 'Failed'));
     }
