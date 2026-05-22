@@ -51,6 +51,7 @@ class TrainingPlanExerciseModel extends TrainingPlanExerciseEntity {
     super.comment,
     super.type,
     super.rir,
+    super.exerciseId,
     super.exerciseSets,
   });
 
@@ -81,6 +82,16 @@ class TrainingPlanExerciseModel extends TrainingPlanExerciseEntity {
       rir = json['rir']?.toString();
     }
 
+    String? parsedExerciseId;
+    final rawId = json['exerciseId'] ?? json['exercise'];
+    if (rawId != null) {
+      if (rawId is Map) {
+        parsedExerciseId = (rawId['_id'] ?? rawId['id'])?.toString();
+      } else {
+        parsedExerciseId = rawId.toString();
+      }
+    }
+
     return TrainingPlanExerciseModel(
       name:
           (json['exerciseName'] ?? json['name'])?.toString() ??
@@ -92,6 +103,7 @@ class TrainingPlanExerciseModel extends TrainingPlanExerciseEntity {
       muscle: json['muscle']?.toString(),
       type: json['type']?.toString(),
       rir: rir ?? json['rir']?.toString(),
+      exerciseId: parsedExerciseId,
       exerciseSets: setsEntities,
     );
   }

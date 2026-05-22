@@ -19,6 +19,7 @@ class TrainingPlanExerciseEntity {
   final String? comment;
   final String? type; // e.g., "Machine", "Cable"
   final String? rir;
+  final String? exerciseId;
   final List<TrainingPlanExerciseSetEntity> exerciseSets;
 
   const TrainingPlanExerciseEntity({
@@ -30,6 +31,7 @@ class TrainingPlanExerciseEntity {
     this.comment,
     this.type,
     this.rir,
+    this.exerciseId,
     this.exerciseSets = const [],
   });
 }

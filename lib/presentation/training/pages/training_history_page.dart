@@ -223,12 +223,7 @@ class _HistoryCard extends StatelessWidget {
                   Icons.monitor_weight_outlined,
                   '${item.totalWeight ?? 0}(kg)',
                 ),
-                SizedBox(width: 20.w),
-                _statItem(
-                  Icons.emoji_events_outlined,
-                  '0 PRs', // Placeholder
-                  iconColor: Colors.green,
-                ),
+
               ],
             ),
           ],

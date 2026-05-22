@@ -197,8 +197,6 @@ class WorkoutSessionPage extends StatelessWidget {
                             planId: planId,
                           );
                         }),
-                        SizedBox(height: 8.h),
-                        _NotesInput(controller: controller.noteController),
                         SizedBox(height: 24.h),
                         _BottomButtons(
                           onComplete: () => controller.onComplete(),
@@ -600,14 +598,19 @@ class _ExerciseRow extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(
-                      exercise.name,
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
+                    child: GestureDetector(
+                      onTap: () => controller.goToExerciseDetails(exercise.exerciseId, context),
+                      child: Text(
+                        exercise.name,
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                          decorationColor: Colors.white,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   SizedBox(width: 8.w),
@@ -632,7 +635,7 @@ class _ExerciseRow extends StatelessWidget {
                         SizedBox(
                           width: 40.w,
                           child: Text(
-                            'Set',
+                            'Sets',
                             style: GoogleFonts.poppins(
                               color: Colors.white70,
                               fontSize: 10.sp,

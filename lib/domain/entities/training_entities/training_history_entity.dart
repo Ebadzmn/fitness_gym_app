@@ -54,21 +54,23 @@ class PushDataEntity extends Equatable {
   final num weight;
   final String repRange;
   final String rir;
-  final int set;
+  final int sets;
   final String exerciseName;
+  final String? exerciseNotes;
   final num? oneRM;
 
   const PushDataEntity({
     required this.weight,
     required this.repRange,
     required this.rir,
-    required this.set,
+    required this.sets,
     required this.exerciseName,
+    this.exerciseNotes,
     this.oneRM,
   });
 
   @override
-  List<Object?> get props => [weight, repRange, rir, set, exerciseName, oneRM];
+  List<Object?> get props => [weight, repRange, rir, sets, exerciseName, exerciseNotes, oneRM];
 }
 
 class TrainingTimeEntity extends Equatable {

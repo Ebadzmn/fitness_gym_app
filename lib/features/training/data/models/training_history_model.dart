@@ -79,8 +79,9 @@ class PushDataModel extends PushDataEntity {
     required super.weight,
     required super.repRange,
     required super.rir,
-    required super.set,
+    required super.sets,
     required super.exerciseName,
+    super.exerciseNotes,
     super.oneRM,
   });
 
@@ -89,8 +90,9 @@ class PushDataModel extends PushDataEntity {
       weight: json['weight'] ?? 0,
       repRange: json['repRange'] ?? '',
       rir: json['rir'] ?? '',
-      set: json['set'] ?? 0,
+      sets: json['sets'] ?? json['set'] ?? 0,
       exerciseName: json['exerciseName'] ?? '',
+      exerciseNotes: json['exerciseNotes'] ?? json['excerciseNotes'],
       oneRM: json['oneRM'],
     );
   }
@@ -100,8 +102,10 @@ class PushDataModel extends PushDataEntity {
       'weight': weight,
       'repRange': repRange,
       'rir': rir,
-      'set': set,
+      'sets': sets,
       'exerciseName': exerciseName,
+      if (exerciseNotes != null) 'exerciseNotes': exerciseNotes,
+      if (exerciseNotes != null) 'excerciseNotes': exerciseNotes,
       'oneRM': oneRM,
     };
   }

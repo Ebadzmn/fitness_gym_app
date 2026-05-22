@@ -106,6 +106,17 @@ class TrainingHistoryDetailPage extends StatelessWidget {
                             ),
                           ],
                         ),
+                        if (sets.isNotEmpty && sets.first.exerciseNotes != null && sets.first.exerciseNotes!.isNotEmpty) ...[
+                          SizedBox(height: 4.h),
+                          Text(
+                            'Note: ${sets.first.exerciseNotes}',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white70,
+                              fontSize: 12.sp,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
                         SizedBox(height: 12.h),
                         // Sets Rows
                         ...sets.map(

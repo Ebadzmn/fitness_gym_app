@@ -142,9 +142,8 @@ class _PlanHeaderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final difficulty = (plan.difficulty ?? '').trim();
-    final coachComment = (plan.comment ?? '').trim().isNotEmpty
-        ? (plan.comment ?? '').trim()
-        : plan.subtitle.trim();
+    final subtitle = plan.subtitle.trim();
+    final comment = (plan.comment ?? '').trim();
 
     return Container(
       padding: EdgeInsets.all(16.w),
@@ -183,15 +182,60 @@ class _PlanHeaderCard extends StatelessWidget {
               ),
             ),
           if (difficulty.isNotEmpty) SizedBox(height: 12.h),
-          if (coachComment.isNotEmpty)
+          if (subtitle.isNotEmpty && comment.isEmpty) ...[
             Text(
-              coachComment,
+              subtitle,
               style: GoogleFonts.poppins(
                 color: Colors.white70,
                 fontSize: 14.sp,
               ),
             ),
-          SizedBox(height: 12.h),
+            SizedBox(height: 12.h),
+          ],
+          if (comment.isNotEmpty) ...[
+            Container(
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E2538),
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.chat_bubble_outline,
+                    color: const Color(0xFF4CAF50),
+                    size: 18.sp,
+                  ),
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Coach Comment',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          comment,
+                          style: GoogleFonts.poppins(
+                            color: Colors.white70,
+                            fontSize: 13.sp,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 12.h),
+          ],
           Text(
             '$exerciseCount Exercise${exerciseCount == 1 ? '' : 's'}',
             style: GoogleFonts.poppins(

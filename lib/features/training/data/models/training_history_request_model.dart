@@ -42,15 +42,17 @@ class PushData {
   final num weight;
   final String repRange;
   final String rir;
-  final int set;
+  final int sets;
   final String exerciseName;
+  final String? exerciseNotes;
 
   PushData({
     required this.weight,
     required this.repRange,
     required this.rir,
-    required this.set,
+    required this.sets,
     required this.exerciseName,
+    this.exerciseNotes,
   });
 
   Map<String, dynamic> toJson() {
@@ -58,8 +60,10 @@ class PushData {
       'weight': weight,
       'repRange': repRange,
       'rir': rir,
-      'set': set,
+      'sets': sets,
       'exerciseName': exerciseName,
+      if (exerciseNotes != null) 'exerciseNotes': exerciseNotes,
+      if (exerciseNotes != null) 'excerciseNotes': exerciseNotes,
     };
   }
 }

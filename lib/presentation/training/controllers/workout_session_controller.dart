@@ -9,7 +9,9 @@ import 'package:fitness_app/features/training/domain/usecases/get_training_histo
 import 'package:fitness_app/features/training/domain/usecases/save_training_history_usecase.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fitness_app/core/appRoutes/app_routes.dart';
 
 class WorkoutSessionController extends GetxController {
   final GetTrainingPlanByIdUseCase getTrainingPlanById;
@@ -152,7 +154,16 @@ class WorkoutSessionController extends GetxController {
       });
 
       exerciseNoteControllers.putIfAbsent(exerciseIndex, () {
-        final controller = TextEditingController();
+        // Load globally saved note for this exercise
+        final exerciseName = exercise.name;
+        final globalKey = 'global_note_$exerciseName';
+        final savedGlobalNote = sharedPreferences.getString(globalKey);
+
+        final initialText = (savedGlobalNote != null && savedGlobalNote.isNotEmpty)
+            ? savedGlobalNote
+            : (exercise.comment ?? '');
+
+        final controller = TextEditingController(text: initialText);
         controller.addListener(
           () => _saveExerciseNote(exerciseIndex, controller.text),
         );
@@ -254,9 +265,18 @@ class WorkoutSessionController extends GetxController {
   }
 
   Future<void> _saveExerciseNote(int exerciseIndex, String value) async {
-    if (_planKey == null) return;
+    if (_planKey == null || sessionExercises.isEmpty) return;
+    
+    // Save draft for this session
     final key = _buildExerciseNoteKey(exerciseIndex);
     await sharedPreferences.setString(key, value);
+
+    // Save locally across all sessions for this specific exercise
+    if (exerciseIndex < sessionExercises.length) {
+      final exerciseName = sessionExercises[exerciseIndex].name;
+      final globalKey = 'global_note_$exerciseName';
+      await sharedPreferences.setString(globalKey, value);
+    }
   }
 
   void _onNoteChanged() {
@@ -344,7 +364,7 @@ class WorkoutSessionController extends GetxController {
 
       final key = _buildExerciseNoteKey(i);
       final value = sharedPreferences.getString(key);
-      if (value != null && value.isNotEmpty && controller.text != value) {
+      if (value != null && controller.text != value) {
         controller.text = value;
       }
     }
@@ -387,7 +407,15 @@ class WorkoutSessionController extends GetxController {
           final historySets = byExercise[exercise.name];
           if (historySets == null || historySets.isEmpty) continue;
 
-          historySets.sort((a, b) => a.set.compareTo(b.set));
+          historySets.sort((a, b) => a.sets.compareTo(b.sets));
+
+          final noteCtrl = exerciseNoteControllers[i];
+          if (noteCtrl != null && noteCtrl.text.isEmpty) {
+            final historyNote = historySets.first.exerciseNotes;
+            if (historyNote != null && historyNote.isNotEmpty) {
+              noteCtrl.text = historyNote;
+            }
+          }
 
           for (int sIndex = 0; sIndex < controller.length; sIndex++) {
             final map = controller[sIndex];
@@ -428,13 +456,13 @@ class WorkoutSessionController extends GetxController {
       }
     }
 
-    final noteKey = _buildNoteKey();
-    await sharedPreferences.remove(noteKey);
-
     for (int i = 0; i < sessionExercises.length; i++) {
       final key = _buildExerciseNoteKey(i);
       await sharedPreferences.remove(key);
     }
+
+    final globalNoteKey = _buildNoteKey();
+    await sharedPreferences.remove(globalNoteKey);
 
     await sharedPreferences.remove('workout_${_planKey}_last_checked_date');
     completedExercises.clear();
@@ -471,6 +499,7 @@ class WorkoutSessionController extends GetxController {
           type: selected.equipment,
           range: '',
           rir: '',
+          exerciseId: selected.id,
           exerciseSets: const [],
         );
 
@@ -480,6 +509,32 @@ class WorkoutSessionController extends GetxController {
         _initializeControllers(next);
 
         Get.snackbar('Success', '${selected.title} added to workout.', colorText: Colors.white, backgroundColor: Colors.green);
+      },
+    );
+  }
+
+  // Exercise Navigation Logic
+  Future<void> goToExerciseDetails(String? exerciseId, BuildContext context) async {
+    if (exerciseId == null || exerciseId.isEmpty) {
+      Get.snackbar('Error', 'Exercise details not available.', colorText: Colors.white, backgroundColor: Colors.red);
+      return;
+    }
+
+    Get.dialog(
+      const Center(child: CircularProgressIndicator(color: Color(0xFF4CAF50))),
+      barrierDismissible: false,
+    );
+
+    final result = await exerciseRepository.getExerciseById(exerciseId);
+    
+    Get.back(); // close dialog
+
+    result.fold(
+      (failure) {
+        Get.snackbar('Error', failure.message, colorText: Colors.white, backgroundColor: Colors.red);
+      },
+      (exercise) {
+        context.push(AppRoutes.exerciseDetailPage, extra: exercise);
       },
     );
   }
@@ -550,8 +605,9 @@ class WorkoutSessionController extends GetxController {
             weight: weight,
             repRange: repRange,
             rir: rir,
-            set: 1,
+            sets: 1,
             exerciseName: exercise.name,
+            exerciseNotes: exerciseNoteControllers[i]?.text.trim(),
           ),
         );
       } else {
@@ -577,8 +633,9 @@ class WorkoutSessionController extends GetxController {
               weight: weight,
               repRange: repRange,
               rir: rir,
-              set: setNumber,
+              sets: setNumber,
               exerciseName: exercise.name,
+              exerciseNotes: exerciseNoteControllers[i]?.text.trim(),
             ),
           );
         }

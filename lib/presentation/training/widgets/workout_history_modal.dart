@@ -134,6 +134,17 @@ class WorkoutHistoryModal extends StatelessWidget {
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
+                                  if (sets.isNotEmpty && sets.first.exerciseNotes != null && sets.first.exerciseNotes!.isNotEmpty) ...[
+                                    SizedBox(height: 4.h),
+                                    Text(
+                                      'Note: ${sets.first.exerciseNotes}',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white70,
+                                        fontSize: 12.sp,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                                  ],
                                   SizedBox(height: 8.h),
                                   // Set breakdown
                                   ...sets.map((s) {
@@ -143,7 +154,7 @@ class WorkoutHistoryModal extends StatelessWidget {
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            'Set ${s.set}',
+                                            'Set ${s.sets}',
                                             style: GoogleFonts.poppins(
                                               color: Colors.white70,
                                               fontSize: 12.sp,
