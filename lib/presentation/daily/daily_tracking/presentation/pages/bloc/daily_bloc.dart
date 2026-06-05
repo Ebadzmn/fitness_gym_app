@@ -100,7 +100,6 @@ class DailyBloc extends Bloc<DailyEvent, DailyState> {
         event.date.month,
         event.date.day,
       );
-      final isToday = selectedDay == today;
       final isFuture = selectedDay.isAfter(today);
 
       if (rawLabel.isEmpty || isFuture) {

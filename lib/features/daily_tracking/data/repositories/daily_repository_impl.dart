@@ -37,7 +37,7 @@ class DailyRepositoryImpl implements DailyRepository {
         bodyTempText: '',
         activityStepCount: '',
       ),
-      isSick: false,
+      isSick: null,
       wellBeing: const WellBeingEntity(
         energy: 0,
         stress: 0,

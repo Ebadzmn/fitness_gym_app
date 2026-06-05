@@ -76,6 +76,7 @@ class DailyTrackingRemoteDataSourceImpl
       if (s == '0' || s == '0.0' || s == 'No') return '';
       return s;
     }
+
     double dbl(Object? v, {double fallback = 0}) {
       if (v is num) return v.toDouble();
       return double.tryParse(v?.toString() ?? '') ?? fallback;
@@ -85,9 +86,11 @@ class DailyTrackingRemoteDataSourceImpl
       return dbl(v, fallback: fallback).clamp(1.0, 10.0).toDouble();
     }
 
-    bool boolVal(Object? v) {
+    bool? boolVal(Object? v) {
+      if (v == null) return null;
       if (v is bool) return v;
-      final s = v?.toString().toLowerCase();
+      final s = v.toString().toLowerCase();
+      if (s.isEmpty) return null;
       return s == 'true' || s == '1' || s == 'yes';
     }
 
@@ -143,12 +146,20 @@ class DailyTrackingRemoteDataSourceImpl
         quality: scale1to10(payload['sleepQuality']),
       ),
       training: TrainingEntity(
-        trainingCompleted: boolVal(
-          training is Map<String, dynamic> ? training['trainingCompleted'] : '',
-        ),
-        cardioCompleted: boolVal(
-          training is Map<String, dynamic> ? training['cardioCompleted'] : '',
-        ),
+        trainingCompleted:
+            boolVal(
+              training is Map<String, dynamic>
+                  ? training['trainingCompleted']
+                  : '',
+            ) ??
+            false,
+        cardioCompleted:
+            boolVal(
+              training is Map<String, dynamic>
+                  ? training['cardioCompleted']
+                  : '',
+            ) ??
+            false,
         feedback: str(payload['trainingFeedback']),
         plans: setOfStrings(
           training is Map<String, dynamic> ? training['trainingPlan'] : null,

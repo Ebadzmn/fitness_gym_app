@@ -4,7 +4,12 @@ import '../../../../core/apiUrls/api_urls.dart';
 import '../models/exercise_model.dart';
 
 abstract class ExerciseRemoteDataSource {
-  Future<List<ExerciseModel>> fetchExercises({String? muscleCategory, int? page, int? limit, String? searchTerm});
+  Future<List<ExerciseModel>> fetchExercises({
+    String? muscleCategory,
+    int? page,
+    int? limit,
+    String? searchTerm,
+  });
   Future<ExerciseModel> fetchExerciseById(String id);
 }
 
@@ -14,14 +19,25 @@ class ExerciseRemoteDataSourceImpl implements ExerciseRemoteDataSource {
   ExerciseRemoteDataSourceImpl({required this.apiClient});
 
   @override
-  Future<List<ExerciseModel>> fetchExercises({String? muscleCategory, int? page, int? limit, String? searchTerm}) async {
+  Future<List<ExerciseModel>> fetchExercises({
+    String? muscleCategory,
+    int? page,
+    int? limit,
+    String? searchTerm,
+  }) async {
     final Map<String, dynamic> queryParams = {};
     if (muscleCategory != null && muscleCategory != 'All') {
       queryParams['musalCategory'] = muscleCategory;
     }
-    if (page != null) queryParams['page'] = page;
-    if (limit != null) queryParams['limit'] = limit;
-    if (searchTerm != null && searchTerm.isNotEmpty) queryParams['searchTerm'] = searchTerm;
+    if (page != null) {
+      queryParams['page'] = page;
+    }
+    if (limit != null) {
+      queryParams['limit'] = limit;
+    }
+    if (searchTerm != null && searchTerm.isNotEmpty) {
+      queryParams['search'] = searchTerm;
+    }
 
     final response = await apiClient.get(
       ApiUrls.exercise,
@@ -30,16 +46,6 @@ class ExerciseRemoteDataSourceImpl implements ExerciseRemoteDataSource {
 
     if (response.data['success'] == true) {
       final List<dynamic> data = response.data['data']['exercises'];
-
-      for (final item in data) {
-        if (item is Map<String, dynamic>) {
-          // Temporary debug: inspect video-related fields from API
-          print('Exercise API item raw: ${item.keys}');
-          print('Exercise API video: ${item['video']}');
-          print('Exercise API media: ${item['media']}');
-          print('Exercise API videoUrl: ${item['videoUrl']}');
-        }
-      }
 
       return data.map((e) => ExerciseModel.fromJson(e)).toList();
     } else {

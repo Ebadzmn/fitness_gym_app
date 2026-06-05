@@ -44,18 +44,24 @@ class DailyTrackingController extends GetxController {
   void onInit() {
     super.onInit();
     initDailyTracking();
-    
+
     ever(status, (DailyStatus s) {
       if (s == DailyStatus.error) {
-        Get.snackbar('Error', errorMessage.value ?? 'An error occurred',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white);
+        Get.snackbar(
+          'Error',
+          errorMessage.value ?? 'An error occurred',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
       } else if (s == DailyStatus.saved) {
-        Get.snackbar('Success', 'Daily tracking saved successfully',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green,
-            colorText: Colors.white);
+        Get.snackbar(
+          'Success',
+          'Daily tracking saved successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
       }
     });
   }
@@ -82,7 +88,6 @@ class DailyTrackingController extends GetxController {
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
       final selectedDay = DateTime(date.year, date.month, date.day);
-      final isToday = selectedDay == today;
       final isFuture = selectedDay.isAfter(today);
 
       if (rawLabel.isEmpty || isFuture) {
@@ -109,7 +114,8 @@ class DailyTrackingController extends GetxController {
     } catch (e) {
       if (e is ApiException) {
         final msg = e.message.toLowerCase();
-        final isNotFound = (e.statusCode == 404) ||
+        final isNotFound =
+            (e.statusCode == 404) ||
             msg.contains('no daily tracking') ||
             msg.contains('not found') ||
             msg.contains('invalid daily tracking response');
@@ -180,7 +186,11 @@ class DailyTrackingController extends GetxController {
     data.value = data.value!.copyWith(notes: notes);
   }
 
-  void onNutritionChanged(String field, {double? numberValue, String? textValue}) {
+  void onNutritionChanged(
+    String field, {
+    double? numberValue,
+    String? textValue,
+  }) {
     if (data.value == null) return;
     final n = data.value!.nutrition;
     NutritionEntity updated = n;
@@ -272,14 +282,14 @@ class DailyTrackingController extends GetxController {
 
   void onTrainingPlanToggled(String plan, bool selected) {
     if (data.value == null) return;
-    
+
     final currentPlans = Set<String>.from(data.value!.training.plans);
     if (selected) {
       currentPlans.add(plan);
     } else {
       currentPlans.remove(plan);
     }
-    
+
     data.value = data.value!.copyWith(
       training: data.value!.training.copyWith(plans: currentPlans),
     );

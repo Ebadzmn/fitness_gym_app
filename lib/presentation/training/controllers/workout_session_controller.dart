@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:fitness_app/domain/entities/training_entities/exercise_entity.dart';
 import 'package:fitness_app/domain/entities/training_entities/training_plan_entity.dart';
 import 'package:fitness_app/domain/entities/training_entities/training_history_entity.dart';
 import 'package:fitness_app/features/profile/domain/usecases/get_profile_usecase.dart';
@@ -8,10 +9,12 @@ import 'package:fitness_app/features/training/domain/usecases/get_training_plan_
 import 'package:fitness_app/features/training/domain/usecases/get_training_history_usecase.dart';
 import 'package:fitness_app/features/training/domain/usecases/save_training_history_usecase.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fitness_app/core/appRoutes/app_routes.dart';
+import 'package:fitness_app/features/training/presentation/bloc/timer_bloc.dart';
 
 class WorkoutSessionController extends GetxController {
   final GetTrainingPlanByIdUseCase getTrainingPlanById;
@@ -159,7 +162,8 @@ class WorkoutSessionController extends GetxController {
         final globalKey = 'global_note_$exerciseName';
         final savedGlobalNote = sharedPreferences.getString(globalKey);
 
-        final initialText = (savedGlobalNote != null && savedGlobalNote.isNotEmpty)
+        final initialText =
+            (savedGlobalNote != null && savedGlobalNote.isNotEmpty)
             ? savedGlobalNote
             : (exercise.comment ?? '');
 
@@ -171,11 +175,7 @@ class WorkoutSessionController extends GetxController {
       });
 
       fieldErrors[i] = List.generate(setsCount, (_) {
-        return {
-          'weight': false.obs,
-          'reps': false.obs,
-          'rir': false.obs,
-        };
+        return {'weight': false.obs, 'reps': false.obs, 'rir': false.obs};
       });
     }
   }
@@ -239,7 +239,7 @@ class WorkoutSessionController extends GetxController {
     String value,
   ) async {
     if (_planKey == null) return;
-    
+
     // Save current session data
     final sessionKey = _buildFieldKey(exerciseIndex, setIndex, field);
     await sharedPreferences.setString(sessionKey, value);
@@ -266,7 +266,7 @@ class WorkoutSessionController extends GetxController {
 
   Future<void> _saveExerciseNote(int exerciseIndex, String value) async {
     if (_planKey == null || sessionExercises.isEmpty) return;
-    
+
     // Save draft for this session
     final key = _buildExerciseNoteKey(exerciseIndex);
     await sharedPreferences.setString(key, value);
@@ -297,8 +297,12 @@ class WorkoutSessionController extends GetxController {
 
     // Save completion date (YYYY-MM-DD)
     final now = DateTime.now();
-    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-    await sharedPreferences.setString('workout_${_planKey}_last_checked_date', todayStr);
+    final todayStr =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    await sharedPreferences.setString(
+      'workout_${_planKey}_last_checked_date',
+      todayStr,
+    );
   }
 
   Future<void> _loadSavedControllers(
@@ -308,8 +312,11 @@ class WorkoutSessionController extends GetxController {
 
     // Check if the date has changed since the last saved completions
     final now = DateTime.now();
-    final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-    final savedDate = sharedPreferences.getString('workout_${_planKey}_last_checked_date');
+    final todayStr =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final savedDate = sharedPreferences.getString(
+      'workout_${_planKey}_last_checked_date',
+    );
 
     if (savedDate != null && savedDate != todayStr) {
       // Different day! Clear the completed exercises from shared preferences
@@ -388,9 +395,7 @@ class WorkoutSessionController extends GetxController {
 
         if (matchingWorkouts.isEmpty) return;
 
-        matchingWorkouts.sort(
-          (a, b) => b.dateTime.compareTo(a.dateTime),
-        );
+        matchingWorkouts.sort((a, b) => b.dateTime.compareTo(a.dateTime));
 
         final latestWorkout = matchingWorkouts.first;
         final byExercise = <String, List<PushDataEntity>>{};
@@ -470,53 +475,76 @@ class WorkoutSessionController extends GetxController {
 
   // Timer logic moved to TimerBloc & Background Service
 
+  Future<List<ExerciseEntity>> searchExercises({String? searchTerm}) async {
+    final trimmed = searchTerm?.trim() ?? '';
+    final result = await exerciseRepository.getExercises(
+      page: 1,
+      limit: 10,
+      searchTerm: trimmed.isEmpty ? null : trimmed,
+    );
+
+    return result.fold((failure) {
+      Get.snackbar(
+        'Error',
+        failure.message,
+        colorText: Colors.white,
+        backgroundColor: Colors.red,
+      );
+      return <ExerciseEntity>[];
+    }, (items) => items);
+  }
+
   // Exercise Picker Logic
   Future<void> changeExercise(
-    List<TrainingPlanExerciseEntity> currentExercises,
     BuildContext context,
-    Function(List<dynamic>) showPicker,
+    Future<ExerciseEntity?> Function() showPicker,
   ) async {
     if (isChangingExercise.value) return;
 
     isChangingExercise.value = true;
+    try {
+      final selected = await showPicker();
+      if (selected == null) return;
 
-    final result = await exerciseRepository.getExercises();
+      final newExercise = TrainingPlanExerciseEntity(
+        name: selected.title,
+        sets: '1',
+        muscle: selected.category,
+        type: selected.equipment,
+        range: '',
+        rir: '',
+        exerciseId: selected.id,
+        exerciseSets: const [],
+      );
 
-    isChangingExercise.value = false;
+      final next = List<TrainingPlanExerciseEntity>.from(sessionExercises)
+        ..add(newExercise);
+      sessionExercises.assignAll(next);
+      _initializeControllers(next);
 
-    await result.fold(
-      (failure) async {
-        Get.snackbar('Error', failure.message, colorText: Colors.white, backgroundColor: Colors.red);
-      },
-      (items) async {
-        final selected = await showPicker(items);
-        if (selected == null) return;
-
-        final newExercise = TrainingPlanExerciseEntity(
-          name: selected.title,
-          sets: '1',
-          muscle: selected.category,
-          type: selected.equipment,
-          range: '',
-          rir: '',
-          exerciseId: selected.id,
-          exerciseSets: const [],
-        );
-
-        final next = List<TrainingPlanExerciseEntity>.from(currentExercises)
-          ..add(newExercise);
-        sessionExercises.assignAll(next);
-        _initializeControllers(next);
-
-        Get.snackbar('Success', '${selected.title} added to workout.', colorText: Colors.white, backgroundColor: Colors.green);
-      },
-    );
+      Get.snackbar(
+        'Success',
+        '${selected.title} added to workout.',
+        colorText: Colors.white,
+        backgroundColor: Colors.green,
+      );
+    } finally {
+      isChangingExercise.value = false;
+    }
   }
 
   // Exercise Navigation Logic
-  Future<void> goToExerciseDetails(String? exerciseId, BuildContext context) async {
+  Future<void> goToExerciseDetails(
+    String? exerciseId,
+    BuildContext context,
+  ) async {
     if (exerciseId == null || exerciseId.isEmpty) {
-      Get.snackbar('Error', 'Exercise details not available.', colorText: Colors.white, backgroundColor: Colors.red);
+      Get.snackbar(
+        'Error',
+        'Exercise details not available.',
+        colorText: Colors.white,
+        backgroundColor: Colors.red,
+      );
       return;
     }
 
@@ -526,12 +554,17 @@ class WorkoutSessionController extends GetxController {
     );
 
     final result = await exerciseRepository.getExerciseById(exerciseId);
-    
+
     Get.back(); // close dialog
 
     result.fold(
       (failure) {
-        Get.snackbar('Error', failure.message, colorText: Colors.white, backgroundColor: Colors.red);
+        Get.snackbar(
+          'Error',
+          failure.message,
+          colorText: Colors.white,
+          backgroundColor: Colors.red,
+        );
       },
       (exercise) {
         context.push(AppRoutes.exerciseDetailPage, extra: exercise);
@@ -573,17 +606,23 @@ class WorkoutSessionController extends GetxController {
     }
 
     if (hasError) {
-      Get.snackbar('Incomplete', 'Please complete all sets before submitting.', colorText: Colors.white, backgroundColor: Colors.orange);
+      Get.snackbar(
+        'Incomplete',
+        'Please complete all sets before submitting.',
+        colorText: Colors.white,
+        backgroundColor: Colors.orange,
+      );
       return false;
     }
 
     return true;
   }
 
-  Future<void> onComplete() async {
+  Future<void> onComplete([BuildContext? context]) async {
     if (!validateAllFields()) return;
 
     isSaving.value = true;
+    final timerBloc = context?.read<TimerBloc>();
 
     final List<PushData> pushData = [];
 
@@ -643,6 +682,7 @@ class WorkoutSessionController extends GetxController {
     }
 
     final currentDuration = duration.value;
+    timerBloc?.add(PauseTimer());
     final hours = (currentDuration ~/ 3600).toString();
     final minutes = ((currentDuration % 3600) ~/ 60).toString();
 
@@ -673,15 +713,26 @@ class WorkoutSessionController extends GetxController {
     final result = await _saveTrainingHistory(request);
     result.fold(
       (failure) {
-        Get.snackbar('Error', failure.message, colorText: Colors.white, backgroundColor: Colors.red);
+        Get.snackbar(
+          'Error',
+          failure.message,
+          colorText: Colors.white,
+          backgroundColor: Colors.red,
+        );
         isSaving.value = false;
       },
       (_) async {
         await _clearSavedControllers();
+        timerBloc?.add(ResetTimer());
         isSaved.value = true;
         isSaving.value = false;
         Get.back();
-        Get.snackbar('Success', 'Workout saved successfully!', colorText: Colors.white, backgroundColor: Colors.green);
+        Get.snackbar(
+          'Success',
+          'Workout saved successfully!',
+          colorText: Colors.white,
+          backgroundColor: Colors.green,
+        );
       },
     );
   }

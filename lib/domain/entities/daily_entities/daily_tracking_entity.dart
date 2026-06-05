@@ -9,7 +9,7 @@ import 'women_entity.dart';
 
 class DailyTrackingEntity extends Equatable {
   final VitalEntity vital;
-  final bool isSick;
+  final bool? isSick;
   final WellBeingEntity wellBeing;
   final SleepEntity sleep;
   final TrainingEntity training;

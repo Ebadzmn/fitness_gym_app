@@ -82,73 +82,75 @@ class _DailyView extends GetView<DailyTrackingController> {
           ),
         ],
       ),
-      body: Obx(
-        () {
-          if (controller.status.value == DailyStatus.loading ||
-              controller.data.value == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final data = controller.data.value!;
-          final tokenStorage = di.sl<TokenStorage>();
-          final gender = (tokenStorage.getUserGender() ?? '').trim().toLowerCase();
-          final status = (tokenStorage.getUserStatus() ?? '').trim().toLowerCase();
-          return Padding(
-            padding: EdgeInsets.all(10.h),
-            child: KeyedSubtree(
-              key: ValueKey(data.vital.dateLabel),
-              child: SingleChildScrollView(
-                child: AbsorbPointer(
-                  absorbing: controller.isReadOnly.value,
-                  child: Column(
-                    children: [
+      body: Obx(() {
+        if (controller.status.value == DailyStatus.loading ||
+            controller.data.value == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final data = controller.data.value!;
+        final tokenStorage = di.sl<TokenStorage>();
+        final gender = (tokenStorage.getUserGender() ?? '')
+            .trim()
+            .toLowerCase();
+        final status = (tokenStorage.getUserStatus() ?? '')
+            .trim()
+            .toLowerCase();
+        return Padding(
+          padding: EdgeInsets.all(10.h),
+          child: KeyedSubtree(
+            key: ValueKey(data.vital.dateLabel),
+            child: SingleChildScrollView(
+              child: AbsorbPointer(
+                absorbing: controller.isReadOnly.value,
+                child: Column(
+                  children: [
+                    SizedBox(height: 12.h),
+                    _dateTodayHeader(
+                      context,
+                      data.vital.dateLabel,
+                      controller.isReadOnly.value,
+                    ),
+                    SizedBox(height: 12.h),
+                    _weightCard(context, data.vital.weightText),
+                    SizedBox(height: 12.h),
+                    _sleepCard(
+                      context,
+                      data.sleep.durationText,
+                      data.sleep.quality,
+                    ),
+                    SizedBox(height: 12.h),
+                    _sickCard(context, data.isSick),
+                    SizedBox(height: 12.h),
+                    _waterCard(context, data.vital.waterText),
+                    SizedBox(height: 12.h),
+                    _bloodPressureCard(context, data),
+                    SizedBox(height: 12.h),
+                    _energyWellBeingCard(context, data),
+                    SizedBox(height: 12.h),
+                    _trainingCard(context, data),
+                    SizedBox(height: 12.h),
+                    _activityTimeCard(context, data.vital.activityStepCount),
+                    SizedBox(height: 20.h),
+                    _nutritionCard(context, data),
+                    SizedBox(height: 12.h),
+                    if (gender == 'female' || gender == 'f') ...[
+                      _womenCard(context, data),
                       SizedBox(height: 12.h),
-                      _dateTodayHeader(
-                        context,
-                        data.vital.dateLabel,
-                        controller.isReadOnly.value,
-                      ),
-                      SizedBox(height: 12.h),
-                      _weightCard(context, data.vital.weightText),
-                      SizedBox(height: 12.h),
-                      _sleepCard(
-                        context,
-                        data.sleep.durationText,
-                        data.sleep.quality,
-                      ),
-                      SizedBox(height: 12.h),
-                      _sickCard(context, data.isSick),
-                      SizedBox(height: 12.h),
-                      _waterCard(context, data.vital.waterText),
-                      SizedBox(height: 12.h),
-                      _bloodPressureCard(context, data),
-                      SizedBox(height: 12.h),
-                      _energyWellBeingCard(context, data),
-                      SizedBox(height: 12.h),
-                      _trainingCard(context, data),
-                      SizedBox(height: 12.h),
-                      _activityTimeCard(context, data.vital.activityStepCount),
-                      SizedBox(height: 20.h),
-                      _nutritionCard(context, data),
-                      SizedBox(height: 12.h),
-                      if (gender == 'female' || gender == 'f') ...[
-                        _womenCard(context, data),
-                        SizedBox(height: 12.h),
-                      ],
-                      if (status != 'natural') ...[
-                        _pedCard(context, data),
-                        SizedBox(height: 12.h),
-                      ],
-                      _dailyNotesCard(context, data.notes),
-                      SizedBox(height: 16.h),
-                      _submitButton(context, controller.isUpdate.value),
                     ],
-                  ),
+                    if (status != 'natural') ...[
+                      _pedCard(context, data),
+                      SizedBox(height: 12.h),
+                    ],
+                    _dailyNotesCard(context, data.notes),
+                    SizedBox(height: 16.h),
+                    _submitButton(context, controller.isUpdate.value),
+                  ],
                 ),
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      }),
     );
   }
 
@@ -323,6 +325,7 @@ class _DailyView extends GetView<DailyTrackingController> {
             SizedBox(height: 12.h),
             TextFormField(
               initialValue: initial,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: 14.sp,
@@ -448,7 +451,7 @@ class _DailyView extends GetView<DailyTrackingController> {
     );
   }
 
-  Widget _sickCard(BuildContext context, bool isSick) {
+  Widget _sickCard(BuildContext context, bool? isSick) {
     final localizations = AppLocalizations.of(context)!;
     return Container(
       constraints: BoxConstraints(minHeight: 120.h),
@@ -652,8 +655,7 @@ class _DailyView extends GetView<DailyTrackingController> {
               min: 0,
               max: 10,
               divisions: 10,
-              onChanged: (v) =>
-                  controller.onWellBeingChanged('energy', v),
+              onChanged: (v) => controller.onWellBeingChanged('energy', v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
               overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
@@ -678,8 +680,7 @@ class _DailyView extends GetView<DailyTrackingController> {
               min: 0,
               max: 10,
               divisions: 10,
-              onChanged: (v) =>
-                  controller.onWellBeingChanged('stress', v),
+              onChanged: (v) => controller.onWellBeingChanged('stress', v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
               overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
@@ -730,8 +731,7 @@ class _DailyView extends GetView<DailyTrackingController> {
               min: 0,
               max: 10,
               divisions: 10,
-              onChanged: (v) =>
-                  controller.onWellBeingChanged('mood', v),
+              onChanged: (v) => controller.onWellBeingChanged('mood', v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
               overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
@@ -756,8 +756,7 @@ class _DailyView extends GetView<DailyTrackingController> {
               min: 0,
               max: 10,
               divisions: 10,
-              onChanged: (v) =>
-                  controller.onWellBeingChanged('motivation', v),
+              onChanged: (v) => controller.onWellBeingChanged('motivation', v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
               overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
@@ -801,7 +800,8 @@ class _DailyView extends GetView<DailyTrackingController> {
                   borderSide: BorderSide(color: Colors.grey, width: 1.w),
                 ),
               ),
-              onChanged: (v) => controller.onVitalTextChanged('bodyTempText', v),
+              onChanged: (v) =>
+                  controller.onVitalTextChanged('bodyTempText', v),
             ),
           ],
         ),
@@ -841,7 +841,8 @@ class _DailyView extends GetView<DailyTrackingController> {
             DropdownYesNoTile(
               title: localizations.dailyTrainingCompletedTitle,
               value: data.training.trainingCompleted,
-              onChanged: (v) => controller.onTrainingToggleChanged('trainingCompleted', v),
+              onChanged: (v) =>
+                  controller.onTrainingToggleChanged('trainingCompleted', v),
             ),
             if (data.training.trainingCompleted == true) ...[
               SizedBox(height: 12.h),
@@ -853,7 +854,8 @@ class _DailyView extends GetView<DailyTrackingController> {
             DropdownYesNoTile(
               title: localizations.dailyCardioCompletedTitle,
               value: data.training.cardioCompleted,
-              onChanged: (v) => controller.onTrainingToggleChanged('cardioCompleted', v),
+              onChanged: (v) =>
+                  controller.onTrainingToggleChanged('cardioCompleted', v),
             ),
             if (data.training.cardioCompleted == true) ...[
               SizedBox(height: 12.h),
@@ -1004,8 +1006,7 @@ class _DailyView extends GetView<DailyTrackingController> {
           displayLabel = label[0] + label.substring(1).toLowerCase();
         }
         return InkWell(
-          onTap: () =>
-              controller.onTrainingCardioTypeChanged(label),
+          onTap: () => controller.onTrainingCardioTypeChanged(label),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -1138,8 +1139,7 @@ class _DailyView extends GetView<DailyTrackingController> {
             vertical: 12.h,
           ),
         ),
-        onChanged: (v) =>
-            controller.onTrainingDurationChanged(v),
+        onChanged: (v) => controller.onTrainingDurationChanged(v),
       ),
     );
   }
@@ -1203,7 +1203,8 @@ class _DailyView extends GetView<DailyTrackingController> {
                   borderSide: BorderSide(color: Colors.grey, width: 1.w),
                 ),
               ),
-              onChanged: (v) => controller.onVitalTextChanged('activityStepCount', v),
+              onChanged: (v) =>
+                  controller.onVitalTextChanged('activityStepCount', v),
             ),
           ],
         ),
@@ -1213,7 +1214,10 @@ class _DailyView extends GetView<DailyTrackingController> {
 
   Widget _nutritionCard(BuildContext context, DailyTrackingEntity data) {
     final localizations = AppLocalizations.of(context)!;
-    final dailyNutrition = Get.put(di.sl<DailyNutritionController>(), tag: 'dailyNutrition');
+    final dailyNutrition = Get.put(
+      di.sl<DailyNutritionController>(),
+      tag: 'dailyNutrition',
+    );
 
     return Container(
       width: double.infinity,
@@ -1241,17 +1245,31 @@ class _DailyView extends GetView<DailyTrackingController> {
               ],
             ),
             SizedBox(height: 12.h),
-            Obx(() => _NutritionPlanDropdown(
-              selectedPlan: dailyNutrition.selectedPlan.value,
-              plans: dailyNutrition.plans,
-              onChanged: (val) {
-                dailyNutrition.onPlanChanged(val);
-                controller.onNutritionTextChanged('caloriesText', dailyNutrition.calories.value.toString());
-                controller.onNutritionTextChanged('carbsText', dailyNutrition.carbs.value.toStringAsFixed(1));
-                controller.onNutritionTextChanged('proteinText', dailyNutrition.protein.value.toStringAsFixed(1));
-                controller.onNutritionTextChanged('fatsText', dailyNutrition.fats.value.toStringAsFixed(1));
-              },
-            )),
+            Obx(
+              () => _NutritionPlanDropdown(
+                selectedPlan: dailyNutrition.selectedPlan.value,
+                plans: dailyNutrition.plans,
+                onChanged: (val) {
+                  dailyNutrition.onPlanChanged(val);
+                  controller.onNutritionTextChanged(
+                    'caloriesText',
+                    dailyNutrition.calories.value.toString(),
+                  );
+                  controller.onNutritionTextChanged(
+                    'carbsText',
+                    dailyNutrition.carbs.value.toStringAsFixed(1),
+                  );
+                  controller.onNutritionTextChanged(
+                    'proteinText',
+                    dailyNutrition.protein.value.toStringAsFixed(1),
+                  );
+                  controller.onNutritionTextChanged(
+                    'fatsText',
+                    dailyNutrition.fats.value.toStringAsFixed(1),
+                  );
+                },
+              ),
+            ),
             SizedBox(height: 12.h),
             Row(
               children: [
@@ -1271,8 +1289,13 @@ class _DailyView extends GetView<DailyTrackingController> {
                       _filledInput(
                         data.nutrition.caloriesText,
                         localizations.dailyGenericTypeHint,
-                        (v) => controller.onNutritionTextChanged('caloriesText', v),
-                        key: ValueKey('cal_${dailyNutrition.selectedPlan.value}'),
+                        (v) => controller.onNutritionTextChanged(
+                          'caloriesText',
+                          v,
+                        ),
+                        key: ValueKey(
+                          'cal_${dailyNutrition.selectedPlan.value}',
+                        ),
                       ),
                     ],
                   ),
@@ -1294,8 +1317,11 @@ class _DailyView extends GetView<DailyTrackingController> {
                       _filledInput(
                         data.nutrition.carbsText,
                         localizations.dailyGenericTypeHint,
-                        (v) => controller.onNutritionTextChanged('carbsText', v),
-                        key: ValueKey('carbs_${dailyNutrition.selectedPlan.value}'),
+                        (v) =>
+                            controller.onNutritionTextChanged('carbsText', v),
+                        key: ValueKey(
+                          'carbs_${dailyNutrition.selectedPlan.value}',
+                        ),
                       ),
                     ],
                   ),
@@ -1321,8 +1347,11 @@ class _DailyView extends GetView<DailyTrackingController> {
                       _filledInput(
                         data.nutrition.proteinText,
                         localizations.dailyGenericTypeHint,
-                        (v) => controller.onNutritionTextChanged('proteinText', v),
-                        key: ValueKey('prot_${dailyNutrition.selectedPlan.value}'),
+                        (v) =>
+                            controller.onNutritionTextChanged('proteinText', v),
+                        key: ValueKey(
+                          'prot_${dailyNutrition.selectedPlan.value}',
+                        ),
                       ),
                     ],
                   ),
@@ -1345,7 +1374,9 @@ class _DailyView extends GetView<DailyTrackingController> {
                         data.nutrition.fatsText,
                         localizations.dailyGenericTypeHint,
                         (v) => controller.onNutritionTextChanged('fatsText', v),
-                        key: ValueKey('fats_${dailyNutrition.selectedPlan.value}'),
+                        key: ValueKey(
+                          'fats_${dailyNutrition.selectedPlan.value}',
+                        ),
                       ),
                     ],
                   ),
@@ -1373,7 +1404,8 @@ class _DailyView extends GetView<DailyTrackingController> {
               min: 0,
               max: 10,
               divisions: 10,
-              onChanged: (v) => controller.onNutritionChanged('hunger', numberValue: v),
+              onChanged: (v) =>
+                  controller.onNutritionChanged('hunger', numberValue: v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
               overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
@@ -1398,7 +1430,8 @@ class _DailyView extends GetView<DailyTrackingController> {
               min: 0,
               max: 10,
               divisions: 10,
-              onChanged: (v) => controller.onNutritionChanged('digestion', numberValue: v),
+              onChanged: (v) =>
+                  controller.onNutritionChanged('digestion', numberValue: v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
               overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
@@ -1520,8 +1553,7 @@ class _DailyView extends GetView<DailyTrackingController> {
               title: localizations.dailyWomenCyclePhaseTitle,
               value: data.women.cyclePhase,
               options: DailyTrackingConstants.cyclePhaseValues,
-              onChanged: (v) =>
-                  controller.onWomenCyclePhaseChanged(v),
+              onChanged: (v) => controller.onWomenCyclePhaseChanged(v),
             ),
             SizedBox(height: 12.h),
             _labeledField(
@@ -1551,8 +1583,7 @@ class _DailyView extends GetView<DailyTrackingController> {
               min: 0,
               max: 10,
               divisions: 10,
-              onChanged: (v) =>
-                  controller.onWomenPmsChanged(v),
+              onChanged: (v) => controller.onWomenPmsChanged(v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
               overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
@@ -1577,8 +1608,7 @@ class _DailyView extends GetView<DailyTrackingController> {
               min: 0,
               max: 10,
               divisions: 10,
-              onChanged: (v) =>
-                  controller.onWomenCrampsChanged(v),
+              onChanged: (v) => controller.onWomenCrampsChanged(v),
               activeTrackColor: const Color(0xFF69B427),
               thumbColor: const Color(0xFF69B427),
               overlayColor: const Color(0xFF69B427).withValues(alpha: 0.2),
@@ -1588,8 +1618,7 @@ class _DailyView extends GetView<DailyTrackingController> {
               title: localizations.dailyWomenSymptomsTitle,
               selected: data.women.symptoms,
               options: DailyTrackingConstants.womenSymptomsValues,
-              onChanged: (s) =>
-                  controller.onWomenSymptomsChanged(s),
+              onChanged: (s) => controller.onWomenSymptomsChanged(s),
             ),
           ],
         ),
@@ -1628,8 +1657,7 @@ class _DailyView extends GetView<DailyTrackingController> {
             DropdownYesNoTile(
               title: localizations.dailyPedDosageTitle,
               value: data.pedHealth.dosageTaken,
-              onChanged: (v) =>
-                  controller.onPedDosageChanged(v),
+              onChanged: (v) => controller.onPedDosageChanged(v),
             ),
             SizedBox(height: 12.h),
             Text(
@@ -1644,8 +1672,7 @@ class _DailyView extends GetView<DailyTrackingController> {
             _textArea(
               data.pedHealth.sideEffects,
               hint: localizations.dailyGenericTypeHint,
-              onChanged: (v) =>
-                  controller.onPedSideEffectsChanged(v),
+              onChanged: (v) => controller.onPedSideEffectsChanged(v),
             ),
           ],
         ),
@@ -1713,8 +1740,7 @@ class _DailyView extends GetView<DailyTrackingController> {
             _labeledField(
               localizations.dailyBpGlucoseLabel,
               data.pedHealth.glucoseText,
-              (v) =>
-                  controller.onPedBpChanged('glucoseText', v),
+              (v) => controller.onPedBpChanged('glucoseText', v),
               hint: localizations.dailyGenericTypeHint,
             ),
           ],
@@ -1754,8 +1780,7 @@ class _DailyView extends GetView<DailyTrackingController> {
             _textArea(
               notes,
               hint: localizations.dailyGenericTypeHint,
-              onChanged: (v) =>
-                  controller.onDailyNotesChanged(v),
+              onChanged: (v) => controller.onDailyNotesChanged(v),
             ),
           ],
         ),
@@ -1850,7 +1875,9 @@ class _NutritionPlanDropdown extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 12.w),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          value: (selectedPlan == null || selectedPlan!.isEmpty) ? null : selectedPlan,
+          value: (selectedPlan == null || selectedPlan!.isEmpty)
+              ? null
+              : selectedPlan,
           isExpanded: true,
           dropdownColor: const Color(0XFF152032),
           icon: Icon(Icons.expand_more, color: Colors.white70, size: 20.sp),
@@ -1868,33 +1895,35 @@ class _NutritionPlanDropdown extends StatelessWidget {
             fontWeight: FontWeight.w500,
           ),
           items: plans
-              .map((plan) => DropdownMenuItem<String>(
-                    value: plan,
-                    child: Row(
-                      children: [
-                        Icon(
-                          plan == 'Training Day'
-                              ? Icons.fitness_center
-                              : plan == 'Rest Day'
-                                  ? Icons.bed_outlined
-                                  : Icons.star_outline,
-                          color: plan == selectedPlan
-                              ? Colors.green
-                              : Colors.white54,
-                          size: 18.sp,
+              .map(
+                (plan) => DropdownMenuItem<String>(
+                  value: plan,
+                  child: Row(
+                    children: [
+                      Icon(
+                        plan == 'Training Day'
+                            ? Icons.fitness_center
+                            : plan == 'Rest Day'
+                            ? Icons.bed_outlined
+                            : Icons.star_outline,
+                        color: plan == selectedPlan
+                            ? Colors.green
+                            : Colors.white54,
+                        size: 18.sp,
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        plan,
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w500,
                         ),
-                        SizedBox(width: 8.w),
-                        Text(
-                          plan,
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ))
+                      ),
+                    ],
+                  ),
+                ),
+              )
               .toList(),
           onChanged: (value) {
             if (value != null) onChanged(value);

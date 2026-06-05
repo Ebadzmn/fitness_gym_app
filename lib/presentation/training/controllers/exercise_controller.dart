@@ -24,17 +24,9 @@ class ExerciseController extends GetxController {
   final ScrollController scrollController = ScrollController();
   final TextEditingController searchController = TextEditingController();
   Timer? _debounce;
+  String _currentSearchTerm = '';
 
-  List<ExerciseEntity> get visibleExercises {
-    if (searchQuery.value.isEmpty) return exercises;
-    
-    final query = searchQuery.value.toLowerCase();
-    return exercises.where((e) => 
-      e.title.toLowerCase().contains(query) || 
-      e.category.toLowerCase().contains(query) ||
-      e.equipment.toLowerCase().contains(query)
-    ).toList();
-  }
+  List<ExerciseEntity> get visibleExercises => exercises;
 
   @override
   void onInit() {
@@ -51,8 +43,54 @@ class ExerciseController extends GetxController {
     super.onClose();
   }
 
+  Future<void> _fetchExercises({required bool reset}) async {
+    if (reset) {
+      isLoading.value = true;
+      errorMessage.value = '';
+      _currentPage = 1;
+      _hasMoreData = true;
+      exercises.clear();
+    } else {
+      isFetchingMore.value = true;
+    }
+
+    final result = await getExercisesUseCase(
+      muscleCategory: currentFilter.value == 'All' ? null : currentFilter.value,
+      page: _currentPage,
+      limit: _limit,
+      searchTerm: _currentSearchTerm.isEmpty ? null : _currentSearchTerm,
+    );
+
+    result.fold(
+      (failure) {
+        if (reset) {
+          errorMessage.value = failure.message;
+          isLoading.value = false;
+        } else {
+          _currentPage--;
+          Get.snackbar('Error', 'Failed to load more exercises');
+          isFetchingMore.value = false;
+        }
+      },
+      (data) {
+        if (data.length < _limit) {
+          _hasMoreData = false;
+        }
+
+        if (reset) {
+          exercises.assignAll(data);
+          isLoading.value = false;
+        } else {
+          exercises.addAll(data);
+          isFetchingMore.value = false;
+        }
+      },
+    );
+  }
+
   void _onScroll() {
-    if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200 &&
+    if (scrollController.position.pixels >=
+            scrollController.position.maxScrollExtent - 200 &&
         !isFetchingMore.value &&
         !isLoading.value &&
         _hasMoreData) {
@@ -61,57 +99,12 @@ class ExerciseController extends GetxController {
   }
 
   Future<void> _fetchInitialExercises() async {
-    isLoading.value = true;
-    errorMessage.value = '';
-    _currentPage = 1;
-    _hasMoreData = true;
-    exercises.clear();
-
-    final result = await getExercisesUseCase(
-      muscleCategory: currentFilter.value == 'All' ? null : currentFilter.value,
-      page: _currentPage,
-      limit: _limit,
-    );
-
-    result.fold(
-      (failure) {
-        errorMessage.value = failure.message;
-        isLoading.value = false;
-      },
-      (data) {
-        if (data.length < _limit) {
-          _hasMoreData = false;
-        }
-        exercises.assignAll(data);
-        isLoading.value = false;
-      },
-    );
+    await _fetchExercises(reset: true);
   }
 
   Future<void> _fetchMoreExercises() async {
-    isFetchingMore.value = true;
     _currentPage++;
-
-    final result = await getExercisesUseCase(
-      muscleCategory: currentFilter.value == 'All' ? null : currentFilter.value,
-      page: _currentPage,
-      limit: _limit,
-    );
-
-    result.fold(
-      (failure) {
-        _currentPage--;
-        isFetchingMore.value = false;
-        Get.snackbar('Error', 'Failed to load more exercises');
-      },
-      (data) {
-        if (data.isEmpty || data.length < _limit) {
-          _hasMoreData = false;
-        }
-        exercises.addAll(data);
-        isFetchingMore.value = false;
-      },
-    );
+    await _fetchExercises(reset: false);
   }
 
   void setFilter(String filter) {
@@ -122,5 +115,10 @@ class ExerciseController extends GetxController {
 
   void onSearchChanged(String query) {
     searchQuery.value = query;
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), () {
+      _currentSearchTerm = query.trim();
+      _fetchInitialExercises();
+    });
   }
 }

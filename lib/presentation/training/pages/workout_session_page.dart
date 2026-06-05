@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:fitness_app/core/config/app_text_style.dart';
 import 'package:fitness_app/core/config/appcolor.dart';
+import 'package:fitness_app/domain/entities/training_entities/exercise_entity.dart';
 import 'package:fitness_app/domain/entities/training_entities/training_plan_entity.dart';
 import 'package:fitness_app/injection_container.dart';
 import 'package:fitness_app/presentation/training/controllers/previous_workout_modal_controller.dart';
@@ -20,10 +22,7 @@ class WorkoutSessionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Initialize controller
-    final controller = Get.put(
-      sl<WorkoutSessionController>(),
-      tag: planId,
-    );
+    final controller = Get.put(sl<WorkoutSessionController>(), tag: planId);
 
     // Load session if not already loaded
     if (controller.plan.value == null) {
@@ -35,121 +34,124 @@ class WorkoutSessionPage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppColor.primaryColor,
         resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        backgroundColor: AppColor.primaryColor,
-        elevation: 0,
-        leading: Padding(
-          padding: EdgeInsets.all(8.w),
-          child: CircleAvatar(
-            backgroundColor: Colors.white10,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => context.pop(),
+        appBar: AppBar(
+          backgroundColor: AppColor.primaryColor,
+          elevation: 0,
+          leading: Padding(
+            padding: EdgeInsets.all(8.w),
+            child: CircleAvatar(
+              backgroundColor: Colors.white10,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => context.pop(),
+              ),
             ),
           ),
+          title: Obx(() {
+            if (controller.plan.value == null) return const Text('Loading...');
+            return Column(
+              children: [
+                Text(
+                  controller.plan.value!.title,
+                  style: AppTextStyle.appbarHeading.copyWith(fontSize: 16.sp),
+                ),
+                Text(
+                  '${controller.sessionExercises.length} Exercises',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white70,
+                    fontSize: 12.sp,
+                  ),
+                ),
+              ],
+            );
+          }),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.history, color: Colors.white),
+              onPressed: () {
+                if (controller.plan.value == null) return;
+                Get.delete<PreviousWorkoutModalController>(
+                  tag: controller.plan.value!.title,
+                );
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  useSafeArea: true,
+                  showDragHandle: true,
+                  backgroundColor: const Color(0XFF101021),
+                  builder: (context) => WorkoutHistoryModal(
+                    planTitle: controller.plan.value!.title,
+                  ),
+                );
+              },
+            ),
+            SizedBox(width: 8.w),
+          ],
         ),
-        title: Obx(() {
-          if (controller.plan.value == null) return const Text('Loading...');
+        body: Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(
+              child: CircularProgressIndicator(color: Color(0xFF4CAF50)),
+            );
+          }
+
+          if (controller.errorMessage.isNotEmpty) {
+            return Center(
+              child: Text(
+                controller.errorMessage.value,
+                style: GoogleFonts.poppins(color: Colors.white),
+              ),
+            );
+          }
+
+          final exercises = controller.sessionExercises;
+          final planComment = (controller.plan.value?.comment ?? '').trim();
+
           return Column(
             children: [
-              Text(
-                controller.plan.value!.title,
-                style: AppTextStyle.appbarHeading.copyWith(fontSize: 16.sp),
-              ),
-              Text(
-                '${controller.sessionExercises.length} Exercises',
-                style: GoogleFonts.poppins(
-                  color: Colors.white70,
-                  fontSize: 12.sp,
-                ),
-              ),
-            ],
-          );
-        }),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.history, color: Colors.white),
-            onPressed: () {
-              if (controller.plan.value == null) return;
-              Get.delete<PreviousWorkoutModalController>(
-                tag: controller.plan.value!.title,
-              );
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                useSafeArea: true,
-                showDragHandle: true,
-                backgroundColor: const Color(0XFF101021),
-                builder: (context) =>
-                    WorkoutHistoryModal(planTitle: controller.plan.value!.title),
-              );
-            },
-          ),
-          SizedBox(width: 8.w),
-        ],
-      ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(
-            child: CircularProgressIndicator(color: Color(0xFF4CAF50)),
-          );
-        }
-
-        if (controller.errorMessage.isNotEmpty) {
-          return Center(
-            child: Text(
-              controller.errorMessage.value,
-              style: GoogleFonts.poppins(color: Colors.white),
-            ),
-          );
-        }
-
-        final exercises = controller.sessionExercises;
-        final planComment = (controller.plan.value?.comment ?? '').trim();
-
-        return Column(
-          children: [
-            _TimerSection(planId: planId),
-            SizedBox(height: 10.h),
-            Expanded(
-              child: exercises.isEmpty
-                  ? Center(
-                      child: Text(
-                        'No exercises in this plan',
-                        style: GoogleFonts.poppins(color: Colors.white54),
-                      ),
-                    )
-                  : ListView(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 10.h,
-                      ),
-                      children: [
-                        if (planComment.isNotEmpty) ...[
-                          _CoachCommentCard(comment: planComment),
-                          SizedBox(height: 12.h),
-                        ],
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Exercises',
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
+              _TimerSection(planId: planId),
+              SizedBox(height: 10.h),
+              Expanded(
+                child: exercises.isEmpty
+                    ? Center(
+                        child: Text(
+                          'No exercises in this plan',
+                          style: GoogleFonts.poppins(color: Colors.white54),
+                        ),
+                      )
+                    : ListView(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 10.h,
+                        ),
+                        children: [
+                          if (planComment.isNotEmpty) ...[
+                            _CoachCommentCard(comment: planComment),
+                            SizedBox(height: 12.h),
+                          ],
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Exercises',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                            Obx(() => OutlinedButton.icon(
+                              Obx(
+                                () => OutlinedButton.icon(
                                   onPressed: controller.isChangingExercise.value
                                       ? null
                                       : () => controller.changeExercise(
-                                            exercises,
+                                          context,
+                                          () => _showExercisePicker(
                                             context,
-                                            (items) => _showExercisePicker(
-                                                context, items),
+                                            controller,
                                           ),
+                                        ),
                                   style: OutlinedButton.styleFrom(
                                     side: const BorderSide(
                                       color: Color(0xFF4CAF50),
@@ -163,17 +165,19 @@ class WorkoutSessionPage extends StatelessWidget {
                                       vertical: 8.h,
                                     ),
                                     minimumSize: const Size(0, 0),
-                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
                                     visualDensity: VisualDensity.compact,
                                   ),
                                   icon: controller.isChangingExercise.value
                                       ? SizedBox(
                                           width: 14.w,
                                           height: 14.w,
-                                          child: const CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: Color(0xFF4CAF50),
-                                          ),
+                                          child:
+                                              const CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: Color(0xFF4CAF50),
+                                              ),
                                         )
                                       : const Icon(Icons.swap_horiz, size: 16),
                                   label: Text(
@@ -185,39 +189,43 @@ class WorkoutSessionPage extends StatelessWidget {
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                )),
-                          ],
-                        ),
-                        SizedBox(height: 12.h),
-                        ...List.generate(exercises.length, (index) {
-                          final exercise = exercises[index];
-                          return _ExerciseRow(
-                            exercise: exercise,
-                            index: index,
-                            planId: planId,
-                          );
-                        }),
-                        SizedBox(height: 24.h),
-                        _BottomButtons(
-                          onComplete: () => controller.onComplete(),
-                          isSaving: controller.isSaving.value,
-                        ),
-                        SizedBox(height: 20.h),
-                      ],
-                    ),
-            ),
-          ],
-        );
-      }),
-    ),
-  );
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 12.h),
+                          ...List.generate(exercises.length, (index) {
+                            final exercise = exercises[index];
+                            return _ExerciseRow(
+                              exercise: exercise,
+                              index: index,
+                              planId: planId,
+                            );
+                          }),
+                          SizedBox(height: 24.h),
+                          Builder(
+                            builder: (innerContext) => _BottomButtons(
+                              onComplete: () =>
+                                  controller.onComplete(innerContext),
+                              isSaving: controller.isSaving.value,
+                            ),
+                          ),
+                          SizedBox(height: 20.h),
+                        ],
+                      ),
+              ),
+            ],
+          );
+        }),
+      ),
+    );
   }
 
-  Future<dynamic> _showExercisePicker(
+  Future<ExerciseEntity?> _showExercisePicker(
     BuildContext context,
-    List<dynamic> exercises,
+    WorkoutSessionController controller,
   ) {
-    return showModalBottomSheet<dynamic>(
+    return showModalBottomSheet<ExerciseEntity?>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -225,154 +233,198 @@ class WorkoutSessionPage extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(18.r)),
       ),
-      builder: (bottomSheetContext) {
-        final searchController = TextEditingController();
-        var selectedExercise = exercises.isNotEmpty ? exercises.first : null;
+      builder: (bottomSheetContext) =>
+          _ExercisePickerSheet(controller: controller),
+    );
+  }
+}
 
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            final query = searchController.text.trim().toLowerCase();
-            final filtered = exercises.where((item) {
-              final title = (item.title ?? '').toString().toLowerCase();
-              return title.contains(query);
-            }).toList();
+class _ExercisePickerSheet extends StatefulWidget {
+  final WorkoutSessionController controller;
 
-            return Padding(
-              padding: EdgeInsets.only(
-                left: 16.w,
-                right: 16.w,
-                top: 16.h,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 16.h,
+  const _ExercisePickerSheet({required this.controller});
+
+  @override
+  State<_ExercisePickerSheet> createState() => _ExercisePickerSheetState();
+}
+
+class _ExercisePickerSheetState extends State<_ExercisePickerSheet> {
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
+  List<ExerciseEntity> _exercises = <ExerciseEntity>[];
+  ExerciseEntity? _selectedExercise;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadExercises();
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadExercises({String? query}) async {
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final items = await widget.controller.searchExercises(searchTerm: query);
+    if (!mounted) return;
+
+    setState(() {
+      _exercises = items;
+      _selectedExercise = items.isNotEmpty ? items.first : null;
+      _isLoading = false;
+    });
+  }
+
+  void _onSearchChanged(String query) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 350), () {
+      _loadExercises(query: query);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16.w,
+        right: 16.w,
+        top: 16.h,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16.h,
+      ),
+      child: SizedBox(
+        height: 0.75.sh,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Change Exercise',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
               ),
-              child: SizedBox(
-                height: 0.75.sh,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Change Exercise',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    SizedBox(height: 12.h),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF13131F),
-                        borderRadius: BorderRadius.circular(10.r),
-                        border: Border.all(color: const Color(0xFF2E2E5D)),
-                      ),
-                      child: TextField(
-                        controller: searchController,
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontSize: 13.sp,
-                        ),
-                        onChanged: (_) => setModalState(() {}),
-                        decoration: InputDecoration(
-                          hintText: 'Search exercise...',
-                          hintStyle: GoogleFonts.poppins(
-                            color: Colors.white38,
-                            fontSize: 12.sp,
-                          ),
-                          prefixIcon: const Icon(
-                            Icons.search,
-                            color: Colors.white54,
-                          ),
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 12.h),
-                    Expanded(
-                      child: filtered.isEmpty
-                          ? Center(
-                              child: Text(
-                                'No exercise found',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white54,
-                                  fontSize: 13.sp,
-                                ),
-                              ),
-                            )
-                          : ListView.separated(
-                              itemCount: filtered.length,
-                              separatorBuilder: (_, __) =>
-                                  Divider(color: Colors.white12, height: 1.h),
-                              itemBuilder: (context, index) {
-                                final item = filtered[index];
-                                final isSelected =
-                                    item.id?.toString() ==
-                                    selectedExercise?.id?.toString();
-
-                                return ListTile(
-                                  onTap: () {
-                                    setModalState(() {
-                                      selectedExercise = item;
-                                    });
-                                  },
-                                  title: Text(
-                                    item.title?.toString() ?? '-',
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.white,
-                                      fontSize: 13.sp,
-                                    ),
-                                  ),
-                                  subtitle: Text(
-                                    item.category?.toString() ?? '',
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.white60,
-                                      fontSize: 11.sp,
-                                    ),
-                                  ),
-                                  trailing: Icon(
-                                    isSelected
-                                        ? Icons.radio_button_checked
-                                        : Icons.radio_button_unchecked,
-                                    color: isSelected
-                                        ? const Color(0xFF4CAF50)
-                                        : Colors.white38,
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
-                    SizedBox(height: 10.h),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: selectedExercise == null
-                            ? null
-                            : () => Navigator.of(
-                                bottomSheetContext,
-                              ).pop(selectedExercise),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF4CAF50),
-                          disabledBackgroundColor: Colors.white24,
-                          padding: EdgeInsets.symmetric(vertical: 14.h),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.r),
-                          ),
-                        ),
-                        child: Text(
-                          'Change Exercise',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+            ),
+            SizedBox(height: 12.h),
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF13131F),
+                borderRadius: BorderRadius.circular(10.r),
+                border: Border.all(color: const Color(0xFF2E2E5D)),
+              ),
+              child: TextField(
+                controller: _searchController,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 13.sp,
+                ),
+                onChanged: _onSearchChanged,
+                decoration: InputDecoration(
+                  hintText: 'Search exercise...',
+                  hintStyle: GoogleFonts.poppins(
+                    color: Colors.white38,
+                    fontSize: 12.sp,
+                  ),
+                  prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                  border: InputBorder.none,
                 ),
               ),
-            );
-          },
-        );
-      },
+            ),
+            SizedBox(height: 12.h),
+            Expanded(
+              child: _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF4CAF50),
+                      ),
+                    )
+                  : _exercises.isEmpty
+                  ? Center(
+                      child: Text(
+                        'No exercise found',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white54,
+                          fontSize: 13.sp,
+                        ),
+                      ),
+                    )
+                  : ListView.separated(
+                      itemCount: _exercises.length,
+                      separatorBuilder: (_, __) =>
+                          Divider(color: Colors.white12, height: 1.h),
+                      itemBuilder: (context, index) {
+                        final item = _exercises[index];
+                        final isSelected = item.id == _selectedExercise?.id;
+
+                        return ListTile(
+                          onTap: () {
+                            setState(() {
+                              _selectedExercise = item;
+                            });
+                          },
+                          title: Text(
+                            item.title,
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 13.sp,
+                            ),
+                          ),
+                          subtitle: Text(
+                            item.category,
+                            style: GoogleFonts.poppins(
+                              color: Colors.white60,
+                              fontSize: 11.sp,
+                            ),
+                          ),
+                          trailing: Icon(
+                            isSelected
+                                ? Icons.radio_button_checked
+                                : Icons.radio_button_unchecked,
+                            color: isSelected
+                                ? const Color(0xFF4CAF50)
+                                : Colors.white38,
+                          ),
+                        );
+                      },
+                    ),
+            ),
+            SizedBox(height: 10.h),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _selectedExercise == null
+                    ? null
+                    : () => Navigator.of(context).pop(_selectedExercise),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF4CAF50),
+                  disabledBackgroundColor: Colors.white24,
+                  padding: EdgeInsets.symmetric(vertical: 14.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                ),
+                child: Text(
+                  'Change Exercise',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -580,133 +632,139 @@ class _ExerciseRow extends StatelessWidget {
     return Obx(() {
       final isCompleted = controller.completedExercises[index] ?? false;
       return Container(
-          margin: EdgeInsets.only(bottom: 12.h),
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-          decoration: BoxDecoration(
-            color: const Color(0xFF13131F),
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(
-              color: isCompleted
-                  ? const Color(0xFF4CAF50)
-                  : const Color(0xFF2E2E5D),
-            ),
+        margin: EdgeInsets.only(bottom: 12.h),
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+        decoration: BoxDecoration(
+          color: const Color(0xFF13131F),
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+            color: isCompleted
+                ? const Color(0xFF4CAF50)
+                : const Color(0xFF2E2E5D),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => controller.goToExerciseDetails(exercise.exerciseId, context),
-                      child: Text(
-                        exercise.name,
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
-                          decorationColor: Colors.white,
-                        ),
-                        overflow: TextOverflow.ellipsis,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => controller.goToExerciseDetails(
+                      exercise.exerciseId,
+                      context,
+                    ),
+                    child: Text(
+                      exercise.name,
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                        decorationColor: Colors.white,
                       ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  SizedBox(width: 8.w),
-                  Text(
-                    '${exercise.sets} Sets',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  '${exercise.sets} Sets',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
                   ),
-                ],
-              ),
-              SizedBox(height: 8.h),
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 4.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 40.w,
-                          child: Text(
-                            'Sets',
-                            style: GoogleFonts.poppins(
-                              color: Colors.white70,
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+            SizedBox(height: 8.h),
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 4.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 40.w,
+                        child: Text(
+                          'Sets',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white70,
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w600,
                           ),
+                          textAlign: TextAlign.center,
                         ),
-                        SizedBox(width: 8.w),
-                        Expanded(
-                          child: Text(
-                            'Weight',
-                            style: GoogleFonts.poppins(
-                              color: Colors.white70,
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            textAlign: TextAlign.center,
+                      ),
+                      SizedBox(width: 8.w),
+                      Expanded(
+                        child: Text(
+                          'Weight',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white70,
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w600,
                           ),
+                          textAlign: TextAlign.center,
                         ),
-                        SizedBox(width: 8.w),
-                        Expanded(
-                          child: Text(
-                            'Reps',
-                            style: GoogleFonts.poppins(
-                              color: Colors.white70,
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            textAlign: TextAlign.center,
+                      ),
+                      SizedBox(width: 8.w),
+                      Expanded(
+                        child: Text(
+                          'Reps',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white70,
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w600,
                           ),
+                          textAlign: TextAlign.center,
                         ),
-                        SizedBox(width: 8.w),
-                        Expanded(
-                          child: Text(
-                            'RIR',
-                            style: GoogleFonts.poppins(
-                              color: Colors.white70,
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            textAlign: TextAlign.center,
+                      ),
+                      SizedBox(width: 8.w),
+                      Expanded(
+                        child: Text(
+                          'RIR',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white70,
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w600,
                           ),
+                          textAlign: TextAlign.center,
                         ),
-                        SizedBox(width: 8.w),
-                        GestureDetector(
-                          onTap: () => controller.toggleExerciseCompletion(index),
-                          child: Icon(
-                            isCompleted
-                                ? Icons.check_circle
-                                : Icons.check_circle_outline,
-                            color: isCompleted
-                                ? const Color(0xFF4CAF50)
-                                : Colors.white24,
-                            size: 22.sp,
-                          ),
+                      ),
+                      SizedBox(width: 8.w),
+                      GestureDetector(
+                        onTap: () => controller.toggleExerciseCompletion(index),
+                        child: Icon(
+                          isCompleted
+                              ? Icons.check_circle
+                              : Icons.check_circle_outline,
+                          color: isCompleted
+                              ? const Color(0xFF4CAF50)
+                              : Colors.white24,
+                          size: 22.sp,
                         ),
-                      ],
-                    ),
-                    SizedBox(height: 8.h),
-                    Column(
-                      children: List.generate(
-                          controller.exerciseControllers[index]?.length ?? 0,
-                          (sIndex) {
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8.h),
+                  Column(
+                    children: List.generate(
+                      controller.exerciseControllers[index]?.length ?? 0,
+                      (sIndex) {
                         final setControllers =
                             controller.exerciseControllers[index]![sIndex];
-                        final setsDetail = (exercise.exerciseSets as List?) ?? const [];
-                        final setModel =
-                            setsDetail.length > sIndex ? setsDetail[sIndex] : null;
-                        final setLabel =
-                            setModel != null ? setModel.sets.toString() : '${sIndex + 1}';
+                        final setsDetail =
+                            (exercise.exerciseSets as List?) ?? const [];
+                        final setModel = setsDetail.length > sIndex
+                            ? setsDetail[sIndex]
+                            : null;
+                        final setLabel = setModel != null
+                            ? setModel.sets.toString()
+                            : '${sIndex + 1}';
                         final repsHint = setModel != null
                             ? setModel.repRange.toString()
                             : (exercise.range ?? '');
@@ -716,9 +774,21 @@ class _ExerciseRow extends StatelessWidget {
 
                         final errorMap = controller.fieldErrors[index]![sIndex];
 
-                        final lastWeight = controller.getLastValue(exercise.name, sIndex, 'weight');
-                        final lastReps = controller.getLastValue(exercise.name, sIndex, 'reps');
-                        final lastRir = controller.getLastValue(exercise.name, sIndex, 'rir');
+                        final lastWeight = controller.getLastValue(
+                          exercise.name,
+                          sIndex,
+                          'weight',
+                        );
+                        final lastReps = controller.getLastValue(
+                          exercise.name,
+                          sIndex,
+                          'reps',
+                        );
+                        final lastRir = controller.getLastValue(
+                          exercise.name,
+                          sIndex,
+                          'rir',
+                        );
 
                         return Padding(
                           padding: EdgeInsets.symmetric(vertical: 4.h),
@@ -737,37 +807,44 @@ class _ExerciseRow extends StatelessWidget {
                               SizedBox(width: 8.w),
                               _inputBox(
                                 setControllers['weight'],
-                                hintText: lastWeight.isNotEmpty ? lastWeight : '',
+                                hintText: lastWeight.isNotEmpty
+                                    ? lastWeight
+                                    : '',
                                 isError: errorMap['weight']!.value,
                               ),
                               SizedBox(width: 8.w),
                               _inputBox(
                                 setControllers['reps'],
-                                hintText: lastReps.isNotEmpty ? lastReps : repsHint,
+                                hintText: lastReps.isNotEmpty
+                                    ? lastReps
+                                    : repsHint,
                                 isError: errorMap['reps']!.value,
                               ),
                               SizedBox(width: 8.w),
                               _inputBox(
                                 setControllers['rir'],
-                                hintText: lastRir.isNotEmpty ? lastRir : rirHint,
+                                hintText: lastRir.isNotEmpty
+                                    ? lastRir
+                                    : rirHint,
                                 isError: errorMap['rir']!.value,
                               ),
                             ],
                           ),
                         );
-                      }),
+                      },
                     ),
-                    SizedBox(height: 12.h),
-                    _ExerciseNotesInput(
-                      controller: noteController,
-                      exerciseName: exercise.name,
-                    ),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 12.h),
+                  _ExerciseNotesInput(
+                    controller: noteController,
+                    exerciseName: exercise.name,
+                  ),
+                ],
               ),
-            ],
-          ),
-        );
+            ),
+          ],
+        ),
+      );
     });
   }
 
