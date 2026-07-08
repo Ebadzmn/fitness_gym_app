@@ -653,7 +653,7 @@ class _DailyGoalSection extends StatelessWidget {
     required String unit,
     required int totalAmount,
     required int stepAmount,
-    required IconData icon,
+    required dynamic icon,
   }) {
     return Container(
       padding: EdgeInsets.all(12.w),
@@ -668,7 +668,9 @@ class _DailyGoalSection extends StatelessWidget {
               Expanded(
                 child: Row(
                   children: [
-                    Icon(icon, color: const Color(0xFF00D180), size: 20.sp),
+                    icon is IconData 
+                        ? Icon(icon, color: const Color(0xFF00D180), size: 20.sp)
+                        : FaIcon(icon, color: const Color(0xFF00D180), size: 20.sp),
                     SizedBox(width: 8.w),
                     Text(
                       '$totalAmount ml',

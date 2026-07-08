@@ -404,7 +404,7 @@ class _ProfileView extends StatelessWidget {
         centerTitle: true,
         backgroundColor: AppColor.primaryColor,
         elevation: 0,
-        leadingWidth: 96.w,
+        leadingWidth: 110.w,
         leading: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [

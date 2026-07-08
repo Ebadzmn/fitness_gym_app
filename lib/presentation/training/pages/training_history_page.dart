@@ -98,9 +98,11 @@ class _HistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Group sets by exercise name
+    // Group sets by exercise name and calculate total weight
     final Map<String, List<PushDataEntity>> exercises = {};
+    num calculatedTotalWeight = 0;
     for (var set in item.pushData) {
+      calculatedTotalWeight += (set.weight * set.sets);
       if (!exercises.containsKey(set.exerciseName)) {
         exercises[set.exerciseName] = [];
       }
@@ -221,7 +223,7 @@ class _HistoryCard extends StatelessWidget {
                 SizedBox(width: 20.w),
                 _statItem(
                   Icons.monitor_weight_outlined,
-                  '${item.totalWeight ?? 0}(kg)',
+                  '${calculatedTotalWeight % 1 == 0 ? calculatedTotalWeight.toInt() : calculatedTotalWeight.toStringAsFixed(1)} (kg)',
                 ),
 
               ],
