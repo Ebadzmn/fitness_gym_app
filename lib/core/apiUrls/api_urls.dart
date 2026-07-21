@@ -1,7 +1,7 @@
 class ApiUrls {
-  // static const String baseUrl =
-  //     'https://activity-seven-notify-cord.trycloudflare.com/api/v1';
-  static const String baseUrl = 'https://api.evolveapp.fit/api/v1';
+  static const String baseUrl =
+      'https://valium-bumper-towards-stands.trycloudflare.com/api/v1';
+  //   static const String baseUrl = 'https://api.evolveapp.fit/api/v1';
   static const String loginUrl = '$baseUrl/auth/athlete/login';
   static const String updateFcmTokenUrl = '$baseUrl/auth/athlete/fcm-token';
   static const String updateProfileUrl = '$baseUrl/auth/athlete/profile';
